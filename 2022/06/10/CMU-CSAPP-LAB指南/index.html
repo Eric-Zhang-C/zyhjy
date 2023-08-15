@@ -6,25 +6,25 @@
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 6.3.0">
 <meta name="referrer" content="no-referrer">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
 
-<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/zyhjy/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="背景 记录在做LAB时遇到的问题。 OS: Mac  archlab0. 背景知识（来源于CSAPP中文版第4章） Architecture:(also ISA: instruction set architecture)  assembly(text representation)&#x2F;machine(byte-level) code   Microarchitecture: implem">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CMU CSAPP LAB指南">
-<meta property="og:url" content="http://example.com/2022/06/10/CMU-CSAPP-LAB%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2022/06/10/CMU-CSAPP-LAB%E6%8C%87%E5%8D%97/index.html">
 <meta property="og:site_name" content="ZYHJY">
 <meta property="og:description" content="背景 记录在做LAB时遇到的问题。 OS: Mac  archlab0. 背景知识（来源于CSAPP中文版第4章） Architecture:(also ISA: instruction set architecture)  assembly(text representation)&#x2F;machine(byte-level) code   Microarchitecture: implem">
 <meta property="og:locale" content="zh_CN">
@@ -33,7 +33,7 @@
 <meta property="article:author" content="Yuhang Zhang">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2022/06/10/CMU-CSAPP-LAB%E6%8C%87%E5%8D%97/">
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2022/06/10/CMU-CSAPP-LAB%E6%8C%87%E5%8D%97/">
 
 
 <script id="page-configurations">
@@ -95,7 +95,7 @@
 
   <div class="site-meta">
 
-    <a href="/" class="brand" rel="start">
+    <a href="/zyhjy/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
       <h1 class="site-title">ZYHJY</h1>
       <span class="logo-line-after"><i></i></span>
@@ -115,27 +115,27 @@
   <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+    <a href="/zyhjy/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-about">
 
-    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+    <a href="/zyhjy/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+    <a href="/zyhjy/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+    <a href="/zyhjy/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+    <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
   </ul>
@@ -166,10 +166,10 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/10/CMU-CSAPP-LAB%E6%8C%87%E5%8D%97/">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/06/10/CMU-CSAPP-LAB%E6%8C%87%E5%8D%97/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
       <meta itemprop="name" content="Yuhang Zhang">
       <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
     </span>
@@ -204,7 +204,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/os/" itemprop="url" rel="index"><span itemprop="name">os</span></a>
+                  <a href="/zyhjy/categories/os/" itemprop="url" rel="index"><span itemprop="name">os</span></a>
                 </span>
             </span>
 
@@ -354,11 +354,11 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/06/10/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E8%AE%B0%E5%BD%95/" rel="prev" title="科学上网记录">
+    <a href="/zyhjy/2022/06/10/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E8%AE%B0%E5%BD%95/" rel="prev" title="科学上网记录">
       <i class="fa fa-chevron-left"></i> 科学上网记录
     </a></div>
       <div class="post-nav-item">
-    <a href="/2022/06/21/cpp%E7%9A%84%E8%8B%A5%E5%B9%B2%E8%AF%AD%E6%B3%95/" rel="next" title="C++若干语法">
+    <a href="/zyhjy/2022/06/21/cpp%E7%9A%84%E8%8B%A5%E5%B9%B2%E8%AF%AD%E6%B3%95/" rel="next" title="C++若干语法">
       C++若干语法 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
@@ -426,27 +426,27 @@
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
-      src="/images/zyhjy.png">
+      src="/zyhjy/images/zyhjy.png">
   <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
   <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
 </div>
 <div class="site-state-wrap motion-element">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
-          <a href="/archives/">
+          <a href="/zyhjy/archives/">
         
           <span class="site-state-item-count">58</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
-            <a href="/categories/">
+            <a href="/zyhjy/categories/">
           
         <span class="site-state-item-count">33</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-            <a href="/tags/">
+            <a href="/zyhjy/tags/">
           
         <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">标签</span></a>
@@ -498,15 +498,15 @@
   </div>
 
   
-  <script src="/lib/anime.min.js"></script>
+  <script src="/zyhjy/lib/anime.min.js"></script>
 
-<script src="/js/utils.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
+<script src="/zyhjy/js/utils.js"></script>
 
 
-<script src="/js/next-boot.js"></script>
+<script src="/zyhjy/js/schemes/pisces.js"></script>
+
+
+<script src="/zyhjy/js/next-boot.js"></script>
 
 
 
