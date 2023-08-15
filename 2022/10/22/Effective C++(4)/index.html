@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="18 让接口容易被正确使用，不易被误用考虑用户可能犯怎样的错误 容易引起错误的做法1234class Date &amp;#123;public:    Date(int month, int day, int year);&amp;#125;; wrapper types enum不具备类型安全性，可被用作ints1234567891011121314151617181920212223242526272829">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Effective C++(4)--设计与声明">
+<meta property="og:url" content="http://example.com/2022/10/22/Effective%20C++(4)/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="18 让接口容易被正确使用，不易被误用考虑用户可能犯怎样的错误 容易引起错误的做法1234class Date &amp;#123;public:    Date(int month, int day, int year);&amp;#125;; wrapper types enum不具备类型安全性，可被用作ints1234567891011121314151617181920212223242526272829">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-10-22T08:28:50.000Z">
+<meta property="article:modified_time" content="2023-07-30T10:15:32.009Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2022/10/22/Effective%20C++(4)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Effective C++(4)--设计与声明 | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/10/22/Effective%20C++(4)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Effective C++(4)--设计与声明
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-10-22 16:28:50" itemprop="dateCreated datePublished" datetime="2022-10-22T16:28:50+08:00">2022-10-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="18-让接口容易被正确使用，不易被误用"><a href="#18-让接口容易被正确使用，不易被误用" class="headerlink" title="18 让接口容易被正确使用，不易被误用"></a>18 让接口容易被正确使用，不易被误用</h2><h3 id="考虑用户可能犯怎样的错误"><a href="#考虑用户可能犯怎样的错误" class="headerlink" title="考虑用户可能犯怎样的错误"></a>考虑用户可能犯怎样的错误</h3><ul>
+<li>容易引起错误的做法<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Date</span>(<span class="type">int</span> month, <span class="type">int</span> day, <span class="type">int</span> year);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>wrapper types<ul>
+<li>enum不具备类型安全性，可被用作ints<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Day</span> &#123;</span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Day</span><span class="params">(<span class="type">int</span> d)</span></span></span><br><span class="line"><span class="function">    : val(d) &#123;</span>&#125;    </span><br><span class="line"><span class="type">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Date</span>(<span class="type">const</span> Month&amp; m, <span class="type">const</span> Day&amp; d, <span class="type">int</span> year);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">Date</span>(<span class="number">30</span>, <span class="number">3</span>, <span class="number">1995</span>); <span class="comment">/// wrong! 不正确的类型</span></span><br><span class="line"><span class="built_in">Date</span>(<span class="built_in">Day</span>(<span class="number">30</span>), <span class="built_in">Month</span>(<span class="number">3</span>), <span class="built_in">Year</span>(<span class="number">1995</span>)); <span class="comment">/// wrong! 不正确的类型</span></span><br><span class="line"><span class="built_in">Date</span>(<span class="built_in">Month</span>(<span class="number">3</span>), <span class="built_in">Day</span>(<span class="number">30</span>), <span class="built_in">Year</span>(<span class="number">1995</span>)); <span class="comment">/// OK! 类型正确</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Month</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">static</span> Month <span class="title">Jan</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="built_in">Month</span>(<span class="number">1</span>); &#125; <span class="comment">/// 每次调用都会触发一次构造函数</span></span><br><span class="line">    <span class="function"><span class="type">static</span> Month <span class="title">Feb</span><span class="params">()</span> </span>&#123; </span><br><span class="line">        <span class="type">static</span> <span class="keyword">auto</span> feb = <span class="built_in">Month</span>(<span class="number">2</span>);</span><br><span class="line">        <span class="keyword">return</span> feb; </span><br><span class="line">    &#125; <span class="comment">/// only call once</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">static</span> Month <span class="title">Dec</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="built_in">Month</span>(<span class="number">12</span>); &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Month</span><span class="params">(<span class="type">int</span> m)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">Date</span>(Month::<span class="built_in">Mar</span>(), <span class="built_in">Day</span>(<span class="number">30</span>), <span class="built_in">Year</span>(<span class="number">1995</span>));</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h3 id="限制类型内什么事可做，什么事不可做"><a href="#限制类型内什么事可做，什么事不可做" class="headerlink" title="限制类型内什么事可做，什么事不可做"></a>限制类型内什么事可做，什么事不可做</h3><pre><code>- 常见的限制是加上const
+</code></pre>
+<h3 id="除非有好理由，尽量使types的行为与内置类型一致"><a href="#除非有好理由，尽量使types的行为与内置类型一致" class="headerlink" title="除非有好理由，尽量使types的行为与内置类型一致"></a>除非有好理由，尽量使types的行为与内置类型一致</h3><pre><code>- 如ints，对a*b赋值不合法
+- STL基本一致
+</code></pre>
+<h3 id="消除客户的管理资源责任"><a href="#消除客户的管理资源责任" class="headerlink" title="消除客户的管理资源责任"></a>消除客户的管理资源责任</h3><ul>
+<li>例，工厂函数：返回智能指针<ul>
+<li><code>std::shared_ptr&lt;TimeKeeper&gt; getTimeKeeper();</code></li>
+</ul>
+</li>
+<li><code>std::shared_ptr</code>允许指针被建立起来时指定一个资源释放函数（删除器，deleter）<ul>
+<li>auto_ptr不支持  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::shared_ptr&lt;TimeKeeper&gt; <span class="title">pTime</span><span class="params">(<span class="keyword">static_cast</span>&lt;TimeKeeper*&gt;(<span class="number">0</span>), getRidOfClock)</span></span>;</span><br><span class="line"><span class="comment">/// getRidOfClock是函数，删除器</span></span><br></pre></td></tr></table></figure></li>
+<li>避免了DLL问题</li>
+<li><code>std::shared_ptr</code><ul>
+<li>是raw pointer两倍大（计数，删除器）</li>
+<li>以virtual形式调用删除器</li>
+<li>修改引用计数时线程同步化带来开销</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="19-设计class犹如设计type"><a href="#19-设计class犹如设计type" class="headerlink" title="19 设计class犹如设计type"></a>19 设计class犹如设计type</h2><ul>
+<li>对象应该如何被创建和销毁<ul>
+<li>构造函数</li>
+<li>析构函数</li>
+<li>内存分配和释放函数<ul>
+<li>operator new</li>
+<li>operator new[]</li>
+<li>operator delete</li>
+<li>operator delete[]</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>对象的初始化和赋值该有什么的差别<ul>
+<li>拷贝构造函数 和 拷贝赋值函数</li>
+</ul>
+</li>
+<li>什么是新type的合法值</li>
+<li>新type需要配合inheritance graph吗</li>
+<li>新type需要什么样的转换<ul>
+<li>如果允许T1对象被隐式转换为T2，<ul>
+<li>则需要在class T1内实现operator T2</li>
+<li>或在class T2内实现一个non-explicit-one-argument的构造函数</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>什么样的操作符和函数对新type是合理的</li>
+<li>什么样的标准函数应该驳回</li>
+<li>谁该去用新type<ul>
+<li>哪些成员为 pubulic protected private</li>
+<li>哪些class function为friends</li>
+</ul>
+</li>
+<li>什么是新type的未声明接口</li>
+<li>新type有多么一般化<ul>
+<li>如果定义一整个types家族，考虑template</li>
+</ul>
+</li>
+<li>真的需要一个新type吗<ul>
+<li>如果定义新的derived class只是为已有的class添加机能，考虑non-member函数或templates</li>
+</ul>
+</li>
+</ul>
+<h2 id="20-Prefer-pass-by-reference-to-const-to-pass-by-value"><a href="#20-Prefer-pass-by-reference-to-const-to-pass-by-value" class="headerlink" title="20 Prefer pass-by-reference-to-const to pass-by-value"></a>20 Prefer pass-by-reference-to-const to pass-by-value</h2><ul>
+<li>前者效率高，且避免切割问题</li>
+<li>以上规则并不适用于内置类型，STL的迭代器和函数对象。<ul>
+<li>pass-by-value往往更合适</li>
+</ul>
+</li>
+<li>对象小并不意味着copy构造函数不昂贵<ul>
+<li>许多对象如大多数STL容器，内含的东西只比指针多一些，但复制这种对象却包括复制那些指针指向的每一样东西</li>
+</ul>
+</li>
+</ul>
+<h2 id="21-必须返回对象时，别妄想返回其reference"><a href="#21-必须返回对象时，别妄想返回其reference" class="headerlink" title="21 必须返回对象时，别妄想返回其reference"></a>21 必须返回对象时，别妄想返回其reference</h2><ul>
+<li>构造函数是必须承担的成本</li>
+</ul>
+<h2 id="22-将成员变量声明为private"><a href="#22-将成员变量声明为private" class="headerlink" title="22 将成员变量声明为private"></a>22 将成员变量声明为private</h2><ul>
+<li>为class提供充分实现弹性</li>
+<li><code>protected</code>成员变量的封装性并没有高过<code>public</code>成员变量<ul>
+<li><code>protected</code>成员变量的改变将会影响所有的<code>derived class</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="23-Prefer-non-member-non-friend-fuctions-to-member-functions"><a href="#23-Prefer-non-member-non-friend-fuctions-to-member-functions" class="headerlink" title="23 Prefer non-member non-friend fuctions to member functions"></a>23 Prefer non-member non-friend fuctions to member functions</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123;</span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearCache</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearHistory</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">removeCookies</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>许多用户想一次执行所有这些动作，那么哪种实现好呢？<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// member函数</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123;</span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearEverything</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// non-member函数，更好的实现</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">clearBrowser</span><span class="params">(WebBrowser&amp; wb)</span> </span>&#123;</span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">    wb.<span class="built_in">clearCache</span>();</span><br><span class="line">    wb.<span class="built_in">clearHistory</span>();</span><br><span class="line">    wb.<span class="built_in">removeCookies</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><code>non-member</code>函数<ul>
+<li>可允许对WebBrowser相关机能有较大的包裹弹性，最终导致较低的编译相依度，增加WebBrowser的可延展性<ul>
+<li>通过namespace分割不同类别的功能，并可以向namespace中添加新的non-member函数扩充</li>
+</ul>
+</li>
+<li>原因，该函数并不需要看到WebBrowser内部的成员变量</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// non-member函数，一般的做法，将两者放在同一个namespace</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123; ... &#125;;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearBrowser</span><span class="params">(WebBrowser&amp; wb)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>namespace可跨越多个源码文件而classes不同，例如：<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webbrowser.h -- 这个头文件针对class WebBrowser自身及其核心机能</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123; ... &#125;;</span><br><span class="line">    ... <span class="comment">// 核心机能，例如所有客户都需要的non-member函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webbrowserbookmarks.h</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    ... <span class="comment">// 与书签相关的便利函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webbrowsercookies.h</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    ... <span class="comment">// 与cookie相关的便利函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>这正是C++标准程序库的组织方式<ul>
+<li>std命名空间分散在许多头文件<ul>
+<li><vector>, <algorithm>, <memory> …</li>
+</ul>
+</li>
+<li>允许客户只对他们所用的一小部分系统形成编译相依<ul>
+<li>此方式并不适用于class成员函数，一个class必须整体定义，不能被分割为片段</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="24-若所有参数皆需类型转换，请为此采用non-member函数"><a href="#24-若所有参数皆需类型转换，请为此采用non-member函数" class="headerlink" title="24 若所有参数皆需类型转换，请为此采用non-member函数"></a>24 若所有参数皆需类型转换，请为此采用non-member函数</h2><ul>
+<li>令class支持隐式转换通常是糟糕的主意<ul>
+<li>有例外，如建立在数值类型</li>
+</ul>
+</li>
+</ul>
+<h3 id="设计一个class表示有理数"><a href="#设计一个class表示有理数" class="headerlink" title="设计一个class表示有理数"></a>设计一个class表示有理数</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rational</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Rational</span>(<span class="type">int</span> numerator = <span class="number">0</span>,       <span class="comment">/// 构造函数刻意不为explicit</span></span><br><span class="line">             <span class="type">int</span> denominator = <span class="number">1</span>);    <span class="comment">/// 允许int-to-Rational隐式转换</span></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">numerator</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">denominator</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="Rational支持算术运算诸如加法、乘法"><a href="#Rational支持算术运算诸如加法、乘法" class="headerlink" title="Rational支持算术运算诸如加法、乘法"></a>Rational支持算术运算诸如加法、乘法</h4><ul>
+<li>member or non-member func？</li>
+</ul>
+<h5 id="member函数"><a href="#member函数" class="headerlink" title="member函数"></a>member函数</h5><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rational</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="type">const</span> Rational <span class="keyword">operator</span>* (<span class="type">const</span> Rational&amp; rhs) <span class="type">const</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>可以支持两个有理数相乘</li>
+<li>但是混合算术只有一半行得通,不满足交换律<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Rational <span class="title">oneHalf</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">result = oneHalf * <span class="number">2</span>;   <span class="comment">// good</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;   <span class="comment">// wrong</span></span><br></pre></td></tr></table></figure></li>
+<li>oneHalf是一个内含operator*的class的对象，所以编译器调用该函数</li>
+<li>然而整数2没有相应的class，也就是没有operator<em>成语函数；编译器会尝试寻找形如以下这般调用的non-member operator</em>(在命名空间或global作用域内):<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result = operator*(2, oneHalf);   // wrong,本例并不存在这样的函数，查找失败</span><br></pre></td></tr></table></figure></li>
+<li>第一种发生了隐式转换<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// result = oneHalf * 2;   // good, non-expicit构造函数</span></span><br><span class="line"><span class="comment">// 相当于</span></span><br><span class="line"><span class="function"><span class="type">const</span> Rational <span class="title">temp</span><span class="params">(<span class="number">2</span>)</span></span>;</span><br><span class="line">result = oneHalf * temp;</span><br></pre></td></tr></table></figure></li>
+<li>第二种无法触发non-expicit构造函数</li>
+</ul>
+<h5 id="non-member函数"><a href="#non-member函数" class="headerlink" title="non-member函数"></a>non-member函数</h5><ul>
+<li>允许编译器在每一个实惨上执行隐式类型转换<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> Rational <span class="keyword">operator</span>* (<span class="type">const</span> Rational&amp; lhs, <span class="type">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Rational</span>(lhs.<span class="built_in">numerator</span>() * rhs.<span class="built_in">numerator</span>(), </span><br><span class="line">                    lhs.<span class="built_in">denominator</span>() * rhs.<span class="built_in">denominator</span>());</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">Rational <span class="title">oneHalf</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">result = oneHalf * <span class="number">2</span>;   <span class="comment">// ok</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;   <span class="comment">// ok</span></span><br></pre></td></tr></table></figure></li>
+<li>此处不需要成为friend函数</li>
+</ul>
+<h5 id="–-template-class"><a href="#–-template-class" class="headerlink" title="–&gt;&gt; template class"></a>–&gt;&gt; template class</h5><ul>
+<li>见条款46</li>
+</ul>
+<h3 id="如果需要为某个函数的所有参数-包括this指针所指的隐喻参数-进行类型转换，则该函数必须为non-member"><a href="#如果需要为某个函数的所有参数-包括this指针所指的隐喻参数-进行类型转换，则该函数必须为non-member" class="headerlink" title="如果需要为某个函数的所有参数(包括this指针所指的隐喻参数)进行类型转换，则该函数必须为non-member"></a>如果需要为某个函数的所有参数(包括this指针所指的隐喻参数)进行类型转换，则该函数必须为non-member</h3><h1 id="25-考虑写出一个不抛异常的swap函数"><a href="#25-考虑写出一个不抛异常的swap函数" class="headerlink" title="25 考虑写出一个不抛异常的swap函数"></a>25 考虑写出一个不抛异常的swap函数</h1><ul>
+<li>swap<ul>
+<li>STL的一部分</li>
+<li>异常安全性编程的脊柱(见条款29)</li>
+<li>处理自我赋值可能性的常见机制</li>
+</ul>
+</li>
+</ul>
+<h2 id="缺省情况下标准库的swap"><a href="#缺省情况下标准库的swap" class="headerlink" title="缺省情况下标准库的swap"></a>缺省情况下标准库的swap</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function">    <span class="type">void</span> <span class="title">swap</span><span class="params">(T&amp; a, T&amp; b)</span> </span>&#123;</span><br><span class="line">        <span class="function">T <span class="title">temp</span><span class="params">(a)</span></span>;</span><br><span class="line">        a = b;</span><br><span class="line">        b = a;</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>只要T支持拷贝构造函数和拷贝赋值函数</li>
+</ul>
+<h2 id="pimpl手法"><a href="#pimpl手法" class="headerlink" title="pimpl手法"></a>pimpl手法</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">WidgetImpl</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> a, b, c;</span><br><span class="line">    std::vector&lt;<span class="type">double</span>&gt; v;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Widget</span>(<span class="type">const</span> Widget&amp; rhs);</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="type">const</span> Widget&amp; rhs) &#123; <span class="comment">/// 复制Widget时，复制其WidgetImpl对象</span></span><br><span class="line">        ...</span><br><span class="line">        *pImpl = *(rhs.pImpl);</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    WidgetImpl* pImpl;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>要置换Widget时，我们只需要置换起pImpl指针,但缺省算法调用还复制了三个WidgetImpl对象</li>
+</ul>
+<h3 id="我们希望告诉std-swap当Widgets被置换时应该做的是置换其内部的pImpl指针"><a href="#我们希望告诉std-swap当Widgets被置换时应该做的是置换其内部的pImpl指针" class="headerlink" title="我们希望告诉std::swap当Widgets被置换时应该做的是置换其内部的pImpl指针"></a>我们希望告诉std::swap当Widgets被置换时应该做的是置换其内部的pImpl指针</h3><ul>
+<li>将std::swap针对Widget特化<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="keyword">template</span>&lt;&gt; <span class="comment">/// 表示它是std::swap的一个全特化</span></span><br><span class="line">    <span class="type">void</span> <span class="built_in">swap</span>&lt;Widget&gt;(Widget&amp; a, Widget&amp; b) &#123; <span class="comment">/// &#x27;&lt;Widget&gt;&#x27;表明“针对T是Widget”而设计</span></span><br><span class="line">        <span class="built_in">swap</span>(a.pImpl, b.pImpl);     <span class="comment">/// 无法通过编译, pImpl is private data</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>当一般性的swap template施行于Widgets上时便会启用这个版本</li>
+<li>通常我们不被允许改变std命名空间内的任何东西，但可以为标准template制造特化版本<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">const</span> Widget&amp; other)</span> </span>&#123; <span class="comment">/// 复制Widget时，复制其WidgetImpl对象</span></span><br><span class="line">        <span class="keyword">using</span> std::swap;</span><br><span class="line">        <span class="built_in">swap</span>(pImpl, other.pImpl);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="keyword">template</span>&lt;&gt; <span class="comment">/// 表示它是std::swap的一个全特化</span></span><br><span class="line">    <span class="type">void</span> <span class="built_in">swap</span>&lt;Widget&gt;(Widget&amp; a, Widget&amp; b) &#123; <span class="comment">/// &#x27;&lt;Widget&gt;&#x27;表明“针对T是Widget”而设计</span></span><br><span class="line">        a.<span class="built_in">swap</span>(b);     <span class="comment">/// OK!</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>该做法与STL容器具有一致性（public swap + std::swap特化版本）</li>
+</ul>
+<h2 id="Widget与WidgetImpl都是template"><a href="#Widget与WidgetImpl都是template" class="headerlink" title="Widget与WidgetImpl都是template"></a>Widget与WidgetImpl都是template</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WidgetImpl</span> &#123;...&#125;;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;...&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="偏特化"><a href="#偏特化" class="headerlink" title="偏特化"></a>偏特化</h3><ul>
+<li>放个swap成员函数与之前相同，但是像上述方法一样特化std::swap会遇上乱流<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">const</span> Widget&amp; other)</span> </span>&#123; </span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span><br><span class="line">    <span class="type">void</span> swap&lt;Widget&lt;T&gt;&gt;(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b) &#123; <span class="comment">/// 错误，不合法</span></span><br><span class="line">        a.<span class="built_in">swap</span>(b); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>C++只允许对<code>class template</code>偏特化，不允许对<code>function template</code>(<code>std::swap</code>)偏特化<ul>
+<li>全特化是所有的模板参数都被进行特化，偏特化也就是局部的参数特化</li>
+<li>此处只对Widget特化，没有特化T，所以为偏特化</li>
+</ul>
+</li>
+</ul>
+<h3 id="重载-1"><a href="#重载-1" class="headerlink" title="重载(1)"></a>重载(1)</h3><ul>
+<li>当打算偏特化一个function template时，惯常做法是<code>添加一个重载版本</code>  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="comment">/// std::swap的重载版本</span></span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span></span><br><span class="line"><span class="function">    <span class="type">void</span> <span class="title">swap</span><span class="params">(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b)</span> </span>&#123; <span class="comment">/// 错误，不合法</span></span><br><span class="line">        a.<span class="built_in">swap</span>(b); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>一般而言行得通，但是std是个特殊的命名空间<ul>
+<li>客户可以全特化std内的template</li>
+<li>但不可添加新的template、class、function等任何东西</li>
+</ul>
+</li>
+</ul>
+</li>
+<li></li>
+</ul>
+<h3 id="重载-2"><a href="#重载-2" class="headerlink" title="重载(2)"></a>重载(2)</h3><ul>
+<li>将<code>重载版本</code>放在新的命名空间  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> WidgetStuff &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Widget</span> &#123;...&#125;;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span></span><br><span class="line"><span class="function">    <span class="type">void</span> <span class="title">swap</span><span class="params">(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b)</span> </span>&#123;</span><br><span class="line">        a.<span class="built_in">swap</span>(b); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>现在，如果想置换两个Widget对象因而调用swap，C++的名称查找法则(<code>name lookup rules</code>;<code>argument-dependent lookup</code>或<code>Koenig lookup</code>)会找到WidgetStuff空间内的swap</li>
+</ul>
+<h2 id="应该调用哪个swap"><a href="#应该调用哪个swap" class="headerlink" title="应该调用哪个swap?"></a>应该调用哪个swap?</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">doSomething</span><span class="params">(T&amp; obj1, T&amp; obj2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">using</span> std::swap;    <span class="comment">// 令std::swap在此函数内可用</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="built_in">swap</span>(obj1, obj2);   <span class="comment">// 为T型对象调用最佳swap版本</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>调用优先级(以T是Widget为例):<ol>
+<li><code>WidgetStuff::swap</code></li>
+<li><code>template&lt;&gt; void swap&lt;Widget&gt;</code></li>
+<li><code>std::swap</code></li>
+</ol>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="如果swap的缺省实现代码提供足够的效率，不需要额外做任何事"><a href="#如果swap的缺省实现代码提供足够的效率，不需要额外做任何事" class="headerlink" title="如果swap的缺省实现代码提供足够的效率，不需要额外做任何事"></a>如果swap的缺省实现代码提供足够的效率，不需要额外做任何事</h3><h3 id="如果swap的缺省实现代码效率不足，试着做以下事情"><a href="#如果swap的缺省实现代码效率不足，试着做以下事情" class="headerlink" title="如果swap的缺省实现代码效率不足，试着做以下事情:"></a>如果swap的缺省实现代码效率不足，试着做以下事情:</h3><ol>
+<li>提供一个public swap成员函数，高效置换<ul>
+<li>成员版的swap不可抛出异常<ul>
+<li>这是帮助class和class template提供强烈的异常安全保障</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>在class或template所在命名空间内提供一个non-member swap，并调用上述成员函数</li>
+<li>如果正在编写class而非class template，为class特化std::swap,并调用成员函数</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/09/22/gem5/" rel="prev" title="Gem5">
+      <i class="fa fa-chevron-left"></i> Gem5
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/26/Docker%E4%BD%BF%E7%94%A8tips/" rel="next" title="Docker使用Tips">
+      Docker使用Tips <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#18-%E8%AE%A9%E6%8E%A5%E5%8F%A3%E5%AE%B9%E6%98%93%E8%A2%AB%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%93%E8%A2%AB%E8%AF%AF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">18 让接口容易被正确使用，不易被误用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%80%83%E8%99%91%E7%94%A8%E6%88%B7%E5%8F%AF%E8%83%BD%E7%8A%AF%E6%80%8E%E6%A0%B7%E7%9A%84%E9%94%99%E8%AF%AF"><span class="nav-number">1.1.</span> <span class="nav-text">考虑用户可能犯怎样的错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%90%E5%88%B6%E7%B1%BB%E5%9E%8B%E5%86%85%E4%BB%80%E4%B9%88%E4%BA%8B%E5%8F%AF%E5%81%9A%EF%BC%8C%E4%BB%80%E4%B9%88%E4%BA%8B%E4%B8%8D%E5%8F%AF%E5%81%9A"><span class="nav-number">1.2.</span> <span class="nav-text">限制类型内什么事可做，什么事不可做</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%A4%E9%9D%9E%E6%9C%89%E5%A5%BD%E7%90%86%E7%94%B1%EF%BC%8C%E5%B0%BD%E9%87%8F%E4%BD%BFtypes%E7%9A%84%E8%A1%8C%E4%B8%BA%E4%B8%8E%E5%86%85%E7%BD%AE%E7%B1%BB%E5%9E%8B%E4%B8%80%E8%87%B4"><span class="nav-number">1.3.</span> <span class="nav-text">除非有好理由，尽量使types的行为与内置类型一致</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E9%99%A4%E5%AE%A2%E6%88%B7%E7%9A%84%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90%E8%B4%A3%E4%BB%BB"><span class="nav-number">1.4.</span> <span class="nav-text">消除客户的管理资源责任</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#19-%E8%AE%BE%E8%AE%A1class%E7%8A%B9%E5%A6%82%E8%AE%BE%E8%AE%A1type"><span class="nav-number">2.</span> <span class="nav-text">19 设计class犹如设计type</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#20-Prefer-pass-by-reference-to-const-to-pass-by-value"><span class="nav-number">3.</span> <span class="nav-text">20 Prefer pass-by-reference-to-const to pass-by-value</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#21-%E5%BF%85%E9%A1%BB%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1%E6%97%B6%EF%BC%8C%E5%88%AB%E5%A6%84%E6%83%B3%E8%BF%94%E5%9B%9E%E5%85%B6reference"><span class="nav-number">4.</span> <span class="nav-text">21 必须返回对象时，别妄想返回其reference</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-%E5%B0%86%E6%88%90%E5%91%98%E5%8F%98%E9%87%8F%E5%A3%B0%E6%98%8E%E4%B8%BAprivate"><span class="nav-number">5.</span> <span class="nav-text">22 将成员变量声明为private</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#23-Prefer-non-member-non-friend-fuctions-to-member-functions"><span class="nav-number">6.</span> <span class="nav-text">23 Prefer non-member non-friend fuctions to member functions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#24-%E8%8B%A5%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%86%E9%9C%80%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E8%AF%B7%E4%B8%BA%E6%AD%A4%E9%87%87%E7%94%A8non-member%E5%87%BD%E6%95%B0"><span class="nav-number">7.</span> <span class="nav-text">24 若所有参数皆需类型转换，请为此采用non-member函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AAclass%E8%A1%A8%E7%A4%BA%E6%9C%89%E7%90%86%E6%95%B0"><span class="nav-number">7.1.</span> <span class="nav-text">设计一个class表示有理数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Rational%E6%94%AF%E6%8C%81%E7%AE%97%E6%9C%AF%E8%BF%90%E7%AE%97%E8%AF%B8%E5%A6%82%E5%8A%A0%E6%B3%95%E3%80%81%E4%B9%98%E6%B3%95"><span class="nav-number">7.1.1.</span> <span class="nav-text">Rational支持算术运算诸如加法、乘法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#member%E5%87%BD%E6%95%B0"><span class="nav-number">7.1.1.1.</span> <span class="nav-text">member函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#non-member%E5%87%BD%E6%95%B0"><span class="nav-number">7.1.1.2.</span> <span class="nav-text">non-member函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%80%93-template-class"><span class="nav-number">7.1.1.3.</span> <span class="nav-text">–&gt;&gt; template class</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E6%9E%9C%E9%9C%80%E8%A6%81%E4%B8%BA%E6%9F%90%E4%B8%AA%E5%87%BD%E6%95%B0%E7%9A%84%E6%89%80%E6%9C%89%E5%8F%82%E6%95%B0-%E5%8C%85%E6%8B%ACthis%E6%8C%87%E9%92%88%E6%89%80%E6%8C%87%E7%9A%84%E9%9A%90%E5%96%BB%E5%8F%82%E6%95%B0-%E8%BF%9B%E8%A1%8C%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%EF%BC%8C%E5%88%99%E8%AF%A5%E5%87%BD%E6%95%B0%E5%BF%85%E9%A1%BB%E4%B8%BAnon-member"><span class="nav-number">7.2.</span> <span class="nav-text">如果需要为某个函数的所有参数(包括this指针所指的隐喻参数)进行类型转换，则该函数必须为non-member</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#25-%E8%80%83%E8%99%91%E5%86%99%E5%87%BA%E4%B8%80%E4%B8%AA%E4%B8%8D%E6%8A%9B%E5%BC%82%E5%B8%B8%E7%9A%84swap%E5%87%BD%E6%95%B0"><span class="nav-number"></span> <span class="nav-text">25 考虑写出一个不抛异常的swap函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%BA%E7%9C%81%E6%83%85%E5%86%B5%E4%B8%8B%E6%A0%87%E5%87%86%E5%BA%93%E7%9A%84swap"><span class="nav-number">1.</span> <span class="nav-text">缺省情况下标准库的swap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pimpl%E6%89%8B%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">pimpl手法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%91%E4%BB%AC%E5%B8%8C%E6%9C%9B%E5%91%8A%E8%AF%89std-swap%E5%BD%93Widgets%E8%A2%AB%E7%BD%AE%E6%8D%A2%E6%97%B6%E5%BA%94%E8%AF%A5%E5%81%9A%E7%9A%84%E6%98%AF%E7%BD%AE%E6%8D%A2%E5%85%B6%E5%86%85%E9%83%A8%E7%9A%84pImpl%E6%8C%87%E9%92%88"><span class="nav-number">2.1.</span> <span class="nav-text">我们希望告诉std::swap当Widgets被置换时应该做的是置换其内部的pImpl指针</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Widget%E4%B8%8EWidgetImpl%E9%83%BD%E6%98%AFtemplate"><span class="nav-number">3.</span> <span class="nav-text">Widget与WidgetImpl都是template</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%81%8F%E7%89%B9%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">偏特化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E8%BD%BD-1"><span class="nav-number">3.2.</span> <span class="nav-text">重载(1)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E8%BD%BD-2"><span class="nav-number">3.3.</span> <span class="nav-text">重载(2)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E8%AF%A5%E8%B0%83%E7%94%A8%E5%93%AA%E4%B8%AAswap"><span class="nav-number">4.</span> <span class="nav-text">应该调用哪个swap?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E6%9E%9Cswap%E7%9A%84%E7%BC%BA%E7%9C%81%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81%E6%8F%90%E4%BE%9B%E8%B6%B3%E5%A4%9F%E7%9A%84%E6%95%88%E7%8E%87%EF%BC%8C%E4%B8%8D%E9%9C%80%E8%A6%81%E9%A2%9D%E5%A4%96%E5%81%9A%E4%BB%BB%E4%BD%95%E4%BA%8B"><span class="nav-number">5.1.</span> <span class="nav-text">如果swap的缺省实现代码提供足够的效率，不需要额外做任何事</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E6%9E%9Cswap%E7%9A%84%E7%BC%BA%E7%9C%81%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81%E6%95%88%E7%8E%87%E4%B8%8D%E8%B6%B3%EF%BC%8C%E8%AF%95%E7%9D%80%E5%81%9A%E4%BB%A5%E4%B8%8B%E4%BA%8B%E6%83%85"><span class="nav-number">5.2.</span> <span class="nav-text">如果swap的缺省实现代码效率不足，试着做以下事情:</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

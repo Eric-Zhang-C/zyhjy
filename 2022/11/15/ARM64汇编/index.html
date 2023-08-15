@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="寄存器 在arm64架构下，所有的寄存器都是64位，并且每个寄存器都有名字的，按照功能来划分，可分为一下几类，分别为： 通用寄存器 程序计数器 堆栈指针 链接寄存器 程序状态寄存器 零寄存器   下面分别说明这些寄存器的作用  通用寄存器 64bit : x0 ~ x28 ，每个寄存器都是64bit 32bit：w0 ~ w28，实际上是x0~x28寄存器的低32bit x0~x7：通过用来存储函">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARM64汇编">
+<meta property="og:url" content="http://example.com/2022/11/15/ARM64%E6%B1%87%E7%BC%96/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="寄存器 在arm64架构下，所有的寄存器都是64位，并且每个寄存器都有名字的，按照功能来划分，可分为一下几类，分别为： 通用寄存器 程序计数器 堆栈指针 链接寄存器 程序状态寄存器 零寄存器   下面分别说明这些寄存器的作用  通用寄存器 64bit : x0 ~ x28 ，每个寄存器都是64bit 32bit：w0 ~ w28，实际上是x0~x28寄存器的低32bit x0~x7：通过用来存储函">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-11-15T14:28:50.000Z">
+<meta property="article:modified_time" content="2023-07-30T10:15:18.570Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ARM64汇编 | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ARM64汇编
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-11-15 22:28:50" itemprop="dateCreated datePublished" datetime="2022-11-15T22:28:50+08:00">2022-11-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h1><ul>
+<li>在arm64架构下，所有的寄存器都是64位，并且每个寄存器都有名字的，按照功能来划分，可分为一下几类，分别为：<ol>
+<li>通用寄存器</li>
+<li>程序计数器</li>
+<li>堆栈指针</li>
+<li>链接寄存器</li>
+<li>程序状态寄存器</li>
+<li>零寄存器</li>
+</ol>
+</li>
+<li>下面分别说明这些寄存器的作用</li>
+</ul>
+<h2 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h2><ul>
+<li>64bit : x0 ~ x28 ，每个寄存器都是64bit</li>
+<li>32bit：w0 ~ w28，实际上是x0~x28寄存器的低32bit</li>
+<li>x0~x7：通过用来存储函数的参数，如果函数有更多的参数使用堆栈来传递</li>
+<li>x0：通常用来存放函数的返回值</li>
+</ul>
+<h2 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h2><ul>
+<li>程序计数器叫<code>Program Counter</code>，俗称<code>PC</code>，也就是<code>x32</code>寄存器，存储着CPU当前正在执行的地址。</li>
+</ul>
+<h2 id="堆栈指针"><a href="#堆栈指针" class="headerlink" title="堆栈指针"></a>堆栈指针</h2><ul>
+<li><code>SP</code> (<code>Stack Pointer</code>)，就是<code>x31</code>寄存器，存储的是栈顶的地址</li>
+<li><code>FP</code> (<code>Frame Pointer</code>)，<code>FP</code>也就是<code>x29</code>寄存器，存储着栈底的地址</li>
+<li>随着函数的调用，<code>SP</code>、<code>FP</code>会不断的变化。</li>
+</ul>
+<h2 id="链接寄存器"><a href="#链接寄存器" class="headerlink" title="链接寄存器"></a>链接寄存器</h2><p><code>LR</code>（<code>Link Register</code>），也就是<code>x30</code>寄存器，存储着函数的返回地址。</p>
+<ul>
+<li>当函数结束时，就是通过LR寄存器的值，跳转到调用函数的位置继续往下执行。</li>
+</ul>
+<h2 id="程序状态寄存器"><a href="#程序状态寄存器" class="headerlink" title="程序状态寄存器"></a>程序状态寄存器</h2><ul>
+<li><code>CPSR</code> (<code>Current Program Status Register</code>)</li>
+<li><code>SPSR</code> (<code>Saved Program Status Register</code>)，在异常状态下使用，当发生异常时，会把<code>CPSR</code>的内容写入<code>SPSR</code>, 等异常恢复之后，又会把<code>SPSR</code>写会到<code>CPSR</code>中。</li>
+</ul>
+<p>零寄存器<br>WZR<br>XZR<br>里面存储的值都是0。</p>
+<p>常用指令<br>算术运算指令<br>mov 赋值指令</p>
+<p>mov x0, #2  &#x2F;&#x2F; 把2这个值赋值给x0寄存器<br>mov x0, x1  &#x2F;&#x2F; 把x1寄存器中的值赋值给x0寄存器中<br>add<br>两个操作数相加，相加的结果存放到一个寄存器中</p>
+<p>add, x2, x0, x1 &#x2F;&#x2F;把x0的值与x1的值相加，得到的结果存放到x2寄存器中<br>add, x2, x0, #3 &#x2F;&#x2F; 把x0的值与3相加，得到的结果存放到x2寄存器中<br>sub<br>第一个操作数减第一个操作数，得到的结果存放到一个寄存器中</p>
+<p>sub, x2, x1, x0 &#x2F;&#x2F; x1的值减去x0的值，得到的结果存放到<em>x2</em>寄存器中<br>sub, x2, x1, #4 &#x2F;&#x2F; x1的值减去4，得到的结果存放到x2寄存器中<br>mul 乘法指令</p>
+<p>mul x3, x1, x2  &#x2F;&#x2F; x1 乘以 x2 的结果存放在 x3 中<br>sdiv 除法指令</p>
+<p>sdiv    w0, w0, w1 &#x2F;&#x2F; w0 除以 w1 的结果存放在 w0 中<br>逻辑运算指令<br>这里的运算是指位运算</p>
+<p>LSL 逻辑左移<br>按操作数所指定的数量向左移位，低位用零来填充<br>ASL 算术左移<br>通逻辑左移，ASL 与 LSL等价<br>lsl x0, x0, #1<br>asl x1, x1, x0<br>LSR 逻辑右移<br>按操作数所指定的数量向右移位，左端用零来填充。</p>
+<p>ASR 算术右移<br>按操作数所指定的数量向右移位，左端用最高位位的值来填充 ，如果是负数，最高位为1</p>
+<p>lsr w1, w2, #1<br>asr x1, x2, #2<br>ROR 循环右移<br>按操作数所指定的数量向右循环移位， 左端用右端移出的位来填充。其中，操作数可以是通用寄存器，也可以是立即数。 当进行寄存器bit位数的循环右移操作时，通用寄存器中的值不改变。<br>ror x0, #6<br>ror w0, #32  &#x2F;&#x2F; 循环移动了32位，w0的值不变<br>跳转指令<br>ret<br>相当于高级编程语言的return，函数返回。</p>
+<p>cmp<br>将两个操作数相减，相减的结果会影响cpsr 寄存器的标志位，当结果小于0时，CPSR寄存器的N位为1， 等于0时， CPSR寄存器的Z为位1。<br>cmp x0, x1</p>
+<p>b<br>跳转指令，跳转找指定的标记处执行；可以带条件跳转，一般跟cmp配合使用，使用到的条件域如下：</p>
+<p>EQ：equal<br>NE：not equal<br>GT：great than<br>GE：great equal<br>LT：less than<br>LE：less equal<br>普通跳转<br>b testCode，testCode是汇编代码中的一个标记</p>
+<p>条件跳转，当x0和x1的值相等时，才跳转到testCode标记处执行代码</p>
+<p>cmp x0, x1<br>beq testCode<br>bl<br>带返回值的跳转指令，这个指令会做两个操作</p>
+<p>将下一条指令的地址存储到lr （x30）寄存器中<br>跳转到标记处开始执行代码<br>bl testCode，当执行完testCode标记处代码后，又会返回来执行bl指令下面的指令。<br>内存操作<br>load从内存中读取数据</p>
+<p>ldr 地址没有偏移或者偏移为正数时使用<br>ldur 地址偏移为负数时使用<br>a) str x5 [x0] x0中是内存的地址，读取的值存放在x5寄存器中, x寄存器读取8个字节<br>b）str w6 [x0] x0中是内存的地址，读取的值存放在w5寄存器中, w寄存器读取4个字节<br>说明: 地址还可以偏移 str x5 [x0, #0x4] , stur x5 [x0, #-0x4] , 偏移量为正数往高地址偏移，使用str指令、偏移量为负数往低地址偏移，使用stur指令。</p>
+<p>ldp 从指定内存中读取数据到一对寄存器中， p 是 pair的意思，这一对寄存器必须是同类型的，要么x类型, 要么w类型。其中低位读取到第一个寄存器、高位读取到第二个寄存器<br>ldp w5, w6, [x0] , 地址可以偏移 ldp x5, x6, [x0, #-x04]<br>store 往指定的内存写入数据</p>
+<p>str<br>str x1, [x0]<br>str w2, [x1]<br>str w3, [x1, #4]<br>stur<br>stur x3, [x0, #-4]<br>stur w2, [x1, #-4]<br>stp<br>stp x2, x3, [x0]<br>stp w4, w5, [x0]<br>使用方法与从内存中读取数据类似，只不过是往内存写入数据。</p>
+<p>总结<br>本文整理了一些在逆向iOS程序时常见的一些汇编指令，当然在实际逆向的过程所看到的汇编指令更加复杂，比如还有函数调用栈，这是下篇的内容。如有错误请指正。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/11/15/Effective%20C++(5)/" rel="prev" title="Effective C++(5)--实现">
+      <i class="fa fa-chevron-left"></i> Effective C++(5)--实现
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/11/15/Effective%20C++(6)/" rel="next" title="Effective C++(6)--继承与面向对象设计">
+      Effective C++(6)--继承与面向对象设计 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">1.1.</span> <span class="nav-text">通用寄存器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="nav-number">1.2.</span> <span class="nav-text">程序计数器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A0%86%E6%A0%88%E6%8C%87%E9%92%88"><span class="nav-number">1.3.</span> <span class="nav-text">堆栈指针</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">1.4.</span> <span class="nav-text">链接寄存器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E7%8A%B6%E6%80%81%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">1.5.</span> <span class="nav-text">程序状态寄存器</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

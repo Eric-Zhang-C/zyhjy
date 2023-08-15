@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="LLVM最初是底层虚拟机（Low Level Virtual Machine）的缩写，指架构编译器的框架系统，用C++编写而成。我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。 LLVM的子项目： LLVM CoreLLVM Core libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行CPU（">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LLVM与clang的关系">
+<meta property="og:url" content="http://example.com/2022/05/24/llvm%E4%B8%8Eclang%E7%9A%84%E5%85%B3%E7%B3%BB/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="LLVM最初是底层虚拟机（Low Level Virtual Machine）的缩写，指架构编译器的框架系统，用C++编写而成。我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。 LLVM的子项目： LLVM CoreLLVM Core libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行CPU（">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/pics/20160718211639694.png">
+<meta property="og:image" content="http://example.com/pics/223786_M9G9ETTWNHNZP65.png">
+<meta property="article:published_time" content="2022-05-24T15:22:50.000Z">
+<meta property="article:modified_time" content="2023-07-30T10:15:18.554Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pics/20160718211639694.png">
+
+<link rel="canonical" href="http://example.com/2022/05/24/llvm%E4%B8%8Eclang%E7%9A%84%E5%85%B3%E7%B3%BB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>LLVM与clang的关系 | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/05/24/llvm%E4%B8%8Eclang%E7%9A%84%E5%85%B3%E7%B3%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LLVM与clang的关系
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-24 23:22:50" itemprop="dateCreated datePublished" datetime="2022-05-24T23:22:50+08:00">2022-05-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/clang-llvm/" itemprop="url" rel="index"><span itemprop="name">clang llvm</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>LLVM</strong>最初是底层虚拟机（<strong>L</strong>ow <strong>L</strong>evel <strong>V</strong>irtual <strong>M</strong>achine）的缩写，指<strong>架构编译器</strong>的框架系统，用C++编写而成。<br><br>我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。<br></p>
+<h3 id="LLVM的子项目："><a href="#LLVM的子项目：" class="headerlink" title="LLVM的子项目："></a>LLVM的子项目：</h3><ol>
+<li>LLVM Core<br><br><strong>LLVM Core</strong> libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行CPU（以及一些不太常见的CPU）的架构后端生成支持。这些库是围绕一个称为LLVM中间码（LLVM intermediate representation, “LLVM IR”）的的工具来构建的。LLVM核心库的文档特别详细，所以用LLVM作为优化器和代码生成器来形成自己的语言（或移植现有编译器）是非常容易的。</li>
+<li><strong>Clang</strong><br><br>   Clang是一个LLVM“原配”的C&#x2F;C ++&#x2F;Objective-C编译器，旨在提供高效快速的编译效率（例如，在debug模式下编译Objective-C代码时比GCC快3倍），风格良好的warning和error信息，以及作为开源库来构建第三方语言的编译器。<br>   <img src="/pics/20160718211639694.png" alt="clangAndLLVM" title="clangAndLLVM"><br>   Clang Static Analyzer是一个静态的自动查找代码中的错误的工具，是使用Clang前端作为依赖库来解析C&#x2F;C++代码的工具类型的一个很好的例子。</li>
+<li>LLDB<br><br>   LLDB项目以LLVM和Clang提供的库为基础，提供了一个出色的native级别调试器。它使用Clang AST和表达式解析器、LLVM JIT、LLVM反汇编器等元生组件，所以跟它们配合的很好。在加载调试符号时，它也比GDB快多了而且能够更好的节约内存。</li>
+<li>libc++ and libc++ ABI<br><br>libc++和libc++ ABI项目提供了符合C++标准库的高性能实现，而且还包括对C++11和C++14的完整支持。</li>
+<li>compiler-rt<br><br>compiler-rt项目为动态测试工具（如AddressSanitizer，ThreadSanitizer，MemorySanitizer和DataFlowSanitizer）提供了运行时库的实现。它还为像“__fixunsdfdi”这样的低级代码生成器支持进程提供高层面的调整实现，也提供当目标没有用于实现核心IR操作的短序列本机指令时生成的其他调用。</li>
+<li>OpenMP项目提供了一个OpenMP运行时，用于Clang中的OpenMP实现。</li>
+<li>polly项目使用多面体模型实现一组缓存局部优化以及自动并行和矢量化。</li>
+<li>libclc项目旨在实现OpenCL标准库。</li>
+<li>klee项目实现了一个“符号虚拟机”，它使用一个定理证明器来尝试评估程序中的所有动态路径，以发现错误并证明函数的属性。 klee的一个主要特性是它可以在检测到错误时生成测试用例。</li>
+<li>SAFECode项目是用于C &#x2F; C ++程序的内存安全编译器。 它通过运行时检查来检测代码，以便在运行时检测内存安全错误（例如，缓冲区溢出）。 它可用于保护软件免受安全攻击，也可用作Valgrind等内存安全错误调试工具。</li>
+<li>LLD项目是一个新的链接器。 可以作为系统链接器的直接替代品，有更快的运行速度。</li>
+</ol>
+<h3 id="LLVM的功能介绍"><a href="#LLVM的功能介绍" class="headerlink" title="LLVM的功能介绍"></a>LLVM的功能介绍</h3><ul>
+<li>以C&#x2F;C++为例，LLVM编译系统包括以下内容：<ul>
+<li>一个良好的前端；GCC 4.2解析器能解析的语言，比如C，C ++，Objective-C，Fortran等，它都能提供同能能力的支持；另外它还能支持一些GCC的扩展插件。</li>
+<li>LLVM指令集的稳定实现；不管代码处于何种状态，都可以在汇编（ASCII）和字节码（二进制）之间自由转换。</li>
+<li>一个功能强大的<strong>Pass</strong>管理系统，它根据它们的依赖性自动对<strong>Pass</strong>（包括分析，转换和代码生成Pass）进行排序，并将它们管道化以提高效率。</li>
+<li>广泛的全局标量优化。</li>
+<li>包含丰富的分析和转换的链接时过程优化框架，包括复杂的完整程序指针分析、调用图构建以及对配置文件引导优化的支持。</li>
+<li>易于重定向的代码生成器，目前支持X86，X86-64，PowerPC，PowerPC-64，ARM，Thumb，SPARC，Alpha，CellSPU，MIPS，MSP430，SystemZ和XCore。</li>
+<li>Just-In-Time（JIT）即时编译器，目前支持X86，X86-64，ARM，AArch64，Mips，SystemZ，PowerPC和PowerPC-64。</li>
+<li>支持生成DWARF调试信息。</li>
+<li>用于测试和生成除上面列出的目标之外的目标的本机代码的C后端。</li>
+<li>与gprof类似的分析系统。</li>
+<li>具有许多基准代码和应用程​​序的测试框架。</li>
+<li>API和调试工具，以简化LLVM组件的快速开发。<br><img src="/pics/223786_M9G9ETTWNHNZP65.png" alt="LLVM"></li>
+</ul>
+</li>
+</ul>
+<p>Check out the <a target="_blank" rel="noopener" href="https://llvm.org/">LLVM docs</a> for more info on how to get the most out of LLVM. </p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/21/python%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/" rel="prev" title="python字符串操作">
+      <i class="fa fa-chevron-left"></i> python字符串操作
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/05/26/mac-terminal/" rel="next" title="macOS teminal主题设置">
+      macOS teminal主题设置 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#LLVM%E7%9A%84%E5%AD%90%E9%A1%B9%E7%9B%AE%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">LLVM的子项目：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LLVM%E7%9A%84%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">LLVM的功能介绍</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

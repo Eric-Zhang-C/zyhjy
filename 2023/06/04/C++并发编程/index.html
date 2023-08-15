@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="基础知识并发与并行并发（Concurrent）与并行（Parallel）都是很常见的术语。  Concurrent : two queues one coffee machine Parallel : two queues one coffee machines  进程与线程 进程（英语：process），是指计算机中已运行的程序。进程为曾经是分时系统的基本运作单位。在面向进程设计的系统（如早期的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++并发编程">
+<meta property="og:url" content="http://example.com/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="基础知识并发与并行并发（Concurrent）与并行（Parallel）都是很常见的术语。  Concurrent : two queues one coffee machine Parallel : two queues one coffee machines  进程与线程 进程（英语：process），是指计算机中已运行的程序。进程为曾经是分时系统的基本运作单位。在面向进程设计的系统（如早期的">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-06-04T03:06:00.000Z">
+<meta property="article:modified_time" content="2023-07-30T10:15:32.014Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>C++并发编程 | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++并发编程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-06-04 11:06:00" itemprop="dateCreated datePublished" datetime="2023-06-04T11:06:00+08:00">2023-06-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="并发与并行"><a href="#并发与并行" class="headerlink" title="并发与并行"></a>并发与并行</h2><p>并发（Concurrent）与并行（Parallel）都是很常见的术语。</p>
+<ul>
+<li>Concurrent : two queues one coffee machine</li>
+<li>Parallel : two queues one coffee machines</li>
+</ul>
+<h2 id="进程与线程"><a href="#进程与线程" class="headerlink" title="进程与线程"></a>进程与线程</h2><ul>
+<li><p>进程（英语：process），是指计算机中已运行的程序。进程为曾经是分时系统的基本运作单位。在面向进程设计的系统（如早期的UNIX，Linux 2.4及更早的版本）中，进程是程序的基本执行实体；</p>
+</li>
+<li><p>线程（英语：thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。</p>
+</li>
+</ul>
+<h2 id="并发系统的性能"><a href="#并发系统的性能" class="headerlink" title="并发系统的性能"></a>并发系统的性能</h2><p>阿姆达尔定律<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Amdahl%27s_law">Amdahl’s law</a>。简单来说：我们想要预先意识到那些任务是可以并行的，那些是无法并行的。只有明确了任务的性质，才能有的放矢的进行优化。这个定律告诉了我们将系统并行之后性能收益的上限。</p>
+<h1 id="C-并发编程API"><a href="#C-并发编程API" class="headerlink" title="C++并发编程API"></a>C++并发编程API</h1><p><code>thread</code>可以和<code>callable</code>类型一起工作，因此如果你熟悉<code>lambda表达式</code>，你可以直接用它来写线程的逻辑，像这样：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">thread <span class="title">t</span><span class="params">([] &#123;</span></span></span><br><span class="line"><span class="params"><span class="function">  cout &lt;&lt; <span class="string">&quot;Hello World from lambda thread.&quot;</span> &lt;&lt; endl;</span></span></span><br><span class="line"><span class="params"><span class="function">&#125;)</span></span>;</span><br><span class="line"></span><br><span class="line">t.<span class="built_in">join</span>();</span><br></pre></td></tr></table></figure>
+<p>or:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">hello</span><span class="params">(string name)</span> </span>&#123;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Welcome to &quot;</span> &lt;&lt; name &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">  <span class="function">thread <span class="title">t</span><span class="params">(hello, <span class="string">&quot;zyh&quot;</span>)</span></span>;</span><br><span class="line">  t.<span class="built_in">join</span>();</span><br></pre></td></tr></table></figure>
+<h2 id="join与detach"><a href="#join与detach" class="headerlink" title="join与detach"></a>join与detach</h2><table>
+<thead>
+<tr>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>join</td>
+<td>等待线程完成其执行</td>
+</tr>
+<tr>
+<td>detach</td>
+<td>允许线程独立执行</td>
+</tr>
+</tbody></table>
+<p>必须在thread对象销毁之前决定。如果在<code>thread</code>对象销毁的时候我们还没有做决定，则<code>thread</code>对象在析构函数出将调用<code>std::terminate()</code>从而导致我们的进程异常退出。</p>
+<ul>
+<li><code>join</code>：调用此接口时，当前线程会一直阻塞，直到目标线程执行完成</li>
+<li><code>detach</code>：<code>detach</code>是让目标线程成为守护线程（<code>daemon threads</code>）。<code>detach</code>之后，无法再与之通信。</li>
+</ul>
+<p>可以通过<code>joinable()</code>接口查询是否可以对它们进行<code>join</code>或者<code>detach</code>。</p>
+<h2 id="管理当前线程"><a href="#管理当前线程" class="headerlink" title="管理当前线程"></a>管理当前线程</h2><table>
+<thead>
+<tr>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>yield</td>
+<td>让出处理器，重新调度各执行线程</td>
+</tr>
+<tr>
+<td>get_id</td>
+<td>返回当前线程的线程id</td>
+</tr>
+<tr>
+<td>sleep_for</td>
+<td>使当前线程的执行停止指定的时间段</td>
+</tr>
+<tr>
+<td>sleep_until</td>
+<td>使当前线程的执行停止直到指定的时间点</td>
+</tr>
+</tbody></table>
+<p>上面是一些在线程内部使用的API，它们用来对当前线程做一些控制。</p>
+<ul>
+<li><p><code>yield</code> 通常用在自己的主要任务已经完成的时候，此时希望让出处理器给其他任务使用。暂时放弃当前线程的执行，并会将线程放入就绪状态，以便其他线程有机会执行。</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (!condition) &#123;</span><br><span class="line">    <span class="comment">// 执行一些操作</span></span><br><span class="line">    std::this_thread::<span class="built_in">yield</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>get_id</code> 返回当前线程的id，可以以此来标识不同的线程。</p>
+</li>
+<li><p><code>sleep_for</code> 是让当前线程停止一段时间。</p>
+</li>
+<li><p><code>sleep_until</code> 和<code>sleep_for</code>类似，但是是以具体的时间点为参数。这两个API都以<a target="_blank" rel="noopener" href="https://en.cppreference.com/w/cpp/header/chrono">chrono</a> API为基础, 见<code>&lt;chrono&gt;</code>。</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">this_thread::<span class="built_in">sleep_for</span>(chrono::<span class="built_in">seconds</span>(<span class="number">3</span>));</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="一次调用"><a href="#一次调用" class="headerlink" title="一次调用"></a>一次调用</h2><table>
+<thead>
+<tr>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>call_once</td>
+<td>即便在多线程环境下，也能保证只调用某个函数一次</td>
+</tr>
+<tr>
+<td>once_flag</td>
+<td>与call_once配合使用</td>
+</tr>
+</tbody></table>
+<p>在一些情况下，我们有些任务需要执行一次，并且我们只希望它执行一次，例如资源的初始化任务。这个时候就可以用到上面的接口。这个接口会保证，即便在多线程的环境下，相应的函数也只会调用一次。</p>
+<p>下面就是一个示例：有三个线程都会使用init函数，但是只会有一个线程真正执行它。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Initialing...&quot;</span> &lt;&lt; endl;</span><br><span class="line">  <span class="comment">// Do something...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">worker</span><span class="params">(once_flag* flag)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">call_once</span>(*flag, init);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  once_flag flag;</span><br><span class="line"></span><br><span class="line">  <span class="function">thread <span class="title">t1</span><span class="params">(worker, &amp;flag)</span></span>;</span><br><span class="line">  <span class="function">thread <span class="title">t2</span><span class="params">(worker, &amp;flag)</span></span>;</span><br><span class="line">  <span class="function">thread <span class="title">t3</span><span class="params">(worker, &amp;flag)</span></span>;</span><br><span class="line"></span><br><span class="line">  t1.<span class="built_in">join</span>();</span><br><span class="line">  t2.<span class="built_in">join</span>();</span><br><span class="line">  t3.<span class="built_in">join</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="thread-hardware-concurrency"><a href="#thread-hardware-concurrency" class="headerlink" title="thread::hardware_concurrency()"></a>thread::hardware_concurrency()</h2><p>可以获取到当前硬件支持多少个线程并行执行</p>
+<h2 id="互斥体与锁"><a href="#互斥体与锁" class="headerlink" title="互斥体与锁"></a>互斥体与锁</h2><h3 id="mutex"><a href="#mutex" class="headerlink" title="mutex"></a>mutex</h3><p>是<strong>mu</strong>tual <strong>ex</strong>clusion（互斥）的简写。</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>mutex</td>
+<td>提供基本互斥设施</td>
+</tr>
+<tr>
+<td>timed_mutex</td>
+<td>提供互斥设施，带有超时功能</td>
+</tr>
+<tr>
+<td>recursive_mutex</td>
+<td>提供能被同一线程递归锁定的互斥设施</td>
+</tr>
+<tr>
+<td>recursive_timed_mutex</td>
+<td>提供能被同一线程递归锁定的互斥设施，带有超时功能</td>
+</tr>
+<tr>
+<td>shared_timed_mutex</td>
+<td>提供共享互斥设施并带有超时功能</td>
+</tr>
+<tr>
+<td>shared_mutex</td>
+<td>提供共享互斥设施</td>
+</tr>
+</tbody></table>
+<p>这些类都提供了下面三个方法，并且它们的功能是一样的:</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>lock</td>
+<td>锁定互斥体，如果不可用，则阻塞</td>
+</tr>
+<tr>
+<td>try_lock</td>
+<td>尝试锁定互斥体，如果不可用，直接返回</td>
+</tr>
+<tr>
+<td>unlock</td>
+<td>解锁互斥体</td>
+</tr>
+</tbody></table>
+<p>在这些基础功能之上，其他的类分别在下面三个方面进行了扩展：</p>
+<ul>
+<li><p>超时：<code>timed_mutex</code>，<code>recursive_timed_mutex</code>，<code>shared_timed_mutex</code>的名称都带有<code>timed</code>，这意味着它们都支持超时功能。它们都提供了<code>try_lock_for</code>和<code>try_lock_until</code>方法，这两个方法分别可以指定超时的时间长度和时间点。如果在超时的时间范围内没有能获取到锁，则直接返回，不再继续等待。</p>
+</li>
+<li><p>可重入：<code>recursive_mutex</code>和<code>recursive_timed_mutex</code>的名称都带有<code>recursive</code>。可重入或者叫做可递归，是指在同一个线程中，同一把锁可以锁定多次。这就避免了一些不必要的死锁。</p>
+</li>
+<li><p>共享：<code>shared_timed_mutex</code>和<code>shared_mutex</code>提供了共享功能。对于这类互斥体，实际上是提供了两把锁：一把是共享锁，一把是互斥锁。共享锁通常用在读者写者模型上。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>lock_shared</td>
+<td>获取互斥体的共享锁，如果无法获取则阻塞</td>
+</tr>
+<tr>
+<td>try_lock_shared</td>
+<td>尝试获取共享锁，如果不可用，直接返回</td>
+</tr>
+<tr>
+<td>unlock_shared</td>
+<td>解锁共享锁</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h3 id="通用锁定算法"><a href="#通用锁定算法" class="headerlink" title="通用锁定算法"></a>通用锁定算法</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>lock</td>
+<td>锁定指定的互斥体，若任何一个不可用则阻塞</td>
+</tr>
+<tr>
+<td>try_lock</td>
+<td>试图通过重复调用 try_lock 获得互斥体的所有权</td>
+</tr>
+</tbody></table>
+<p>这两个方法对所有的锁进行排序，每次一定要按照顺序来获取锁，不允许乱序；避免了死锁。</p>
+<h3 id="通用互斥管理"><a href="#通用互斥管理" class="headerlink" title="通用互斥管理"></a>通用互斥管理</h3><table>
+<thead>
+<tr>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>｜ lock_guard	｜	实现严格基于作用域的互斥体所有权包装器 ｜</td>
+<td></td>
+</tr>
+<tr>
+<td>｜ unique_lock	｜	实现可移动的互斥体所有权包装器 ｜</td>
+<td></td>
+</tr>
+<tr>
+<td>｜ shared_lock	｜	实现可移动的共享互斥体所有权封装器 ｜</td>
+<td></td>
+</tr>
+<tr>
+<td>｜ scoped_lock	｜	用于多个互斥体的免死锁 RAII 封装器 ｜</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>这些类都提供了下面三个方法，并且它们的功能是一样的:</p>
+<table>
+<thead>
+<tr>
+<th>锁定策略</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>｜defer_lock	｜ 类型为 defer_lock_t，不获得互斥的所有权｜</td>
+<td></td>
+</tr>
+<tr>
+<td>｜try_to_lock	｜ 类型为try_to_lock_t，尝试获得互斥的所有权而不阻塞｜</td>
+<td></td>
+</tr>
+<tr>
+<td>｜adopt_lock	｜ 类型为adopt_lock_t，假设调用方已拥有互斥的所有权｜</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>eg：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">lock</span>(*accountA-&gt;<span class="built_in">getLock</span>(), *accountB-&gt;<span class="built_in">getLock</span>());</span><br><span class="line"><span class="function">lock_guard <span class="title">lockA</span><span class="params">(*accountA-&gt;getLock(), adopt_lock)</span></span>;</span><br><span class="line"><span class="function">lock_guard <span class="title">lockB</span><span class="params">(*accountB-&gt;getLock(), adopt_lock)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 如果使用unique_lock这三行代码还有一种等价的写法：</span></span><br><span class="line"><span class="function">unique_lock <span class="title">lockA</span><span class="params">(*accountA-&gt;getLock(), defer_lock)</span></span>;</span><br><span class="line"><span class="function">unique_lock <span class="title">lockB</span><span class="params">(*accountB-&gt;getLock(), defer_lock)</span></span>;</span><br><span class="line"><span class="built_in">lock</span>(*accountA-&gt;<span class="built_in">getLock</span>(), *accountB-&gt;<span class="built_in">getLock</span>());</span><br><span class="line"><span class="comment">// 请注意这里lock方法的调用位置。这里先定义unique_lock指定了defer_lock，因此实际没有锁定互斥体，而是到第三行才进行锁定。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/// 借助scoped_lock，我们可以将三行代码合成一行，这种写法也是等价的。</span></span><br><span class="line"><span class="function">scoped_lock <span class="title">lockAll</span><span class="params">(*accountA-&gt;getLock(), *accountB-&gt;getLock())</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="条件变量"><a href="#条件变量" class="headerlink" title="条件变量"></a>条件变量</h3><table>
+<thead>
+<tr>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>condition_variable</td>
+<td>提供与 std::unique_lock 关联的条件变量</td>
+</tr>
+<tr>
+<td>condition_variable_any</td>
+<td>提供与任何锁类型关联的条件变量</td>
+</tr>
+<tr>
+<td>notify_all_at_thread_exit</td>
+<td>安排到在此线程完全结束时对 notify_all 的调用</td>
+</tr>
+<tr>
+<td>cv_status</td>
+<td>列出条件变量上定时等待的可能结果</td>
+</tr>
+</tbody></table>
+<p>eg:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Account</span> &#123;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">changeMoney</span><span class="params">(<span class="type">double</span> amount)</span> </span>&#123;</span><br><span class="line">    <span class="function">unique_lock <span class="title">lock</span><span class="params">(mMoneyLock)</span></span>; <span class="comment">// ②</span></span><br><span class="line">    mConditionVar.<span class="built_in">wait</span>(lock, [<span class="keyword">this</span>, amount] &#123; <span class="comment">// ③</span></span><br><span class="line">      <span class="keyword">return</span> mMoney + amount &gt; <span class="number">0</span>;</span><br><span class="line">    &#125;);</span><br><span class="line">    mMoney += amount;</span><br><span class="line">    mConditionVar.<span class="built_in">notify_all</span>(); <span class="comment">// ④</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  ...</span><br><span class="line">  <span class="type">double</span> mMoney;</span><br><span class="line">  mutex mMoneyLock;</span><br><span class="line">  condition_variable mConditionVar; <span class="comment">// ①</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>这里声明了一个条件变量，用来在多个线程之间协作。</li>
+<li>这里使用的是<code>unique_lock</code>，这是为了与条件变量相配合。因为条件变量会解锁和重新锁定互斥体。</li>
+<li>这里是比较重要的一个地方：通过条件变量进行等待。此时：会通过后面的lambda表达式判断条件是否满足。如果满足则继续；如果不满足，则此处会解锁互斥体，并让当前线程等待。</li>
+<li>此处也很重要。当金额发生变动之后，我们需要通知所有在条件变量上等待的其他线程。此时所有调用<code>wait</code>线程都会再次唤醒，然后尝试获取锁（当然，只有一个能获取到）并再次判断条件是否满足。除了<code>notify_all</code>还有<code>notify_one</code>，它只通知一个等待的线程。wait和notify就构成了线程间互相协作的工具。</li>
+</ol>
+<h2 id="future"><a href="#future" class="headerlink" title="future"></a>future</h2><p>都位于<future>头文件中。</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>async</td>
+<td>异步运行一个函数，并返回保有其结果的std::future</td>
+</tr>
+<tr>
+<td>future</td>
+<td>等待被异步设置的值</td>
+</tr>
+<tr>
+<td>packaged_task</td>
+<td>打包一个函数，存储其返回值以进行异步获取</td>
+</tr>
+<tr>
+<td>promise</td>
+<td>存储一个值以进行异步获取</td>
+</tr>
+<tr>
+<td>shared_future</td>
+<td>等待被异步设置的值（可能为其他 future 所引用）</td>
+</tr>
+</tbody></table>
+<h3 id="async"><a href="#async" class="headerlink" title="async"></a>async</h3><ol>
+<li>async是启动一个新的线程，还是以同步的方式（不启动新的线程）运行任务，由具体的编译器决定。</li>
+<li>如果希望一定要以新的线程来异步执行任务，可以通过launch::async来明确说明。launch中有两个常量：</li>
+</ol>
+<ul>
+<li>async：运行新线程，以异步执行任务。</li>
+<li>deferred：调用方线程上第一次请求其结果时才执行任务，即惰性求值。</li>
+</ul>
+<ol start="3">
+<li>返回一个<code>future</code>对象,用来存储异步任务的执行结果</li>
+</ol>
+<p>eg:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">double</span> result = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">auto</span> f2 = <span class="built_in">async</span>(launch::async, [&amp;result]() &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= MAX; i++) &#123;</span><br><span class="line">    result += <span class="built_in">sqrt</span>(i);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line">f2.<span class="built_in">wait</span>();</span><br><span class="line"></span><br><span class="line"><span class="function">Worker <span class="title">w</span><span class="params">(<span class="number">0</span>, MAX)</span></span>;</span><br><span class="line"><span class="keyword">auto</span> f3 = <span class="built_in">async</span>(&amp;Worker::work, &amp;w); <span class="comment">// 面向对象</span></span><br><span class="line">f3.<span class="built_in">wait</span>();</span><br></pre></td></tr></table></figure>
+<h3 id="packaged-task"><a href="#packaged-task" class="headerlink" title="packaged_task"></a>packaged_task</h3><p><code>packaged_task</code>绑定到一个函数或者可调用对象上。当它被调用时，它就会调用其绑定的函数或者可调用对象。并且，可以通过与之相关联的<code>future</code>来获取任务的结果。调度程序只需要处理<code>packaged_task</code>，而非各个函数。</p>
+<p><code>packaged_task</code>对象是一个可调用对象，它可以被封装成一个<code>std::fucntion</code>，或者作为线程函数传递给<code>std::thread</code>，或者直接调用。</p>
+<p>eg:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">double</span> <span class="title">concurrent_worker</span><span class="params">(<span class="type">int</span> min, <span class="type">int</span> max)</span> </span>&#123;</span><br><span class="line">  <span class="type">double</span> sum = <span class="number">0</span>;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vector&lt;future&lt;<span class="type">double</span>&gt;&gt; results; <span class="comment">// 创建一个集合来存储future对象。我们将用它来获取任务的结果。</span></span><br><span class="line">...</span><br><span class="line"><span class="function">packaged_task&lt;<span class="title">double</span><span class="params">(<span class="type">int</span>, <span class="type">int</span>)</span>&gt; <span class="title">task</span><span class="params">(concurrent_worker)</span></span>;</span><br><span class="line">results.<span class="built_in">push_back</span>(task.<span class="built_in">get_future</span>());  <span class="comment">// 通过一个新的线程来执行任务，并传入需要的参数。</span></span><br><span class="line"><span class="function">thread <span class="title">t</span><span class="params">(std::move(task), min, range)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>可以借助于packaged_task将任务组装成队列，然后通过线程池的方式进行调度</p>
+<h3 id="promise与future"><a href="#promise与future" class="headerlink" title="promise与future"></a>promise与future</h3><p>在上面的例子中，<code>concurrent_task</code>的结果是通过<code>return</code>返回的。但在一些时候，我们可能不能这么做：在得到任务结果之后，可能还有一些事情需要继续处理，例如清理工作。</p>
+<p>这个时候，就可以将<code>promise</code>与<code>future</code>配对使用。这样就可以将返回结果和任务结束两个事情分开。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">concurrent_task</span><span class="params">(<span class="type">int</span> min, <span class="type">int</span> max, promise&lt;<span class="type">double</span>&gt;* result)</span> </span>&#123; <span class="comment">// ①</span></span><br><span class="line">  ...</span><br><span class="line">  result-&gt;<span class="built_in">set_value</span>(sum); <span class="comment">// ②</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">  promise&lt;<span class="type">double</span>&gt; sum; <span class="comment">// ③</span></span><br><span class="line">  <span class="built_in">concurrent_task</span>(<span class="number">0</span>, MAX, &amp;sum);</span><br><span class="line"></span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Result: &quot;</span> &lt;&lt; sum.<span class="built_in">get_future</span>().<span class="built_in">get</span>() &lt;&lt; endl; <span class="comment">// ④</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><code>concurrent_task</code>不再直接返回计算结果，而是增加了一个<code>promise</code>对象来存放结果。</li>
+<li>在任务计算完成之后，将总结过设置到<code>promise</code>对象上。一旦这里调用了<code>set_value</code>，其相关联的<code>future</code>对象就会就绪。</li>
+<li>这里创建一个<code>promise</code>来存放结果，并以指针的形式传递进<code>concurrent_task</code>中。</li>
+<li>通过<code>sum.get_future().get()</code>来获取结果。</li>
+</ol>
+<p>需要注意的是，<code>future</code>对象只有被一个线程获取值。并且在调用<code>get()</code>之后，就没有可以获取的值了。如果从多个线程调用<code>get()</code>会出现数据竞争，其结果是未定义的。</p>
+<p>如果真的需要在多个线程中获取<code>future</code>的结果，可以使用<code>shared_future</code>。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这三者分别工作在不同的抽象层次上。</p>
+<ol>
+<li>async层次最高，你只需要给它提供一个函数，它就会返回一个future对象。接下来就只需等待结果了。</li>
+<li>packaged_task次之，你在创建了packaged_task后，还要创建一个thread，并把packaged_task交给它执行。</li>
+<li>promise就最低了。在创建了thread之后，你还要把对应的promise作为参数传入。这还没完，别忘了在函数中手动设置promise的值。</li>
+</ol>
+<h2 id="并行算法"><a href="#并行算法" class="headerlink" title="并行算法"></a>并行算法</h2><p>从C++17开始。<algorithm>和<numeric> 头文件的中的很多算法都添加了一个新的参数：<code>sequenced_policy</code>。</p>
+<p>借助这个参数，开发者可以直接使用这些算法的并行版本，不用再自己创建并发系统和划分数据来调度这些算法。</p>
+<p>sequenced_policy可能的取值有三种，它们的说明如下：</p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>类型</th>
+<th>C++版本</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>execution::seq</td>
+<td>execution::sequenced_policy</td>
+<td>C++17</td>
+<td>要求并行算法的执行可以不并行化</td>
+</tr>
+<tr>
+<td>execution::par</td>
+<td>execution::parallel_policy</td>
+<td>C++17</td>
+<td>指示并行算法的执行可以并行化</td>
+</tr>
+<tr>
+<td>execution::par_unseq</td>
+<td>execution::parallel_unsequenced_policy</td>
+<td>C++17</td>
+<td>指示并行算法的执行可以并行化、向量化</td>
+</tr>
+</tbody></table>
+<p>注意：想要编译这部分代码，你需要使用gcc 9.0或更高版本，同时还需要安装Intel Threading Building Blocks。</p>
+<p>eg:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sort</span>(execution::seq, copy1.<span class="built_in">begin</span>(), copy1.<span class="built_in">end</span>()); <span class="comment">// ④</span></span><br><span class="line"><span class="built_in">sort</span>(execution::par, copy2.<span class="built_in">begin</span>(),copy2.<span class="built_in">end</span>()); <span class="comment">// ⑥</span></span><br><span class="line"><span class="built_in">sort</span>(execution::par_unseq, copy2.<span class="built_in">begin</span>(),copy2.<span class="built_in">end</span>()); <span class="comment">// ⑦</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/06/04/A%20Top-Down%20method%20for%20performance%20analysis%20and%20counters%20architecture/" rel="prev" title="Topdown论文--ISPASS2014">
+      <i class="fa fa-chevron-left"></i> Topdown论文--ISPASS2014
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/06/06/gmock/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E4%B8%8E%E5%B9%B6%E8%A1%8C"><span class="nav-number">1.1.</span> <span class="nav-text">并发与并行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">进程与线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%80%A7%E8%83%BD"><span class="nav-number">1.3.</span> <span class="nav-text">并发系统的性能</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#C-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8BAPI"><span class="nav-number">2.</span> <span class="nav-text">C++并发编程API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#join%E4%B8%8Edetach"><span class="nav-number">2.1.</span> <span class="nav-text">join与detach</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E7%90%86%E5%BD%93%E5%89%8D%E7%BA%BF%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">管理当前线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E6%AC%A1%E8%B0%83%E7%94%A8"><span class="nav-number">2.3.</span> <span class="nav-text">一次调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#thread-hardware-concurrency"><span class="nav-number">2.4.</span> <span class="nav-text">thread::hardware_concurrency()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%92%E6%96%A5%E4%BD%93%E4%B8%8E%E9%94%81"><span class="nav-number">2.5.</span> <span class="nav-text">互斥体与锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mutex"><span class="nav-number">2.5.1.</span> <span class="nav-text">mutex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E9%94%81%E5%AE%9A%E7%AE%97%E6%B3%95"><span class="nav-number">2.5.2.</span> <span class="nav-text">通用锁定算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E4%BA%92%E6%96%A5%E7%AE%A1%E7%90%86"><span class="nav-number">2.5.3.</span> <span class="nav-text">通用互斥管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F"><span class="nav-number">2.5.4.</span> <span class="nav-text">条件变量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#future"><span class="nav-number">2.6.</span> <span class="nav-text">future</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#async"><span class="nav-number">2.6.1.</span> <span class="nav-text">async</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#packaged-task"><span class="nav-number">2.6.2.</span> <span class="nav-text">packaged_task</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#promise%E4%B8%8Efuture"><span class="nav-number">2.6.3.</span> <span class="nav-text">promise与future</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.6.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E8%A1%8C%E7%AE%97%E6%B3%95"><span class="nav-number">2.7.</span> <span class="nav-text">并行算法</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="auto decltype  模版型别推导一般形式:1234template&lt;typename T&gt;void f(ParamType param);f(expr);   &#x2F;&#x2F; 从expr推导T和ParamType的型别  情况一:ParamType是指针或引用, 但不是万能引用: 若expr具有引用型别, 先将引用部分忽略 ParamType和expr模式匹配 &#x3D;&amp;#x3D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++型别推导">
+<meta property="og:url" content="http://example.com/2022/06/29/cpp%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="auto decltype  模版型别推导一般形式:1234template&lt;typename T&gt;void f(ParamType param);f(expr);   &#x2F;&#x2F; 从expr推导T和ParamType的型别  情况一:ParamType是指针或引用, 但不是万能引用: 若expr具有引用型别, 先将引用部分忽略 ParamType和expr模式匹配 &#x3D;&amp;#x3D">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-06-29T14:49:50.000Z">
+<meta property="article:modified_time" content="2023-07-30T10:15:32.000Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2022/06/29/cpp%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>C++型别推导 | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/29/cpp%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++型别推导
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-29 22:49:50" itemprop="dateCreated datePublished" datetime="2022-06-29T22:49:50+08:00">2022-06-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><code>auto</code></li>
+<li><code>decltype</code></li>
+</ul>
+<h1 id="模版型别推导"><a href="#模版型别推导" class="headerlink" title="模版型别推导"></a>模版型别推导</h1><h2 id="一般形式"><a href="#一般形式" class="headerlink" title="一般形式:"></a>一般形式:</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(ParamType param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(expr);   <span class="comment">// 从expr推导T和ParamType的型别</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="情况一-ParamType是指针或引用-但不是万能引用"><a href="#情况一-ParamType是指针或引用-但不是万能引用" class="headerlink" title="情况一:ParamType是指针或引用, 但不是万能引用:"></a>情况一:<code>ParamType</code>是指针或引用, 但不是万能引用:</h2><ol>
+<li>若<code>expr</code>具有引用型别, 先将引用部分忽略</li>
+<li><code>ParamType</code>和<code>expr</code>模式匹配 &#x3D;&#x3D;&gt;&gt; <code>T</code></li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; const int, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; const int, ParamType -&gt; const int&amp;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>向持有<code>T&amp;</code>型别的模版传入<code>const</code>对象是安全的</li>
+</ul>
+<h2 id="情况二-ParamType是万能引用"><a href="#情况二-ParamType是万能引用" class="headerlink" title="情况二:ParamType是万能引用:"></a>情况二:<code>ParamType</code>是万能引用:</h2><ol>
+<li>如果<code>expr</code>是个左值:<ul>
+<li><code>ParamType</code>和<code>T</code>都会被推导为左值引用</li>
+</ul>
+</li>
+<li>如果<code>expr</code>是个右值:<ul>
+<li>与情况一相同</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T&amp;&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; const int&amp;, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; const int&amp;, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(<span class="number">27</span>); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;&amp;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="情况三-ParamType既非指针也非引用"><a href="#情况三-ParamType既非指针也非引用" class="headerlink" title="情况三:ParamType既非指针也非引用:"></a>情况三:<code>ParamType</code>既非指针也非引用:</h2><ul>
+<li>即按值传递, <code>param</code>是传入对象的副本，是<strong>全新对象</strong></li>
+</ul>
+<ol>
+<li>若<code>expr</code>具有引用型别, 先将引用部分忽略</li>
+<li>若是<code>const</code>,<code>volatile</code>对象，也忽略之</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(<span class="number">27</span>); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* <span class="type">const</span> ptr = <span class="string">&quot;Fun&quot;</span>;</span><br><span class="line"><span class="built_in">f</span>(ptr); T -&gt; <span class="type">const</span> <span class="type">char</span>*, ParamType -&gt; <span class="type">const</span> <span class="type">char</span>*</span><br></pre></td></tr></table></figure>
+
+<h2 id="其他情形"><a href="#其他情形" class="headerlink" title="其他情形:"></a>其他情形:</h2><h3 id="数组实参"><a href="#数组实参" class="headerlink" title="数组实参"></a>数组实参</h3><ul>
+<li>数组可退化成指针</li>
+<li>没有任何函数形参具有数组型别:<br>  <code>void myFunc(int param[]);</code>等价于<code>void myFunc(int param[]);</code></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> name = <span class="string">&quot;J. P. Briggs&quot;</span>; <span class="comment">// name的型别是const char[13]</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* ptrToName = name; <span class="comment">// 数组退化成指针</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(name); <span class="comment">// T -&gt; const char*</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"><span class="built_in">f2</span>(name); <span class="comment">// T -&gt; const char [13], ParamType -&gt; const char (&amp;)[13]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 以编译器常量形式返回数组尺寸</span></span><br><span class="line"><span class="comment">// 形参未起名字</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T， std::<span class="type">size_t</span> N&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> std::<span class="type">size_t</span> <span class="title">arraySize</span><span class="params">(T (&amp;)[N])</span> <span class="keyword">noexcept</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> N;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="函数实参"><a href="#函数实参" class="headerlink" title="函数实参"></a>函数实参</h3><ul>
+<li>函数型别可退化成函数指针<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">someFunc</span><span class="params">(<span class="type">int</span>, <span class="type">double</span>)</span></span>; <span class="comment">// 型别为void(int, double)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f1</span><span class="params">(T param)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> name = <span class="string">&quot;J. P. Briggs&quot;</span>; <span class="comment">// name的型别是const char[13]</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* ptrToName = name; <span class="comment">// 数组退化成指针</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">f1</span>(someFunc); <span class="comment">// ParamType -&gt; void(*)(int, double)</span></span><br><span class="line"><span class="built_in">f2</span>(someFunc); <span class="comment">// ParamType -&gt; void(&amp;)(int, double)</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="auto-型别推导"><a href="#auto-型别推导" class="headerlink" title="auto 型别推导"></a>auto 型别推导</h1><ul>
+<li>与模板型别一模一样（除了一个例外情况）<ul>
+<li><code>auto</code>是模板中的<code>T</code></li>
+<li>变量的型别饰词是<code>ParamType</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="例外情况"><a href="#例外情况" class="headerlink" title="例外情况: {}"></a>例外情况: {}</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x3 = &#123;<span class="number">27</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">auto</span> x4 = &#123;<span class="number">27</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">auto</span> x5 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3.0</span>&#125;; <span class="comment">// Error! </span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>auto</code> -&gt; <code>std::initializer_list</code>, 所以x5必须被推导为<code>std::initializer_list&lt;T&gt;</code>, 但<code>&#123;&#125;</code>内型别不统一,所以错误</li>
+<li>模板不接受大括号初始化表达式<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;); <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="auto返回值"><a href="#auto返回值" class="headerlink" title="auto返回值"></a>auto返回值</h2><ul>
+<li>使用模版型别推导规则<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">createOnitList</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// Error!</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="lambda式中的auto形参"><a href="#lambda式中的auto形参" class="headerlink" title="lambda式中的auto形参"></a>lambda式中的auto形参</h2><ul>
+<li>使用模版型别推导规则<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">std::vector&lt;<span class="type">int</span>&gt; v;</span><br><span class="line"><span class="keyword">auto</span> resetV = </span><br><span class="line">    [&amp;v](<span class="type">const</span> <span class="keyword">auto</span>&amp; newValue) &#123;v = newValue;&#125; <span class="comment">// c++14</span></span><br><span class="line"><span class="built_in">resetV</span>(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;); <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="理解decltype"><a href="#理解decltype" class="headerlink" title="理解decltype"></a>理解decltype</h1><ul>
+<li>一般只会鹦鹉学舌</li>
+</ul>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><ul>
+<li>目标: <ul>
+<li>实现一个函数，形参包括一个容器(支持<code>[]</code>)和一个下标</li>
+<li>并在返回下标操作结果前进行用户验证</li>
+<li>返回值型别与容器下标的返回值型别相同</li>
+</ul>
+</li>
+<li>背景知识:<ul>
+<li>一般而言，含有型别T的对象的容器，其operator[]返回T&amp;</li>
+<li>std::vector(除std::vector<bool>外)均满足</li>
+</ul>
+</li>
+<li>初步尝试:<ul>
+<li>能运作, 需改进  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container, <span class="keyword">typename</span> Index&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">authAndAccess</span><span class="params">(Container&amp; c, Index i)</span></span></span><br><span class="line"><span class="function">    -&gt; <span class="title">decltype</span><span class="params">(c[i])</span>  <span class="comment">/// 返回值型别尾序语法</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">authenticateUser</span>();</span><br><span class="line">    <span class="keyword">return</span> c[i];</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/27/cpp%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%A3%B0%E6%98%8E/" rel="prev" title="C++的定义和声明">
+      <i class="fa fa-chevron-left"></i> C++的定义和声明
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/16/Effective%20C++(1)/" rel="next" title="Effective C++(1)--让自己习惯C++">
+      Effective C++(1)--让自己习惯C++ <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E7%89%88%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC"><span class="nav-number">1.</span> <span class="nav-text">模版型别推导</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E8%88%AC%E5%BD%A2%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">一般形式:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%83%85%E5%86%B5%E4%B8%80-ParamType%E6%98%AF%E6%8C%87%E9%92%88%E6%88%96%E5%BC%95%E7%94%A8-%E4%BD%86%E4%B8%8D%E6%98%AF%E4%B8%87%E8%83%BD%E5%BC%95%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">情况一:ParamType是指针或引用, 但不是万能引用:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%83%85%E5%86%B5%E4%BA%8C-ParamType%E6%98%AF%E4%B8%87%E8%83%BD%E5%BC%95%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">情况二:ParamType是万能引用:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%83%85%E5%86%B5%E4%B8%89-ParamType%E6%97%A2%E9%9D%9E%E6%8C%87%E9%92%88%E4%B9%9F%E9%9D%9E%E5%BC%95%E7%94%A8"><span class="nav-number">1.4.</span> <span class="nav-text">情况三:ParamType既非指针也非引用:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%83%85%E5%BD%A2"><span class="nav-number">1.5.</span> <span class="nav-text">其他情形:</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E7%BB%84%E5%AE%9E%E5%8F%82"><span class="nav-number">1.5.1.</span> <span class="nav-text">数组实参</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%AE%9E%E5%8F%82"><span class="nav-number">1.5.2.</span> <span class="nav-text">函数实参</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#auto-%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC"><span class="nav-number">2.</span> <span class="nav-text">auto 型别推导</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%8B%E5%A4%96%E6%83%85%E5%86%B5"><span class="nav-number">2.1.</span> <span class="nav-text">例外情况: {}</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#auto%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="nav-number">2.2.</span> <span class="nav-text">auto返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lambda%E5%BC%8F%E4%B8%AD%E7%9A%84auto%E5%BD%A2%E5%8F%82"><span class="nav-number">2.3.</span> <span class="nav-text">lambda式中的auto形参</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%90%86%E8%A7%A3decltype"><span class="nav-number">3.</span> <span class="nav-text">理解decltype</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B"><span class="nav-number">3.1.</span> <span class="nav-text">实例</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

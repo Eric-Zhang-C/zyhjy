@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for ParallelismASPLOS 2020 Best Paper Award. slides video 摘要新兴的内存密集型工作负载的内存需求前所未有地增长，这使得虚拟内存转换成为主要的性能瓶颈。为了解决这个问题，本文引入了Elastic Cuckoo P">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism">
+<meta property="og:url" content="http://example.com/2023/08/02/Elastic-Cuckoo-Page-Tables-Rethinking-Virtual-Memory-Translation-for-Parallelism/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for ParallelismASPLOS 2020 Best Paper Award. slides video 摘要新兴的内存密集型工作负载的内存需求前所未有地增长，这使得虚拟内存转换成为主要的性能瓶颈。为了解决这个问题，本文引入了Elastic Cuckoo P">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230804221009551.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803121317873.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803121824060.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802163229387.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802163344076.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802163708170.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802182039348.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802182239887.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802204719881.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802202224509.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802210930165.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803115651534.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803115758726.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803115945811.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803120121631.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803120534242.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803214128003.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803214502778.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803214702366.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803215418278.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803215503898.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803215536202.png">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803215929357.png">
+<meta property="article:published_time" content="2023-08-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-08-07T23:34:46.007Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="Paper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230804221009551.png">
+
+<link rel="canonical" href="http://example.com/2023/08/02/Elastic-Cuckoo-Page-Tables-Rethinking-Virtual-Memory-Translation-for-Parallelism/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/02/Elastic-Cuckoo-Page-Tables-Rethinking-Virtual-Memory-Translation-for-Parallelism/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-08-02 00:00:00" itemprop="dateCreated datePublished" datetime="2023-08-02T00:00:00+08:00">2023-08-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-08 07:34:46" itemprop="dateModified" datetime="2023-08-08T07:34:46+08:00">2023-08-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Virtual-memory/" itemprop="url" rel="index"><span itemprop="name">Virtual memory</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Page-tables/" itemprop="url" rel="index"><span itemprop="name">Page tables</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Page-tables/Hashed-page-tables/" itemprop="url" rel="index"><span itemprop="name">Hashed page tables</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">体系结构</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Elastic-Cuckoo-Page-Tables-Rethinking-Virtual-Memory-Translation-for-Parallelism"><a href="#Elastic-Cuckoo-Page-Tables-Rethinking-Virtual-Memory-Translation-for-Parallelism" class="headerlink" title="Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism"></a>Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism</h1><p><strong>ASPLOS 2020 Best Paper Award.</strong> <a target="_blank" rel="noopener" href="http://iacoma.cs.uiuc.edu/iacoma-papers/PRES/present_asplos20.pdf">slides</a> <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=BIvpGx-znlk&list=PLsLWHLZB96VeVp3IVzvSH58ttVz_Anr7H&index=68&t=0s">video</a></p>
+<h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>新兴的内存密集型工作负载的内存需求前所未有地增长，这使得虚拟内存转换成为主要的性能瓶颈。为了解决这个问题，本文引入了Elastic Cuckoo Page Tables，这是一种新颖的页表设计，将传统的多级基数页表使用的顺序指针追踪操作转化为完全并行的查找。由此产生的设计首次利用内存级并行性进行地址转换。Elastic cuckoo page tables使用Elastic Cuckoo Hashing，这是一种支持高效页表调整的cuckoo hashing的新型扩展。Elastic cuckoo page tables有效地解决了哈希冲突，提供了进程私有的页表，支持多个页面大小和进程之间的页面共享，并根据应用程序要求动态调整页表大小。</p>
+<p>我们通过对一个包含图分析、生物信息学、高性能计算和系统工作负载的8核处理器进行全系统模拟来评估Elastic cuckoo page tables。相比传统的基数页表，Elastic cuckoo page tables将地址转换开销平均降低了41%。结果是应用程序执行速度提高了3-18%。</p>
+<span id="more"></span>
+
+<h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1 Introduction"></a>1 Introduction</h2><p>虚拟内存是现代计算系统的基本抽象，它提供了内存虚拟化和进程隔离功能。虚拟内存的一个核心组成部分是页表，它存储虚拟地址到物理地址的转换。页表的设计对于内存密集型工作负载的性能影响很大，这些工作负载中，工作集远远超过了TLB（Translation Lookaside Buffer）的范围。在这些工作负载中，频繁的TLB缺失需要从页表中获取虚拟地址到物理地址的转换，将页表查找放在执行的关键路径上。</p>
+<p>目前，页表的<em>事实</em>标准设计称为<em>基数页表</em>，它将转换信息组织成多级树结构。x86-64架构使用四级树，而下一代架构（例如Intel的Sunny Cove）将增加第五级，Linux已经支持这种设计。基数页表可能会产生高性能开销，因为查找转换涉及一个页表遍历，它从内存系统<em>顺序</em>访问树的所有层级。</p>
+<p>尽管人们已经做了大量努力，通过大型和多级TLB、大页支持以及用于页表遍历的内存管理单元（MMU）缓存来提高地址转换效率，但地址转换仍然成为主要的性能瓶颈。它可能占到新型应用程序总体执行时间的20-50%，而页表遍历可能占据主内存访问的20-40%。考虑到TLB的扩展受到访问时间、空间和功耗预算的限制，现代计算平台现在可以提供TB甚至PB级别的主内存，以及不断出现的各种内存密集型工作负载，这样的开销在未来可能会加剧。</p>
+<hr>
+<h5 id="tips-TLB-MMU-Cache"><a href="#tips-TLB-MMU-Cache" class="headerlink" title="tips: TLB &amp;&amp; MMU Cache"></a>tips: TLB &amp;&amp; MMU Cache</h5><p>每个CPU core都有一个独立的TLB（Translation Lookaside Buffer），用于存储地址转换（虚拟页号+页表项（PTE）），一般来说也采用分层架构，如下图：</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230804221009551.png" alt="image-20230804221009551"></p>
+<p>作为CPU内部的硬件，为了满足高速的访问速度，TLB的大小很小，通常只有1000个左右的条目。</p>
+<p>一旦发生TLB miss，MMU将会通知内存通过多级页表访问查询对应的物理地址。</p>
+<p>例如，×86系统使用四级页表。因此，TLB未命中需要对这些页表进行四次长延迟的内存访问，通常可以在最后一级缓存或主存储器中找到它们。作为回应，一些处理器供应商（例如英特尔和AMD）设计了这样的结构，不仅将多级基数树页表的最后一级中的PTE（在TLB中）进行缓存，还将树的更高级别中的条目缓存在小型每核心的<a target="_blank" rel="noopener" href="https://www.cs.yale.edu/homes/abhishek/abhishek-micro13.pdf">内存管理单元（MMU）缓存</a>中。</p>
+<p>MMU缓存在TLB未命中时进行访问；MMU缓存命中可以跳过在页表遍历中的多次内存引用（在最佳情况下，将整个遍历减少到只有一个内存引用）。</p>
+<p>TLB在虚拟化环境下表现往往并不好，原因在于进程切换时会带来一定程度上的TLB刷新，导致TLB miss增加。</p>
+<hr>
+<p>为了减少地址转换开销，本文探索了一种根本不同的解决方案。具体而言，我们探索了一种新的页表结构，它消除了指针追踪操作，并利用并行性进行转换查找。</p>
+<p>一个自然的方法是用<em>哈希页表</em>来替换基数页表，哈希页表将虚拟地址到物理地址的转换存储在一个哈希表中。然而，哈希页表受到一系列问题的困扰。一个主要问题是处理哈希冲突的需求。目前处理页面表中的哈希冲突的解决方案，即冲突链接和开放地址法，需要顺序内存引用来遍历冲突的条目，这需要特殊的操作系统支持。或者，为了避免冲突，哈希页表需要动态调整大小。然而，这样的操作非常昂贵，因此提出的哈希页表解决方案通过使用一个由所有进程共享的大型全局页表来避免它。不幸的是，全局哈希页表无法在不添加额外的转换级别的情况下支持进程之间的页面共享或多个页面大小。</p>
+<p>为了解决哈希页表的问题，本文提出了一种称为<em>Elastic Cuckoo Page Tables</em>的新设计。这些页面表使用<em>Elastic Cuckoo Hashing</em>进行地址转换，这是对布谷鸟哈希的一种新扩展，用于支持渐进的、动态的调整大小。弹性布谷鸟页表有效地解决了哈希冲突问题，提供了进程私有的页面表，支持多种页面大小和进程之间的页面共享，以及高效地动态调整页面表大小以满足进程需求。因此，弹性布谷鸟页表将传统基数页表的顺序指针追踪操作转变为完全并行的查找，允许地址转换首次利用内存级别的并行性。</p>
+<p>我们通过对运行一组图分析、生物信息学、高性能计算和系统工作负载的8核处理器进行全系统模拟来评估弹性布谷鸟页表。相比于基数页表，弹性布谷鸟页表平均减少了41%的地址转换开销。</p>
+<h2 id="2-Background"><a href="#2-Background" class="headerlink" title="2 Background"></a>2 Background</h2><h3 id="2-1-Radix-Page-Tables"><a href="#2-1-Radix-Page-Tables" class="headerlink" title="2.1 Radix Page Tables"></a>2.1 Radix Page Tables</h3><p>目前的所有体系结构都实现了Radix页表，其中页表组织为多级Radix树。例如，图1显示了x86-64页表的结构。给定一个48位的虚拟地址（VA），由于标准页面大小为4KB，最低的12位是页偏移量。剩余的36位被分成四个9位字段。每个字段用作页表的四个级别之一的索引。这些级别分别称为PGD（页全局目录）、PUD（页上层目录）、PMD（页中间目录）和PTE（页表项）[19]。翻译从CR3寄存器开始，该寄存器包含PGD表的基址。通过将CR3和位47-39相加，可以得到一个PGD条目，其内容是正确的PUD表的基址。然后，通过添加该内容和位38-30，可以得到一个PUD条目，其内容是正确的PMD表的基址。这个过程一直持续到读取一个PTE条目。它包含物理页号和硬件在TLB中插入的附加标志。物理页号与位11-0连接在一起就是物理地址（PA）。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803121317873.png" alt="image-20230803121317873"></p>
+<p>所描述的过程称为页面表遍历。在TLB未命中时，它在硬件中执行。页面表遍历需要四个<em>顺序</em>的高速缓存层次访问。</p>
+<p>为了增加TLB的范围，x86-64体系结构支持两种大页面大小，即2MB和1GB。当使用大页面时，页面表遍历被缩短。具体来说，2MB页面的翻译从PMD表中获得，而1GB页面的翻译从PUD表中获得。</p>
+<p>为了减少页面表遍历的开销，x86-64处理器的MMU有一些称为页面遍历缓存（PWC）的小缓存。PWC存储最近访问的PGD、PUD和PMD表项（但不包括PTE表项）[1, 8, 11, 12, 38]。在TLB未命中时，在硬件发出任何对高速缓存层次的请求之前，它会检查PWC。它记录在哪个最低级别的表项命中。然后，它为下一个较低级别的表项生成对高速缓存层次的访问。</p>
+<h4 id="2-1-1-Struggles-with-Emerging-Workloads"><a href="#2-1-1-Struggles-with-Emerging-Workloads" class="headerlink" title="2.1.1 Struggles with Emerging Workloads."></a>2.1.1 Struggles with Emerging Workloads.</h4><p>新兴的工作负载，例如图形处理和生物信息学，通常具有多GB的内存占用，并表现出低局部性内存访问模式。这种行为给地址转换机制带来了压力。最近的研究报告称，地址转换已经成为主要的性能瓶颈[8-10, 12-15, 21, 42, 56]。它可能占据应用程序执行时间的20-50%。此外，页表遍历可能占据主存访问的20-40% [13]。为了解决这个问题，可以增加PWC的大小以捕获更多的翻译，或者增加翻译树中的级数以增加内存寻址能力。然而，这两种方法都不可扩展。与TLB等靠近核心的其他结构一样，PWC的访问时间需要很短。因此，PWC必须很小。它们很难跟上内存容量的快速增长。增加翻译树中的级数会使翻译速度变慢，因为它可能涉及更多的高速缓存层次访问。在历史上，英特尔逐渐增加了树的深度，从Intel 80386的两级增加到目前处理器中的四级[4, 38]。Intel Sunny Cove中计划采用五级树 [36, 37]，并已在Linux中实现。这种方法是不可扩展的。</p>
+<h3 id="2-2-Hashed-Page-Tables"><a href="#2-2-Hashed-Page-Tables" class="headerlink" title="2.2 Hashed Page Tables"></a>2.2 Hashed Page Tables</h3><p>替代基数页表的是<em>哈希页表</em>。在哈希页表中，地址转换涉及将虚拟页号进行哈希，并使用哈希值作为索引访问页表。假设没有哈希冲突，地址转换只需要一次内存系统访问。</p>
+<p>哈希页表[22, 33, 39, 40, 68] 已经在IBM PowerPC、HP PA-RISC和Intel Itanium架构中实现。Itanium架构中对哈希页表的支持被称为长格式虚拟哈希页表（VHPT）[23, 28, 35]。在这个设计中，操作系统处理哈希冲突。当发生哈希冲突时，VHPT walker会引发一个异常，然后调用操作系统。操作系统处理程序通过搜索冲突链和其他辅助的操作系统定义的数据结构来解决冲突。</p>
+<h4 id="2-2-1-Challenges-in-Hashed-Page-Tables"><a href="#2-2-1-Challenges-in-Hashed-Page-Tables" class="headerlink" title="2.2.1 Challenges in Hashed Page Tables."></a>2.2.1 Challenges in Hashed Page Tables.</h4><p>Barr等人[8]总结了哈希页表的三个局限性。第一个是在访问页表时失去空间局部性。这是由哈希引起的，它会将连续虚拟页的页表条目分散开来。第二个局限性是需要将哈希标记（例如虚拟页号）与每个页表条目关联，这导致页表条目占用更多的内存空间。第三个是需要处理哈希冲突，这会导致更多的内存访问，因为系统需要遍历冲突链 [8]。</p>
+<p>最近，Yaniv和Tsafrir [73] 表明，前两个限制可以通过精心设计的页表条目来解决。具体来说，他们使用了页表条目聚类技术，将多个连续的页表条目放置在一个大小等于缓存行的哈希表条目中。此外，他们提出了页表条目压缩技术，可以重新利用多个连续的页表条目的未使用的高位来存储哈希标记。</p>
+<p>不幸的是，哈希冲突是一个显著的问题，仍然没有解决。现有的策略，如冲突链和开放地址法，都需要昂贵的内存引用来遍历冲突的条目。</p>
+<p>为了评估冲突的重要性，我们使用第7节的应用程序模拟了一个全局哈希表。我们评估了以下情景：（1）哈希表的条目数等于所有应用程序所需的所有翻译的总和，（2）哈希函数是计算密集型的BLAKE加密函数 [5]，它最小化了冲突的概率。</p>
+<p>图2显示了随机数映射到相同哈希表条目的概率。数据显示为累积分布函数（cumulative distribution function，CDF）。图中还显示了超额配置了50％的全局哈希表的CDF。对于基线表，我们可以看到只有35％的哈希表条目没有冲突（即冲突的条目数为1）。另一方面，有些条目存在大量的冲突，需要耗时的冲突解决操作。即使对于超额配置的表，也只有一半的条目没有冲突。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803121824060.png" alt="image-20230803121824060"></p>
+<h4 id="2-2-2-Drawbacks-of-a-Single-Global-Hash-Table"><a href="#2-2-2-Drawbacks-of-a-Single-Global-Hash-Table" class="headerlink" title="2.2.2 Drawbacks of a Single Global Hash Table."></a>2.2.2 Drawbacks of a Single Global Hash Table.</h4><p>一个简单的哈希页表系统设计是拥有一个全局的哈希表，其中包含机器上所有活动进程的页表条目。这个设计很有吸引力，因为：1）哈希表只需要分配一次，2）可以调整表的大小以最小化对动态表调整的需求，这是非常耗时的。</p>
+<p>然而，这样的设计有一些实际上的缺点，使其不可取 [22, 73]。首先，它不能支持多种页面大小（例如大页面）和进程之间的页面共享，除非增加额外的复杂性。例如，为了支持这两个功能，IBM PowerPC架构对每个内存引用使用了两级的转换过程 [34]。其次，当一个进程被终止时，系统需要对整个哈希表进行线性扫描，以找到并删除相关的页表条目。注意，删除一个条目也可能是昂贵的：它可能需要进行长时间的哈希表查找（对于开放寻址法）或冲突链遍历。此外，在开放寻址法中删除一个页表条目可能会影响未来查找中的冲突探测。</p>
+<h4 id="2-2-3-Resizing-Hashed-Page-Tables"><a href="#2-2-3-Resizing-Hashed-Page-Tables" class="headerlink" title="2.2.3 Resizing Hashed Page Tables."></a>2.2.3 Resizing Hashed Page Tables.</h4><p>为了减少碰撞，哈希表实现会设置一个占用阈值，当达到该阈值时，会触发对哈希表的重新调整大小。然而，如果一次性完成调整大小，这个过程将会非常昂贵。它需要分配一个更大的新哈希表，并且对旧哈希表中的每个条目，使用新的哈希函数重新计算标签，并将（标签，值）对移动到新哈希表中。在页表的上下文中，正在执行的工作负载需要暂停并等待调整大小过程完成。此外，由于页表条目被移动到新的内存位置，它们在处理器的缓存层次结构中的旧副本将变得无用。正确的副本现在在新的地址中。</p>
+<p>另一种方法是逐步移动条目，并在一段时间内保留旧哈希表和新哈希表的内存。插入操作只在新哈希表中插入条目，因此旧哈希表最终将变为空，并且随后被释放。此外，在每次插入之后，系统还会将一个或多个条目从旧哈希表移动到新哈希表中。不幸的是，查找需要从旧哈希表和新哈希表中获取条目，因为所需的条目可能在任一表中存在。</p>
+<p>在页表的上下文中，逐步重新哈希有两个限制。首先，保留两个表会近似增加一倍的内存开销。其次，查找必须从两个表中获取条目，这将导致访问缓存层次结构的访问量翻倍。不幸的是，获取的一半条目是无用的，因此缓存可能会被污染。</p>
+<h3 id="2-3-Cuckoo-Hashing"><a href="#2-3-Cuckoo-Hashing" class="headerlink" title="2.3 Cuckoo Hashing"></a>2.3 Cuckoo Hashing</h3><p>Cuckoo哈希是一种冲突解决算法，允许一个元素具有多个可能的哈希位置 [50]。该元素在一次只能存储在这些位置中的一个，但它可以在这些哈希位置之间移动。假设一个Cuckoo哈希表有两个哈希表或路（ways）$T_1$和$T_2$，使用哈希函数$H_1$和$H_2$进行索引。因为有两个表和哈希函数，所以该结构称为2-ary Cuckoo哈希表。在Cuckoo哈希中，插入操作将元素x放置在两个可能的条目中的一个，即$T_1$[$H_1$(x)]或$T_2$[$H_2$(x)]。如果选定的条目被占用，算法将踢出当前的占用者，并重新插入到元素x的另一个哈希位置。如果该条目也被占用，对其占用者执行相同的过程。插入和踢出操作持续进行，直到没有占用者被踢出，或者达到最大位移次数（例如32次）。后一种情况是插入失败。</p>
+<p>在Cuckoo哈希中进行查找时，会检查元素的所有可能哈希位置，如果在其中的任何一个位置找到，则查找成功。在上面的例子中，会检查$T_1$[$H_1$(x)]和$T_2$[$H_2$(x)]这两个位置。这些位置会并行地进行检查。因此，查找操作的时间是恒定的。删除操作与查找类似，首先进行查找，然后如果找到该元素，则将其删除。</p>
+<p>图3展示了将元素x插入2-ary Cuckoo哈希表的示例。最初，在步骤1中，表中有三个元素：a，b和c。将x插入到$T_1$[$H_1$(x)]的位置会将先前的占用者b踢出。在步骤2中，算法将b插入到$T_2$[$H_2$(b)]的位置，并将c踢出。最后，在步骤3中找到了一个空的位置用于c。这个例子可以推广到d-ary Cuckoo哈希 [24]，它使用d个独立的哈希函数来索引d个哈希表。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802163229387.png" alt="image-20230802163229387"></p>
+<p>和任何哈希表一样，Cuckoo哈希表的性能在高占用率下会恶化。为了获得洞察力，图4描述了d-ary Cuckoo哈希表（其中d为{2, 3, 4, 8}）的性能与表占用率之间的关系。我们取随机数，并像之前一样使用BLAKE密码哈希函数[5]对它们进行哈希。实际Cuckoo哈希表的大小并不重要，只有哈希表的占用率重要。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802163344076.png" alt="image-20230802163344076"></p>
+<p>图4(a)显示了成功插入元素所需的平均插入尝试次数与表占用率之间的关系。我们可以看到，在低占用率下，要么在第一次尝试中插入键，要么需要单次位移。随着占用率的增加，插入性能恶化 - 例如，在2-ary Cuckoo哈希表中占用率达到50%后，在3、4和8-ary Cuckoo哈希表中占用率达到⇠70%后。图4(b)显示了经过32次尝试后插入失败的概率。我们可以看到，在2-ary Cuckoo哈希表中，占用率达到50%后，插入失败的概率不为零，而在3、4和8-ary哈希表中，插入失败的概率仅在占用率达到80%后出现。</p>
+<h2 id="3-Rethinking-Page-Tables"><a href="#3-Rethinking-Page-Tables" class="headerlink" title="3. Rethinking Page Tables"></a>3. Rethinking Page Tables</h2><p>如第2.1.1节所示，基数页表不具有可伸缩性。另外，如第2.2.2节所示，单个全局哈希页表也不是一个好的解决方案。我们希望提供<em>进程私有的哈希页表</em>，以便轻松支持进程间的页面共享和多个页面大小。然而，一个默认大小的哈希页表不能太大，否则会在某些进程中浪费太多内存。因此，我们被迫使用适度大小的哈希页表，这将导致碰撞。</p>
+<p>解决碰撞的一个有希望的方法是使用Cuckoo哈希（见第2.3节）。不幸的是，任何默认大小的Cuckoo哈希表最终都会由于容量不足而导致插入失败。因此，不可避免地需要调整Cuckoo哈希表的大小。</p>
+<p>不幸的是，调整Cuckoo哈希表的大小尤其昂贵。回想第2.2.3节中的内容，在逐步调整大小过程中，查找操作需要两倍的访问次数 - 因为需要访问旧的和新的哈希表。这个要求特别损害Cuckoo哈希，因为在正常操作期间，对d-ary Cuckoo哈希表的查找已经需要d次访问；因此，在调整大小期间，查找需要执行2 x d次访问。</p>
+<p>为了解决这个问题，在本文中，我们使用一种新的算法扩展了Cuckoo哈希表的逐步调整大小。使用这个算法，在调整d-ary Cuckoo哈希表的大小期间，查找操作<em>只需要d次访问</em>。此外，该算法不会从旧的哈希表中获取已经移动到新的哈希表的缓存页表项。因此，它最小化了来自这些条目的缓存污染。我们将这个算法命名为<em>Elastic Cuckoo Hashing</em>。基于这个想法，我们后来建立了每个进程的<em>Elastic Cuckoo Page Tables</em>作为我们提议用来替换基数页表的解决方案。</p>
+<h2 id="4-Elastic-Cuckoo-Hashing"><a href="#4-Elastic-Cuckoo-Hashing" class="headerlink" title="4. Elastic Cuckoo Hashing"></a>4. Elastic Cuckoo Hashing</h2><h3 id="4-1-Intuitive-Operation"><a href="#4-1-Intuitive-Operation" class="headerlink" title="4.1 Intuitive Operation"></a>4.1 Intuitive Operation</h3><p>Elastic Cuckoo Hashing是一种用于逐渐调整大小的d-ary cuckoo哈希表的新型算法。它解决了现有逐渐调整大小方案的主要限制。为了理解它的工作原理，首先考虑基线的d-ary cuckoo哈希表如何进行逐渐调整大小。</p>
+<h4 id="Cuckoo-Hashing"><a href="#Cuckoo-Hashing" class="headerlink" title="Cuckoo Hashing"></a>Cuckoo Hashing</h4><p>回想一下，d-ary cuckoo哈希表有d个路（way），每个路有自己的哈希函数。我们分别将每个路和哈希函数表示为$T_i$和$H_i$，其中i取值为1到d。我们将组合的路和函数分别表示为$T_D$和HD。当$T_D$的占用率达到重新哈希阈值（Rehashing Threshold）时，会分配一个更大的d-ary cuckoo哈希表。在这个新的d-ary表中，我们将每个路和哈希函数表示为$T_i$和$H_i$，其中i取值为1到d，同时将组合的路和函数表示为$T_D$和HD。</p>
+<p>随着执行的进行，无碰撞插入操作只访问新的d-ary哈希表的一个随机选择的单个路（如果有碰撞，则访问新的d-ary哈希表的多个路）。此外，每次插入之后，系统执行一次重新哈希操作。重新哈希操作包括将一个元素从旧的d-ary哈希表中移除，并将其插入新的d-ary哈希表中。不幸的是，查找操作需要探测旧的和新的d个路（共2d个路），因为一个元素可能位于两个哈希表的d个路中的任何一个路。当旧的d-ary表中的所有元素都被移除时，后者被释放。</p>
+<h4 id="Elastic-Cuckoo-Hashing"><a href="#Elastic-Cuckoo-Hashing" class="headerlink" title="Elastic Cuckoo Hashing"></a>Elastic Cuckoo Hashing</h4><p>d-ary弹性cuckoo哈希表的工作方式不同。旧的d-ary哈希表中的每个$T_i$路都有一个重新哈希指针$P_i$，其中i取值为1到d。$P_i$指针的集合被称为$P_D$。在每个$T_i$中，$P_i$最初为零。当系统要从$T_i$重新哈希一个元素时，它会移除由$P_i$指向的元素，将元素插入新的d-ary表，并递增$P_i$。在任何时候，$P_i$将其$T_i$分为两个区域：低于$P_i$索引的条目（迁移区域）和高于或等于$P_i$索引的条目（存活区域）。图5显示了一个2-ary弹性cuckoo哈希表的这两个区域。随着逐步重新哈希的进行，$T_D$中的迁移区域不断增长。最终，当迁移区域覆盖了$T_D$中的所有条目时，旧的d-ary表被释放。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802163708170.png" alt="image-20230802163708170"></p>
+<p>在d-ary弹性Cuckoo哈希表中插入一个元素的过程如下。系统随机选择旧的d-ary表中的一个路，假设为$T_i$。将元素使用哈希函数$H_i$进行哈希。如果哈希值落在$T_i$的存活区域（Live Region）内，则将元素插入到$T_i$；否则，将元素使用相同的路$T’_i$的新d-ary表的哈希函数$H’_i$进行哈希，并将元素插入到$T’_i$。</p>
+<p>由于这个算法，查找一个元素的操作只需要d次探测。实际上，元素使用旧的d-ary表中的所有HD个哈希函数进行哈希。对于每个路i，如果哈希值落在$T_i$的存活区域内，则对$T_i$进行探测；否则，将元素使用$H’_i$进行哈希，并对新的d-ary表中的$T’_i$进行探测。</p>
+<hr>
+<h5 id="tips："><a href="#tips：" class="headerlink" title="tips："></a>tips：</h5><p>探测是指访问d-ary表中hash结果所对应的条目。</p>
+<hr>
+<p>Elastic Cuckoo哈希相对于Cuckoo哈希改进了逐步调整大小的两个方面。首先，它只需要d次探测而不是2 x d次探测进行查找。其次，它通过不从旧的d-ary表的迁移区域中获取条目来最小化缓存污染；这样的条目是无用的，因为它们已经被移动到新的d-ary表中。</p>
+<h3 id="4-2-Detailed-Algorithms"><a href="#4-2-Detailed-Algorithms" class="headerlink" title="4.2 Detailed Algorithms"></a>4.2 Detailed Algorithms</h3><p>现在我们详细描述弹性Cuckoo哈希算法。</p>
+<h4 id="Rehash（重新哈希）"><a href="#Rehash（重新哈希）" class="headerlink" title="Rehash（重新哈希）"></a>Rehash（重新哈希）</h4><p>重新哈希操作会将旧的d-ary哈希表中路$T_i$的重新哈希指针$P_i$所指向的元素，使用哈希函数$H’_i$插入到新的d-ary哈希表的<em>同</em>一路$T’_i$中。然后，$P_i$会被递增。</p>
+<p>图6展示了一个2-ary弹性Cuckoo哈希表的示例。左侧是重新哈希之前的哈希表，$P_1$和$P_2$指向最顶部的条目。右侧是第一条$T_1$中的条目重新哈希后的旧和新哈希表。系统将元素d从$T_1$移动到了$T’_i$的位置$T’_i [H’_i(d)]$。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802182039348.png" alt="image-20230802182039348"></p>
+<h4 id="Look-up"><a href="#Look-up" class="headerlink" title="Look-up."></a>Look-up.</h4><p>元素x的查找涉及计算旧的d-ary哈希表所有路的$H_i(x)$值，并对每个路进行比较，判断是否满足条件$H_i(x)$≥ $P_i$。对于每个路i，如果$H_i(x)$属于存活区域（即$H_i(x)$ ≥ $P_i$），则使用$H_i(x)$对旧哈希表中的路$T_i$进行探测；否则，使用$H’_i(x)$对新的哈希表中的路$T’_i$进行探测。具体算法如下：</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802182239887.png" alt="image-20230802182239887"></p>
+<p>作为示例，考虑2-ary弹性Cuckoo哈希表。对元素x的查找需要两次探测。探测的具体结构取决于$P_1$、$P_2$、$H_1(x)$和$H_2(x)$的值。图7展示了四种可能的情况。该图假设$P_1$和$P_2$当前分别指向$T_1$和$T_2$的第三个和第二个条目。如果$H_1$(x) ≥ $P_1$且$H_2$(x) ≥ $P_2$（情况1），则对条目$T_1$[$H_1$(x)]和$T_2$[$H_2$(x)]进行探测。如果$H_1$(x) &lt; $P_1$且$H_2$(x) &lt; $P_2$（情况2），则对条目$T’_1[H’_1(x)]$和$T’_2[H’_2(x)]$进行探测。如果$H_1$(x) &lt; $P_1$且$H_2$(x) ≥ $P_2$（情况3），则对条目$T’_1[H’_1(x)]$和$T_2$[$H_2$(x)]进行探测。最后，如果$H_1$(x) ≥ $P_1$且$H_2$(x) &lt; $P_2$（情况4），则对条目$T_1$[$H_1$(x)]和$T’_2[H’_2(x)]$进行探测。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802204719881.png" alt="image-20230802204719881"></p>
+<h4 id="Observation-1"><a href="#Observation-1" class="headerlink" title="Observation 1."></a>Observation 1.</h4><p>在查找操作中存在并行性，而在调整大小期间的查找操作需要执行元素的哈希计算、与重新哈希指针中的值进行比较，并且在旧哈希表中的一条路进行探测，或者在新哈希表中的一条路进行第二次哈希计算和探测。</p>
+<h4 id="Delete"><a href="#Delete" class="headerlink" title="Delete."></a>Delete.</h4><p>删除操作遵循查找的过程，在找到元素后清除相应的条目。因此，它的时间与查找相同，并且额外需要对目标路进行写操作。</p>
+<h4 id="Insert"><a href="#Insert" class="headerlink" title="Insert."></a>Insert.</h4><p>元素x的插入操作涉及随机选择旧的d-ary哈希表中的一条路i，并检查$H_i(x)$ &lt; $P_i$是否为真。如果不是，则将元素插入到$T_i$[$H_i(x)$]；否则，将元素插入到新的d-ary哈希表的同一路$T’_i[H’_i(x)]$。在任一情况下，如果插入导致另一个元素的驱逐，则系统随机选择与刚刚更新的路不同的一条路，并对该元素重复相同的过程。该过程可能重复多次，每次选择与前一次不同的路。当插入不导致任何驱逐或达到最大迭代次数时，该过程终止。</p>
+<p>下面的算法描述了插入操作。在算法中，<code>RAND_PICK</code>返回一组路中的随机路。我们使用$x \leftrightarrow y$来表示值x和y的交换，并使用$\perp$表示空值。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802202224509.png" alt="image-20230802202224509"></p>
+<h4 id="Hash-Table-Resize"><a href="#Hash-Table-Resize" class="headerlink" title="Hash Table Resize"></a>Hash Table Resize</h4><p>与弹性Cuckoo哈希表调整大小相关的两个参数是<em>Rehashing Threshold</em>（$r_t$）和<em>Multiplicative Factor</em>（k）。当哈希表的占用比例达到$r_t$时，系统触发哈希表的调整大小，并分配一个比旧哈希表大k倍的新哈希表。</p>
+<p>我们选择一个适当的$r_t$，以保证插入冲突很少，并且插入失败几乎可以忽略不计。如图4所示，对于3-ary哈希表，一个合适的$r_t$值为0.6或更小。我们选择一个合适的k，既不会浪费过多内存，也不会导致连续的调整大小操作。如果k太小，在调整大小过程中，当条目被移动到新哈希表时，新哈希表的占用率可能会达到触发新调整大小操作的点。</p>
+<p>附录A展示了如何设置k。它表明k &gt; ($r_t$ + 1)&#x2F;$r_t$。例如，对于$r_t$ &#x3D; 0.4，k &gt; 3.5；因此k &#x3D; 4是合适的。对于$r_t$ &#x3D; 0.6，k &gt; 2.6；因此k &#x3D; 3是合适的。然而，为了简化硬件，k取为2的幂次方最为合适。</p>
+<p>为了在调整大小期间最小化旧哈希表中的冲突，限制调整大小期间存活区域的占用率是非常重要的。我们的算法跟踪存活区域中已使用条目的比例。只要这个比例不超过触发调整大小的整个表的比例，每次插入操作后只需要单次重新哈希。否则，每次插入操作后都需要重新哈希多个元素，直到存活区域回到所需的已使用条目的比例。</p>
+<p>我们选择Rehashing Threshold为足够低，以确保插入失败的频率可以忽略不计。然而，插入失败仍然可能发生。如果插入失败发生在调整大小之外，我们会启动调整大小。如果插入失败发生在调整大小期间，多个元素将被重新哈希到其他路，并再次尝试插入。实际上，通过选择合理的<em>Rehashing Threshold</em>，我们完全可以避免插入失败。</p>
+<p>弹性Cuckoo哈希表在占用率低于给定阈值时自然支持缩小。我们使用<em>Downsizing Threshold</em>（$d_t$）和<em>Downsizing Factor</em>（g）来缩小哈希表。对于渐进式缩小，我们使用类似于渐进调整大小的算法。</p>
+<h2 id="5-Elastic-Cuckoo-Page-Table-Design"><a href="#5-Elastic-Cuckoo-Page-Table-Design" class="headerlink" title="5 Elastic Cuckoo Page Table Design"></a>5 Elastic Cuckoo Page Table Design</h2><p>Elastic Cuckoo Page Table是根据进程的内存需求动态缩放的私有哈希页表。它们能够解决哈希冲突，并支持多个页面大小和进程之间的页面共享。在本节中，我们描述它们的组织结构，cuckoo walk tables和cuckoo walk caches。</p>
+<h3 id="5-1-Elastic-Cuckoo-Page-Table-Organization"><a href="#5-1-Elastic-Cuckoo-Page-Table-Organization" class="headerlink" title="5.1 Elastic Cuckoo Page Table Organization"></a>5.1 Elastic Cuckoo Page Table Organization</h3><p>Elastic Cuckoo Page Table是一个由d-ary弹性布谷鸟哈希表组成的结构，它通过对虚拟页面号（VPN）标签进行哈希索引。一个核心中的进程拥有与页面大小相对应的Elastic Cuckoo Page Table。图8显示了一个进程的Elastic Cuckoo Page Table，适用于x86支持的页面大小：1GB、2MB和4KB。在图中，每个页表使用一个2-ary弹性布谷鸟哈希表。这些表使用了x86的术语命名：PUD、PMD和PTE。每个表项包含多个连续的页面转换条目。在这个示例中，我们假设每个表项有8个页面转换条目。因此，使用受x86启发的实现，这些表由以下VA位索引：PUD使用47-33位，PMD使用47-24位，PTE使用47-15位。所有的哈希函数都是不同的。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802210930165.png" alt="image-20230802210930165"></p>
+<p>通过使用多个独立的页表，这种设计可以支持任意页面大小。这与基数页表形成对比，基数页表由于其执行转换的方式，只能支持一些固定的页面大小。</p>
+<p>此外，这种设计可以通过利用两级并行性来实现高性能。第一个级别是不同页面大小的页表之间的并行性。每个Elastic Cuckoo Page Table都是独立的，可以并行查找。这与基数页表形成对比，基数页表中每个树级别必须按顺序遍历。第二个级别是在d-ary表的不同d个路径之间的并行性。一个转换可能位于任何d个路径中的一个。因此，所有路径可以并行访问。总的来说，使用Elastic Cuckoo Page Table进行虚拟页面转换可以利用现代处理器提供的<strong>内存级并行性</strong>。</p>
+<h4 id="5-1-1-Page-Table-Entry"><a href="#5-1-1-Page-Table-Entry" class="headerlink" title="5.1.1 Page Table Entry"></a>5.1.1 Page Table Entry</h4><p>弹性布谷鸟页表中的条目采用了页面表条目聚类和压缩的思想，目的是改善空间局部性并减少VPN标签的开销。具体来说，一个单独的哈希表条目包含一个VPN标签和多个连续的物理页转换条目，它们被紧密地打包在一起。打包在一起的条目数量被称为聚类因子，并且被选择为使标签和条目能够适应一个缓存行。</p>
+<p>在64字节缓存行的机器中，我们可以在一个缓存行中聚类8个物理页转换条目和一个标签。这在[73]中提出的压缩方案中是可行的，该方案利用了来自多个连续转换中的一些未使用的位来编码标签 [38, 73]。</p>
+<p>举个例子，考虑将8个4KB页面的PTE条目放置在一个缓存行中，这需要最长的VPN标签——即VA的第47-15位所对应的33位。在x86系统中，一个PTE通常使用64位。为了获得这些33位的标签，我们需要从每个PTE中取5位并重新用作标签。我们的实现从每个PTE中取了4位，这些位目前由Linux内核保留以支持实验性用途 [44]，以及1位，目前用于记录页大小——即页面大小是否为4KB或更大。在弹性布谷鸟页表中，后一种信息是不必要的。通过这些选择，我们将8个PTE条目和一个标签放置在一个缓存行中。对于PMD和PUD表，我们可以轻松地做同样的处理，因为我们只需要从这些哈希表中的每个物理页转换条目中取3位和2位，分别用作标签。</p>
+<hr>
+<h5 id="tips"><a href="#tips" class="headerlink" title="tips"></a>tips</h5><p>一个cache line本来有 8 个entry，每个entry 64 bit，共512bit；我们需要标记这8个个entry对应的vpn（33bit），于是每个entry贡献5bit就足够了。</p>
+<hr>
+<h4 id="5-1-2-Cuckoo-Walk"><a href="#5-1-2-Cuckoo-Walk" class="headerlink" title="5.1.2 Cuckoo Walk"></a>5.1.2 Cuckoo Walk</h4><p>我们使用“布谷鸟遍历（Cuckoo Walk）”一词来表示在弹性布谷鸟页表中查找正确转换的过程。布谷鸟遍历与顺序式基数页表遍历根本不同：它是一种<em>并行</em>遍历，可以同时查找多个哈希表。为了执行布谷鸟遍历，硬件页表遍历器取得一个VPN标签，使用不同哈希表的哈希函数对其进行哈希，然后使用得到的键来并行索引多个哈希表。</p>
+<p>举个例子，假设我们有一个2-ary PTE弹性布谷鸟页表。图9说明了从VPN标签开始的转换过程。由于聚类因子是8，VPN标签是VA的第47-15位。这些位被哈希使用两个哈希函数H1和H2。然后，将结果值添加到两个哈希表基地址的物理地址中。这些基地址存储在控制寄存器中。为了遵循x86术语，我们称这些寄存器为$CR3-PageSize_j-way_i$。然后访问得到的物理地址，并且如果任何两个标签与VPN标签匹配，则宣布为命中。在命中的情况下，使用PTE Offset（位14-12）来索引哈希表条目并获取所需的PTE条目。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803115651534.png" alt="image-20230803115651534"></p>
+<p>假设系统支持S种不同的页面大小。在进行转换时，如果请求的页面大小未知，硬件可能需要查找每个S个弹性布谷鸟页表的d个方式。因此，布谷鸟遍历可能需要执行最多S*d个并行查找。在接下来的部分，我们将展示如何显著减少这个数量。</p>
+<p>与基数页表条目类似，弹性布谷鸟页表的条目按需被缓存在缓存层次结构中。这样的支持加速了转换过程，因为它减少了发送到主存的请求数量。</p>
+<h3 id="5-2-Cuckoo-Walk-Tables"><a href="#5-2-Cuckoo-Walk-Tables" class="headerlink" title="5.2 Cuckoo Walk Tables"></a>5.2 Cuckoo Walk Tables</h3><p>我们不希望弹性布谷鸟页表遍历（cuckoo page walk）需要执行S * d个并行查找来获取一个页面转换项。为了减少所需的查找次数，我们引入了“Cuckoo Walk Tables”（CWTs）。这些软件表包含有关应该访问哪个弹性布谷鸟页表的哪个路径（way）以获取所需的页面转换项的信息。当操作系统对弹性布谷鸟页表执行某些类型的更新（详见第5.2.1节）时，CWTs会被操作系统更新。硬件会自动读取CWTs，并有效地减少获取转换的并行查找次数。</p>
+<p>使用CWTs导致了图10中显示的四种类型的布谷鸟遍历。该图假设有三种页面大小（1GB、2MB和4KB）和2-ary弹性布谷鸟页表。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803115758726.png" alt="image-20230803115758726"></p>
+<h5 id="Complete-Walk"><a href="#Complete-Walk" class="headerlink" title="Complete Walk:"></a>Complete Walk:</h5><p>在这种情况下，CWTs不提供任何信息，因此硬件访问所有页面大小的弹性布谷鸟页表的所有way。</p>
+<h5 id="Partial-Walk"><a href="#Partial-Walk" class="headerlink" title="Partial Walk:"></a>Partial Walk:</h5><p>CWTs指示页面不属于给定的大小。因此，硬件访问可能属于其他弹性布谷鸟页表的所有way。在某些情况下，可以避免搜索其中一些方式。在图中用虚线表示。</p>
+<h5 id="Size-Walk"><a href="#Size-Walk" class="headerlink" title="Size Walk:"></a>Size Walk:</h5><p>CWTs指示页面属于给定的大小。因此，硬件访问单个弹性布谷鸟页表的所有way。</p>
+<h5 id="Direct-Walk"><a href="#Direct-Walk" class="headerlink" title="Direct Walk:"></a>Direct Walk:</h5><p>CWTs指示页面的大小和存储转换的way。在这种情况下，只访问单个弹性布谷鸟页表的一个way。</p>
+<p>理想情况下，我们每个弹性布谷鸟页表都有一个关联的CWT。在我们的情况下，这意味着有一个PUD-CWT、一个PMD-CWT和一个PTE-CWT，它们逐渐提供更精确的信息。这些表按顺序访问，并且每个表可能比前一个表提供更精确的信息。</p>
+<p>然而，这些软件表位于内存中。为了使它们能够以低延迟访问，它们被缓存在MMU中的特殊缓存中，称为Cuckoo Walk Caches（布谷鸟遍历缓存）。这些缓存取代了基数页表的页面遍历缓存。它们在第5.3节中进行了描述。在我们的设计中，我们发现缓存PTE-CWT会提供过少的局部性，以致于没有收益，这一观察与基数页表的当前页面遍历缓存不缓存PTE条目的事实一致。因此，我们只有PUD-CWT和PMD-CWT表，并将它们缓存在布谷鸟遍历缓存中。</p>
+<p>PUD-CWT和PMD-CWT由使用锁的操作系统线程进行更新。它们被设计为d-ary的弹性布谷鸟哈希表，就像页面表一样。接下来我们将讨论它们的条目格式。</p>
+<h4 id="5-2-1-Cuckoo-Walk-Table-Entries"><a href="#5-2-1-Cuckoo-Walk-Table-Entries" class="headerlink" title="5.2.1 Cuckoo Walk Table Entries."></a>5.2.1 Cuckoo Walk Table Entries.</h4><p>CWT中的一个条目包含一个VPN标签和若干个连续的段头（<em>Section Header</em>），使得整个CWT条目占据整个缓存行。一个节头提供有关给定虚拟内存*段(section)*的信息。一个段是相应弹性布谷鸟页面表中的一个条目所翻译的虚拟内存地址空间范围。节头指定该段中页面的大小以及弹性布谷鸟页面表中哪个路径保存该段的翻译。</p>
+<p>为了让这个概念更加具体，我们展示了PMD-CWT中条目的确切格式。图11显示一个条目由一个VPN标签和64个节头组成。每个节头提供有关PMD弹性布谷鸟页面表中一个条目映射的虚拟内存段的信息。例如，图11显示了一个阴影节头，它提供有关PMD弹性布谷鸟页面表中阴影条目所映射的虚拟内存段的信息（在图的底部显示）。<br>该条目，如第5.1.1节所述，包括一个VPN标签和8个PMD翻译，以填满整个缓存行。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803115945811.png" alt="image-20230803115945811"></p>
+<p>由于PMD页面的大小为2MB，而虚拟内存段（即图11中的PMD弹性布谷鸟页面表的一行或条目）最多可以映射8个PMD页面，所以一个虚拟内存段包含16MB。需要注意的是，这个虚拟内存段的一部分或全部可能由4KB页面（其翻译在PTE弹性布谷鸟页面表中）而不是2MB页面填充。</p>
+<p>然后，一个PMD-CWT行或条目为这些虚拟内存段中的64个提供信息，这对应总共1GB的内存空间。因此，PMD-CWT条目的VPN标签包含虚拟地址的47-30位。考虑到64字节的缓存行，这个设计允许在PMD-CWT条目的每个节头中使用至少4位，但我们不能在一行中使用更多的节头。</p>
+<p>这4位编码了图11中所示的信息。第一个位（2MB位）指示该内存段是否映射一个或多个2MB页面。第二个位（4KB位）表示该段是否映射一个或多个4KB页面。最后两位（路位）仅在2MB位被设置时有意义。它们指示PMD弹性布谷鸟页面表的路，该表包含了此虚拟内存段中2MB页面的映射翻译。请注意，此编码假定弹性布谷鸟页面表最多有四条路。</p>
+<p>表1显示了硬件页行走器在从PMD-CWT中读取目标节头时采取的动作。如果2MB位和4KB位都清除，则该段中没有映射任何2MB或4KB页面。因此，行走器不会访问PMD或PTE弹性布谷鸟页面表。如果设置了2MB位并且4KB位被清除，则行走器在PMD弹性布谷鸟页面表中执行直接查找，使用由路位指示的路。只需要一次访问，因为此段的所有翻译信息都包含在PMD表的单个条目中。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803120121631.png" alt="image-20230803120121631"></p>
+<p>如果2MB位被清除且4KB位被设置，则此段的所有翻译都在PTE弹性布谷鸟页面表中。遗憾的是，PMD-CWT节头中没有关于应访问PTE弹性布谷鸟页面表的哪个路（或路）的信息。因此，行走器在PTE弹性布谷鸟页面表中执行大小遍历。最后，如果2MB位和4KB位都被设置，则目标页面可以是任一大小。因此，行走器执行部分遍历。该遍历由PMD弹性布谷鸟页面表中的直接遍历组成（使用路位指示的路），以及PTE弹性布谷鸟页面表中的大小遍历。</p>
+<p>PUD-CWT的组织方式类似。每个节头现在覆盖8GB的虚拟内存段。一个节头有5位：1GB位，2MB位和4KB位，分别指示该段是否映射一个或多个1GB页面，一个或多个2MB页面和&#x2F;或一个或多个4KB页面；还有两位路位，指示PUD弹性布谷鸟页面表的路，该表包含了此虚拟内存段中1GB页面的映射翻译。如果设置了1GB位，则路位有效。基于这些位的值采取的操作与PMD-CWT相似。为简单起见，我们不详细介绍它们。</p>
+<p>总的来说，我们的设计使用CWTs中的少数位对虚拟内存段进行了大量信息编码。</p>
+<p>通过对PUD-CWT和PMD-CWT的编码，操作系统很少更新这些表。对弹性布谷鸟页面表的大多数更新都不需要更新CWT。例如，考虑PMD-CWT中的节头。其2MB位和4KB位仅在第一次在该节中分配2MB页面或4KB页面时更新。回想一下，一个节的大小等于4096个4KB页面。同样，当分配或重新散列4KB页面时，PMD-CWT中的节头中的路位不会更新。最后，概念上的设计是，在进行页面遍历时，硬件首先访问PUD-CWT，然后访问PMD-CWT，并根据所获得的信息发出减少的页面表访问。然而，实际设计是，CWT信息被缓存在MMU中的小缓存中，并从关键路径上填充。我们接下来介绍这些缓存。</p>
+<h3 id="5-3-Cuckoo-Walk-Caches"><a href="#5-3-Cuckoo-Walk-Caches" class="headerlink" title="5.3 Cuckoo Walk Caches"></a>5.3 Cuckoo Walk Caches</h3><p>PUD-CWT和PMD-CWT位于内存中，并且它们的条目可以在缓存层次结构中缓存，就像弹性布谷鸟页面表条目一样。然而，为了在页面遍历时实现非常快的访问，我们的设计按需将它们的一些条目缓存在MMU中的Cuckoo Walk Caches（CWCs）中。我们称这些缓存为PUD-CWC和PMD-CWC，并取代基数页表的页面遍历缓存。硬件页面遍历器在访问弹性布谷鸟页面表之前检查CWCs，并根据CWCs中的信息，可以发出较少的并行访问页面表。</p>
+<p>PUD-CWC和PMD-CWC与基数页表的页面遍历缓存有一个重要的区别：它们的内容（就像CWTs的内容一样）与页面表的内容是<em>分离</em>的。CWCs存储页面大小和路信息。这与传统的页面遍历缓存不同，后者存储页面表条目。因此，CWCs和CWTs可以独立于弹性布谷鸟页面表进行访问。这一事实有两个含义。</p>
+<p>第一个含义是，在CWC<em>缺失</em>的情况下，页面遍历器可以<em>立即</em>访问目标页面表条目 - 尽管可能需要同时发出更多的内存访问请求。在页面遍历完成后，TLB已经填充，并且执行已经重新启动，然后适当的CWT条目被获取并缓存在CWC中，越过（off）了关键路径。而在传统的页面遍历缓存中，页面遍历缓存中的条目必须在访问目标页面表条目和填充TLB之前顺序生成，这会成为关键路径。</p>
+<p>第二个含义是CWC条目非常小。它只包括一些页面大小和路位信息。这与传统的页面遍历缓存中的条目不同，后者需要包括下一级页面转换的物理地址，除了页面大小和其他信息。例如，PMD-CWC部分头覆盖16MB区域（4096个4KB页面），仅使用4位，而传统PMD页面遍历缓存中的条目只覆盖2MB区域（512个4KB页面）使用64位。结果是CWC具有较小的大小和非常高的命中率。</p>
+<h2 id="6-Implementation"><a href="#6-Implementation" class="headerlink" title="6 Implementation"></a>6 Implementation</h2><h3 id="6-1-Steps-of-a-Page-Translation"><a href="#6-1-Steps-of-a-Page-Translation" class="headerlink" title="6.1 Steps of a Page Translation"></a>6.1 Steps of a Page Translation</h3><p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803120534242.png" alt="image-20230803120534242"></p>
+<p>图12展示了使用Elastic Cuckoo Page Tables (ECPTs)进行页面转换的步骤。为简单起见，我们假设没有1GB的页面。在TLB缺失时，页面表遍历器硬件首先检查PUD-CWC 1。如果PUD-CWC命中，则检查相应的段头。它可以指示该段只包含4KB页面、只包含2MB页面或同时包含2MB和4KB页面。在只有4KB页面的情况下，页面遍历器在PTE ECPT中执行大小遍历 5，该遍历将把转换带到TLB或触发页面故障。在只有2MB页面或同时包含2MB和4KB页面的段的情况下，访问PMD-CWC以获取更多信息 8 。</p>
+<p>如果PMD-CWC命中，则较小的访问的段可能再次只包含4KB页面、只包含2MB页面或同时包含2MB和4KB页面。在第一种情况下，页面遍历器在PTE ECPT中执行大小遍历 5；在第二种情况下，它在PMD ECPT中执行直接遍历 6；在第三种情况下，它执行部分遍历 7，其中包括PMD ECPT中的直接遍历和PTE ECPT中的大小遍历。</p>
+<p>如果PMD-CWC未命中，页面遍历器将使用PUD-CWC提供的部分信息。具体来说，如果PUD段只包含2MB页面，则页面遍历器在PMD ECPT中执行大小遍历 9（因为PMD ECPT方式没有信息）；如果PUD段既包含2MB页面又包含4KB页面，则它执行部分遍历 11，其中包括PMD ECPT和PTE ECPT的大小遍历。在这两种情况下，当TLB被填充且执行恢复后，硬件将PMD-CWT条目中缺失的部分加载到PMD-CWC中 10。</p>
+<p>最后一种情况是当访问PUD-CWC未命中时。页面遍历器仍然访问PMD-CWC以查看是否可以获取一些信息 2。如果PMD-CWC命中，则访问的段可能只包含4KB页面、只包含2MB页面或同时包含2MB和4KB页面。页面遍历器分别执行操作 5、6和7。如果PMD-CWC未命中，则页面遍历器没有信息，并执行完整遍历将转换带入TLB 3。之后，硬件将缺失的PUD-CWT和PMD-CWT条目分别加载到PUD-CWC和PMD-CWC中 4。</p>
+<p>在本讨论中，我们没有考虑1GB页面，因此在PUD-CWC未命中且PMD-CWC命中的情况下，无需获取PUD-CWT条目。如果考虑了1GB页面，则硬件在这种情况下需要获取PUD-CWT条目。</p>
+<h3 id="6-2-Concurrency-Issues"><a href="#6-2-Concurrency-Issues" class="headerlink" title="6.2 Concurrency Issues"></a>6.2 Concurrency Issues</h3><p>弹性布谷鸟页表自然地支持多进程和多线程的应用程序，并且与Radix页表一样，遵循Linux的页面表管理并发模型。具体而言，多个MMU页表查找器可以执行页面表查找，而一个OS线程执行页面表更新。</p>
+<p>当发现页面表条目的Present位为清零时，会发生页面错误。在处理页面错误时，其他线程仍然可以执行查找操作。我们的方案处理这些情况与当前Linux中的Radix页表类似：当操作系统更新弹性布谷鸟页表或CWT时，会对它们进行锁定。读者可能会从CWC获取过时的信息，但最终会获得正确的状态。</p>
+<p>操作系统使用同步和原子指令来插入弹性布谷鸟页表的条目，在页表中的不同路径之间移动元素，在调整大小操作中在不同页表之间移动条目，更新调整阈值，在调整大小操作中更新CWT。</p>
+<p>如果CWC是一致的，更新CWT条目将使CWC中的条目无效。在我们的评估中，我们不做这样的假设。在这种情况下，当页面查找器使用在CWC中找到的信息来访问一个翻译并且访问失败时，查找器会重新进行页面查找。但这次，它会访问目标弹性布谷鸟页表的剩余路径，或者如果调整大小正在进行，则访问两个表的剩余路径。这个操作将会找到已经移动到另一个路径的条目。在获得翻译后，CWC中的旧条目将被刷新。对于调整阈值也采取类似的处理过程。</p>
+<h2 id="7-Evaluation-Methodology"><a href="#7-Evaluation-Methodology" class="headerlink" title="7 Evaluation Methodology"></a>7 Evaluation Methodology</h2><h4 id="Modeled-Architectures"><a href="#Modeled-Architectures" class="headerlink" title="Modeled Architectures."></a>Modeled Architectures.</h4><p>我们使用全系统周期级仿真来模拟一个具有8个核心和64GB主存储器的服务器架构。我们分别对具有4级基于x86-64架构的基准页表和我们提出的弹性布谷鸟页表的系统进行建模。我们分别使用只有4KB页面和启用了Linux内核中的透明超大页面（Transparent Huge Pages，THP）的多页面大小来建模这些系统。我们将这些系统称为Baseline 4KB、Cuckoo 4KB、Baseline THP和Cuckoo THP。</p>
+<p>这些系统的架构参数如下表所示。每个核心都是乱序执行的，并且具有私有的L1和L2缓存，以及一部分共享的L3缓存。每个核心还有私有的L1和L2 TLB和页表查找缓存以进行地址转换。Cuckoo架构使用3-ary弹性布谷鸟哈希用于Elastic Cuckoo Page Tables（ECPTs），并使用2-ary弹性布谷鸟哈希用于CWTs。基线架构使用x86-64的4级基于radix的页表。我们将Cuckoo架构中的CWCs的大小调整为比Baseline架构中的PWCs更小，Baseline架构的PWCs是模仿x86-64的。具体而言，两个CWCs共有18个条目，每个条目为32B，总共为576B；三个PWCs共有96个条目，每个条目为8B，总共为768B。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803214128003.png" alt="image-20230803214128003"></p>
+<h4 id="Modeling-Infrastructure"><a href="#Modeling-Infrastructure" class="headerlink" title="Modeling Infrastructure."></a>Modeling Infrastructure.</h4><p>我们将Simics全系统模拟器与SST框架和DRAMSim2内存模拟器集成在一起。我们在Simics上使用Intel SAE进行操作系统的仪器化。我们使用CACTI对内存结构的能量和访问时间进行评估，并使用Synopsys Design Compiler评估哈希函数的RTL实现。Simics为每个内存地址提供实际的内存和页表内容。我们使用SST对弹性布谷鸟页表的硬件组件进行详细建模和评估。</p>
+<h4 id="Workloads"><a href="#Workloads" class="headerlink" title="Workloads."></a>Workloads.</h4><p>我们评估了不同级别的TLB压力的各种工作负载，这些工作负载属于图分析、生物信息学、高性能计算和系统领域。具体来说，我们使用了来自GraphBIG基准测试套件的八个图应用程序。其中两个是社交图分析算法，分别是Betweenness Centrality (BC)和Degree Centrality (DC)；两个是图遍历算法，分别是Breadth-First Search (BFS)和Depth-First Search (DFS)；另外四个是用于拓扑分析、图搜索&#x2F;流和网站相关性的图分析基准测试，分别是Single Source Shortest Path (SSSP)、Connected Components (CC)、Triangle Count (TC)和PageRank (PR)。</p>
+<p>从生物信息学领域，我们使用了BioBench套件中的MUMmer，它用于基因组级别的比对。从高性能计算领域，我们使用了HPC Challenge中的GUPS，它是一个随机访问基准测试，用于测量整数随机内存更新的速率。最后，从系统领域，我们选择了SysBench套件中的Memory基准测试，它对内存子系统进行压力测试。我们将其称为SysBench。</p>
+<p>这些工作负载的内存占用量为：BC为17.3GB，DC为9.3GB，BFS为9.3GB，DFS为9GB，SSSP为9.3GB，CC为9.3GB，TC为11.9GB，PR为9.3GB，MUMmer为6.9GB，GUPS为32GB，SysBench为32GB。</p>
+<p>对于每个单独的工作负载，我们对所有不同的配置进行了全系统模拟。当到达工作负载的感兴趣区域时，详细的模拟开始。我们对每个核心进行50亿条指令的热身，并且然后测量每个核心500亿条指令的执行。</p>
+<h2 id="8-Evaluation"><a href="#8-Evaluation" class="headerlink" title="8 Evaluation"></a>8 Evaluation</h2><h3 id="8-1-Elastic-Cuckoo-Hashing-Characterization"><a href="#8-1-Elastic-Cuckoo-Hashing-Characterization" class="headerlink" title="8.1 Elastic Cuckoo Hashing Characterization"></a>8.1 Elastic Cuckoo Hashing Characterization</h3><p>图13描述了弹性布谷鸟哈希的行为特征。左侧显示成功插入一个元素所需的平均插入尝试次数，右侧显示在32次尝试后插入失败的概率，两者都作为表占用率的函数。我们使用3-ary弹性布谷鸟哈希和BLAKE哈希函数[5]。与图4不同，这张图中表的占用率超过了1。原因是当占用率达到重哈希阈值rt &#x3D; 0.6时，我们会使用乘法因子k &#x3D; 4分配一个新的哈希表，并执行渐进式调整大小。回顾一下，在渐进式调整大小中，每次插入都会跟随一个从当前哈希表到新哈希表的重哈希，将一个元素从当前表移动到新表中。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803214502778.png" alt="image-20230803214502778"></p>
+<p>弹性布谷鸟哈希的平均插入尝试次数显示在弹性总插入曲线上。该曲线是弹性插入和弹性重哈希曲线的累加。后者是在调整大小期间从旧表重新散列到新表的元素的重哈希。更详细地说，假设在调整大小期间插入一个元素。该插入以及由于碰撞而导致的任何额外重新插入都计入弹性插入。与之关联的从旧表重新散列到新哈希表的一个元素的重哈希以及由于碰撞而导致的任何额外重新插入都计入弹性重哈希。</p>
+<p>我们可以看到，在占用率等于rt时，弹性重哈希曲线跳跃掉。当调整大小进行，元素开始在更大的新表中扩散时，由于重哈希而导致的插入尝试减少。当调整大小在占用率为⇡1.6时终止时，弹性重哈希曲线降为零。弹性插入曲线随着调整大小的进行逐渐减小。因此，弹性总插入曲线在调整大小开始时有一个峰值，但在调整大小完成后降至1。在之后，当新表重新调整大小时，可能会出现另一个峰值。</p>
+<p>该图还显示了没有调整大小的普通布谷鸟哈希的插入尝试次数。这条曲线来自图4。总体而言，弹性布谷鸟哈希通过调整大小从未达到大量插入尝试次数。此外，如右图所示，没有插入失败发生。</p>
+<h3 id="8-2-Elastic-Cuckoo-Page-Table-Performance"><a href="#8-2-Elastic-Cuckoo-Page-Table-Performance" class="headerlink" title="8.2 Elastic Cuckoo Page Table Performance"></a>8.2 Elastic Cuckoo Page Table Performance</h3><p>图14评估了弹性布谷鸟页表的性能影响。图14a显示了在Baseline 4KB上运行的应用程序相比于在Baseline 4KB上运行的应用程序的加速比，Cuckoo 4KB和Cuckoo THP。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803214702366.png" alt="image-20230803214702366"></p>
+<p>图表显示，只有4KB页面时，使用弹性布谷鸟页表（Cuckoo 4KB）相比于使用传统的radix页表（Baseline 4KB）可以获得3-28%的应用程序加速。平均加速比为11%。当启用了透明大页面（THP）时，无论是radix页表还是弹性布谷鸟页表，加速效果都显著提高，因为减少了TLB缺失。Cuckoo THP相比Baseline THP的加速比为3-18%。平均加速比为10%。这些都是非常显著的应用程序加速。</p>
+<p>事实上，在一些应用程序中，Cuckoo 4KB不仅优于Baseline 4KB，还优于Baseline THP。一些应用程序，如SSSP和TC，并不太受THP的影响。然而，Cuckoo 4KB在使用2MB页面的应用程序，如MUMmer中，也优于Baseline THP。</p>
+<p>弹性布谷鸟页表所实现的性能提升有几个原因。首先，弹性布谷鸟页表中的页表遍历直接获取最终的翻译结果，而不需要像radix页表那样按顺序获取中间级别的翻译结果。这种能力加快了翻译过程。其次，CWC的高命中率也提高了性能，这是因为CWC不必存储具有中间级别翻译的条目，并且每个CWC条目很小 - 这与radix页表不同。最后，我们观察到当页表遍历执行大小(Size)和部分(Partial)遍历时，它将翻译结果带入L2和L3缓存中，尽管这些结果尚未加载到TLB中，但它们将在未来使用。实际上，该遍历将翻译结果预取到了缓存中。</p>
+<p>图14b显示了所有内存系统请求在MMU中所用的时间，包括访问TLB和进行页表遍历。该时间相对于Baseline 4KB的时间进行了归一化。该图大致遵循图14a的趋势。平均而言，Cuckoo 4KB将Baseline 4KB的MMU开销降低了34％，而Cuckoo THP的开销比Baseline THP低41％。该图还显示，像GUPS和SysBench这样执行完全随机内存访问的应用程序从THP中获益很多。</p>
+<p>我们还评估了一些具有较低的页表遍历开销的应用程序，特别是在使用THP时，例如SPEC2006的MCF和Cactus [32]，PARSEC的Streamcluster [16]，以及XSBench [71]。它们的内存占用分别为1.7GB，4.2GB，9.1GB和64GB。在这些应用程序中，虽然弹性布谷鸟页表相比于radix页表降低了MMU开销，但地址翻译并不成为瓶颈。因此，应用程序性能保持不变。</p>
+<h3 id="8-3-Elastic-Cuckoo-Page-Table-Characterization"><a href="#8-3-Elastic-Cuckoo-Page-Table-Characterization" class="headerlink" title="8.3 Elastic Cuckoo Page Table Characterization"></a>8.3 Elastic Cuckoo Page Table Characterization</h3><h4 id="8-3-1-MMU-and-Cache-Subsystem"><a href="#8-3-1-MMU-and-Cache-Subsystem" class="headerlink" title="8.3.1 MMU and Cache Subsystem"></a>8.3.1 MMU and Cache Subsystem</h4><p>图15描述了四个配置的MMU和缓存子系统的性能特征。从上到下，分别显示了每千条指令的MMU请求数（MMU requests Per Kilo Instruction，PKI）、L2缓存每千条指令的缺失数（L2 Misses Per Kilo Instruction，MPKI）和L3 MPKI。在每个图表中，条形图都相对于Baseline 4KB进行了归一化。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803215418278.png" alt="image-20230803215418278"></p>
+<p>MMU请求是MMU在TLB缺失时向缓存层次结构发出的请求。对于基准系统，它们是获取四个radix树级别的页表翻译的内存请求；对于弹性布谷鸟系统，它们是用于页表翻译和CWT条目的请求。从图中可以看出，Cuckoo 4KB和Cuckoo THP比Baseline 4KB和Baseline THP分别发出了更多的请求。这有两个原因。第一个，也是最重要的原因是，弹性布谷鸟页表遍历中的许多遍历都不是直接遍历。因此，它们请求了比所需更多的页表条目 - 实际上，由于我们没有PTE-CWT表，没有任何访问PTE弹性布谷鸟页表的访问可以使用直接遍历。第二个原因是对CWT本身的访问。</p>
+<p>幸运的是，大多数额外的MMU访问都被L2和L3缓存截获，不会到达主存。事实上，如图15中央和底部的图表所示，Cuckoo系统的L2 MPKI与Baseline系统的相似，而Cuckoo系统的L3 MPKI低于Baseline系统。原因有两个。首先，CWT条目被设计为覆盖大片的内存。因此，所需的条目适合几个缓存行，导致高缓存命中率。第二个原因是由于访问表的多个路数而带来的额外弹性布谷鸟页表条目通常会被另一个访问后再次使用。现在访问它们相当于为将来的访问预取它们。总而言之，尽管弹性布谷鸟页表发出更多的MMU请求，大部分请求在缓存中命中，与radix页表相比，主存的总体流量更低。</p>
+<p>为了说明这一点，图16将MUMmer应用程序中的所有MMU访问按完成时间分组。图中显示了Baseline THP和Cuckoo THP的数据。在条形图的上方，我们指示了在某些延迟范围内访问的内存层次：缓存命中、第一次DRAM访问、第二次DRAM访问和第三次DRAM访问。Cuckoo THP永远不会进行多次DRAM访问。从图中可以看出，Cuckoo THP的MMU访问具有较低的延迟；大多数访问都被缓存截获，最坏情况下需要约200个周期。Baseline THP的MMU访问通常进行两次或三次DRAM访问，并且有一个达到500多个周期的较长延迟尾部。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803215503898.png" alt="image-20230803215503898"></p>
+<h4 id="8-3-2-Types-ofWalks"><a href="#8-3-2-Types-ofWalks" class="headerlink" title="8.3.2 Types ofWalks."></a>8.3.2 Types ofWalks.</h4><p>我们现在考虑图12中的弹性布谷鸟页表转换过程，并测量图10中所示的每种类型的布谷鸟遍历的相对频率。我们使用具有2MB大页的弹性布谷鸟页表（Cuckoo THP）。作为参考，所有应用程序中PUD-CWC和PMD-CWC的平均命中率分别为99.9%和87.7%。</p>
+<p>图17展示了每个应用程序的四种布谷鸟遍历类型的分布。从柱状图底部开始，我们可以看到完整遍历（Complete Walks）的比例非常小。完整遍历仅在PUD-CWC和PMD-CWC都未命中时发生，这种情况非常罕见。部分遍历（Partial Walks）发生在访问的内存段中包含大页和常规页的情况下。虚拟内存中同时存在两种页面大小的情况在一个段中是不常见的。这种情况在BC应用中有一定程度的发生，在其他应用中很少出现。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803215536202.png" alt="image-20230803215536202"></p>
+<p>幸运的是，大多数遍历都是廉价的类型，即Size Walks和Direct Walks。Size Walks发生在内存段仅包含常规页的情况下。因此，我们观察到在不使用大页的应用程序中出现了这种行为，比如BFS，CC，DC，DFS，PR，SSSP，TC，以及在BC中也有少量发生。这些遍历是最常见的一种。它们也会在内存区域只有大页，但是PMD-CWC未命中的情况下发生，这种情况较为罕见。</p>
+<p>最后，Direct Walks发生在内存段仅包含大页的情况下。我们观察到它们出现在大量使用大页的应用程序中，比如GUPS，SysBench和MUMmer。总体而言，廉价遍历是最常见的。</p>
+<h4 id="8-3-3-Memory-Consumption"><a href="#8-3-3-Memory-Consumption" class="headerlink" title="8.3.3 Memory Consumption"></a>8.3.3 Memory Consumption</h4><p>图18显示了不同配置下各种应用程序的页表内存消耗。对于Cuckoo系统，柱状图还包括了CWTs的内存消耗。第一个柱状图（Required）是应用程序使用的PTE数乘以8字节。然后，图中显示了Baseline 4KB，Cuckoo 4KB和Cuckoo 4KB与表缩减的情况。请注意，在本文的其他地方我们没有使用表缩减。平均而言，Required使用了26MB的内存。Baseline 4KB平均消耗27MB的内存，因为它还需要保持三个上级的转换。Cuckoo 4KB平均消耗36MB的内存，因为它需要分配包含2的幂次数条目的哈希表。CWTs增加的内存很少。总体而言，支持Cuckoo 4KB所需的内存绝对增加很小，与现代系统的总内存容量相比。最后，表缩减后的Cuckoo 4KB平均消耗29MB的内存。</p>
+<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230803215929357.png" alt="image-20230803215929357"></p>
+<h4 id="8-3-4-Comparison-to-2-ary-Cuckoo-Page-Tables"><a href="#8-3-4-Comparison-to-2-ary-Cuckoo-Page-Tables" class="headerlink" title="8.3.4 Comparison to 2-ary Cuckoo Page Tables."></a>8.3.4 Comparison to 2-ary Cuckoo Page Tables.</h4><p>我们重新评估了弹性杜鹃页表，这次使用的是2-叉弹性杜鹃哈希，而不是我们默认的3-叉设计。我们的结果显示，使用3-叉结构比使用2-叉结构加快了应用程序的速度：在Cuckoo 4KB中，应用程序平均运行速度提高了6.7％，在Cuckoo THP中提高了3.3％。原因是2-叉结构在较低占用率时容易发生哈希冲突，因此需要更早地调整大小。我们发现，在应用程序执行期间，2-叉表比3-叉表需要更多的重新哈希操作：在我们的所有应用程序中，平均在Cuckoo 4KB中需要63.3％的更多重新哈希，在Cuckoo THP中需要84％。由3-叉结构引起的额外访问对性能影响相对较小，因为它们通常会命中缓存。</p>
+<h2 id="9-Other-Related-Work"><a href="#9-Other-Related-Work" class="headerlink" title="9 Other Related Work"></a>9 Other Related Work</h2><p>为了减少TLB（翻译后备缓冲器）缺失，最近的研究提出了通过聚类、合并、连续性优化TLB的组织方式 [14, 18, 21, 42, 54–56, 64, 72]，通过预取 [15, 41, 63]、推测性TLB [9] 和大型部分内存TLB [47, 62] 来实现TLB的扩展。为了增加TLB的覆盖范围，对大页面的支持已经得到广泛研究 [21, 26, 27, 29, 43, 49, 51–53, 57, 60, 67, 69]，并对操作系统进行了改进 [26, 43, 51, 52]。其他研究提出了直接段 [10, 25] 和非虚拟化内存 [31]，并建议应用程序管理虚拟内存 [2]。</p>
+<p>许多这些进展都专注于创建翻译连续性：将大连续的虚拟空间映射到大连续的物理空间。这样，需要的翻译次数减少，TLB缺失减少，并且昂贵的多步骤页面查找被最小化。然而，强制连续性会损害内核和其他软件所享受的映射灵活性。而且，强制连续性通常是不可能的，或者在性能上是适得其反的。相反，在我们的工作中，我们专注于通过创建单步翻译过程显著降低页面查找的成本，同时保持内核和其他软件的现有抽象。因此，我们不需要连续性，并保留了当前系统所有的映射灵活性。</p>
+<h2 id="10-Conclusion"><a href="#10-Conclusion" class="headerlink" title="10 Conclusion"></a>10 Conclusion</h2><p>本论文提出了弹性杜鹃页表，这是一种新颖的页表设计，将基数页表的顺序地址转换变换为完全并行查找，首次利用内存级并行性来进行地址转换。我们的评估结果显示，与传统的基数页表相比，弹性杜鹃页表将地址转换开销平均降低了41％，并且加速了应用程序执行速度，提高了3-18％。我们当前的工作涉及探索在虚拟化环境中应用弹性杜鹃页表的可能性。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Paper/" rel="tag"># Paper</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/31/Memory-Efficient-Hashed-Page-Tables/" rel="prev" title="Memory-Efficient Hashed Page Tables">
+      <i class="fa fa-chevron-left"></i> Memory-Efficient Hashed Page Tables
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/08/04/%E5%8D%95%E8%B0%83%E6%A0%88/" rel="next" title="单调栈">
+      单调栈 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elastic-Cuckoo-Page-Tables-Rethinking-Virtual-Memory-Translation-for-Parallelism"><span class="nav-number">1.</span> <span class="nav-text">Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.0.1.</span> <span class="nav-text">摘要</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Introduction"><span class="nav-number">1.1.</span> <span class="nav-text">1 Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#tips-TLB-MMU-Cache"><span class="nav-number">1.1.0.0.1.</span> <span class="nav-text">tips: TLB &amp;&amp; MMU Cache</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Background"><span class="nav-number">1.2.</span> <span class="nav-text">2 Background</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-Radix-Page-Tables"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 Radix Page Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-1-Struggles-with-Emerging-Workloads"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">2.1.1 Struggles with Emerging Workloads.</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Hashed-Page-Tables"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 Hashed Page Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-1-Challenges-in-Hashed-Page-Tables"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">2.2.1 Challenges in Hashed Page Tables.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-2-Drawbacks-of-a-Single-Global-Hash-Table"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">2.2.2 Drawbacks of a Single Global Hash Table.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-3-Resizing-Hashed-Page-Tables"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">2.2.3 Resizing Hashed Page Tables.</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Cuckoo-Hashing"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 Cuckoo Hashing</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Rethinking-Page-Tables"><span class="nav-number">1.3.</span> <span class="nav-text">3. Rethinking Page Tables</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Elastic-Cuckoo-Hashing"><span class="nav-number">1.4.</span> <span class="nav-text">4. Elastic Cuckoo Hashing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-Intuitive-Operation"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1 Intuitive Operation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Cuckoo-Hashing"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">Cuckoo Hashing</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Elastic-Cuckoo-Hashing"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">Elastic Cuckoo Hashing</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#tips%EF%BC%9A"><span class="nav-number">1.4.1.2.1.</span> <span class="nav-text">tips：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-Detailed-Algorithms"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2 Detailed Algorithms</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Rehash%EF%BC%88%E9%87%8D%E6%96%B0%E5%93%88%E5%B8%8C%EF%BC%89"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">Rehash（重新哈希）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Look-up"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">Look-up.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Observation-1"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">Observation 1.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Delete"><span class="nav-number">1.4.2.4.</span> <span class="nav-text">Delete.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Insert"><span class="nav-number">1.4.2.5.</span> <span class="nav-text">Insert.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Hash-Table-Resize"><span class="nav-number">1.4.2.6.</span> <span class="nav-text">Hash Table Resize</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-Elastic-Cuckoo-Page-Table-Design"><span class="nav-number">1.5.</span> <span class="nav-text">5 Elastic Cuckoo Page Table Design</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-Elastic-Cuckoo-Page-Table-Organization"><span class="nav-number">1.5.1.</span> <span class="nav-text">5.1 Elastic Cuckoo Page Table Organization</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-1-Page-Table-Entry"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">5.1.1 Page Table Entry</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#tips"><span class="nav-number">1.5.1.1.1.</span> <span class="nav-text">tips</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-2-Cuckoo-Walk"><span class="nav-number">1.5.1.2.</span> <span class="nav-text">5.1.2 Cuckoo Walk</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-Cuckoo-Walk-Tables"><span class="nav-number">1.5.2.</span> <span class="nav-text">5.2 Cuckoo Walk Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Complete-Walk"><span class="nav-number">1.5.2.0.1.</span> <span class="nav-text">Complete Walk:</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Partial-Walk"><span class="nav-number">1.5.2.0.2.</span> <span class="nav-text">Partial Walk:</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Size-Walk"><span class="nav-number">1.5.2.0.3.</span> <span class="nav-text">Size Walk:</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Direct-Walk"><span class="nav-number">1.5.2.0.4.</span> <span class="nav-text">Direct Walk:</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-1-Cuckoo-Walk-Table-Entries"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">5.2.1 Cuckoo Walk Table Entries.</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-Cuckoo-Walk-Caches"><span class="nav-number">1.5.3.</span> <span class="nav-text">5.3 Cuckoo Walk Caches</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Implementation"><span class="nav-number">1.6.</span> <span class="nav-text">6 Implementation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-Steps-of-a-Page-Translation"><span class="nav-number">1.6.1.</span> <span class="nav-text">6.1 Steps of a Page Translation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-Concurrency-Issues"><span class="nav-number">1.6.2.</span> <span class="nav-text">6.2 Concurrency Issues</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-Evaluation-Methodology"><span class="nav-number">1.7.</span> <span class="nav-text">7 Evaluation Methodology</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Modeled-Architectures"><span class="nav-number">1.7.0.1.</span> <span class="nav-text">Modeled Architectures.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Modeling-Infrastructure"><span class="nav-number">1.7.0.2.</span> <span class="nav-text">Modeling Infrastructure.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Workloads"><span class="nav-number">1.7.0.3.</span> <span class="nav-text">Workloads.</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-Evaluation"><span class="nav-number">1.8.</span> <span class="nav-text">8 Evaluation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-Elastic-Cuckoo-Hashing-Characterization"><span class="nav-number">1.8.1.</span> <span class="nav-text">8.1 Elastic Cuckoo Hashing Characterization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-Elastic-Cuckoo-Page-Table-Performance"><span class="nav-number">1.8.2.</span> <span class="nav-text">8.2 Elastic Cuckoo Page Table Performance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-Elastic-Cuckoo-Page-Table-Characterization"><span class="nav-number">1.8.3.</span> <span class="nav-text">8.3 Elastic Cuckoo Page Table Characterization</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#8-3-1-MMU-and-Cache-Subsystem"><span class="nav-number">1.8.3.1.</span> <span class="nav-text">8.3.1 MMU and Cache Subsystem</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-3-2-Types-ofWalks"><span class="nav-number">1.8.3.2.</span> <span class="nav-text">8.3.2 Types ofWalks.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-3-3-Memory-Consumption"><span class="nav-number">1.8.3.3.</span> <span class="nav-text">8.3.3 Memory Consumption</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-3-4-Comparison-to-2-ary-Cuckoo-Page-Tables"><span class="nav-number">1.8.3.4.</span> <span class="nav-text">8.3.4 Comparison to 2-ary Cuckoo Page Tables.</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-Other-Related-Work"><span class="nav-number">1.9.</span> <span class="nav-text">9 Other Related Work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-Conclusion"><span class="nav-number">1.10.</span> <span class="nav-text">10 Conclusion</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Translator Internals &#x2F; 翻译器的内部机制 QEMU是一个动态翻译器。  当它首次遇到一段代码时，它会将其转换为宿主机指令集。  通常，动态翻译器非常复杂且高度依赖于CPU。  QEMU使用一些技巧使其相对容易进行移植和简化，同时实现良好的性能。  QEMU的动态翻译后端称为TCG（Tiny Code Generator），见另一篇文章TCG IR。  以下部分概述了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Qemu翻译器的内部机制">
+<meta property="og:url" content="http://example.com/2023/05/18/Qemu%E7%BF%BB%E8%AF%91%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="Translator Internals &#x2F; 翻译器的内部机制 QEMU是一个动态翻译器。  当它首次遇到一段代码时，它会将其转换为宿主机指令集。  通常，动态翻译器非常复杂且高度依赖于CPU。  QEMU使用一些技巧使其相对容易进行移植和简化，同时实现良好的性能。  QEMU的动态翻译后端称为TCG（Tiny Code Generator），见另一篇文章TCG IR。  以下部分概述了">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-05-18T11:23:50.000Z">
+<meta property="article:modified_time" content="2023-07-30T10:15:50.924Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/05/18/Qemu%E7%BF%BB%E8%AF%91%E6%B5%81%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Qemu翻译器的内部机制 | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/18/Qemu%E7%BF%BB%E8%AF%91%E6%B5%81%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Qemu翻译器的内部机制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-18 19:23:50" itemprop="dateCreated datePublished" datetime="2023-05-18T19:23:50+08:00">2023-05-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Translator-Internals-翻译器的内部机制"><a href="#Translator-Internals-翻译器的内部机制" class="headerlink" title="Translator Internals &#x2F; 翻译器的内部机制"></a>Translator Internals &#x2F; 翻译器的内部机制</h1><ul>
+<li><p>QEMU是一个动态翻译器。</p>
+</li>
+<li><p>当它首次遇到一段代码时，它会将其转换为宿主机指令集。</p>
+</li>
+<li><p>通常，动态翻译器非常复杂且高度依赖于CPU。</p>
+</li>
+<li><p>QEMU使用一些技巧使其相对容易进行移植和简化，同时实现良好的性能。</p>
+</li>
+<li><p>QEMU的动态翻译后端称为TCG（Tiny Code Generator），见另一篇文章TCG IR。</p>
+</li>
+<li><p>以下部分概述了QEMU动态翻译器的一些显著特点和实现细节。</p>
+</li>
+</ul>
+<h1 id="CPU-state-optimisations-CPU状态优化"><a href="#CPU-state-optimisations-CPU状态优化" class="headerlink" title="CPU state optimisations &#x2F; CPU状态优化"></a>CPU state optimisations &#x2F; CPU状态优化</h1><ul>
+<li>目标CPU具有许多内部状态，这些状态会影响它们执行指令的方式。</li>
+<li>为了实现良好的速度，翻译阶段考虑到虚拟CPU的某些状态信息在其中不会改变。</li>
+<li>状态信息被记录在翻译块（Translation Block，TB）中。</li>
+<li>如果状态发生变化（例如特权级别），将生成一个新的TB，并且之前的TB将不再使用，直到状态与之前记录在先的TB中的状态匹配。</li>
+<li>对于CPU状态的其他方面也可以应用相同的思想。例如，在x86架构中，如果SS、DS和ES段具有零基址，那么翻译器甚至不会为段基址生成一个加法操作。</li>
+</ul>
+<h2 id="Direct-block-chaining-直接块链接"><a href="#Direct-block-chaining-直接块链接" class="headerlink" title="Direct block chaining &#x2F; 直接块链接"></a>Direct block chaining &#x2F; 直接块链接</h2><ul>
+<li><p>在每个已执行的翻译的基本块之后，QEMU使用模拟的程序计数器（PC）和其他CPU状态信息（例如CS段基址）来找到下一个基本块。</p>
+</li>
+<li><p>在简单且未经优化的形式中，这是通过退出当前的翻译块，经过翻译块的收尾处理，然后返回到主循环来完成的。</p>
+</li>
+<li><p>在主循环中，QEMU寻找要执行的下一个翻译块，如果它尚未在内存中，则将其从客户体系结构翻译出来。</p>
+</li>
+<li><p>然后，QEMU继续执行下一个翻译块，从序言开始，然后继续执行已翻译的指令。</p>
+</li>
+<li><p>以这种方式退出翻译块将导致在执行其他指令之前重新评估<code>cpu_exec_interrupt()</code>回调函数。</p>
+</li>
+<li><p>在发生可能解除中断屏蔽的任何CPU状态更改后，以这种方式退出是必需的。</p>
+</li>
+<li><p>为了加速当新的模拟PC对应的翻译块已经可用的情况，QEMU具有机制允许直接链接多个翻译块，而无需返回到上述的主循环。这些机制包括：</p>
+</li>
+</ul>
+<h3 id="lookup-and-goto-ptr"><a href="#lookup-and-goto-ptr" class="headerlink" title="lookup_and_goto_ptr"></a><code>lookup_and_goto_ptr</code></h3><ul>
+<li>调用<code>tcg_gen_lookup_and_goto_ptr()</code>将生成对<code>helper_lookup_tb_ptr</code>的调用。</li>
+<li>该辅助函数将查找与当前CPU状态匹配的现有翻译块。</li>
+<li>如果目标翻译块可用，则返回其代码地址；否则返回JIT（即时编译）收尾部分的地址。</li>
+<li>在调用辅助函数之后，总是紧随着tcg <code>goto_ptr</code>指令，它会跳转到返回的地址。</li>
+<li>这样，我们要么跳转到下一个翻译块，要么返回到主循环。</li>
+</ul>
+<h3 id="goto-tb-exit-tb"><a href="#goto-tb-exit-tb" class="headerlink" title="goto_tb + exit_tb"></a><code>goto_tb + exit_tb</code></h3><ul>
+<li><p>翻译代码通常通过以下步骤来实现分支：</p>
+<ol>
+<li>调用<code>tcg_gen_goto_tb()</code>，并将跳转槽索引（0或1）作为参数传递。</li>
+<li>发出TCG指令来更新CPU状态，其中包括已假定为常量且主循环需要正确定位和执行下一个翻译块所需的信息。对于大多数客户机，这仅仅是分支目标的PC，但其他一些客户机可能会存储附加数据。在此步骤中更新的信息必须可以从<code>cpu_get_tb_cpu_state()</code>和<code>cpu_restore_state()</code>中推断出来。</li>
+<li>调用<code>tcg_gen_exit_tb()</code>，再次传递当前翻译块的地址和跳转槽索引。</li>
+</ol>
+</li>
+<li><p>第1步<code>tcg_gen_goto_tb()</code>将生成一个<code>goto_tb</code> TCG指令，稍后会被翻译为跳转到与指定跳转槽相关联的地址。</p>
+</li>
+<li><p>初始时，这是第2步的指令的地址，用于更新CPU状态信息。</p>
+</li>
+<li><p>第3步<code>tcg_gen_exit_tb()</code>从当前翻译块退出，并返回由上一个执行的翻译块地址和跳转槽索引组成的标记指针。</p>
+</li>
+<li><p>第一次执行整个序列时，第1步简单地跳转到第2步。</p>
+</li>
+<li><p>然后，CPU状态信息会被更新，并从当前翻译块退出。</p>
+</li>
+<li><p>结果，行为与前面在本节中描述的较少优化的形式非常相似。</p>
+</li>
+<li><p>接下来，主循环使用当前CPU状态信息寻找要执行的下一个翻译块（如果尚未可用，则创建该翻译块），并在开始执行新翻译块的指令之前，通过将其跳转槽之一（在调用<code>tcg_gen_exit_tb()</code>时指定）与新翻译块的地址关联起来，来修补先前执行的翻译块。</p>
+</li>
+<li><p>下一次执行这个先前的翻译块，并到达同样的<code>goto_tb</code>步骤时，它将已经被修补（假设目标翻译块仍然在内存中），并直接跳转到目标翻译块的第一条指令，而无需返回到主循环。</p>
+</li>
+<li><p>要使用<code>goto_tb + exit_tb</code>机制，需要满足以下条件：</p>
+<ul>
+<li><p>CPU状态的更改必须是常量，例如直接分支而不是间接分支。</p>
+</li>
+<li><p>直接分支不能跨越页边界。内存映射可能会改变，导致目标地址的代码发生变化。</p>
+</li>
+</ul>
+</li>
+<li><p>需要注意的是，在第3步（<code>tcg_gen_exit_tb()</code>）中，除了跳转槽索引之外，还返回了刚刚执行的翻译块的地址。</p>
+</li>
+<li><p>这个地址对应于将要被修补的翻译块；如果该翻译块已经链接到其他翻译块，那么它可能与直接从主循环执行的翻译块不同。</p>
+</li>
+<li><p>Note that, on step 3 (<code>tcg_gen_exit_tb()</code>), in addition to the jump slot index, the address of the TB just executed is also returned.</p>
+</li>
+<li><p>This address corresponds to the TB that will be patched; it may be different than the one that was directly executed from the main loop if the latter had already been chained to other TBs.</p>
+</li>
+</ul>
+<h2 id="Self-modifying-code-and-translated-code-invalidation-自修改代码和翻译代码失效"><a href="#Self-modifying-code-and-translated-code-invalidation-自修改代码和翻译代码失效" class="headerlink" title="Self-modifying code and translated code invalidation &#x2F; 自修改代码和翻译代码失效"></a>Self-modifying code and translated code invalidation &#x2F; 自修改代码和翻译代码失效</h2><ul>
+<li><p>在x86仿真中，自修改代码是一个特殊的挑战，因为当代码被修改时，应用程序不会向系统发出指示来使指令缓存失效。</p>
+</li>
+<li><p>在用户模式仿真中，每当为基本块生成翻译代码时，会将主机页面标记为写保护（如果它尚未是只读）。</p>
+</li>
+<li><p>然后，如果对该页面进行写访问，Linux会触发一个SEGV信号。</p>
+</li>
+<li><p>然后，QEMU会使该页面中的所有翻译代码失效，并允许对该页面进行写访问。</p>
+</li>
+<li><p>对于系统仿真，写保护是通过软件MMU实现的。</p>
+</li>
+<li><p>通过维护一个链接列表来高效地进行正确的翻译代码失效，该列表包含在给定页面中的每个翻译块。</p>
+</li>
+<li><p>还维护其他链接列表以撤消直接块链接。</p>
+</li>
+<li><p>Correct translated code invalidation is done efficiently by maintaining a linked list of every translated block contained in a given page. </p>
+</li>
+<li><p>Other linked lists are also maintained to undo direct block chaining.</p>
+</li>
+<li><p>在RISC目标中，正确编写的软件使用内存屏障和缓存刷新，因此上述保护措施可能不是必需的。</p>
+</li>
+<li><p>然而，QEMU仍然要求生成的代码始终与目标指令在内存中匹配，以便正确处理异常情况。</p>
+</li>
+</ul>
+<h2 id="Exception-support-异常支持"><a href="#Exception-support-异常支持" class="headerlink" title="Exception support &#x2F; 异常支持"></a>Exception support &#x2F; 异常支持</h2><ul>
+<li><p>在遇到诸如除零等异常时，会使用longjmp()函数。</p>
+</li>
+<li><p>主机的SIGSEGV和SIGBUS信号处理程序用于获取无效的内存访问。</p>
+</li>
+<li><p>QEMU保持了一个从主机程序计数器（PC）到目标程序计数器（PC）的映射，并根据异常点处的主机程序计数器查找异常发生的位置。</p>
+</li>
+<li><p>在某些目标平台上，虚拟CPU状态的某些位直到翻译块结束之前才会刷新到内存中。</p>
+</li>
+<li><p>这是为了保存内部仿真状态，该状态很少直接被程序访问，且在翻译块的执行过程中经常发生变化，例如x86上的条件码、SPARC上的延迟槽、Arm上的条件执行等。</p>
+</li>
+<li><p>这些状态针对每个目标指令进行存储，并在发生异常时进行查找。</p>
+</li>
+</ul>
+<h2 id="MMU-emulation-MMU（Memory-Management-Unit）仿真"><a href="#MMU-emulation-MMU（Memory-Management-Unit）仿真" class="headerlink" title="MMU emulation &#x2F; MMU（Memory Management Unit）仿真"></a>MMU emulation &#x2F; MMU（Memory Management Unit）仿真</h2><hr>
+<ul>
+<li><p>在系统仿真中，QEMU使用软件MMU。</p>
+</li>
+<li><p>在这种模式下，MMU会在每次内存访问时进行虚拟地址到物理地址的转换。</p>
+</li>
+<li><p>为了加快转换速度并避免在MMU映射发生变化时每次都刷新已翻译的代码，QEMU使用地址转换缓存（TLB）。</p>
+</li>
+<li><p>在QEMU中，所有缓存都是物理索引的，这意味着每个基本块都与其物理地址相关联。</p>
+</li>
+<li><p>为了避免在MMU映射发生变化时使基本块链无效，只有当跳转目标与执行跳转的基本块共享同一页时，才会执行链式操作。</p>
+</li>
+<li><p>MMU还可以区分RAM（随机存储器）和ROM（只读存储器）区域与MMIO（内存映射输入&#x2F;输出）内存区域。</p>
+</li>
+<li><p>对于RAM和ROM的访问速度更快，因为转换缓存还存储了来宾地址和主机内存之间的偏移量。</p>
+</li>
+<li><p>而对MMIO内存区域的访问则调用C代码进行设备仿真。</p>
+</li>
+<li><p>最后，MMU有助于跟踪脏页和被翻译块引用的页。</p>
+</li>
+<li><p>这样可以有效地管理内存页面，并进行必要的操作，如脏页回写或内存页面回收。</p>
+</li>
+</ul>
+<h2 id="Profiling-JITted-code-对JIT（即时编译）代码进行性能分析"><a href="#Profiling-JITted-code-对JIT（即时编译）代码进行性能分析" class="headerlink" title="Profiling JITted code &#x2F; 对JIT（即时编译）代码进行性能分析"></a>Profiling JITted code &#x2F; 对JIT（即时编译）代码进行性能分析</h2><ul>
+<li><p>Linux的perf工具在处理JIT（即时编译）代码时会将其视为单个代码块，因为与主要代码不同，它无法使用调试信息将单个程序计数器样本与较大的函数关联起来。</p>
+</li>
+<li><p>为了克服这个限制，可以使用<code>-perfmap</code>或<code>-jitdump</code>选项生成映射文件。</p>
+</li>
+<li><p><code>-perfmap</code>是轻量级的，只生成客户机-主机映射关系。</p>
+</li>
+<li><p><code>-jitdump</code>除此之外，还会保存JIT代码和客户机调试信息（如果有的话）；它的输出需要与<code>perf.data</code>文件集成，然后才能查看最终的报告。</p>
+</li>
+<li><p>示例代码如下：</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">perf record $QEMU -perfmap $REMAINING_ARGS</span><br><span class="line">perf report</span><br><span class="line"></span><br><span class="line">perf record -k 1 $QEMU -jitdump $REMAINING_ARGS</span><br><span class="line">DEBUGINFOD_URLS= perf inject -j -i perf.data -o perf.data.jitted</span><br><span class="line">perf report -i perf.data.jitted</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>请注意，qemu-system仅为ELF格式的<code>-kernel</code>文件生成映射。</p>
+</li>
+<li><p>使用这些命令和选项，可以将JIT代码的性能分析结果与perf工具的报告集成在一起，以便更好地理解和分析JIT代码的性能。这将帮助开发人员针对性地进行优化和改进，提高QEMU的性能。</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/" rel="prev" title="CPU体系结构专业术语">
+      <i class="fa fa-chevron-left"></i> CPU体系结构专业术语
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/05/18/Qemu%20TCG%20IR/" rel="next" title="Qemu TCG IR">
+      Qemu TCG IR <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Translator-Internals-%E7%BF%BB%E8%AF%91%E5%99%A8%E7%9A%84%E5%86%85%E9%83%A8%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">Translator Internals &#x2F; 翻译器的内部机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU-state-optimisations-CPU%E7%8A%B6%E6%80%81%E4%BC%98%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">CPU state optimisations &#x2F; CPU状态优化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Direct-block-chaining-%E7%9B%B4%E6%8E%A5%E5%9D%97%E9%93%BE%E6%8E%A5"><span class="nav-number">2.1.</span> <span class="nav-text">Direct block chaining &#x2F; 直接块链接</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lookup-and-goto-ptr"><span class="nav-number">2.1.1.</span> <span class="nav-text">lookup_and_goto_ptr</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#goto-tb-exit-tb"><span class="nav-number">2.1.2.</span> <span class="nav-text">goto_tb + exit_tb</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Self-modifying-code-and-translated-code-invalidation-%E8%87%AA%E4%BF%AE%E6%94%B9%E4%BB%A3%E7%A0%81%E5%92%8C%E7%BF%BB%E8%AF%91%E4%BB%A3%E7%A0%81%E5%A4%B1%E6%95%88"><span class="nav-number">2.2.</span> <span class="nav-text">Self-modifying code and translated code invalidation &#x2F; 自修改代码和翻译代码失效</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exception-support-%E5%BC%82%E5%B8%B8%E6%94%AF%E6%8C%81"><span class="nav-number">2.3.</span> <span class="nav-text">Exception support &#x2F; 异常支持</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MMU-emulation-MMU%EF%BC%88Memory-Management-Unit%EF%BC%89%E4%BB%BF%E7%9C%9F"><span class="nav-number">2.4.</span> <span class="nav-text">MMU emulation &#x2F; MMU（Memory Management Unit）仿真</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Profiling-JITted-code-%E5%AF%B9JIT%EF%BC%88%E5%8D%B3%E6%97%B6%E7%BC%96%E8%AF%91%EF%BC%89%E4%BB%A3%E7%A0%81%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90"><span class="nav-number">2.5.</span> <span class="nav-text">Profiling JITted code &#x2F; 对JIT（即时编译）代码进行性能分析</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

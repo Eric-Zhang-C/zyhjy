@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="ROB Branch Misspeculation时钟触发tick()遍历所有线程（what is thread）    - 检查stall&#x2F;squash如果exe不在squash    - IEW::executeInsts()        - Check if branch prediction was correct, if not then we need to tell co">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gem5">
+<meta property="og:url" content="http://example.com/2022/09/22/gem5/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="ROB Branch Misspeculation时钟触发tick()遍历所有线程（what is thread）    - 检查stall&#x2F;squash如果exe不在squash    - IEW::executeInsts()        - Check if branch prediction was correct, if not then we need to tell co">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-09-22T08:10:50.000Z">
+<meta property="article:modified_time" content="2023-07-30T10:15:18.566Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2022/09/22/gem5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Gem5 | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/09/22/gem5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Gem5
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-09-22 16:10:50" itemprop="dateCreated datePublished" datetime="2022-09-22T16:10:50+08:00">2022-09-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Gem5/" itemprop="url" rel="index"><span itemprop="name">Gem5</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>ROB</p>
+<p>Branch Misspeculation<br>时钟触发tick()<br>遍历所有线程（what is thread）<br>    - 检查stall&#x2F;squash<br>如果exe不在squash<br>    - IEW::executeInsts()<br>        - Check if branch prediction was correct, if not then we need to tell commit to squash in flight instructions.<br>            - squashDueToBranch</p>
+<p> build&#x2F;ARM&#x2F;gem5.opt configs&#x2F;example&#x2F;se.py –cmd&#x3D;tests&#x2F;test-progs&#x2F;hello&#x2F;bin&#x2F;arm&#x2F;linux&#x2F;hello  –cpu-type&#x3D;O3CPU –caches  –l1d_size&#x3D;64kB –l1i_size&#x3D;16kB<br>&#x2F;home&#x2F;zyh&#x2F;2022fall&#x2F;gem5# build&#x2F;X86&#x2F;gem5.opt configs&#x2F;example&#x2F;se.py –cmd&#x3D;tests&#x2F;test-progs&#x2F;hello&#x2F;bin&#x2F;x86&#x2F;linux&#x2F;hello –cpu-type&#x3D;O3CPU –caches  –l1d_size&#x3D;64kB –l1i_size&#x3D;16kB</p>
+<h1 id="Fetch"><a href="#Fetch" class="headerlink" title="Fetch"></a>Fetch</h1><p>set(toIEW-&gt;commitInfo[tid].pc, fromIEW-&gt;pc[tid]);</p>
+<p>squash(*fromCommit-&gt;commitInfo[tid].pc,<br>fromCommit-&gt;commitInfo[tid].doneSeqNum,<br>fromCommit-&gt;commitInfo[tid].squashInst, tid);</p>
+<p>Fetch::doSquash（）</p>
+<p>set(pc[tid], new_pc);<br>decoder[tid]-&gt;reset();<br>memReq[tid] &#x3D; NULL;<br>fetchStatus[tid] &#x3D; Squashing;<br>fetchQueue[tid].clear();</p>
+<p>cpu-&gt;removeInstsNotInROB(tid);</p>
+<pre><code>    squashInstIt(inst_it, tid);
+            (*instIt)-&gt;setSquashed();
+            removeList.push(instIt);
+</code></pre>
+<p>cpu的instList里存了所有当前在流水线中的指令(包括在ROB的)</p>
+<h1 id="commit"><a href="#commit" class="headerlink" title="commit"></a>commit</h1><p>rob-&gt;squash()<br>Status[tid] &#x3D; Squashing;</p>
+<h1 id="decode"><a href="#decode" class="headerlink" title="decode"></a>decode</h1><p>fromFetch-&gt;insts[i]-&gt;setSquashed();<br>toFetch-&gt;decodeUnblock[tid] &#x3D; 1;</p>
+<h1 id="rename"><a href="#rename" class="headerlink" title="rename"></a>rename</h1><p>toDecode-&gt;renameUnblock[tid] &#x3D; 1;<br>serializeInst[tid] &#x3D; NULL;<br>Status[tid] &#x3D; Squashing;<br>renameStatus[tid] &#x3D; Squashing;</p>
+<h1 id="iew"><a href="#iew" class="headerlink" title="iew"></a>iew</h1><p>收到通知<br>IEW::checkSignalsAndUpdate<br>    - squash(tid);<br>        instQueue.squash(tid);<br>        ldstQueue.squash(fromCommit-&gt;commitInfo[tid].doneSeqNum, tid);<br>        emptyRenameInsts(tid);</p>
+<p>通知<br>set(toCommit-&gt;pc[tid], inst-&gt;pcState());<br>        inst-&gt;staticInst-&gt;advancePC(*toCommit-&gt;pc[tid]);</p>
+<pre><code>    toCommit-&gt;mispredictInst[tid] = inst;
+    toCommit-&gt;includeSquashInst[tid] = false;
+</code></pre>
+<p>加了一页cpu状态和thread状态，gem5这边thread状态是跟流水线相关的，之后cpustate统称为thread状态<br>1、目标加一个当前整理gem5 cpu state的原因，是由于之前是FMTM紧耦合，现在FM到QEMU去了，希望看到misprediction的时候可以用cpustate但是不会提交修改其状态，qemu给其需要的错误路径，让TM这边可以有中间结果进行流转<br>2、分支预测或cpu流水线流程执行的时候，相关cpu状态是copy备份了一份还是有更新把中间结果存到队列里？是否有ROB队列，其作用是什么？<br>主要整理一下分支预测到分支预测结果出来前，这些中间结果是怎么流转的。(似乎没有备份，有队列来存后面回退)</p>
+<p>scoreboard 跟踪记录物理reg是否可使用<br>renameMap记录了idx-&gt;对应的reg<br>Rename::renameDestRegs(const DynInstPtr &amp;inst, ThreadID tid)将inst-&gt;destRegIdx对应的reg的指针取出由inst保存，并将map中inst-&gt;destRegIdx对应的reg换成从freelist取出的reg<br>指令执行后由forward恢复</p>
+<p>instruction’s view of the register file(s) -&gt; actual storage locations</p>
+<ul>
+<li>类似虚拟内存到物理内存的映射，我们需要把指令视角下的寄存器映射到扁平化的物理内存上</li>
+<li>该部分工作由cpu完成，<ul>
+<li>ISA负责解码后的指令需要的寄存器(指令视角) ,cpu将寄存器翻译成物理内存(寄存器)</li>
+<li>%g1 –&gt; phy index[9]</li>
+</ul>
+</li>
+</ul>
+<p>&#x2F;&#x2F;&#x2F; 使用直接映射的问题<br>虚拟内存空间可能非常大（可能有间隙）并映射到较小的物理空间，<br>或者它可能很小并映射到较大的物理空间，其中额外的空间用于其他时间使用的其他虚拟空间。<br>您需要确保使用正确的尺寸（展平后）来调整表格的大小，因为这是可能的选择空间</p>
+<p>另一个棘手的部分来自我们在索引中添加偏移量以区分整数、浮点数和杂项。<br>这些偏移在预展平世界中可能是一回事，但在展平后世界中需要是另一回事，以防止事物相互重叠而不会留下间隙。在这里很容易犯错，这也是我不喜欢这种抵消想法作为将不同类型分开的一种方式的原因之一。我宁愿看到一个二维索引，其中第二个坐标是寄存器类型。但在当今世界上，这是你必须跟踪的事情。</p>
+<p>gem5选择使用rename and map</p>
+<p>Relative<br>相对寄存器索引是在机器指令中编码的索引。每类寄存器（整数、浮点等）都有一个单独的索引空间，从 0 开始。寄存器类由操作码隐含。因此，源寄存器字段中的值“1”可能意味着整数寄存器1（例如，“%r1”）或浮点寄存器1（例如，“%f1”），这取决于指令的类型</p>
+<p>Unified<br>虽然相对寄存器索引有助于保持指令编码紧凑，但它们是模棱两可的，因此不便于管理依赖项等事情。为了避免这种歧义，解码器通过添加特定于类的偏移量将每个相对索引范围重新定位到唯一位置，将相对寄存器索引映射到统一的寄存器空间。整数寄存器未修改，并继续从零开始。浮点寄存器索引（至少）偏移整数寄存器的数量，以便第一个 FP 寄存器（例如，“%f0”）获得大于最后一个整数寄存器的统一索引。类似地，杂项（又名控制）寄存器映射到 FP 寄存器索引空间的末尾</p>
+<p>Flattened<br>统一的寄存器索引提供了对在执行中的给定点可作为指令操作数访问的所有寄存器的明确描述。不幸的是，由于某些 ISA 的复杂特性，它们并不总是明确地识别指令所引用的实际状态。例如，在具有寄存器窗口（尤其是 SPARC）的 ISA 中，特定的寄存器标识符（例如“%o0”）在“保存”或“恢复”操作后将引用与以前不同的寄存器。一些 ISA 具有在正常操作中隐藏的寄存器，但在发生中断时（例如，ARM 的特定于模式的寄存器）或在显式管理器控制下（例如，SPARC 的“备用全局变量”）被映射到普通寄存器之上。</p>
+<p>我们通过维护一个扁平的寄存器空间来解决这个问题，该空间为每个唯一的寄存器存储位置提供不同的索引。例如，SPARC扁平寄存器空间的整数部分对全局变量和备用全局变量以及每个可用寄存器窗口都有不同的索引。从统一或相对寄存器索引转换为扁平寄存器索引的“扁平化”过程因 ISA 而异。在某些 ISA 上，映射是微不足道的，而另一些则使用表查找来进行转换。</p>
+<p>生成统一寄存器索引和扁平寄存器索引之间的一个关键区别是前者总是可以静态完成，而后者通常取决于动态处理器状态。也就是说，从相对索引到统一索引的转换仅取决于指令本身提供的上下文（这很方便，因为转换是在解码器中完成的）。相反，到扁平寄存器索引的映射可能取决于处理器状态，例如中断级别或 SPARC 上的当前窗口指针。</p>
+<p>组合寄存器索引类型<br>尽管修改寄存器索引的典型过程是相对 -&gt; 统一 -&gt; 扁平 ，但事实证明，相对与统一以及 扁平 与非 扁平 是正交属性。相对与统一指示索引是相对于其寄存器类（整数、FP 或杂项）的基址寄存器还是添加了其类的基址偏移量。扁平化与非扁平化表明索引是否已调整到帐户用于运行时上下文，例如寄存器窗口调整或备用寄存器文件模式。因此，相对扁平化的寄存器索引是其中已经考虑了运行时上下文，但仍相对于其类的基本偏移量表示的索引。</p>
+<p>一组特定于类的偏移量用于从相对索引生成统一索引，无论索引是扁平的还是非扁平的。因此，即使在使用扁平地址时，偏移量也必须足够大以分隔寄存器类。因此，非扁平的统一寄存器空间通常是不连续的。</p>
+<p>诸如 O3 之类的无序 CPU 模型通过将这些架构寄存器（使用扁平寄存器索引）重命名为底层物理寄存器文件，增加了另一层复杂性</p>
+<p>静态工具<br>StaticInst 为二进制指令提供所有静态信息和方法。</p>
+<p>它包含以下信息&#x2F;方法：</p>
+<p>指示它是哪种指令的标志（整数、浮点、分支、内存屏障等）<br>指令的 op 类<br>源和目标寄存器的数量<br>使用的整数和 FP 寄存器的数量<br>将二进制指令解码为 StaticInst 的方法<br>虚函数 execute()，它定义了如何为指令采取特定的架构操作（例如读取 r1、r2、添加它们并存储在 r3 中。）<br>处理启动和完成内存操作的虚函数<br>用于将内存操作拆分为两个操作的模型分别执行地址计算和内存访问的虚拟函数<br>反汇编指令的方法，以人类可读的格式打印出来。（例如 addq r1 r2 r3）<br>它没有动态信息，例如指令的 PC 或源寄存器的值或结果。这允许将 StaticInst 一对一映射到唯一的二进制机器指令。我们通过在 hash_map 中缓存二进制指令到 StaticInst 的映射来利用这一事实，允许我们只解码二进制指令一次，并在其余时间直接使用 StaticInst。</p>
+<p>每条 ISA 指令都从 StaticInst 派生并实现自己的构造函数 execute() 函数，如果是内存指令，则实现内存访问函数。有关如何指定这些 ISA 指令的详细信息，请参阅 ISA_description_system。</p>
+<p>动力装置<br>DynInst 用于保存有关指令的动态信息。这对于更详细的模型或无序模型是必要的，这两种模型都可能需要静态指令之外的额外信息才能正确执行指令。它存储的一些动态信息包括：</p>
+<p>指令的PC<br>源寄存器和目标寄存器的重命名寄存器索引<br>预测的下一代 PC<br>指令结果<br>指令的线程号<br>正在执行指令的 CPU<br>指令是否被压缩<br>此外，DynInst 提供了 ExecContext 接口。当 ISA 指令执行时，DynInst 作为 ExecContext 传入，处理 ISA 对 CPU 状态的所有访问。</p>
+<p>详细的 CPU 模型可以从 DynInst 派生并创建自己的特定 DynInst 子类，这些子类实现可能需要的任何其他状态或功能。有关此示例，请参见 src&#x2F;cpu&#x2F;o3&#x2F;alpha&#x2F;dyn_inst.hh。</p>
+<p>decode收到squash信号后将该线程的，指令标记为Squashed，在随后的执行中，直接删除指令</p>
+<p>– help 打印所有指令</p>
+<h1 id="ldmstm"><a href="#ldmstm" class="headerlink" title="ldmstm"></a>ldmstm</h1><ul>
+<li>arm32中使用，arm64已不再用</li>
+<li>load multiple registers<ul>
+<li>包括pc</li>
+<li>修改pc时被认为是控制指令</li>
+</ul>
+</li>
+</ul>
+<h1 id="gem5执行所有指令时都会检查CC-reg"><a href="#gem5执行所有指令时都会检查CC-reg" class="headerlink" title="gem5执行所有指令时都会检查CC reg"></a>gem5执行所有指令时都会检查CC reg</h1><ul>
+<li>如果不满足xc-&gt;setPredicate(false);<ul>
+<li>不会真正执行指令</li>
+</ul>
+</li>
+<li>问： testPredicate(OptCondCodesNZ, CondCodesC, OptCondCodesV, condCode)是根据什么判断是否mis branch</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/09/17/Cpp20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="prev" title="Cpp20学习笔记">
+      <i class="fa fa-chevron-left"></i> Cpp20学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/22/Effective%20C++(4)/" rel="next" title="Effective C++(4)--设计与声明">
+      Effective C++(4)--设计与声明 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Fetch"><span class="nav-number">1.</span> <span class="nav-text">Fetch</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#commit"><span class="nav-number">2.</span> <span class="nav-text">commit</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#decode"><span class="nav-number">3.</span> <span class="nav-text">decode</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#rename"><span class="nav-number">4.</span> <span class="nav-text">rename</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#iew"><span class="nav-number">5.</span> <span class="nav-text">iew</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ldmstm"><span class="nav-number">6.</span> <span class="nav-text">ldmstm</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#gem5%E6%89%A7%E8%A1%8C%E6%89%80%E6%9C%89%E6%8C%87%E4%BB%A4%E6%97%B6%E9%83%BD%E4%BC%9A%E6%A3%80%E6%9F%A5CC-reg"><span class="nav-number">7.</span> <span class="nav-text">gem5执行所有指令时都会检查CC reg</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

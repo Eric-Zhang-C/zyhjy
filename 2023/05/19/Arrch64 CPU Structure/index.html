@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="0. 介绍 ARMv8-A Architecture and Processors描述了以前的 32 位 ARM 架构，介绍了 ARMv8，并描述了 ARMv8 处理器的一些属性。 接下来，ARMv8 基础知识以异常级别和执行状态的形式描述了体系结构的构建块。 ARMv8 寄存器随后介绍了 ARMv8 体系结构中可用的寄存器。  ARMv8 架构中引入的最重要的变化之一是添加了 64 位指令集，它">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Arrch64 CPU Structure">
+<meta property="og:url" content="http://example.com/2023/05/19/Arrch64%20CPU%20Structure/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="0. 介绍 ARMv8-A Architecture and Processors描述了以前的 32 位 ARM 架构，介绍了 ARMv8，并描述了 ARMv8 处理器的一些属性。 接下来，ARMv8 基础知识以异常级别和执行状态的形式描述了体系结构的构建块。 ARMv8 寄存器随后介绍了 ARMv8 体系结构中可用的寄存器。  ARMv8 架构中引入的最重要的变化之一是添加了 64 位指令集，它">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-05-19T13:03:50.000Z">
+<meta property="article:modified_time" content="2023-07-30T10:15:50.928Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/05/19/Arrch64%20CPU%20Structure/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Arrch64 CPU Structure | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/19/Arrch64%20CPU%20Structure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Arrch64 CPU Structure
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-19 21:03:50" itemprop="dateCreated datePublished" datetime="2023-05-19T21:03:50+08:00">2023-05-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="0-介绍"><a href="#0-介绍" class="headerlink" title="0. 介绍"></a>0. 介绍</h1><ul>
+<li>ARMv8-A Architecture and Processors描述了以前的 32 位 ARM 架构，介绍了 ARMv8，并描述了 ARMv8 处理器的一些属性。</li>
+<li>接下来，ARMv8 基础知识以异常级别和执行状态的形式描述了体系结构的构建块。</li>
+<li>ARMv8 寄存器随后介绍了 ARMv8 体系结构中可用的寄存器。</li>
+</ul>
+<p>ARMv8 架构中引入的最重要的变化之一是添加了 64 位指令集，它补充了现有的 32 位架构。</p>
+<ul>
+<li><p>ARMv8 指令集简介介绍了 ARMv7 (A32)指令集架构(ISA) 与 A64 指令集之间的差异。A64 指令集更详细地介绍了 Instruction Set 及其使用。除了用于通用操作的新指令集外，ARMv8 还更改了 NEON 和浮点指令集。</p>
+</li>
+<li><p>AArch64 浮点数和 NEON描述了 ARMv8 到 ARM 高级 SIMD (NEON) 和浮点指令的变化。有关 NEON 及其在 ARMv7 中的功能的更详细指南，请参阅ARM NEON 程序员指南。</p>
+</li>
+<li><p>本书的移植到 A64涵盖了将代码从其他体系结构或以前的 ARM 体系结构移植到 ARMv8 时可能遇到的问题。</p>
+</li>
+<li><p>ARM 64 位架构的 ABI描述了ARM 架构规范的应用程序二进制接口(ABI)。ABI 是针对 ARM 目标的所有编程行为的规范，它管理 64 位代码采用的形式。</p>
+</li>
+<li><p>AArch64 Exception Handling描述了 ARMv8 在 AArch64 状态下的异常处理行为。</p>
+</li>
+</ul>
+<p>在此之后，重点转移到处理器的内部架构。</p>
+<ul>
+<li><p>缓存描述了缓存的设计以及缓存的使用如何提高性能。</p>
+</li>
+<li><p>支持 ARMv8 和转向 64 位架构的一个重要推动因素可能是允许访问比仅使用 32 位更大的地址空间。内存管理单元描述了 MMU 如何将虚拟内存地址转换为物理地址。</p>
+</li>
+<li><p>内存排序描述了 ARMv8 架构中内存的弱排序模型。通常，这意味着内存访问的顺序不需要与加载和存储操作的程序顺序相同。只有一些程序员必须知道内存排序问题。如果您的代码直接与硬件或在其他内核上执行的代码交互，直接加载或写入要执行的指令，或修改页表，那么您可能必须考虑顺序和障碍。如果您要实现自己的同步功能或无锁算法，这也适用。</p>
+</li>
+<li><p>多核处理器描述了 ARMv8-A 架构如何支持多核系统。使用 ARMv8 处理器的系统几乎总是以这种方式实现的。</p>
+</li>
+<li><p>电源管理描述了 ARM 内核如何使用其硬件来降低功耗。big.LITTLE Technology涵盖了应用于多核和多集群系统的电源管理的另一个方面。本章介绍 ARM 的 big.LITTLE 技术如何将高能效LITTLE内核与高性能大内核结合在一起，以提供具有高性能和能效的系统。</p>
+</li>
+<li><p>安全性描述了 ARMv8 处理器如何创建一个安全或受信任的系统，以保护密码或信用卡详细信息等资产免遭未经授权的复制或损坏。</p>
+</li>
+<li><p>本书的主要部分以调试结束，描述了 Cortex-A53 和 Cortex-A57 处理器中可用的标准调试和跟踪功能。</p>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Introduction">https://developer.arm.com/documentation/den0024/a/Introduction</a></p>
+<h1 id="1-ARMv8-A-架构"><a href="#1-ARMv8-A-架构" class="headerlink" title="1. ARMv8-A 架构"></a>1. ARMv8-A 架构</h1><h2 id="以前的Arm架构："><a href="#以前的Arm架构：" class="headerlink" title="以前的Arm架构："></a>以前的Arm架构：</h2><p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/ARMv8-A-Architecture-and-Processors">https://developer.arm.com/documentation/den0024/a/ARMv8-A-Architecture-and-Processors</a></p>
+<h2 id="ARMv8-A-架构"><a href="#ARMv8-A-架构" class="headerlink" title="ARMv8-A 架构"></a>ARMv8-A 架构</h2><ul>
+<li><p>ARMv8-A 架构是针对应用程序配置的最新一代 ARM 架构。</p>
+</li>
+<li><p>ARMv8 用于描述整体架构，现在包括了 32 位执行和 64 位执行。</p>
+</li>
+<li><p>它引入了使用 64 位宽寄存器执行的能力，同时保持与现有 ARMv7 软件的向后兼容性。</p>
+</li>
+<li><p>ARMv8-A 架构引入了一些改变，可以设计出性能显著提高的处理器实现。</p>
+<ul>
+<li>大物理地址 &#x2F; Large physical address<ul>
+<li>这使得处理器能够访问超过 4GB 的物理内存。</li>
+</ul>
+</li>
+<li>64 位虚拟寻址 &#x2F; 64-bit virtual addressing<ul>
+<li>这使得虚拟内存能够超过 4GB 的限制。对于使用内存映射文件 I&#x2F;O 或稀疏寻址的现代桌面和服务器软件来说，这非常重要。</li>
+</ul>
+</li>
+<li>自动事件信号 &#x2F; Automatic event signaling<ul>
+<li>这使得能够高效节能地使用高性能自旋锁。</li>
+</ul>
+</li>
+<li>更大的寄存器文件 &#x2F; Larger register files<br>  -31 个 64 位通用寄存器提高性能并减少堆栈使用。</li>
+<li>高效的 64 位立即数生成 &#x2F; Efficient 64-bit immediate generation<ul>
+<li>对于文字池的需求较少。</li>
+</ul>
+</li>
+<li>大范围的 PC 相对寻址 &#x2F; Large PC-relative addressing range<ul>
+<li>为共享库和位置无关可执行文件内的数据寻址提供了一个 +&#x2F;-4GB 的寻址范围，以提高效率。</li>
+</ul>
+</li>
+<li>额外的 16KB 和 64KB 翻译粒度 &#x2F; Additional 16KB and 64KB translation granules<ul>
+<li>这降低了翻译后备缓冲 (TLB) 的缺失率和页表遍历的深度。</li>
+</ul>
+</li>
+<li>新的异常模型 &#x2F; New exception model<br>  -这减少了操作系统和虚拟机监视器软件的复杂性。</li>
+<li>高效的缓存管理 &#x2F; Efficient cache management<ul>
+<li>用户空间缓存操作提高了动态代码生成的效率。使用数据缓存清零指令可以快速清除数据缓存。</li>
+</ul>
+</li>
+<li>硬件加速的密码学 &#x2F; Hardware-accelerated cryptography<ul>
+<li>提供了 3 到 10 倍更好的软件加密性能。这对于小颗粒度的解密和加密，以及不能高效地卸载到硬件加速器的情况（例如 HTTPS）非常有用。</li>
+</ul>
+</li>
+<li>加载-获取、存储-释放指令 &#x2F; Load-Acquire, Store-Release instructions<ul>
+<li>针对 C++11、C11、Java 内存模型设计。通过消除显式内存屏障指令，提高了线程安全代码的性能。</li>
+</ul>
+</li>
+<li>NEON 双精度浮点高级 SIMD &#x2F; NEON double-precision floating-point advanced SIMD<ul>
+<li>这使得可以将 SIMD 向量化应用于更广泛的算法集，例如科学计算、高性能计算 (HPC) 和超级计算机。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="2-Fundamentals-of-ARMv8-ARMv8-基础知识"><a href="#2-Fundamentals-of-ARMv8-ARMv8-基础知识" class="headerlink" title="2. Fundamentals of ARMv8 &#x2F; ARMv8 基础知识"></a>2. Fundamentals of ARMv8 &#x2F; ARMv8 基础知识</h1><ul>
+<li><p>在ARMv8中，执行发生在四个异常级别之一。</p>
+</li>
+<li><p>在AArch64中，异常级别确定特权级别，类似于ARMv7中定义的特权级别。</p>
+</li>
+<li><p>异常级别决定特权级别，因此在ELn处执行对应于特权级别PLn。</p>
+</li>
+<li><p>类似地，具有较大值n的异常级别比另一个异常级别更高。</p>
+</li>
+<li><p>具有较小数字的异常级别被描述为处于较低的异常级别。</p>
+</li>
+<li><p>异常级别在ARMv8架构的所有操作状态下提供了软件执行特权的逻辑分离。它类似于并支持计算机科学中常见的分层保护域的概念。</p>
+</li>
+<li><p>以下是每个异常级别上典型软件运行的示例：</p>
+<ol>
+<li><p>EL0（Exception Level 0）：<br> -也称为用户级别，用于普通应用程序的执行。</p>
+</li>
+<li><p>EL1（Exception Level 1）：</p>
+<ul>
+<li>操作系统内核，也称为特权级别（privileged）。</li>
+<li>也称为监管级别，用于特权级别较高的操作系统内核。</li>
+<li>大多数操作系统内核代码在此级别上运行，具有更高的特权和对底层硬件的直接访问权限。操作系统内核通常被描述为具有特权的软件。</li>
+</ul>
+</li>
+<li><p>EL2（Exception Level 2）：</p>
+<ul>
+<li>也称为虚拟化级别，用于虚拟化和处理器虚拟机监视器（Hypervisor）的执行。</li>
+<li>在EL2级别上，可以运行虚拟机监视器软件，用于创建和管理虚拟机。</li>
+</ul>
+</li>
+<li><p>EL3（Exception Level 3）：</p>
+<ul>
+<li>低级固件，包括安全监控器（Secure Monitor）。</li>
+<li>也称为安全监控级别，用于安全性相关的功能和安全环境的执行。</li>
+<li>在EL3级别上，可以运行安全监视器软件，用于实施安全策略和提供安全保护。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<p>通常情况下，软件的不同部分，比如应用程序、操作系统的内核或虚拟化管理程序，占据一个特定的异常级别。这个规则的一个例外是内核虚拟化管理程序（如KVM），它可以跨EL2和EL1级别运行。<br></p>
+<p>ARMv8-A提供了两种安全状态，Secure（安全）和Non-secure（非安全）。Non-secure状态也被称为Normal World（正常世界）。这使得操作系统（OS）可以与一个可信任的OS并行运行在同一硬件上，并提供对某些软件攻击和硬件攻击的保护。ARM TrustZone技术使系统能够在Normal World和Secure World之间进行分区。与ARMv7-A架构一样，安全监控器（Secure monitor）充当了在Normal World和Secure World之间切换的入口。<br><br>Secure World没有EL2.<br><br><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Fundamentals-of-ARMv8">https://developer.arm.com/documentation/den0024/a/Fundamentals-of-ARMv8</a></p>
+<h2 id="执行状态-Execution-states"><a href="#执行状态-Execution-states" class="headerlink" title="执行状态 &#x2F; Execution states"></a>执行状态 &#x2F; Execution states</h2><p>ARMv8架构定义了两个执行状态，AArch64和AArch32。每个状态用于分别描述使用64位通用寄存器或32位通用寄存器的执行。虽然ARMv8 AArch32保留了ARMv7中特权的定义，但在AArch64中，<strong>特权级别由异常级别确定</strong>。因此，ELn处的执行对应于特权级别PLn。<br><br>当处于AArch64状态时，处理器执行A64指令集。当处于AArch32状态时，处理器可以执行A32（在架构早期版本中称为ARM）或T32（Thumb）指令集。<br><br>在AArch32状态下，可信任的操作系统软件在Secure EL3中执行；而在AArch64状态下，主要在Secure EL1中执行。<br><br><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Fundamentals-of-ARMv8/Execution-states">https://developer.arm.com/documentation/den0024/a/Fundamentals-of-ARMv8/Execution-states</a></p>
+<h2 id="改变异常级别-Changing-Exception-levels"><a href="#改变异常级别-Changing-Exception-levels" class="headerlink" title="改变异常级别 &#x2F; Changing Exception levels"></a>改变异常级别 &#x2F; Changing Exception levels</h2><p>···<br>改变异常级别（Changing Exception levels）是通过触发异常或使用异常相关的指令来实现的。ARMv8架构中，处理器可以从当前的执行级别切换到更高或更低的异常级别。</p>
+<p>要切换到较高的异常级别，可以触发一个异常，例如使用异常相关的指令或发生特定的事件，导致处理器从当前级别切换到更高的级别。例如，从EL0级别切换到EL1级别，可以通过触发一个系统调用（如SVC指令）来引发一个异常，并将控制权转移到EL1级别的异常处理程序。</p>
+<p>要切换到较低的异常级别，通常使用异常返回指令（例如ERET或RFE指令）。这些指令会从当前的异常级别返回到较低的级别，并将控制权交还给较低级别的异常处理程序。</p>
+<p>在切换异常级别时，需要保存和恢复相应级别的上下文信息，包括寄存器状态、异常向量表和其他相关的控制状态。这样可以确保在切换后能够正确处理异常和保持系统的正确运行。</p>
+<p>通过改变异常级别，系统可以在不同的特权级别之间进行切换，并控制不同软件组件的访问权限和特权级别。这提供了灵活的软件隔离和资源管理机制，以满足不同应用场景和安全要求的需要。</p>
+<p>···<br>在ARMv7架构中，处理器模式（the processor mode，异常级别）可以在特权软件控制下或在发生异常时自动切换。当发生异常时，内核会保存当前的执行状态和返回地址，进入所需的模式，并可能禁用硬件中断。<br><br>这在下表中进行了总结。应用程序在最低特权级别PL0（先前称为非特权模式）下运行。操作系统在PL1下运行，而在具有虚拟化扩展的系统中，Hypervisor在PL2下运行。安全监控器（Secure monitor）作为在Secure和Non-secure（Normal）世界之间切换的入口，也在PL1下运行。<br></p>
+<h3 id="Table-3-1-ARMv7-processor-modes"><a href="#Table-3-1-ARMv7-processor-modes" class="headerlink" title="Table 3.1. ARMv7 processor modes"></a>Table 3.1. ARMv7 processor modes</h3><table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Function</th>
+<th>Security state</th>
+<th>Privilege Level</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>User (USR) &#x2F; 用户模式</td>
+<td>大多数应用程序运行的非特权模式</td>
+<td>Both</td>
+<td>PL0</td>
+</tr>
+<tr>
+<td>FIQ &#x2F; 快速中断模式</td>
+<td>在FIQ中断异常发生时进入</td>
+<td>Both</td>
+<td>PL1</td>
+</tr>
+<tr>
+<td>IRQ &#x2F; 中断模式</td>
+<td>在IRQ中断异常发生时进入</td>
+<td>Both</td>
+<td>PL1</td>
+</tr>
+<tr>
+<td>Supervisor(SVC) &#x2F; 监管模式</td>
+<td>在复位时或执行监管调用指令（SVC）时进入</td>
+<td>Both</td>
+<td>PL1</td>
+</tr>
+<tr>
+<td>Monitor (MON) &#x2F; 监控模式</td>
+<td>在执行SMC指令（安全监控调用）或处理配置为安全处理的异常时进入。用于支持在安全和非安全状态之间切换。</td>
+<td>Secure only</td>
+<td>PL1</td>
+</tr>
+<tr>
+<td>Abort (ABT) &#x2F; 异常模式</td>
+<td>在内存访问异常发生时进入</td>
+<td>Both</td>
+<td>PL1</td>
+</tr>
+<tr>
+<td>Undef (UND) &#x2F; 未定义模式</td>
+<td>在执行未定义指令时进入</td>
+<td>Both</td>
+<td>PL1</td>
+</tr>
+<tr>
+<td>System (SYS) &#x2F; 系统模式</td>
+<td>特权模式，与用户模式共享寄存器视图</td>
+<td>Both</td>
+<td>PL1</td>
+</tr>
+<tr>
+<td>Hyp (HYP)</td>
+<td>通过Hypervisor Call和Hyp Trap异常进入。</td>
+<td>Non-secure only</td>
+<td>PL2</td>
+</tr>
+</tbody></table>
+<p>在AArch64中，处理器模式被映射到异常级别，就像图3.6中所示。与ARMv7（AArch32）类似，当发生异常时，处理器会切换到支持处理异常的异常级别（模式）。<br></p>
+<p>异常级别之间的切换遵循一下规则：<br></p>
+<ul>
+<li>从EL0切换到EL1等较高的异常级别表示增加了软件执行特权。</li>
+<li>不能将异常发生在较低的异常级别。 &#x2F; An exception cannot be taken to a lower Exception level.</li>
+<li>在EL0级别没有异常处理，异常必须在较高的异常级别进行处理。</li>
+<li>异常引起程序流的改变。异常处理程序的执行从与引发异常相关的定义向量开始，在比EL0更高的异常级别上执行。异常包括：<ul>
+<li>中断，如IRQ和FIQ。</li>
+<li>内存系统异常。</li>
+<li>未定义的指令。</li>
+<li>系统调用。允许非特权软件向操作系统发出系统调用。</li>
+<li>安全监控器或hypervisor陷阱。</li>
+</ul>
+</li>
+<li>结束异常处理并返回到之前的异常级别是通过执行ERET指令完成的。</li>
+<li>从异常返回时，可以保持在相同的异常级别或进入较低的异常级别。不能进入较高的异常级别。</li>
+<li>随着异常级别的变化，安全状态也会改变，但从EL3返回到非安全状态时除外。请参阅<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Security/Switching-between-Secure-and-Non-secure-state?lang=en">在安全和非安全状态之间切换</a>。<br><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Fundamentals-of-ARMv8/Changing-Exception-levels">https://developer.arm.com/documentation/den0024/a/Fundamentals-of-ARMv8/Changing-Exception-levels</a></li>
+</ul>
+<h2 id="Changing-execution-state-更改执行状态"><a href="#Changing-execution-state-更改执行状态" class="headerlink" title="Changing execution state &#x2F; 更改执行状态"></a>Changing execution state &#x2F; 更改执行状态</h2><p>有时候，你需要改变系统的执行状态。例如，如果你正在运行一个64位操作系统，并且想要在EL0下运行一个32位应用程序，那么系统必须切换到AArch32执行状态。<br></p>
+<p>当应用程序完成或执行返回到操作系统时，系统可以切换回AArch64。不能反过来进行切换。AArch32操作系统无法承载64位应用程序。<br></p>
+<p>要在相同的异常级别之间切换执行状态，你必须切换到更高的异常级别，然后返回到原始的异常级别。例如，你可能在64位操作系统下运行32位和64位应用程序。在这种情况下，32位应用程序可以执行并生成一个Supervisor Call（SVC）指令，或者接收一个中断，导致切换到EL1和AArch64。（参见<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/The-A64-instruction-set/System-control-and-other-instructions/Exception-handling-instructions?lang=en">异常处理指令</a>）然后操作系统可以进行任务切换并返回到AArch64下的EL0。实际上，这意味着你不能同时运行混合的32位和64位应用程序，因为它们之间没有直接的调用方式。<br></p>
+<p>你只能通过改变异常级别来改变执行状态。触发异常可能从AArch32切换到AArch64，而从异常返回可能从AArch64切换到AArch32。<br></p>
+<p>在EL3下的代码无法触发到更高的异常级别，因此除非通过复位，否则无法改变执行状态。<br></p>
+<p>以下是在AArch64和AArch32执行状态之间切换时的一些要点摘要：<br></p>
+<ul>
+<li><p>AArch64和AArch32执行状态都具有一般相似的异常级别，但在安全和非安全操作之间存在一些差异。处理异常时处理器所处的执行状态可以限制其他执行状态可用的异常级别。</p>
+</li>
+<li><p>切换到AArch32需要从更高的异常级别转换到更低的异常级别。这是通过执行ERET指令退出异常处理程序的结果。请参阅异常处理指令。</p>
+</li>
+<li><p>切换到AArch64需要从较低的异常级别转换到较高的异常级别。触发异常可以是指令执行或外部信号的结果。</p>
+</li>
+<li><p>如果在触发异常或从异常返回时异常级别保持不变，执行状态将无法改变。</p>
+</li>
+<li><p>当ARMv8处理器在特定的异常级别处于AArch32执行状态时，它使用与ARMv7相同的异常模型来处理到达该异常级别的异常。在AArch64执行状态下，它使用<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/AArch64-Exception-Handling?lang=en%E4%B8%AD%E6%89%80%E6%8F%8F%E8%BF%B0%E7%9A%84%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%A8%A1%E5%9E%8B">AArch64异常处理</a>。</p>
+</li>
+</ul>
+<p>因此，两种状态之间的交互是在安全监视器、虚拟机监控程序或操作系统的级别进行的。在AArch64状态下运行的虚拟机监控程序或操作系统可以支持较低特权级别下的AArch32操作。这意味着在AArch64下运行的操作系统可以承载AArch32和AArch64应用程序。同样，一个AArch64虚拟机监控程序可以承载AArch32和AArch64的客户操作系统。然而，一个32位操作系统不能承载64位应用程序，而一个32位虚拟机监控程序不能承载64位客户操作系统。</p>
+<p>对于Cortex-A53和Cortex-A57处理器上实现的最高异常级别（EL3），在触发异常时，每个异常级别要使用的执行状态是固定的。只能通过复位处理器来改变异常级别。对于EL2和EL1，它是由<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/ARMv8-Registers/System-registers?lang=en%E6%8E%A7%E5%88%B6%E7%9A%84">系统寄存器</a>。<br><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Fundamentals-of-ARMv8/Changing-execution-state">https://developer.arm.com/documentation/den0024/a/Fundamentals-of-ARMv8/Changing-execution-state</a></p>
+<h1 id="3-ARMv8-Registers"><a href="#3-ARMv8-Registers" class="headerlink" title="3. ARMv8 Registers"></a>3. ARMv8 Registers</h1><p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/ARMv8-Registers">https://developer.arm.com/documentation/den0024/a/ARMv8-Registers</a><br>The AArch64 execution state provides 31 × 64-bit general-purpose registers accessible at all times and in all Exception levels.<br></p>
+<p>Each register is 64 bits wide and they are generally referred to as registers X0-X30.<br><br>Each AArch64 64-bit general-purpose register (X0-X30) also has a 32-bit (W0-W30) form.<br></p>
+<p>The 32-bit W register forms the lower half of the corresponding 64-bit X register. That is, W0 maps onto the lower word of X0, and W1 maps onto the lower word of X1.<br></p>
+<p>Reads from W registers disregard the higher 32 bits of the corresponding X register and leave them unchanged. <em>Writes to W registers set the higher 32 bits of the X register to zero.</em> That is, writing 0xFFFFFFFF into W0 sets X0 to 0x00000000FFFFFFFF.<br></p>
+<h2 id="AArch64-special-registers"><a href="#AArch64-special-registers" class="headerlink" title="AArch64 special registers"></a>AArch64 special registers</h2><p>除了31个核心寄存器外，还有一些特殊寄存器。<br><br>Note：</p>
+<ul>
+<li>没有叫做X31或W31的寄存器。许多指令的编码中，数字31表示零寄存器ZR（WZR或XZR）。还有一组受限指令，其中一个或多个参数的编码中数字31表示堆栈指针SP。</li>
+</ul>
+<p>当访问零寄存器时，所有的写操作都会被忽略，而所有的读操作都会返回0。请注意，<em>64位形式的堆栈指针寄存器（SP register）并不使用X前缀</em>。<br></p>
+<p>Table 4.1. Special registers in AArch64<br></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Size</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>WZR</td>
+<td>32 bits</td>
+<td>Zero register</td>
+</tr>
+<tr>
+<td>XZR</td>
+<td>64 bits</td>
+<td>Zero register</td>
+</tr>
+<tr>
+<td>WSP</td>
+<td>32 bits</td>
+<td>Current stack pointer</td>
+</tr>
+<tr>
+<td>SP</td>
+<td>64 bits</td>
+<td>Current stack pointer</td>
+</tr>
+<tr>
+<td>PC</td>
+<td>64 bits</td>
+<td>Program counter</td>
+</tr>
+</tbody></table>
+<p>在ARMv8架构中，在AArch64执行状态下，每个异常级别都有以下专用寄存器来保存异常返回状态：</p>
+<ul>
+<li>异常链接寄存器（ELR）。</li>
+<li>保存的处理器状态寄存器（SPSR）。</li>
+</ul>
+<p><em>每个异常级别都有一个专用的堆栈指针寄存器（SP），但它不用于保存返回状态</em>。<br></p>
+<p>Table 4.2. Special registers by Exception level<br></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>EL0</th>
+<th>EL1</th>
+<th>EL2</th>
+<th>EL3</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stack Pointer (SP)</td>
+<td>SP_EL0</td>
+<td>SP_EL1</td>
+<td>SP_EL2</td>
+<td>SP_EL3</td>
+</tr>
+<tr>
+<td>Exception Link Register (ELR)</td>
+<td></td>
+<td>ELR_EL1</td>
+<td>ELR_EL2</td>
+<td>ELR_EL3</td>
+</tr>
+<tr>
+<td>Saved Process Status Register (SPSR)</td>
+<td></td>
+<td>SPSR_EL1</td>
+<td>SPSR_EL2</td>
+<td>SPSR_EL3</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/ARMv8-Registers/AArch64-special-registers">https://developer.arm.com/documentation/den0024/a/ARMv8-Registers/AArch64-special-registers</a></p>
+<p>在ARMv8架构中，除了通用寄存器（X0-X30或W0-W30）之外，还有一些特殊寄存器用于特定的功能和控制。以下是其中一些常见的特殊寄存器：</p>
+<ol>
+<li><p>程序状态寄存器（Program Status Register，PSR）：用于存储和控制处理器的状态信息，例如条件码（Condition Flags）和执行状态（Execution State）。</p>
+</li>
+<li><p>控制寄存器（Control Register）：用于控制和配置处理器的行为，例如异常处理、内存访问权限和缓存控制。</p>
+</li>
+<li><p>中断&#x2F;异常向量表寄存器（Interrupt&#x2F;Exception Vector Table Register）：用于存储中断和异常处理程序的地址。</p>
+</li>
+<li><p>时钟寄存器（Timer Register）：用于计时和定时器功能。</p>
+</li>
+<li><p>系统控制寄存器（System Control Register）：用于配置和控制系统级别的设置，例如内存管理单元（MMU）和缓存。</p>
+</li>
+</ol>
+<p>这只是一小部分常见的特殊寄存器，实际上还有其他特殊寄存器用于不同的处理器功能和系统配置。具体的特殊寄存器数量和功能可能因处理器型号、架构版本和实现而有所不同。</p>
+<h3 id="零寄存器-Zero-register"><a href="#零寄存器-Zero-register" class="headerlink" title="零寄存器 &#x2F; Zero register"></a>零寄存器 &#x2F; Zero register</h3><p>零寄存器在用作源寄存器时读取为零，并且在用作目标寄存器时丢弃结果。你可以在大多数指令中使用零寄存器，但并不是所有指令都可以使用它。</p>
+<h3 id="Stack-pointer-堆栈指针"><a href="#Stack-pointer-堆栈指针" class="headerlink" title="Stack pointer &#x2F; 堆栈指针"></a>Stack pointer &#x2F; 堆栈指针</h3><p>在ARMv8架构中，选择使用的堆栈指针在一定程度上与异常级别分离。默认情况下，触发异常会选择目标异常级别的堆栈指针，即SP_ELn。例如，触发到EL1的异常会选择SP_EL1作为堆栈指针。<strong>每个异常级别都有自己的堆栈指针</strong>，包括SP_EL0、SP_EL1、SP_EL2和SP_EL3。在AArch64下，除EL0以外的异常级别，处理器可以使用以下两种方式之一：</p>
+<ol>
+<li><p><em>与该异常级别关联的专用64位堆栈指针（SP_ELn）</em>。</p>
+</li>
+<li><p><em>与EL0关联的堆栈指针（SP_EL0）</em>。</p>
+</li>
+</ol>
+<p><em>EL0只能访问SP_EL0</em>。<br></p>
+<p>Table 4.3. AArch64 Stack pointer options</p>
+<table>
+<thead>
+<tr>
+<th>Exception level</th>
+<th>Options</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EL0</td>
+<td>EL0t</td>
+</tr>
+<tr>
+<td>EL1</td>
+<td>EL1t, EL1h</td>
+</tr>
+<tr>
+<td>EL2</td>
+<td>EL2t, EL2h</td>
+</tr>
+<tr>
+<td>EL3</td>
+<td>EL3t, EL3h</td>
+</tr>
+</tbody></table>
+<p>The t后缀表示选择SP_EL0堆栈指针。h后缀表示选择SP_ELn堆栈指针。</p>
+<p>大多数指令不能直接引用堆栈指针（SP）。然而，某些形式的算术指令，比如ADD指令，可以读取和写入当前堆栈指针，以调整函数中的堆栈指针。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ADD SP, SP, #0x10      // Adjust SP to be 0x10 bytes before its current value</span><br></pre></td></tr></table></figure>
+<h3 id="程序计数器（Program-Counter，PC）"><a href="#程序计数器（Program-Counter，PC）" class="headerlink" title="程序计数器（Program Counter，PC）"></a>程序计数器（Program Counter，PC）</h3><p>程序计数器（Program Counter，PC）是ARMv7指令集的一个特性，它将R15作为通用寄存器来使用。PC的使用使得一些巧妙的编程技巧成为可能，但也给编译器和复杂流水线的设计带来了复杂性。在ARMv8中去除了对PC的直接访问，这使得返回预测更加容易，并简化了ABI规范。</p>
+<p>PC永远不作为一个命名寄存器进行访问。它在某些指令中的使用是隐式的，例如PC相对加载和地址生成。PC不能作为数据处理指令或加载指令的目的地进行指定。</p>
+<h3 id="异常链接寄存器（Exception-Link-Register，ELR）"><a href="#异常链接寄存器（Exception-Link-Register，ELR）" class="headerlink" title="异常链接寄存器（Exception Link Register，ELR）"></a>异常链接寄存器（Exception Link Register，ELR）</h3><p>异常链接寄存器<em>保存异常的返回地址</em>。</p>
+<h3 id="链接寄存器（Link-Register，LR）"><a href="#链接寄存器（Link-Register，LR）" class="headerlink" title="链接寄存器（Link Register，LR）"></a>链接寄存器（Link Register，LR）</h3><p>在AArch64状态下，链接寄存器（Link Register，LR）用于存储子程序调用时的返回地址。如果返回地址存储在堆栈上，它也可以用作通用寄存器。LR对应寄存器30。</p>
+<h3 id="保存程序状态寄存器（Saved-Program-Status-Register，SPSR"><a href="#保存程序状态寄存器（Saved-Program-Status-Register，SPSR" class="headerlink" title="保存程序状态寄存器（Saved Program Status Register，SPSR"></a>保存程序状态寄存器（Saved Program Status Register，SPSR</h3><p>当发生异常时，处理器状态会存储在相应的保存程序状态寄存器（Saved Program Status Register，SPSR）中，类似于ARMv7中的CPSR。<em>SPSR保存在发生异常之前的PSTATE值，并在执行异常返回时用于恢复PSTATE的值</em>。</p>
+<p>The individual bits represent the following values for AArch64:</p>
+<h4 id="N-31"><a href="#N-31" class="headerlink" title="N 31"></a>N 31</h4><p>Negative result (N flag).</p>
+<h4 id="Z-30"><a href="#Z-30" class="headerlink" title="Z 30"></a>Z 30</h4><p>Zero result (Z) flag.</p>
+<h4 id="C-29"><a href="#C-29" class="headerlink" title="C 29"></a>C 29</h4><p>Carry out (C flag).</p>
+<h4 id="V-28"><a href="#V-28" class="headerlink" title="V 28"></a>V 28</h4><p>Overflow (V flag).</p>
+<h4 id="SS-21"><a href="#SS-21" class="headerlink" title="SS 21"></a>SS 21</h4><p>软件步进（Software Step）标志。指示在发生异常时是否启用了软件步进。</p>
+<h4 id="IL-20"><a href="#IL-20" class="headerlink" title="IL 20"></a>IL 20</h4><p>非法执行状态位（Illegal Execution State bit）。显示异常发生前的PSTATE.IL值。</p>
+<h4 id="D-9"><a href="#D-9" class="headerlink" title="D 9"></a>D 9</h4><p>进程状态调试掩码（Process state Debug mask）。指示针对异常发生的异常级别的监视点、断点和软件步进调试事件的调试异常是否被屏蔽。</p>
+<h4 id="A-8"><a href="#A-8" class="headerlink" title="A 8"></a>A 8</h4><p>SError (System Error) mask bit.</p>
+<h4 id="I-7"><a href="#I-7" class="headerlink" title="I 7"></a>I 7</h4><p>IRQ mask bit.</p>
+<h4 id="F-6"><a href="#F-6" class="headerlink" title="F 6"></a>F 6</h4><p>FIQ mask bit.</p>
+<h4 id="M-4"><a href="#M-4" class="headerlink" title="M[4]"></a>M[4]</h4><p>Execution state that the exception was taken from. A value of 0 indicates AArch64.</p>
+<h4 id="M-3-0"><a href="#M-3-0" class="headerlink" title="M[3:0]"></a>M[3:0]</h4><p>Mode or Exception level that an exception was taken from.</p>
+<p>在ARMv8中，所写入的SPSR取决于异常级别。如果异常发生在EL1级别，则使用SPSR_EL1。如果异常发生在EL2级别，则使用SPSR_EL2。如果异常发生在EL3级别，则使用SPSR_EL3。在发生异常时，内核会填充相应的SPSR寄存器。</p>
+<p>注意：<br>与异常级别相关联的ELR_ELn和SPSR_ELn寄存器对在较低的异常级别执行时保留其状态(retain their state)。</p>
+<h2 id="Processor-state"><a href="#Processor-state" class="headerlink" title="Processor state"></a>Processor state</h2><p>在AArch64架构中，没有直接等效于ARMv7的当前程序状态寄存器（CPSR）。在AArch64中，传统CPSR的各个组成部分被提供为可以独立访问的字段。它们统称为处理器状态。</p>
+<p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/ARMv8-Registers/AArch64-special-registers/Saved-Process-Status-Register?lang=en">PSTATE每个bit的含义</a></p>
+<p>AArch64的处理器状态（PSTATE）字段具有以下定义：<br><br>Table 4.4. PSTATE field definitions<br></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>N</td>
+<td>Negative condition flag.</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>Zero condition flag.</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Carry condition flag.</td>
+</tr>
+<tr>
+<td>V</td>
+<td>oVerflow condition flag.</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Debug mask bit.</td>
+</tr>
+<tr>
+<td>A</td>
+<td>SError mask bit.</td>
+</tr>
+<tr>
+<td>I</td>
+<td>IRQ mask bit.</td>
+</tr>
+<tr>
+<td>F</td>
+<td>FIQ mask bit.</td>
+</tr>
+<tr>
+<td>SS</td>
+<td>Software Step bit.</td>
+</tr>
+<tr>
+<td>IL</td>
+<td>Illegal execution state bit.</td>
+</tr>
+<tr>
+<td>EL(2)</td>
+<td>Exception level.</td>
+</tr>
+<tr>
+<td>nRW</td>
+<td>Execution state; 0 &#x3D; 64-bit, 1 &#x3D; 32-bit</td>
+</tr>
+<tr>
+<td>SP</td>
+<td>Stack Pointer selector. 0 &#x3D; SP_EL0, 1 &#x3D; SP_ELn</td>
+</tr>
+</tbody></table>
+<p>在AArch64中，通过<em>执行ERET指令来从异常返回，并且这会导致将SPSR_ELn复制到PSTATE中</em>。这将恢复ALU标志、执行状态、异常级别和处理器分支。从这里，您将从ELR_ELn中的地址继续执行。</p>
+<p>PSTATE.{N, Z, C, V}字段可以在EL0级别进行访问。所有其他PSTATE字段可以在EL1或更高级别执行，并且在EL0级别未定义。</p>
+<h2 id="System-registers"><a href="#System-registers" class="headerlink" title="System registers"></a>System registers</h2><p>在AArch64中，系统配置通过系统寄存器进行控制，并使用MSR和MRS指令进行访问。这与ARMv7-A不同，后者通常通过协处理器15（CP15）操作来访问这些寄存器。寄存器的名称告诉您可以从中访问的最低异常级别。</p>
+<p>例如：</p>
+<ul>
+<li>TTBR0_EL1可以从EL1、EL2和EL3级别进行访问。</li>
+<li>TTBR0_EL2可以从EL2和EL3级别进行访问。</li>
+</ul>
+<p>具有后缀_ELn的寄存器在某些或所有级别中有一个单独的备份，尽管通常不包括EL0。很少有系统寄存器可以从EL0级别进行访问，尽管Cache Type Register (CTR_EL0)是一个可以访问的例子。</p>
+<p>访问系统寄存器的代码形式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MRS  x0, TTBR0_EL1          // Move TTBR0_EL1 into x0</span><br><span class="line"></span><br><span class="line">MSR  TTBR0_EL1, x0          // Move x0 into TTBR0_EL1</span><br></pre></td></tr></table></figure>
+<p>先前的ARM架构版本使用协处理器进行系统配置。然而，AArch64不支持协处理器。表<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/ARMv8-Registers/System-registers?lang=en#BABHJIIB">4.5</a>列出了本书提到的系统寄存器。</p>
+<p>完整列表请参阅《ARM体系结构参考手册-ARMv8，ARMv8-A架构配置文件》附录J。</p>
+<p>该表显示了每个寄存器具有单独副本的异常级别。例如，独立的辅助控制寄存器（ACTLRs）存在于ACTLR_EL1、ACTLR_EL2和ACTLR_EL3中。</p>
+<h3 id="The-system-control-register-系统控制寄存器"><a href="#The-system-control-register-系统控制寄存器" class="headerlink" title="The system control register &#x2F; 系统控制寄存器"></a>The system control register &#x2F; 系统控制寄存器</h3><p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/ARMv8-Registers/System-registers/The-system-control-register?lang=en">系统控制寄存器</a>（System Control Register，简称SCTLR）是一个寄存器，用于控制标准内存、系统功能，并为内核中实现的功能提供状态信息。</p>
+<h2 id="Endianness"><a href="#Endianness" class="headerlink" title="Endianness"></a>Endianness</h2><p>在内存中查看字节的方式有两种基本方法，即小端序（Little-Endian，LE）和大端序（Big-Endian，BE）。在大端序的计算机上，一个对象在内存中的最高有效字节存储在最低地址，也就是离零地址最近的地址。而在小端序的计算机上，最低有效字节存储在最低地址。字节顺序也可以用字节序来表示，而非字节序。</p>
+<p>数据字节序独立地由每个执行级别控制。对于EL3、EL2和EL1，SCTLR_ELn.EE寄存器设置字节序。在EL1级别上，SCTLR_EL1.E0E寄存器控制EL0的数据字节序设置。在AArch64执行状态下，数据访问可以是小端序或大端序，而指令获取始终为小端序。</p>
+<p>处理器是否同时支持小端序和大端序取决于处理器的实现。如果仅支持小端序，则EE和E0E位始终为0。同样，如果仅支持大端序，则EE和E0E位的值为静态1。</p>
+<p>在使用AArch32时，在EL1、EL2或EL3级别上，CPSR.E位与对应的系统控制寄存器EE位具有不同的值已经被弃用。ARMv7的SETEND指令的使用也已经被弃用。通过设置SCTLR.SED位，可以导致在执行SETEND指令时引发未定义异常。</p>
+<h2 id="Changing-execution-state-again"><a href="#Changing-execution-state-again" class="headerlink" title="Changing execution state (again)"></a>Changing execution state (again)</h2><p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/ARMv8-Registers/Changing-execution-state--again-?lang=en">Changing execution state (again)</a><br>在从AArch32执行状态进入AArch64执行状态时，从寄存器的角度考虑，以下情况发生变化：</p>
+<p>对于在AArch32执行状态下可访问的任何较低异常级别的寄存器的上32位值是未知的。</p>
+<p>在AArch32执行状态下不可访问的寄存器将保留它们在AArch32执行之前的状态。</p>
+<p>在从使用AArch32的EL2进入EL3的异常入口处，ELR_EL2的上32位值是未知的。</p>
+<p>与AArch32执行状态下不可访问的异常级别相关联的AArch64堆栈指针（SPs）和异常链接寄存器（ELRs），在该异常级别中保留它们在AArch32执行之前的状态。这适用于以下寄存器：</p>
+<p>SP_EL0</p>
+<p>SP_EL1</p>
+<p>SP_EL2</p>
+<p>ELR_EL1</p>
+<p>一般而言，应用程序员编写的应用程序针对AArch32或AArch64中的一种执行状态。只有操作系统需要考虑这两种执行状态以及它们之间的切换。</p>
+<h2 id="NEON-and-floating-point-registers"><a href="#NEON-and-floating-point-registers" class="headerlink" title="NEON and floating-point registers"></a>NEON and floating-point registers</h2><p>除了通用寄存器外，ARMv8还具有32个128位浮点寄存器，标记为V0-V31。这32个寄存器用于存储标量浮点指令的浮点操作数，以及NEON操作的标量和矢量操作数。浮点寄存器和NEON寄存器也在<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/AArch64-Floating-point-and-NEON?lang=en">AArch64浮点和NEON</a>中进行了介绍。</p>
+<h1 id="4-An-Introduction-to-the-ARMv8-Instruction-Sets-ARMv8指令集简介"><a href="#4-An-Introduction-to-the-ARMv8-Instruction-Sets-ARMv8指令集简介" class="headerlink" title="4. An Introduction to the ARMv8 Instruction Sets &#x2F; ARMv8指令集简介"></a>4. An Introduction to the ARMv8 Instruction Sets &#x2F; ARMv8指令集简介</h1><p>ARMv8架构引入的最重要的变化之一是增加了64位指令集。这个指令集与现有的32位指令集架构相辅相成。这个增加使得可以访问64位宽整数寄存器和数据操作，并且能够使用64位大小的内存指针。这些新指令被称为A64指令，运行在AArch64执行状态下。ARMv8还包括原始的ARM指令集，现在称为A32指令集，以及Thumb (T32)指令集。A32和T32都在AArch32状态下执行，与ARMv7保持向后兼容。</p>
+<p>尽管ARMv8-A与32位ARM体系结构保持向后兼容，但A64指令集与旧的指令集架构是独立的并且编码方式不同。A64添加了一些额外的功能，同时去除了可能限制高性能实现速度或能量效率的其他特性。ARMv8架构还对32位指令集(A32和T32)进行了一些增强。然而，使用这些功能的代码与旧的ARMv7实现不兼容。然而，A64指令集中的指令操作码仍然是32位长，而不是64位。</p>
+<p>寻求更详细的A64汇编语言描述的程序员还可以参考ARM编译器armasm参考指南v6.01。</p>
+<h2 id="The-ARMv8-instruction-sets"><a href="#The-ARMv8-instruction-sets" class="headerlink" title="The ARMv8 instruction sets"></a>The ARMv8 instruction sets</h2><p>新的A64指令集与现有的A32指令集相似。指令长度为32位，具有类似的语法。</p>
+<p>在AArch64状态下，引入了一种新的指令集供内核使用。遵循命名约定，并反映64位操作，该指令集称为：<strong>A64</strong><br>A64提供了与AArch32或ARMv7中的A32和T32指令集类似的功能。新的A64指令集的设计带来了几个改进：</p>
+<h4 id="一致的编码方案"><a href="#一致的编码方案" class="headerlink" title="一致的编码方案"></a>一致的编码方案</h4><p>A32中一些指令的晚期添加导致编码方案的一些不一致性。例如，LDR和STR对半字节的支持在编码上与主流的字节和字传输指令稍有不同。结果是寻址模式稍有不同。</p>
+<h4 id="广泛的常量范围"><a href="#广泛的常量范围" class="headerlink" title="广泛的常量范围"></a>广泛的常量范围</h4><p>A64指令提供了广泛的常量选项，每个选项都适用于特定指令类型的要求。</p>
+<ul>
+<li>算术指令通常接受12位立即数常量。</li>
+<li>逻辑指令通常接受32位或64位常量，其编码具有一定的限制。</li>
+<li>MOV指令接受16位立即数，可以移动到任何16位边界。</li>
+<li>地址生成指令适用于与4KB页面大小对齐的地址。</li>
+</ul>
+<p>对于用于位操作指令的常量，存在稍微复杂的规则。然而，位字段操作指令可以在源操作数或目标操作数中处理任何连续的位序列。</p>
+<p>A64提供了灵活的常量，但是编码这些常量，甚至确定特定常量是否可以在特定上下文中合法编码，可能并不简单。</p>
+<h4 id="数据类型更容易处理"><a href="#数据类型更容易处理" class="headerlink" title="数据类型更容易处理"></a>数据类型更容易处理</h4><p>A64天然支持64位有符号和无符号数据类型，提供更简洁和高效的操作64位整数的方法。这对于提供64位整数的所有语言，如C或Java，都是有利的。</p>
+<h4 id="长偏移量"><a href="#长偏移量" class="headerlink" title="长偏移量"></a>长偏移量</h4><p>A64指令通常提供更长的偏移量，用于<em>PC相对分支和偏移寻址</em>。</p>
+<p>增加的分支范围使得管理交叉段跳转更容易。动态生成的代码通常放置在堆上，因此实际上可以位于任何位置。运行时系统通过增加分支范围更容易管理这个过程，并且需要的修复次数更少。</p>
+<p>字面池（嵌入在代码流中的字面数据块）的需求一直是ARM指令集的特性。这在A64中仍然存在。然而，更大的PC相对加载偏移量在字面池的管理方面提供了很大帮助，使得每个编译单元可以使用一个字面池。这消除了在长代码序列中为多个池制造位置的需要。</p>
+<h4 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h4><p>在AArch64中，指针是64位的，这允许更大的虚拟内存寻址，并提供更大的地址映射自由度。然而，使用64位指针确实会带来一些成本。相同的代码片段在使用64位指针时通常使用更多内存，而不是32位指针。每个指针都存储在内存中，需要8字节而不是4字节。这听起来可能微不足道，但可能累积到显著的性能损失。此外，由于转向64位的内存空间增加使用，可能导致<em>缓存命中的访问次数下降</em>。缓存命中的下降可能会降低性能。</p>
+<p>某些语言可以使用压缩指针来解决性能问题，例如Java。</p>
+<h4 id="条件构造代替IT块"><a href="#条件构造代替IT块" class="headerlink" title="条件构造代替IT块"></a>条件构造代替IT块</h4><p>IT块是T32的一个有用特性，可以实现避免对未执行指令周围进行短程前向分支的高效序列。然而，它们有时对硬件的高效处理具有一定困难。A64移除了这些块，并用条件指令（如CSEL或条件选择和CINC或条件递增）替换它们。这些条件构造更直观和更容易处理，无需特殊情况。</p>
+<h4 id="移位和旋转行为更直观"><a href="#移位和旋转行为更直观" class="headerlink" title="移位和旋转行为更直观"></a>移位和旋转行为更直观</h4><p>A32或T32的移位和旋转行为并不总是与高级语言预期的行为相匹配。</p>
+<p>ARMv7提供了一个可用于数据处理指令的位移器。然而，指定移位类型和移位量需要一定数量的操作码位，这些位可以在其他地方使用。</p>
+<p>因此，A64指令删除了很少使用的选项，并添加了新的显式指令来执行更复杂的移位操作。</p>
+<h4 id="代码生成"><a href="#代码生成" class="headerlink" title="代码生成"></a>代码生成</h4><p>在静态和动态生成常见算术函数的代码时，A32和T32通常需要不同的指令或指令序列。这是为了处理不同的数据类型。A64中这些操作更加一致，因此更容易生成在不同大小数据类型上进行简单操作的常见序列。</p>
+<p>例如，在T32中，相同的指令可以具有不同的编码，具体取决于使用的寄存器（低寄存器还是高寄存器）。</p>
+<p>A64指令集编码更加规则和合理。因此，与T32相比，A64汇编器通常需要更少的代码行数。</p>
+<h4 id="固定长度指令"><a href="#固定长度指令" class="headerlink" title="固定长度指令"></a>固定长度指令</h4><p>所有A64指令的长度都相同，而T32是一种可变长度指令集。这使得管理和跟踪生成的代码序列更容易，特别是对动态代码生成器有影响。</p>
+<h4 id="三个操作数更好地映射"><a href="#三个操作数更好地映射" class="headerlink" title="三个操作数更好地映射"></a>三个操作数更好地映射</h4><p>A32通常保留了用于数据处理操作的真正的三个操作数结构。而T32则包含大量的双操作数指令格式，这在生成代码时稍微不够灵活。A64坚持使用一致的三个操作数语法，进一步增加了指令集的规则性和统一性，有利于编译器。</p>
+<h3 id="C-C-inline-assembly"><a href="#C-C-inline-assembly" class="headerlink" title="C&#x2F;C++ inline assembly"></a>C&#x2F;C++ inline assembly</h3><p>在C和C++中，你可以使用<code>asm</code>关键字来包含内联汇编代码。它允许你直接在C或C++函数中嵌入汇编代码。以下是一个示例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> i, <span class="type">int</span> j)</span> &#123;</span><br><span class="line">  <span class="type">int</span> res = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">asm</span> (</span><br><span class="line">    <span class="string">&quot;ADD %w[result], %w[input_i], %w[input_j]&quot;</span></span><br><span class="line">    : [result] <span class="string">&quot;=r&quot;</span> (res)</span><br><span class="line">    : [input_i] <span class="string">&quot;r&quot;</span> (i), [input_j] <span class="string">&quot;r&quot;</span> (j)</span><br><span class="line">  );</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  <span class="type">int</span> a = <span class="number">1</span>;</span><br><span class="line">  <span class="type">int</span> b = <span class="number">2</span>;</span><br><span class="line">  <span class="type">int</span> c = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  c = add(a, b);</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Result of %d + %d = %d\n&quot;</span>, a, b, c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>asm</code>内联汇编语句的一般形式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">asm</span>(code [: output_operand_list [: input_operand_list [: clobber_list]]]);</span><br></pre></td></tr></table></figure>
+
+<p>以下是各个组成部分的说明：</p>
+<ul>
+<li><code>code</code>表示汇编代码本身。在示例中，它是<code>&quot;ADD %[result], %[input_i], %[input_j]&quot;</code>。</li>
+<li><code>output_operand_list</code>是一个可选的以逗号分隔的输出操作数列表。每个操作数由方括号中的符号名称、约束字符串和括号中的C表达式组成。</li>
+<li><code>input_operand_list</code>是一个可选的以逗号分隔的输入操作数列表。输入操作数使用与输出操作数相同的语法。</li>
+<li><code>clobber_list</code>是一个可选的被破坏的寄存器或其他值的列表。</li>
+</ul>
+<p>当在C&#x2F;C++和汇编代码之间调用函数时，你必须遵循AAPCS64规则。</p>
+<p>更多信息，请参考：<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html#Using-Assembly-Language-with-C">https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html#Using-Assembly-Language-with-C</a>。</p>
+<h1 id="The-A64-instruction-set"><a href="#The-A64-instruction-set" class="headerlink" title="The A64 instruction set"></a>The A64 instruction set</h1><p>尽管大多数应用级程序员在日常工作中不需要频繁编写汇编代码，但在某些情况下，了解汇编语言仍然具有重要价值。汇编代码在需要高度优化的情况下特别有用，例如编写编译器或使用C等高级语言无法直接访问的低级特性时。</p>
+<p>在开发引导代码、设备驱动程序或操作系统时，可能需要使用汇编代码。这些领域通常需要对硬件有精细控制，并要求代码执行效率高。在这些情况下，使用汇编语言编写特定代码部分可以提高性能，并提供对硬件资源的低级访问能力。</p>
+<p>此外，在调试C程序时，理解汇编代码变得至关重要。分析汇编指令与相应的C语句之间的映射有助于识别问题并优化代码。能够阅读汇编代码可以增强程序员理解和排查复杂软件行为的能力。</p>
+<p>虽然汇编语言对大多数程序员来说不是主要工具，但在性能、低级控制和调试效率至关重要的专门领域中，汇编语言的重要性凸显出来。</p>
+<h2 id="Instruction-mnemonics-指令助记符"><a href="#Instruction-mnemonics-指令助记符" class="headerlink" title="Instruction mnemonics &#x2F; 指令助记符"></a>Instruction mnemonics &#x2F; 指令助记符</h2><p>A64汇编语言中使用了指令助记符的重载，根据操作数寄存器名称的不同形式来区分不同的指令。例如，下面的ADD指令具有不同的编码，但您只需要记住一个助记符，汇编器会根据操作数自动选择正确的编码。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ADD W0, W1, W2             // 添加32位寄存器</span><br><span class="line"></span><br><span class="line">ADD X0, X1, X2             // 添加64位寄存器</span><br><span class="line"></span><br><span class="line">ADD X0, X1, W2, SXTW       // 将符号扩展的32位寄存器添加到64位扩展寄存器</span><br><span class="line"></span><br><span class="line">ADD X0, X1, #42            // 添加立即数到64位寄存器</span><br><span class="line"></span><br><span class="line">ADD V0.8H, V1.8H, V2.8H    // NEON中的16位逐个通道添加，共8个通道</span><br></pre></td></tr></table></figure>
+
+<h2 id="Data-processing-instructions-数据处理指令"><a href="#Data-processing-instructions-数据处理指令" class="headerlink" title="Data processing instructions &#x2F; 数据处理指令"></a>Data processing instructions &#x2F; 数据处理指令</h2><p>数据处理指令是处理器的基本算术和逻辑操作，操作的对象是通用寄存器中的值，或者一个寄存器和一个立即值。乘法和除法指令可以看作是这些指令的特殊情况。</p>
+<p>数据处理指令大多使用一个目标寄存器和两个源操作数。一般格式可以认为是指令，后面是操作数，如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Instruction Rd, Rn, Operand2</span><br></pre></td></tr></table></figure>
+
+<p>第二个操作数可以是一个寄存器、一个修改后的寄存器或一个立即值。使用 R 表示它可以是 X 寄存器或 W 寄存器。</p>
+<p>数据处理操作包括：</p>
+<ul>
+<li>算术和逻辑操作。</li>
+<li>移动和移位操作。</li>
+<li>符号扩展和零扩展指令。</li>
+<li>位和位域操作。</li>
+<li>有条件的比较和数据处理操作。</li>
+</ul>
+<h2 id="Memory-access-instructions-访存指令"><a href="#Memory-access-instructions-访存指令" class="headerlink" title="Memory access instructions &#x2F; 访存指令"></a>Memory access instructions &#x2F; 访存指令</h2><p>和之前的所有ARM处理器一样，ARMv8架构也是一种加载&#x2F;存储（Load&#x2F;Store）架构。这意味着没有数据处理指令直接在内存中操作数据。数据首先必须加载到寄存器中，进行修改，然后再存储到内存中。程序必须指定一个地址、要传输的数据大小以及一个源或目标寄存器。还有其他的加载和存储指令提供了进一步的选项，比如非临时的加载&#x2F;存储、加载&#x2F;存储互斥和获取&#x2F;释放。</p>
+<p>内存指令可以以非对齐的方式访问普通内存（参见<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Memory-Ordering?lang=en">内存排序</a>）。但这在独占访问、加载获取或存储释放变体中是不支持的。如果不希望进行非对齐访问，可以配置为出错。</p>
+<h3 id="Specifying-the-address-for-a-Load-or-Store-instruction"><a href="#Specifying-the-address-for-a-Load-or-Store-instruction" class="headerlink" title="Specifying the address for a Load or Store instruction"></a>Specifying the address for a Load or Store instruction</h3><p>在A64中，用于加载（Load）或存储（Store）指令的地址指定方式与A32和T32类似。虽然存在一些额外的限制和新特性，但对于熟悉A32或T32的人来说，A64提供的地址指定方式应该不会让人感到意外。</p>
+<p>在A64中，地址操作数的基础寄存器必须始终是一个X寄存器。然而，有几条指令支持零扩展（zero-extension）或符号扩展（sign-extension），以便可以将32位偏移量作为W寄存器提供。</p>
+<h4 id="Offset-modes"><a href="#Offset-modes" class="headerlink" title="Offset modes"></a>Offset modes</h4><p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/The-A64-instruction-set/Memory-access-instructions/Specifying-the-address-for-a-Load-or-Store-instruction?lang=en">https://developer.arm.com/documentation/den0024/a/The-A64-instruction-set/Memory-access-instructions/Specifying-the-address-for-a-Load-or-Store-instruction?lang=en</a></p>
+<h4 id="Index-modes"><a href="#Index-modes" class="headerlink" title="Index modes"></a>Index modes</h4><p>索引模式（Index modes）与偏移模式（Offset modes）类似，但它们还会更新基础寄存器。其语法与A32和T32相同，但操作的集合更为限制。通常，只能为索引模式提供立即偏移量（immediate offsets）。</p>
+<p>索引模式有两个变体：前索引模式（pre-index modes）在访问内存之前应用偏移量，而后索引模式（post-index modes）在访问内存之后应用偏移量。</p>
+<table>
+<thead>
+<tr>
+<th>Example instruction</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LDR X0, [X1, #8]!</td>
+<td>Pre-index: Update X1 first (to X1 + #8), then load from the new address</td>
+</tr>
+<tr>
+<td>LDR X0, [X1], #8</td>
+<td>Post-index: Load from the unmodified address in X1 first, then update X1 (to X1 + #8)</td>
+</tr>
+<tr>
+<td>STP X0, X1, [SP, #-16]!</td>
+<td>Push X0 and X1 to the stack.</td>
+</tr>
+<tr>
+<td>LDP X0, X1, [SP], #16</td>
+<td>Pop X0 and X1 off the stack.</td>
+</tr>
+</tbody></table>
+<p>These options map cleanly onto some common C operations:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A C example showing accesses that a compiler is likely to generate.</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">example_strcpy</span><span class="params">(<span class="type">char</span> * dst, <span class="type">const</span> <span class="type">char</span> * src)</span> </span><br><span class="line">&#123;</span><br><span class="line"><span class="type">char</span> c;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    c = *(src++);             <span class="comment">// LDRB W2, [X1], #1</span></span><br><span class="line">    *(dst++) = c;             <span class="comment">// STRB W2, [X0], #1</span></span><br><span class="line">    &#125; <span class="keyword">while</span> (c != <span class="string">&#x27;\0&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="PC-relative-modes-load-literal"><a href="#PC-relative-modes-load-literal" class="headerlink" title="PC-relative modes (load-literal)"></a>PC-relative modes (load-literal)</h4><p>A64引入了另一种专门用于访问<strong>字面池（literal pools）</strong>的寻址模式，称为PC相对模式（PC-relative modes）。字面池是嵌入在指令流中的数据块。这些池不会被执行，但可以通过PC相对内存地址从周围的代码中访问它们的数据。字面池通常用于编码无法适应简单的立即数移动指令的常量值。</p>
+<p>在A32和T32中，PC可以像通用寄存器一样读取，因此只需将PC指定为基础寄存器即可访问字面池。</p>
+<p>在A64中，PC通常是不可访问的，但是有一种特殊的寻址模式（仅适用于加载指令）可以访问PC相对地址。这种专用的寻址模式的范围比A32和T32中的PC相对加载要大得多，因此字面池可以被更稀疏地定位。</p>
+<table>
+<thead>
+<tr>
+<th>Example instruction</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LDR W0, &lt;label&gt;</td>
+<td>Load 4 bytes from &lt;label&gt; into W0</td>
+</tr>
+<tr>
+<td>LDR X0, &lt;label&gt;</td>
+<td>Load 8 bytes from &lt;label&gt; into X0</td>
+</tr>
+<tr>
+<td>LDRSW X0, &lt;label&gt;</td>
+<td>Load 4 bytes from &lt;label&gt; and sign-extend into X0</td>
+</tr>
+<tr>
+<td>LDR S0, &lt;label&gt;</td>
+<td>Load 4 bytes from &lt;label&gt; into S0</td>
+</tr>
+<tr>
+<td>LDR D0, &lt;label&gt;</td>
+<td>Load 8 bytes from &lt;label&gt; into D0</td>
+</tr>
+<tr>
+<td>LDR Q0, &lt;label&gt;</td>
+<td>Load 16 bytes from &lt;label&gt; into Q0</td>
+</tr>
+<tr>
+<td>Note:</td>
+<td></td>
+</tr>
+<tr>
+<td>&lt;label&gt; must be 4-byte-aligned for all variants.</td>
+<td></td>
+</tr>
+</tbody></table>
+<h3 id="Unprivileged-access"><a href="#Unprivileged-access" class="headerlink" title="Unprivileged access"></a>Unprivileged access</h3><p>A64 LDTR和STTR指令执行非特权的加载（Load）或存储（Store）操作（请参阅ARMv8-A架构参考手册中的LDTR和STTR）：</p>
+<ul>
+<li>在EL0、EL2或EL3级别下，它们的行为类似于普通的加载或存储指令。</li>
+<li>当在EL1级别下执行时，它们的行为类似于在EL0特权级别下执行。</li>
+</ul>
+<p>这些指令与A32 LDRT和STRT指令是等效的。</p>
+<h3 id="Non-temporal-load-and-store-pair-非暂态（non-temporal）加载和存储"><a href="#Non-temporal-load-and-store-pair-非暂态（non-temporal）加载和存储" class="headerlink" title="Non-temporal load and store pair &#x2F; 非暂态（non-temporal）加载和存储"></a>Non-temporal load and store pair &#x2F; 非暂态（non-temporal）加载和存储</h3><p>在ARMv8架构中引入了非暂态（non-temporal）加载和存储的概念。这些概念体现在LDNP和STNP指令中，它们用于读取或写入一对寄存器值。同时，它们向内存系统发出提示，表明对该数据进行缓存是无益的。这个提示并不禁止内存系统的活动，比如地址的缓存、预加载或者聚集。然而，它表明进行缓存不太可能提高性能。一个典型的用例可能是流式数据处理，但需要注意的是，有效地使用这些指令需要针对具体微架构的特定方法。</p>
+<p>非暂态加载和存储放宽了内存排序要求。在上述例子中，LDNP指令可能在前面的LDR指令之前执行，这可能导致从不确定的X0地址读取数据。<br>For example:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LDR X0, [X3]</span><br><span class="line">LDNP X2, X1, [X0]      // Xo may not be loaded when the instruction executes!</span><br></pre></td></tr></table></figure>
+<p>为了纠正上述问题，需要使用显式的加载屏障：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LDR X0, [X3]</span><br><span class="line">DMB nshld</span><br><span class="line">LDNP X2, X1, [X0]</span><br></pre></td></tr></table></figure>
+<p>通过引入加载屏障，可以确保在LDNP指令执行之前先加载X0的值，从而避免了不确定的读取。这样，非暂态加载和存储指令才能够在程序中被正确使用。</p>
+<h3 id="Memory-access-atomicity"><a href="#Memory-access-atomicity" class="headerlink" title="Memory access atomicity"></a>Memory access atomicity</h3><p>对齐的内存访问使用单个通用寄存器可以保证原子性。使用对齐的内存地址进行的一对通用寄存器的加载对（load pair）和存储对（store pair）指令可以保证作为两个独立的原子访问。非对齐访问不是原子的，因为通常需要进行两次独立的访问。此外，浮点数和SIMD（单指令多数据）内存访问不能保证原子性。</p>
+<h3 id="Memory-barrier-and-fence-instructions"><a href="#Memory-barrier-and-fence-instructions" class="headerlink" title="Memory barrier and fence instructions"></a>Memory barrier and fence instructions</h3><p>ARMv7和ARMv8都支持不同类型的内存屏障操作。这些操作在<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Memory-Ordering?lang=en">Memory Ordering</a>中有更详细的描述：</p>
+<p>数据内存屏障（Data Memory Barrier，DMB）：在继续执行后续访问之前，强制使程序顺序中较早的所有内存访问对全局可见。</p>
+<p>数据同步屏障（Data Synchronization Barrier，DSB）：在程序继续执行之前，完成所有待处理的加载和存储、缓存维护指令以及TLB维护指令。DSB的行为类似于DMB，但具有附加属性。</p>
+<p>指令同步屏障（Instruction Synchronization Barrier，ISB）：该指令刷新CPU流水线和预取缓冲区，导致ISB之后的指令从缓存或内存中获取（或重新获取）。</p>
+<p>ARMv8引入了单向栅栏（one-sided fences），这与Release Consistency模型相关。这些栅栏被称为Load-Acquire（LDAR）和Store-Release（STLR），它们是基于地址的同步原语（见<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Memory-Ordering?lang=en">One-way barriers</a>）。这两个操作可以配对形成一个完整的栅栏。这些指令仅支持基址寄存器寻址，不支持偏移量或其他类型的索引寻址。</p>
+<h3 id="Synchronization-primitives"><a href="#Synchronization-primitives" class="headerlink" title="Synchronization primitives"></a>Synchronization primitives</h3><p>ARMv7-A和ARMv8-A架构都支持独占内存访问。在A64中，这是通过Load&#x2F;Store exclusive（LDXR&#x2F;STXR）指令对实现的。</p>
+<p>LDXR指令从内存地址加载一个值，并尝试在该地址上默默地获取独占锁。然后，Store-Exclusive指令只有在成功获取并持有锁时才会将新值写入该位置。LDXR&#x2F;STXR配对用于构建标准的同步原语，例如自旋锁。还提供了一对配对的LDXRP和STXRP指令，以允许原子更新跨越两个寄存器的位置。可用的选项包括字节、半字、字和双字。与Load Acquire&#x2F;Store Release配对一样，只支持基址寄存器寻址，没有任何偏移量。</p>
+<p>CLREX指令用于清除监视器，但与ARMv7不同，异常的进入或返回也会清除监视器。监视器也可能被意外地清除，例如由于缓存逐出或与应用程序无直接关联的其他原因。在配对的LDXR和STXR指令之间，软件必须避免任何显式的内存访问、系统控制寄存器更新或缓存维护指令。</p>
+<p>此外，还有一对独占的Load Acquire&#x2F;Store Release指令，称为LDAXR和STLXR。详见<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Multi-core-processors/Multi-processing-systems/Synchronization?lang=en">同步</a>部分。</p>
+<h2 id="Flow-control"><a href="#Flow-control" class="headerlink" title="Flow control"></a>Flow control</h2><p>A64指令集提供了多种不同类型的分支指令（参见表<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/The-A64-instruction-set/Flow-control?lang=en">6.12</a>）。对于简单的相对分支，即从当前地址偏移的分支，使用B指令。<em>无条件的简单相对分支可以向前或向后分支到距离当前程序计数器位置最多128MB的位置</em>。<em>有条件的简单相对分支，在B后附加条件码，其范围较小，为±1MB</em>。</p>
+<p>对于需要将返回地址存储在链接寄存器（X30）中的子程序调用，使用BL指令。它没有条件版本。<em>BL的行为类似于B指令，同时额外存储返回地址，即BL指令后一条指令的地址，到寄存器X30中</em>。</p>
+<h2 id="System-control-and-other-instructions-系统控制和其他指令"><a href="#System-control-and-other-instructions-系统控制和其他指令" class="headerlink" title="System control and other instructions &#x2F; 系统控制和其他指令"></a>System control and other instructions &#x2F; 系统控制和其他指令</h2><p>A64指令集包含与以下内容相关的指令：</p>
+<ul>
+<li>异常处理。</li>
+<li>系统寄存器访问。</li>
+<li>调试。</li>
+<li>提示指令，在许多系统中具有电源管理应用。</li>
+</ul>
+<h3 id="Exception-handling-instructions"><a href="#Exception-handling-instructions" class="headerlink" title="Exception handling instructions"></a>Exception handling instructions</h3><p>有三条异常处理指令，其目的是引发异常。这些指令用于调用在操作系统中运行在更高异常级别的代码（EL1），虚拟机监控程序（EL2）或安全监控程序（EL3）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SVC #imm16   // 监管者调用，允许应用程序调用内核（EL1）。</span><br><span class="line"></span><br><span class="line">HVC #imm16   // 虚拟机监控程序调用，允许操作系统代码调用虚拟机监控程序（EL2）。</span><br><span class="line"></span><br><span class="line">SMC #imm16   // 安全监控程序调用，允许操作系统或虚拟机监控程序调用安全监控程序（EL3）。</span><br></pre></td></tr></table></figure>
+<p>立即值将在异常综合寄存器中提供给处理程序。这与ARMv7不同，ARMv7需要通过读取调用指令的操作码来确定立即值。详细信息请参阅<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/AArch64-Exception-Handling?lang=en">AArch64异常处理</a>。</p>
+<p>要从异常返回，请使用ERET指令。此指令通过将SPSR_ELn复制到PSTATE并跳转到ELR_ELn中保存的返回地址来恢复处理器状态。</p>
+<h1 id="ARM-64位架构的ABI"><a href="#ARM-64位架构的ABI" class="headerlink" title="ARM 64位架构的ABI"></a>ARM 64位架构的ABI</h1><p>ARM体系结构的应用二进制接口（ABI）规定了所有可执行的本机代码模块必须遵循的基本规则，以便它们可以正确地协同工作。这些基本规则还可以通过特定编程语言（例如C++）的附加规则进行补充。各个操作系统或执行环境（例如Linux）可能会指定额外的规则以满足其自身特定的要求，超出了ARM ABI规定的规则。</p>
+<h2 id="AArch64过程调用标准中的寄存器使用"><a href="#AArch64过程调用标准中的寄存器使用" class="headerlink" title="AArch64过程调用标准中的寄存器使用"></a>AArch64过程调用标准中的寄存器使用</h2><h3 id="通用寄存器中的参数"><a href="#通用寄存器中的参数" class="headerlink" title="通用寄存器中的参数"></a>通用寄存器中的参数</h3><p>为了函数调用的目的，通用寄存器被分为四组：</p>
+<h4 id="参数寄存器（X0-X7）"><a href="#参数寄存器（X0-X7）" class="headerlink" title="参数寄存器（X0-X7）"></a>参数寄存器（X0-X7）</h4><p>这些寄存器用于将参数传递给函数并返回结果。它们可以用作临时寄存器或调用者保存的寄存器变量，在函数内部和调用其他函数之间保存中间值。提供了8个寄存器用于传递参数，相比于AArch32，减少了将参数保存到堆栈的需要。</p>
+<h4 id="调用者保存的临时寄存器（X9-X15）"><a href="#调用者保存的临时寄存器（X9-X15）" class="headerlink" title="调用者保存的临时寄存器（X9-X15）"></a>调用者保存的临时寄存器（X9-X15）</h4><p>如果调用者需要在调用其他函数之后保留这些寄存器中的值，调用者必须在自己的堆栈帧中保存受影响的寄存器。被调用的子程序可以修改这些寄存器，而无需在返回给调用者之前保存和恢复它们。</p>
+<h4 id="被调用者保存的寄存器（X19-X29）"><a href="#被调用者保存的寄存器（X19-X29）" class="headerlink" title="被调用者保存的寄存器（X19-X29）"></a>被调用者保存的寄存器（X19-X29）</h4><p>这些寄存器在被调用者的帧中保存。被调用的子程序可以修改这些寄存器，只要在返回之前保存和恢复它们。</p>
+<h4 id="具有特殊用途的寄存器（X8，X16-X18，X29，X30）"><a href="#具有特殊用途的寄存器（X8，X16-X18，X29，X30）" class="headerlink" title="具有特殊用途的寄存器（X8，X16-X18，X29，X30）"></a>具有特殊用途的寄存器（X8，X16-X18，X29，X30）</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/The-ABI-for-ARM-64-bit-Architecture/Register-use-in-the-AArch64-Procedure-Call-Standard/Indirect-result-location?lang=en">X8</a>是间接结果寄存器。它用于传递间接结果的地址位置，例如函数返回大型结构体的情况。</li>
+<li>X16和X17是IP0和IP1，函数内部调用的临时寄存器。这些寄存器可以由调用细节和类似代码使用，或者作为子例程调用之间的临时寄存器用于中间值。在函数中可以更改它们，但在返回给调用者之前需要保存和恢复。</li>
+<li>X18是平台寄存器，保留用于平台ABI的使用。对于不分配特殊含义的平台来说，这是一个额外的临时寄存器。</li>
+<li><strong>X29是帧指针寄存器（FP）</strong>。<br>X29寄存器是ARM64（AArch64）体系结构中的一个特殊寄存器，也被称为Frame Pointer（FP，帧指针）。在函数调用和栈操作中，X29寄存器用于指向当前函数的栈帧（stack frame）的起始位置。</li>
+</ul>
+<p>栈帧是用于管理函数调用和局部变量的内存区域。当一个函数被调用时，当前函数的栈帧会被创建，并且X29寄存器会被设置为指向栈帧的起始位置。栈帧通常包括函数的参数、局部变量、返回地址和其他与函数执行相关的数据。</p>
+<p>X29寄存器在函数执行过程中保持不变，直到函数返回。在函数返回时，栈帧会被销毁，X29寄存器会被恢复为之前的值，以便返回到调用函数的位置。</p>
+<p>除了作为帧指针的功能外，X29寄存器也可以用作通用寄存器，存储其他临时数据。</p>
+<p>需要注意的是，X29寄存器在ARM64体系结构中具有固定的寄存器编号。在编程中，可以使用X29寄存器来访问和修改栈帧中的数据。</p>
+<ul>
+<li><strong>X30是链接寄存器（LR）</strong>。</li>
+</ul>
+<h1 id="AArch64-Exception-Handling"><a href="#AArch64-Exception-Handling" class="headerlink" title="AArch64 Exception Handling"></a>AArch64 Exception Handling</h1><p>严格来说，中断是指中断软件执行流程的事件。然而，在ARM术语中，这实际上被称为异常（Exception）。异常是指需要特权软件（异常处理程序）采取某些操作以确保系统正常运行的条件或系统事件。每种异常类型都有一个关联的异常处理程序。一旦异常被处理，特权软件会准备内核继续执行之前发生异常的操作。</p>
+<p>以下是存在的异常类型：</p>
+<h4 id="Interrupts-中断"><a href="#Interrupts-中断" class="headerlink" title="Interrupts &#x2F; 中断"></a>Interrupts &#x2F; 中断</h4><p>有两种类型的中断，称为IRQ和FIQ。</p>
+<p>FIQ比IRQ具有更高的优先级。这两种异常类型通常与内核上的输入引脚相关联。外部硬件会断言一个中断请求线，当当前指令执行完成时（尽管一些指令，例如可以加载多个值的指令，可以被中断），相应的异常类型会被触发，前提是中断未被禁用。</p>
+<p>Both FIQ and IRQ are physical signals to the core, and when asserted, 如果当前该中断启用，则内核会执行相应的异常处理。在几乎所有系统上，各种中断源使用中断控制器连接。中断控制器进行仲裁和优先级排序，并提供一个串行的单一信号，然后将其连接到内核的FIQ或IRQ信号。有关更多信息，请参阅通用中断控制器。</p>
+<p>由于IRQ和FIQ中断的发生与内核在任何给定时间执行的软件没有直接关系，因此它们被归类为异步异常。</p>
+<h4 id="Reset"><a href="#Reset" class="headerlink" title="Reset"></a>Reset</h4><p>重置（Reset）被视为最高实现的异常等级的特殊向量。这是ARM处理器在引发异常时跳转到的指令位置。该向量使用实现定义的地址。RVBAR_ELn包含此复位向量地址，其中n是最高实现的异常等级的编号。</p>
+<p>所有内核都有一个复位输入，并在复位后立即执行复位异常。它是最高优先级的异常，无法屏蔽。此异常用于在上电后对内核进行初始化的代码执行。</p>
+<h4 id="生成异常的指令"><a href="#生成异常的指令" class="headerlink" title="生成异常的指令"></a>生成异常的指令</h4><p>执行某些指令可能会生成异常。这些指令通常用于请求在更高特权级别下运行的软件提供服务：</p>
+<ul>
+<li>监控模式调用（Supervisor Call，SVC）指令使用户模式程序能够请求操作系统服务。</li>
+<li>Hypervisor调用（Hypervisor Call，HVC）指令使客户操作系统能够请求hypervisor服务。</li>
+<li>安全监控调用（Secure monitor Call，SMC）指令使正常世界能够请求安全世界服务。</li>
+</ul>
+<p>如果由于EL0处的指令获取而生成的异常，则将其视为对EL1的异常，除非在非安全状态下设置了HCR_EL2.TGE位，否则将其视为对EL2的异常。</p>
+<p>如果异常是由于在其他任何异常等级处的指令获取而生成的，则异常等级保持不变。</p>
+<h2 id="Exception-handling-registers"><a href="#Exception-handling-registers" class="headerlink" title="Exception handling registers"></a>Exception handling registers</h2><p>如果发生异常，PSTATE信息将保存在Saved Program Status Register（SPSR_ELn）中，其中SPSR_ELn存在于SPSR_EL3、SPSR_EL2和SPSR_EL1。</p>
+<p>如果发生异常，处理器会将当前的处理状态信息保存到相应的SPSR_ELn寄存器中。SPSR_EL3用于保存EL3的状态信息，SPSR_EL2用于保存EL2的状态信息，SPSR_EL1用于保存EL1的状态信息。</p>
+<p>这些寄存器保存了执行异常之前的处理器状态，包括程序状态寄存器（PSTATE）的值，如处理器模式、中断使能状态、条件标志等。通过保存当前状态，处理器可以在处理完异常后恢复到发生异常之前的状态，以便顺利继续执行。</p>
+<p>SPSel字段选择当前异常等级的堆栈指针（Stack Pointer）或SP_EL0是否应该被使用。除EL0之外的任何异常等级都可以进行此选择。这将在本章后面进行讨论。</p>
+<p>在发生引发异常的事件时，处理器硬件会自动执行某些操作。SPSR_ELn（其中n是发生异常的异常等级）将被更新，用于存储在异常结束时正确返回所需的PSTATE信息。PSTATE会更新以反映新的处理器状态（这可能意味着提升异常等级，也可能保持不变）。要在异常结束时使用的返回地址将存储在ELR_ELn中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> flow in EL0                           flow in EL1</span><br><span class="line"></span><br><span class="line">Exception occurs</span><br><span class="line">            PC -&gt;ELR_EL1</span><br><span class="line">            PSTATE -&gt;SPSR_EL1</span><br><span class="line">                                    ExceptionHandler</span><br><span class="line">            SPSR_EL1 -&gt; PSTATE</span><br><span class="line">            ELR_EL1 -&gt; PC</span><br></pre></td></tr></table></figure>
+
+<p>请记住，寄存器名称中的_ELn后缀表示在不同的异常等级存在多个副本。例如，SPSR_EL1是与SPSR_EL2不同的物理寄存器。此外，在同步或SError异常的情况下，ESR_ELn还会更新为指示异常原因的值。</p>
+<p>处理器需要通过软件告知何时从异常返回。这是通过执行ERET指令来完成的。该指令从SPSR_ELn中恢复先前的异常前PSTATE，并通过从ELR_ELn中恢复PC将程序执行返回到原始位置。</p>
+<p>我们已经了解了SPSR如何记录异常返回所需的状态信息。现在我们来看一下用于存储程序地址信息的链接寄存器。架构为函数调用和异常返回提供了单独的链接寄存器。</p>
+<p>正如我们在A64指令集中看到的那样，寄存器X30与RET指令一起用于从子程序返回。每当执行带链接的分支指令（BL或BLR）时，其值都会更新为要返回的指令的地址。</p>
+<p>ELR_ELn寄存器用于存储异常的返回地址。该寄存器中的值（实际上是多个寄存器，正如我们所见）在进入异常时会自动写入，并作为执行ERET指令返回异常的效果之一写入PC。</p>
+<p>注意：<br>当从异常返回时，如果SPSR中的值与系统寄存器的设置发生冲突，您将会看到错误。</p>
+<p>ELR_ELn包含首选用于特定异常类型的返回地址。对于某些异常，这是生成异常的指令之后的下一条指令的地址。例如，当执行SVC（系统调用）指令时，我们只希望返回到应用程序中的下一条指令。在其他情况下，我们可能希望重新执行生成异常的指令。</p>
+<p>对于异步异常，ELR_ELn指向由于接收中断而尚未执行或完全执行的第一条指令的地址。处理器代码可以修改ELR_En，例如，如果需要在中止同步异常后返回到指令之后。ARMv8-A模型比ARMv7-A中使用的模型要简单得多，因为出于向后兼容的原因，在从某些类型的异常返回时，需要从链接寄存器值中减去4或8。</p>
+<p>除了SPSR和ELR寄存器之外，每个异常等级都有自己专用的堆栈指针寄存器。它们被命名为SP_EL0、SP_EL1、SP_EL2和SP_EL3。这些寄存器用于指向专用堆栈，例如，可用于存储由异常处理程序破坏的寄存器，以便在返回到原始代码之前将它们恢复到原始值。</p>
+<p>处理器代码可以从使用SP_ELn切换到SP_EL0。例如，可能是SP_EL1指向保存了内核始终保证有效的小型堆栈的内存区域。而SP_EL0可能指向一个更大的内核任务堆栈，但不能保证免受溢出的影响。通过写入[SPSel]位来控制此切换，如下面的代码所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MSR SPSel, #0  // 切换到SP_EL0</span><br><span class="line">MSR SPSel, #1  // 切换到SP_ELn</span><br></pre></td></tr></table></figure>
+
+<h2 id="Synchronous-and-asynchronous-exceptions-同步和异步异常"><a href="#Synchronous-and-asynchronous-exceptions-同步和异步异常" class="headerlink" title="Synchronous and asynchronous exceptions &#x2F; 同步和异步异常"></a>Synchronous and asynchronous exceptions &#x2F; 同步和异步异常</h2><p>在AArch64架构中，异常可以是同步的或异步的。如果异常是由执行或尝试执行指令流而产生的，并且返回地址提供了引发异常的指令的详细信息，那么该异常被称为同步异常。而异步异常不是通过执行指令而生成的，返回地址可能并不总是提供引发异常的详细信息。</p>
+<p>异步异常的来源包括IRQ（普通优先级中断）、FIQ（快速中断）或SError（系统错误）。系统错误有多种可能的原因，其中最常见的是异步数据中止（例如，由缓存行向外部内存写回脏数据而触发的中止）。</p>
+<p>同步异常有多种来源：</p>
+<ul>
+<li>来自MMU的指令中止。例如，通过从标记为”Execute Never”的内存位置读取指令。</li>
+<li>来自MMU的数据中止。例如，权限失败或对齐检查。</li>
+<li>SP和PC对齐检查。</li>
+<li>同步外部中止。例如，在读取转换表时发生中止。</li>
+<li>未分配的指令。</li>
+<li>调试异常。</li>
+</ul>
+<h3 id="Synchronous-aborts-同步中止"><a href="#Synchronous-aborts-同步中止" class="headerlink" title="Synchronous aborts &#x2F; 同步中止"></a>Synchronous aborts &#x2F; 同步中止</h3><p>同步异常可能由多种原因引起：</p>
+<ul>
+<li>来自MMU的中止。例如，权限失败或被标记为访问标志错误的内存区域。</li>
+<li>SP和PC对齐检查。</li>
+<li>未分配的指令。</li>
+<li>服务调用（SVC、SMC和HVC）。</li>
+</ul>
+<p>这些异常可能是操作系统正常运行的一部分。例如，在Linux中，当一个任务希望请求分配一个新的内存页面时，通过MMU中止机制(abort mechanism)来处理这个请求。</p>
+<h3 id="Handling-synchronous-exceptions"><a href="#Handling-synchronous-exceptions" class="headerlink" title="Handling synchronous exceptions"></a>Handling synchronous exceptions</h3><p>为了向异常处理程序提供有关同步异常原因的信息，提供了一些寄存器。异常综合症寄存器(Exception Syndrome Register) (ESR_ELn) 提供有关异常原因的信息。故障地址寄存器（FAR_ELn）保存了所有同步指令和数据中止以及对齐错误的故障虚拟地址。</p>
+<p>异常链接寄存器（ELR_ELn）保存导致数据访问中止的指令地址（对于数据中止）。这通常在发生内存故障后更新，但在其他情况下也可能被设置，例如通过跳转到一个不对齐的地址。</p>
+<p>对于实现EL2（虚拟化监控器）或EL3（安全内核）的系统，同步异常通常在当前或更高的异常级别中进行处理。异步异常（如果需要）可以被路由到更高的异常级别，由虚拟化监控器或安全内核处理。SCR_EL3寄存器指定了应将哪些异常路由到EL3，类似地，HCR_EL2指定了应将哪些异常路由到EL2。有单独的位允许对IRQ、FIQ和SError的路由进行个别控制。</p>
+<h3 id="System-calls-系统调用"><a href="#System-calls-系统调用" class="headerlink" title="System calls &#x2F; 系统调用"></a>System calls &#x2F; 系统调用</h3><p>某些指令或系统功能只能在特定的异常级别下执行。如果在较低的异常级别下运行的代码需要执行特权操作，例如应用程序代码请求内核功能。一种方法是使用SVC指令。这允许应用程序生成一个异常。参数可以通过寄存器传递，也可以在系统调用中进行编码。</p>
+<h3 id="Unallocated-instructions-未分配的指令"><a href="#Unallocated-instructions-未分配的指令" class="headerlink" title="Unallocated instructions &#x2F; 未分配的指令"></a>Unallocated instructions &#x2F; 未分配的指令</h3><p>在AArch64中，未分配的指令会引发同步中止异常。当处理器执行以下情况之一时，会生成此异常类型：</p>
+<ul>
+<li>未分配的指令操作码。</li>
+<li>要求比当前异常级别更高特权级别的指令。</li>
+<li>已禁用的指令。</li>
+<li>当设置了PSTATE.IL字段时的任何指令。</li>
+</ul>
+<h3 id="The-Exception-Syndrome-Register"><a href="#The-Exception-Syndrome-Register" class="headerlink" title="The Exception Syndrome Register"></a>The Exception Syndrome Register</h3><p>异常综合症寄存器（ESR_ELn）包含的信息可以帮助异常处理程序确定异常的原因。它仅针对同步异常和SError进行更新。对于IRQ或FIQ，它不会更新，因为这些中断处理程序通常从通用中断控制器（GIC）的寄存器中获取状态信息。（参见<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/AArch64-Exception-Handling/The-Generic-Interrupt-Controller?lang=en">通用中断控制器</a>。）该寄存器的位编码如下：</p>
+<ul>
+<li>ESR_ELn的位[31:26]指示异常类别，使处理程序能够区分各种可能的异常原因（例如，未分配的指令、来自MCR&#x2F;MRC到CP15的异常、浮点操作异常、执行的SVC、HVC或SMC、数据中止和对齐异常，见<a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/ddi0595/2021-03/AArch64-Registers/ESR-EL3--Exception-Syndrome-Register--EL3-">EC</a>。<ul>
+<li>0b100100 &#x3D;&#x3D;&gt;&gt; Data Abort</li>
+<li>0b100100 &#x3D;&#x3D;&gt;&gt; Instruction Abort (Used for MMU faults generated by instruction accesses)</li>
+</ul>
+</li>
+</ul>
+<p>Used for MMU faults generated by data accesses, alignment faults other than those caused by Stack Pointer misalignment, and synchronous External aborts, including synchronous parity or ECC errors. Not used for debug-related exceptions.</p>
+<ul>
+<li>位[25]指示被捕获指令的长度（对于16位指令为0，对于32位指令为1），并且对某些异常类别也会设置。</li>
+<li>位[24:0]形成指令特定综合症（ISS）字段，其中包含特定于该异常类型的信息。例如，当执行系统调用指令（SVC、HVC或SMC）时，该字段包含与操作码相关联的立即数值，如对于<code>SVC 0x123456</code>，该字段包含0x123456。</li>
+</ul>
+<h2 id="AArch64异常向量表"><a href="#AArch64异常向量表" class="headerlink" title="AArch64异常向量表"></a>AArch64异常向量表</h2><p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/AArch64-Exception-Handling/AArch64-exception-table?lang=en">AArch64异常向量表</a>是存储异常处理程序代码的内存位置，用于处理发生的异常。在ARM架构中，异常向量表被存储在一个称为异常向量表的表中。每个异常级别都有自己的向量表，即EL3、EL2和EL1各有一个。该表包含要执行的指令，而不是一组地址。各个异常的向量位于距离表开始处的固定偏移量位置。每个表基地址的虚拟地址由向量基地址寄存器VBAR_EL3、VBAR_EL2和VBAR_EL1设置。</p>
+<p>向量表中的每个条目长度为16条指令。与ARMv7相比，这本身就代表了一个重要的变化，因为ARMv7的每个条目长度为4字节。ARMv7向量表的这种间隔意味着每个条目几乎总是某种形式的分支，指向内存中实际的异常处理程序。在AArch64中，向量之间的间隔更大，因此顶级处理程序可以直接编写在向量表中。</p>
+<h2 id="Interrupt-handling"><a href="#Interrupt-handling" class="headerlink" title="Interrupt handling"></a>Interrupt handling</h2><p>在ARM中，通常使用”interrupt”来表示中断信号。在ARM A-profile和R-profile处理器上，这意味着外部的IRQ或FIQ中断信号。架构没有规定这些信号如何使用。FIQ通常用于保留安全中断源。在早期的架构版本中，FIQ和IRQ用于表示高优先级和标准优先级的中断，但在ARMv8-A中不再适用这种情况。</p>
+<p>当处理器执行到AArch64执行状态时，所有的PSTATE中断屏蔽位都会自动设置。这意味着进一步的异常被禁用。如果软件需要支持嵌套异常，例如允许更高优先级的中断打断低优先级源的处理，那么软件需要显式地重新启用中断。</p>
+<h2 id="GIC"><a href="#GIC" class="headerlink" title="GIC"></a>GIC</h2><p><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/AArch64-Exception-Handling/The-Generic-Interrupt-Controller?lang=en">GIC</a>架构提供了寄存器，用于管理中断源和行为，并在多核系统中将中断路由到各个内核。它使软件能够屏蔽、使能和禁用来自各个源的中断，对各个源进行硬件优先级排序，并生成软件中断。GIC接受在系统级别被触发的中断，并将其传递给每个连接的内核，可能导致触发IRQ或FIQ异常。</p>
+<p>从软件的角度来看，GIC具有两个主要的功能块：</p>
+<p>分配器（Distributor）<br>连接系统中的所有中断源。分配器具有用于控制单个中断属性的寄存器，例如优先级、状态、安全性、路由信息和使能状态。分配器通过连接的CPU接口确定要转发给内核的中断。</p>
+<p>CPU接口（CPU Interface）<br>内核接收中断的接口。CPU接口包含用于屏蔽、识别和控制转发到该内核的中断状态的寄存器。系统中的每个内核都有一个独立的CPU接口。</p>
+<p>中断在软件中通过一个称为中断ID的编号来进行标识。中断ID唯一对应一个中断源。软件可以使用中断ID来识别中断源，并调用相应的处理程序来处理中断。实际呈现给软件的确切中断ID由系统设计确定，</p>
+<h3 id="Initialization"><a href="#Initialization" class="headerlink" title="Initialization"></a>Initialization</h3><p>在分配器中，软件必须配置每个中断的优先级、目标、安全性和使能状态。然后，通过控制寄存器（GICD_CTLR）启用分配器。对于每个CPU接口，软件必须设置优先级掩码和抢占设置。</p>
+<p>每个CPU接口模块本身也必须通过其控制寄存器（GICD_CTLR）进行启用。这样可以准备GIC将中断传递给内核</p>
+<h3 id="Interrupt-handling-1"><a href="#Interrupt-handling-1" class="headerlink" title="Interrupt handling"></a>Interrupt handling</h3><p>当内核接收到中断时，它会跳转到从向量表获取的顶级中断向量，并开始执行。</p>
+<p>顶级中断处理程序从CPU接口模块读取中断确认寄存器以获取中断ID。</p>
+<p>除了返回中断ID外，读取操作还会将中断标记为在分配器中处于活动状态。一旦知道中断ID（标识中断源），顶级处理程序现在可以调度一个特定于设备的处理程序来处理中断。</p>
+<p>当设备特定的处理程序执行完成后，顶级处理程序将相同的中断ID写入CPU接口模块中的结束中断（EoI）寄存器，表示中断处理结束。</p>
+<p>除了取消活动状态，使最终中断状态变为非活动状态或挂起状态（如果状态既是活动又是挂起），这还使得CPU接口能够将更多待处理的中断转发给内核。这完成了单个中断的处理过程。</p>
+<p>在同一个内核上可能有多个等待处理的中断，但CPU接口一次只能发送一个中断。顶级中断处理程序可以重复上述序列，直到读取到特殊的中断ID值1023，表示在该内核上没有更多待处理的中断。这个特殊的中断ID称为虚假中断ID。</p>
+<p>虚假中断ID是一个保留值，不能分配给系统中的任何设备。当顶级处理程序读取到虚假中断ID时，它可以完成执行，并准备内核继续执行中断之前的任务。</p>
+<p>通用中断控制器（GIC）通常管理来自多个中断源的输入，并将它们分发给IRQ或FIQ请求。</p>
+<h1 id="Multi-core-processors"><a href="#Multi-core-processors" class="headerlink" title="Multi-core processors"></a>Multi-core processors</h1><h2 id="Multi-core-processors-system"><a href="#Multi-core-processors-system" class="headerlink" title="Multi-core processors system"></a>Multi-core processors system</h2><h3 id="Timers"><a href="#Timers" class="headerlink" title="Timers"></a>Timers</h3><p>Symmetric Multi-Processing (SMP)<br>一个支持SMP(Symmetric Multi-Processing)操作的操作系统内核通常具有任务调度器，该调度器负责在多个任务之间对内核上的可用周期进行时间切片。它动态确定各个任务的优先级，并决定在每个内核上下一个要运行的任务。通常需要一个定时器，以便可以周期性地中断每个内核上的活动任务的执行，使调度器有机会选择不同的任务进行进展。</p>
+<p>当所有内核都竞争同一个关键资源时可能会出现问题。每个内核运行调度器以决定它应该执行哪个任务，这发生在固定的时间间隔内。内核调度器代码需要使用一些共享数据，例如任务列表，可以通过互斥锁进行并发访问保护。互斥锁一次只允许一个内核有用地运行调度器。</p>
+<p>系统定时器架构描述了一个常见的系统计数器，每个内核提供多达四个定时器通道。该系统计数器应具有固定的时钟频率。有安全和非安全的物理定时器以及两个用于虚拟化目的的定时器。每个通道都有一个比较器，该比较器与一个系统范围的64位计数进行比较，该计数从零开始递增。您可以配置定时器，使得当计数大于或等于编程的比较器值时生成中断。</p>
+<p>尽管系统定时器必须具有固定的频率（通常以MHz为单位），但允许变化的更新粒度。这意味着您可以在每个时钟节拍上将计数增加1，也可以以较大的增量（例如10或100）进行增加，对应地以每10或100个周期的较低速率进行增加。这会产生相同的有效频率，但更新粒度较小。这对于实现较低的功耗状态非常有用。</p>
+<p><code>CNTFRQ_EL0</code>寄存器报告了系统定时器的频率。</p>
+<p>一个常见的误解是CNTFRQ_EL0由所有内核共享。它只是寄存器按内核独立，但仅从固件的角度来看：所有其他软件应在所有内核上看到该寄存器已初始化为正确的共享值。然而，计数器频率是全局的，对所有内核而言是固定的。CNTFRQ_EL0为引导ROM或固件提供了一种方便的方式来告知其他软件全局计数器频率是多少，但不控制任何硬件行为的方面。</p>
+<p>CNTPCT_EL0寄存器报告当前的计数值。<code>CNTKCTL_EL1</code>控制EL0是否可以访问系统定时器。</p>
+<p>要配置定时器，请完成以下步骤：</p>
+<ol>
+<li>将比较器值写入CNTP_CVAL_EL0，一个64位寄存器。</li>
+<li>在CNTP_CTL_EL0中启用计数器和中断生成。</li>
+<li>轮询CTP_CTL_EL0以报告EL0定时器中断的原始状态。</li>
+</ol>
+<p>您可以将系统定时器用作倒计时定时器。在这种情况下，所需的计数将写入32位的CNTP_TVAL_EL0寄存器。硬件将为您计算正确的CNTP_CVAL_EL0值。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/05/19/Arrch64%20MMU/" rel="prev" title="Arrch64 CPU Structure">
+      <i class="fa fa-chevron-left"></i> Arrch64 CPU Structure
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/05/19/Arrch64%20CPU%E6%8C%87%E4%BB%A4%E9%9B%86/" rel="next" title="Arrch64 CPU Structure">
+      Arrch64 CPU Structure <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0-%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">0. 介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-ARMv8-A-%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">1. ARMv8-A 架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A5%E5%89%8D%E7%9A%84Arm%E6%9E%B6%E6%9E%84%EF%BC%9A"><span class="nav-number">2.1.</span> <span class="nav-text">以前的Arm架构：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARMv8-A-%E6%9E%B6%E6%9E%84"><span class="nav-number">2.2.</span> <span class="nav-text">ARMv8-A 架构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Fundamentals-of-ARMv8-ARMv8-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">3.</span> <span class="nav-text">2. Fundamentals of ARMv8 &#x2F; ARMv8 基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E7%8A%B6%E6%80%81-Execution-states"><span class="nav-number">3.1.</span> <span class="nav-text">执行状态 &#x2F; Execution states</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%B9%E5%8F%98%E5%BC%82%E5%B8%B8%E7%BA%A7%E5%88%AB-Changing-Exception-levels"><span class="nav-number">3.2.</span> <span class="nav-text">改变异常级别 &#x2F; Changing Exception levels</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Table-3-1-ARMv7-processor-modes"><span class="nav-number">3.2.1.</span> <span class="nav-text">Table 3.1. ARMv7 processor modes</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Changing-execution-state-%E6%9B%B4%E6%94%B9%E6%89%A7%E8%A1%8C%E7%8A%B6%E6%80%81"><span class="nav-number">3.3.</span> <span class="nav-text">Changing execution state &#x2F; 更改执行状态</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-ARMv8-Registers"><span class="nav-number">4.</span> <span class="nav-text">3. ARMv8 Registers</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AArch64-special-registers"><span class="nav-number">4.1.</span> <span class="nav-text">AArch64 special registers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%B6%E5%AF%84%E5%AD%98%E5%99%A8-Zero-register"><span class="nav-number">4.1.1.</span> <span class="nav-text">零寄存器 &#x2F; Zero register</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stack-pointer-%E5%A0%86%E6%A0%88%E6%8C%87%E9%92%88"><span class="nav-number">4.1.2.</span> <span class="nav-text">Stack pointer &#x2F; 堆栈指针</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8%EF%BC%88Program-Counter%EF%BC%8CPC%EF%BC%89"><span class="nav-number">4.1.3.</span> <span class="nav-text">程序计数器（Program Counter，PC）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E9%93%BE%E6%8E%A5%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%88Exception-Link-Register%EF%BC%8CELR%EF%BC%89"><span class="nav-number">4.1.4.</span> <span class="nav-text">异常链接寄存器（Exception Link Register，ELR）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%88Link-Register%EF%BC%8CLR%EF%BC%89"><span class="nav-number">4.1.5.</span> <span class="nav-text">链接寄存器（Link Register，LR）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%9D%E5%AD%98%E7%A8%8B%E5%BA%8F%E7%8A%B6%E6%80%81%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%88Saved-Program-Status-Register%EF%BC%8CSPSR"><span class="nav-number">4.1.6.</span> <span class="nav-text">保存程序状态寄存器（Saved Program Status Register，SPSR</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#N-31"><span class="nav-number">4.1.6.1.</span> <span class="nav-text">N 31</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Z-30"><span class="nav-number">4.1.6.2.</span> <span class="nav-text">Z 30</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#C-29"><span class="nav-number">4.1.6.3.</span> <span class="nav-text">C 29</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#V-28"><span class="nav-number">4.1.6.4.</span> <span class="nav-text">V 28</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SS-21"><span class="nav-number">4.1.6.5.</span> <span class="nav-text">SS 21</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IL-20"><span class="nav-number">4.1.6.6.</span> <span class="nav-text">IL 20</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#D-9"><span class="nav-number">4.1.6.7.</span> <span class="nav-text">D 9</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#A-8"><span class="nav-number">4.1.6.8.</span> <span class="nav-text">A 8</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#I-7"><span class="nav-number">4.1.6.9.</span> <span class="nav-text">I 7</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#F-6"><span class="nav-number">4.1.6.10.</span> <span class="nav-text">F 6</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#M-4"><span class="nav-number">4.1.6.11.</span> <span class="nav-text">M[4]</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#M-3-0"><span class="nav-number">4.1.6.12.</span> <span class="nav-text">M[3:0]</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Processor-state"><span class="nav-number">4.2.</span> <span class="nav-text">Processor state</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#System-registers"><span class="nav-number">4.3.</span> <span class="nav-text">System registers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#The-system-control-register-%E7%B3%BB%E7%BB%9F%E6%8E%A7%E5%88%B6%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">4.3.1.</span> <span class="nav-text">The system control register &#x2F; 系统控制寄存器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Endianness"><span class="nav-number">4.4.</span> <span class="nav-text">Endianness</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Changing-execution-state-again"><span class="nav-number">4.5.</span> <span class="nav-text">Changing execution state (again)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NEON-and-floating-point-registers"><span class="nav-number">4.6.</span> <span class="nav-text">NEON and floating-point registers</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-An-Introduction-to-the-ARMv8-Instruction-Sets-ARMv8%E6%8C%87%E4%BB%A4%E9%9B%86%E7%AE%80%E4%BB%8B"><span class="nav-number">5.</span> <span class="nav-text">4. An Introduction to the ARMv8 Instruction Sets &#x2F; ARMv8指令集简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#The-ARMv8-instruction-sets"><span class="nav-number">5.1.</span> <span class="nav-text">The ARMv8 instruction sets</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E8%87%B4%E7%9A%84%E7%BC%96%E7%A0%81%E6%96%B9%E6%A1%88"><span class="nav-number">5.1.0.1.</span> <span class="nav-text">一致的编码方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%BF%E6%B3%9B%E7%9A%84%E5%B8%B8%E9%87%8F%E8%8C%83%E5%9B%B4"><span class="nav-number">5.1.0.2.</span> <span class="nav-text">广泛的常量范围</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E6%9B%B4%E5%AE%B9%E6%98%93%E5%A4%84%E7%90%86"><span class="nav-number">5.1.0.3.</span> <span class="nav-text">数据类型更容易处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%95%BF%E5%81%8F%E7%A7%BB%E9%87%8F"><span class="nav-number">5.1.0.4.</span> <span class="nav-text">长偏移量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E9%92%88"><span class="nav-number">5.1.0.5.</span> <span class="nav-text">指针</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%9E%84%E9%80%A0%E4%BB%A3%E6%9B%BFIT%E5%9D%97"><span class="nav-number">5.1.0.6.</span> <span class="nav-text">条件构造代替IT块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A7%BB%E4%BD%8D%E5%92%8C%E6%97%8B%E8%BD%AC%E8%A1%8C%E4%B8%BA%E6%9B%B4%E7%9B%B4%E8%A7%82"><span class="nav-number">5.1.0.7.</span> <span class="nav-text">移位和旋转行为更直观</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">5.1.0.8.</span> <span class="nav-text">代码生成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%BA%E5%AE%9A%E9%95%BF%E5%BA%A6%E6%8C%87%E4%BB%A4"><span class="nav-number">5.1.0.9.</span> <span class="nav-text">固定长度指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E4%B8%AA%E6%93%8D%E4%BD%9C%E6%95%B0%E6%9B%B4%E5%A5%BD%E5%9C%B0%E6%98%A0%E5%B0%84"><span class="nav-number">5.1.0.10.</span> <span class="nav-text">三个操作数更好地映射</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-C-inline-assembly"><span class="nav-number">5.1.1.</span> <span class="nav-text">C&#x2F;C++ inline assembly</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#The-A64-instruction-set"><span class="nav-number">6.</span> <span class="nav-text">The A64 instruction set</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Instruction-mnemonics-%E6%8C%87%E4%BB%A4%E5%8A%A9%E8%AE%B0%E7%AC%A6"><span class="nav-number">6.1.</span> <span class="nav-text">Instruction mnemonics &#x2F; 指令助记符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Data-processing-instructions-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E6%8C%87%E4%BB%A4"><span class="nav-number">6.2.</span> <span class="nav-text">Data processing instructions &#x2F; 数据处理指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Memory-access-instructions-%E8%AE%BF%E5%AD%98%E6%8C%87%E4%BB%A4"><span class="nav-number">6.3.</span> <span class="nav-text">Memory access instructions &#x2F; 访存指令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Specifying-the-address-for-a-Load-or-Store-instruction"><span class="nav-number">6.3.1.</span> <span class="nav-text">Specifying the address for a Load or Store instruction</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Offset-modes"><span class="nav-number">6.3.1.1.</span> <span class="nav-text">Offset modes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Index-modes"><span class="nav-number">6.3.1.2.</span> <span class="nav-text">Index modes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PC-relative-modes-load-literal"><span class="nav-number">6.3.1.3.</span> <span class="nav-text">PC-relative modes (load-literal)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unprivileged-access"><span class="nav-number">6.3.2.</span> <span class="nav-text">Unprivileged access</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Non-temporal-load-and-store-pair-%E9%9D%9E%E6%9A%82%E6%80%81%EF%BC%88non-temporal%EF%BC%89%E5%8A%A0%E8%BD%BD%E5%92%8C%E5%AD%98%E5%82%A8"><span class="nav-number">6.3.3.</span> <span class="nav-text">Non-temporal load and store pair &#x2F; 非暂态（non-temporal）加载和存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Memory-access-atomicity"><span class="nav-number">6.3.4.</span> <span class="nav-text">Memory access atomicity</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Memory-barrier-and-fence-instructions"><span class="nav-number">6.3.5.</span> <span class="nav-text">Memory barrier and fence instructions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Synchronization-primitives"><span class="nav-number">6.3.6.</span> <span class="nav-text">Synchronization primitives</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flow-control"><span class="nav-number">6.4.</span> <span class="nav-text">Flow control</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#System-control-and-other-instructions-%E7%B3%BB%E7%BB%9F%E6%8E%A7%E5%88%B6%E5%92%8C%E5%85%B6%E4%BB%96%E6%8C%87%E4%BB%A4"><span class="nav-number">6.5.</span> <span class="nav-text">System control and other instructions &#x2F; 系统控制和其他指令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Exception-handling-instructions"><span class="nav-number">6.5.1.</span> <span class="nav-text">Exception handling instructions</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ARM-64%E4%BD%8D%E6%9E%B6%E6%9E%84%E7%9A%84ABI"><span class="nav-number">7.</span> <span class="nav-text">ARM 64位架构的ABI</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AArch64%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8%E6%A0%87%E5%87%86%E4%B8%AD%E7%9A%84%E5%AF%84%E5%AD%98%E5%99%A8%E4%BD%BF%E7%94%A8"><span class="nav-number">7.1.</span> <span class="nav-text">AArch64过程调用标准中的寄存器使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%AD%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-number">7.1.1.</span> <span class="nav-text">通用寄存器中的参数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%88X0-X7%EF%BC%89"><span class="nav-number">7.1.1.1.</span> <span class="nav-text">参数寄存器（X0-X7）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E8%80%85%E4%BF%9D%E5%AD%98%E7%9A%84%E4%B8%B4%E6%97%B6%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%88X9-X15%EF%BC%89"><span class="nav-number">7.1.1.2.</span> <span class="nav-text">调用者保存的临时寄存器（X9-X15）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A2%AB%E8%B0%83%E7%94%A8%E8%80%85%E4%BF%9D%E5%AD%98%E7%9A%84%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%88X19-X29%EF%BC%89"><span class="nav-number">7.1.1.3.</span> <span class="nav-text">被调用者保存的寄存器（X19-X29）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B7%E6%9C%89%E7%89%B9%E6%AE%8A%E7%94%A8%E9%80%94%E7%9A%84%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%88X8%EF%BC%8CX16-X18%EF%BC%8CX29%EF%BC%8CX30%EF%BC%89"><span class="nav-number">7.1.1.4.</span> <span class="nav-text">具有特殊用途的寄存器（X8，X16-X18，X29，X30）</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AArch64-Exception-Handling"><span class="nav-number">8.</span> <span class="nav-text">AArch64 Exception Handling</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Interrupts-%E4%B8%AD%E6%96%AD"><span class="nav-number">8.0.0.1.</span> <span class="nav-text">Interrupts &#x2F; 中断</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Reset"><span class="nav-number">8.0.0.2.</span> <span class="nav-text">Reset</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%BC%82%E5%B8%B8%E7%9A%84%E6%8C%87%E4%BB%A4"><span class="nav-number">8.0.0.3.</span> <span class="nav-text">生成异常的指令</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exception-handling-registers"><span class="nav-number">8.1.</span> <span class="nav-text">Exception handling registers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Synchronous-and-asynchronous-exceptions-%E5%90%8C%E6%AD%A5%E5%92%8C%E5%BC%82%E6%AD%A5%E5%BC%82%E5%B8%B8"><span class="nav-number">8.2.</span> <span class="nav-text">Synchronous and asynchronous exceptions &#x2F; 同步和异步异常</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Synchronous-aborts-%E5%90%8C%E6%AD%A5%E4%B8%AD%E6%AD%A2"><span class="nav-number">8.2.1.</span> <span class="nav-text">Synchronous aborts &#x2F; 同步中止</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Handling-synchronous-exceptions"><span class="nav-number">8.2.2.</span> <span class="nav-text">Handling synchronous exceptions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#System-calls-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">8.2.3.</span> <span class="nav-text">System calls &#x2F; 系统调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unallocated-instructions-%E6%9C%AA%E5%88%86%E9%85%8D%E7%9A%84%E6%8C%87%E4%BB%A4"><span class="nav-number">8.2.4.</span> <span class="nav-text">Unallocated instructions &#x2F; 未分配的指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-Exception-Syndrome-Register"><span class="nav-number">8.2.5.</span> <span class="nav-text">The Exception Syndrome Register</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AArch64%E5%BC%82%E5%B8%B8%E5%90%91%E9%87%8F%E8%A1%A8"><span class="nav-number">8.3.</span> <span class="nav-text">AArch64异常向量表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Interrupt-handling"><span class="nav-number">8.4.</span> <span class="nav-text">Interrupt handling</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GIC"><span class="nav-number">8.5.</span> <span class="nav-text">GIC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Initialization"><span class="nav-number">8.5.1.</span> <span class="nav-text">Initialization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interrupt-handling-1"><span class="nav-number">8.5.2.</span> <span class="nav-text">Interrupt handling</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Multi-core-processors"><span class="nav-number">9.</span> <span class="nav-text">Multi-core processors</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Multi-core-processors-system"><span class="nav-number">9.1.</span> <span class="nav-text">Multi-core processors system</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Timers"><span class="nav-number">9.1.1.</span> <span class="nav-text">Timers</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="单调栈(monotone-stack)单调栈，即满足单调性的栈，与普通的栈相比，就是在入栈时将不满足要求栈顶的元素弹出。 比如，我们要维护一个从栈底到栈顶单调减少的栈，在某次操作前，栈内有元素：(bottom) 12, 8, 5, 1 (top); 此时要将7入栈，由于7 大于栈顶元素1,  5,于是需要将其弹出，再将7入栈，此时栈为(bottom) 12, 8, 7 (top)。 单调栈本身很好">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单调栈">
+<meta property="og:url" content="http://example.com/2023/08/04/%E5%8D%95%E8%B0%83%E6%A0%88/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="单调栈(monotone-stack)单调栈，即满足单调性的栈，与普通的栈相比，就是在入栈时将不满足要求栈顶的元素弹出。 比如，我们要维护一个从栈底到栈顶单调减少的栈，在某次操作前，栈内有元素：(bottom) 12, 8, 5, 1 (top); 此时要将7入栈，由于7 大于栈顶元素1,  5,于是需要将其弹出，再将7入栈，此时栈为(bottom) 12, 8, 7 (top)。 单调栈本身很好">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-04T08:01:46.000Z">
+<meta property="article:modified_time" content="2023-08-04T09:55:31.872Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="offer">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/08/04/%E5%8D%95%E8%B0%83%E6%A0%88/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>单调栈 | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/04/%E5%8D%95%E8%B0%83%E6%A0%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          单调栈
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-08-04 16:01:46 / 修改时间：17:55:31" itemprop="dateCreated datePublished" datetime="2023-08-04T16:01:46+08:00">2023-08-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">算法题</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="单调栈-monotone-stack"><a href="#单调栈-monotone-stack" class="headerlink" title="单调栈(monotone-stack)"></a>单调栈(monotone-stack)</h1><p>单调栈，即满足单调性的栈，与普通的栈相比，就是在入栈时将不满足要求栈顶的元素弹出。</p>
+<p>比如，我们要维护一个从栈底到栈顶单调减少的栈，在某次操作前，栈内有元素：<code>(bottom) 12, 8, 5, 1 (top)</code>; 此时要将7入栈，由于7 大于栈顶元素<code>1,  5</code>,于是需要将其弹出，再将7入栈，此时栈为<code>(bottom) 12, 8, 7 (top)</code>。</p>
+<p>单调栈本身很好理解，主要是做题的时候， 如何将题目转化为用单调栈的思路，接下来通过几个例题分析。</p>
+<span id="more"></span>
+
+<h2 id="LeetCode-402-移掉-K-位数字"><a href="#LeetCode-402-移掉-K-位数字" class="headerlink" title="LeetCode 402. 移掉 K 位数字"></a>LeetCode 402. 移掉 K 位数字</h2><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/remove-k-digits/">402. 移掉 K 位数字</a></p>
+<p>给你一个以字符串表示的非负整数 <code>num</code> 和一个整数 <code>k</code> ，移除这个数中的 <code>k</code> 位数字，使得剩下的数字最小。请你以字符串形式返回这个最小的数字。</p>
+<p><strong>示例 1 ：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：num = &quot;1432219&quot;, k = 3</span><br><span class="line">输出：&quot;1219&quot;</span><br><span class="line">解释：移除掉三个数字 4, 3, 和 2 形成一个新的最小的数字 1219 。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2 ：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：num = &quot;10200&quot;, k = 1</span><br><span class="line">输出：&quot;200&quot;</span><br><span class="line">解释：移掉首位的 1 剩下的数字为 200. 注意输出不能有任何前导零。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3 ：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：num = &quot;10&quot;, k = 2</span><br><span class="line">输出：&quot;0&quot;</span><br><span class="line">解释：从原数字移除所有的数字，剩余为空就是 0 。</span><br></pre></td></tr></table></figure>
+
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><p>首先观察示例1，”1432219”若要去除一个数字，肯定选4，因为3 &lt; 4,所以132XXX &lt; 142XXX,；之后同理，去除3，因为12XXX &lt; 13XXX;一般地，$L_0…L_{i-1}L_iL_{i+1}…L{n}$, **如果$L_{i-1} &gt; L_i$，肯定考虑删除$L_{i-1}$**。</p>
+<p>这样就和单调栈联系起来了，因为左边高位的优先级高于右边低位，所以我们从左到右，每次向栈中放入一个数字，如果当前数字小于小于栈顶元素，则将栈顶元素剔除，始终保持单调栈单调递增，再根据题目限制适当修改，栈底到栈顶即为最终答案。</p>
+<h2 id="LeetCode-316-去除重复字母"><a href="#LeetCode-316-去除重复字母" class="headerlink" title="LeetCode 316. 去除重复字母"></a>LeetCode 316. 去除重复字母</h2><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/remove-duplicate-letters/">316. 去除重复字母</a></p>
+<p>给你一个字符串 <code>s</code> ，请你去除字符串中重复的字母，使得每个字母只出现一次。需保证 <strong>返回结果的字典序最小</strong>（要求不能打乱其他字符的相对位置）。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;bcabc&quot;</span><br><span class="line">输出：&quot;abc&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;cbacdcbc&quot;</span><br><span class="line">输出：&quot;acdb&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><p>题目要求每个字母只出现一次，所以只出现过一次的字母肯定是不能删除的，</p>
+<p>要求字典序最小，类似上一题要求剩下的数字最小，肯定是<strong>小的字母尽量排在前面</strong>。与上一题思路相同，考虑单调栈，<strong>每次压入字母c时需弹出栈顶字典序大于c的的字母</strong>。</p>
+<p>但是，题目要求出现一次，所以开始时先统计每个字母的个数；每次单调栈需要弹出时，如果栈顶字母只剩一个，则不可弹出；否则，弹出且对计数-1；另外记录已经入栈且未被弹出的字母，后续遇到则不需入栈。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/offer/" rel="tag"># offer</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/08/02/Elastic-Cuckoo-Page-Tables-Rethinking-Virtual-Memory-Translation-for-Parallelism/" rel="prev" title="Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism">
+      <i class="fa fa-chevron-left"></i> Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E8%B0%83%E6%A0%88-monotone-stack"><span class="nav-number">1.</span> <span class="nav-text">单调栈(monotone-stack)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LeetCode-402-%E7%A7%BB%E6%8E%89-K-%E4%BD%8D%E6%95%B0%E5%AD%97"><span class="nav-number">1.1.</span> <span class="nav-text">LeetCode 402. 移掉 K 位数字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LeetCode-316-%E5%8E%BB%E9%99%A4%E9%87%8D%E5%A4%8D%E5%AD%97%E6%AF%8D"><span class="nav-number">1.2.</span> <span class="nav-text">LeetCode 316. 去除重复字母</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">思路</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

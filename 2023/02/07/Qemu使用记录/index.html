@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1. Qemu说明 通用的开源机器和用户空间模拟器和虚拟器 具体内容见官网https:&#x2F;&#x2F;github.com&#x2F;qemu&#x2F;qemu 比如：Qemu可以模拟出一个ARM系统中的：CPU. 内存. IO设备等，然后在这个模拟层之上，可以跑一台ARM虚拟机，这个ARM虚拟机认为自己在和硬件进行打交道，但实际上这些硬件都是Qemu模拟出来的。  Qemu的两种模式 用户模式(User mode)：利用动态">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Qemu使用记录">
+<meta property="og:url" content="http://example.com/2023/02/07/Qemu%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="1. Qemu说明 通用的开源机器和用户空间模拟器和虚拟器 具体内容见官网https:&#x2F;&#x2F;github.com&#x2F;qemu&#x2F;qemu 比如：Qemu可以模拟出一个ARM系统中的：CPU. 内存. IO设备等，然后在这个模拟层之上，可以跑一台ARM虚拟机，这个ARM虚拟机认为自己在和硬件进行打交道，但实际上这些硬件都是Qemu模拟出来的。  Qemu的两种模式 用户模式(User mode)：利用动态">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-07T09:28:50.000Z">
+<meta property="article:modified_time" content="2023-07-30T10:15:18.572Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/02/07/Qemu%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Qemu使用记录 | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/07/Qemu%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Qemu使用记录
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-02-07 17:28:50" itemprop="dateCreated datePublished" datetime="2023-02-07T17:28:50+08:00">2023-02-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="1-Qemu说明"><a href="#1-Qemu说明" class="headerlink" title="1. Qemu说明"></a>1. Qemu说明</h1><ul>
+<li>通用的开源机器和用户空间模拟器和虚拟器</li>
+<li>具体内容见官网<code>https://github.com/qemu/qemu</code></li>
+<li>比如：Qemu可以模拟出一个ARM系统中的：CPU. 内存. IO设备等，然后在这个模拟层之上，可以跑一台ARM虚拟机，这个ARM虚拟机认为自己在和硬件进行打交道，但实际上这些硬件都是Qemu模拟出来的。</li>
+</ul>
+<h2 id="Qemu的两种模式"><a href="#Qemu的两种模式" class="headerlink" title="Qemu的两种模式"></a>Qemu的两种模式</h2><ol>
+<li>用户模式(User mode)：利用动态代码翻译机制来执行不同主机架构的代码，例如：在x86平台上模拟执行ARM代码，也就是说：我们写一条ARM指令，传入整个模拟器中，模拟器会把整个指令翻译成x86平台的指令，然后在x86的CPU中执行。</li>
+<li>系统模式(System mode)：模拟整个电脑系统，利用其它VMM(Xen, KVM)来使用硬件提供的虚拟化支持，创建接近于主机性能的全功能虚拟机。</li>
+</ol>
+<h1 id="2-qemu执行流程"><a href="#2-qemu执行流程" class="headerlink" title="2. qemu执行流程"></a>2. qemu执行流程</h1><h2 id="0-宏"><a href="#0-宏" class="headerlink" title="0. 宏"></a>0. 宏</h2><ul>
+<li><code>#ifdef PPI_QR_FUNC</code> 宏是我们所有改动加的宏</li>
+</ul>
+<h2 id="1-qemu启动"><a href="#1-qemu启动" class="headerlink" title="1. qemu启动"></a>1. qemu启动</h2><ul>
+<li>file: softmmu&#x2F;vl.c</li>
+<li>初始化参数</li>
+<li>调用vcpu初始化。</li>
+</ul>
+<h2 id="2-vcpu初始化"><a href="#2-vcpu初始化" class="headerlink" title="2. vcpu初始化"></a>2. vcpu初始化</h2><ul>
+<li>file: target&#x2F;arm&#x2F;cpu64.c</li>
+<li>func:<ul>
+<li>aarch64_cpu_class_init</li>
+<li>aarch64_cpu_instance_init<ul>
+<li>对cpu实例进行初始化</li>
+<li>共享内存初始化(包括qemu要用的向gem5传输的共享内存)<ul>
+<li>ringbuf_init  进行初始化环形队列。</li>
+<li>第二块共享内存是shm_init。</li>
+</ul>
+</li>
+<li>每个qemu vcpu会初始化调用一次aarch64_cpu_instance_init<ul>
+<li>eg：run.sh里是16 cpu，那么就调用16次aarch64_cpu_instance_init，所以 也会初始化16个ringbuf_init，共享内存队列，每个核维护一个。key_insoff+channel_d+i是每个共享内存的id。</li>
+</ul>
+</li>
+<li>这里面的cpu以及cpu-&gt;env就是 qemu的vcpu，其中cpu-&gt;env就是cpuarmstate。这个时候已经初始化完毕。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-翻译"><a href="#3-翻译" class="headerlink" title="3. 翻译"></a>3. 翻译</h2><ul>
+<li>初始化之后开始主流程翻译</li>
+<li>翻译是两步，<ol>
+<li>guest-&gt;ir</li>
+<li>ir-&gt;host</li>
+</ol>
+<ul>
+<li>eg: 也就是比如 用户程序是 arm，arm-&gt;ir  ir-&gt;x86 code，host运行x86 code。如果是用户程序是x86，host也是，那么不用翻译，直接在host上执行。</li>
+</ul>
+</li>
+</ul>
+<h3 id="guest-ir"><a href="#guest-ir" class="headerlink" title="guest-&gt;ir"></a>guest-&gt;ir</h3><ol>
+<li>调用<code>tb_find</code>[accel&#x2F;tcg&#x2F;cpu-exec.c]<ul>
+<li>找是否有翻译过,若无则进行2.(刚开始肯定无)</li>
+</ul>
+</li>
+<li>调用<code>tb_gen_code</code>[accel&#x2F;tcg&#x2F;cpu-exec.c]<ul>
+<li>翻译主函数</li>
+</ul>
+</li>
+<li>这个又调用gen_intermediate_code，<ul>
+<li>进行guest-&gt;ir的翻译。</li>
+</ul>
+</li>
+<li>上面又继续调用translator_loop<ul>
+<li>来到accel&#x2F;tcg&#x2F;translator.c。</li>
+<li>translator_loop 函数 对tb里的每一个指令 进行翻译。</li>
+<li>while (true)就是每条指令循环翻译。</li>
+</ul>
+</li>
+<li>aarch64_tr_translate_insn函数。<ul>
+<li>添加函数名，target&#x2F;arm&#x2F;translate-a64.c</li>
+</ul>
+</li>
+<li>调用disas_a64_insn  <ul>
+<li>就是每个指令进行decoder</li>
+<li>里面switch (extract32(insn, 25, 4)) {  看是哪类指令。</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>至此完成了 guest-&gt;ir的翻译。</li>
+</ul>
+<h3 id="ir-host的暂不考虑"><a href="#ir-host的暂不考虑" class="headerlink" title="ir-&gt;host的暂不考虑"></a>ir-&gt;host的暂不考虑</h3><h2 id="4-执行"><a href="#4-执行" class="headerlink" title="4. 执行"></a>4. 执行</h2><ul>
+<li>翻译之后，host代码已经生成，需要执行。</li>
+<li>我们采用在guest的tb开始和结束前插callback函数的方式<ul>
+<li>target&#x2F;arm&#x2F;translate.c 里的函数<ul>
+<li>helper_start_callback插在tb执行开始前的。插在它tb guest的开头，</li>
+<li><code>helper_end_callback</code>在结尾</li>
+<li>会随tb一起翻译。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>那么执行就是先 helper_start_callback -&gt; tb -&gt; helper_end_callback</li>
+<li>当执行helper_end_callback的时候，整个tb都执行好了。</li>
+<li>所以可以对下一个执行的tb进行预测。</li>
+<li>tb-&gt;tt里存放我们记下来的tb的trace，包括 pc insn。</li>
+<li>env-&gt;sendbuf-&gt;real_insn_num记了tb的实际指令数。</li>
+<li>helper_end_callback调用lookupAndUpdateNextPC预测。</li>
+<li>执行tb 是一串二进制代码，无法代码操作。 只能通过cb来操作。</li>
+<li>bt-&gt;IsControl 是true 说明是分支指令，需要存。所以在这里可以存cpu state</li>
+</ul>
+<h3 id="内存处理"><a href="#内存处理" class="headerlink" title="内存处理"></a>内存处理</h3><ul>
+<li>主函数如果是ld st指令</li>
+<li>mem信息我们额外插了cb进行收集mem 访存信息。 </li>
+<li>ppi_insert_mem_st[tcg&#x2F;tcg-op.c]进行ld st插桩。<ul>
+<li>函数体insert_mem_st[target&#x2F;arm&#x2F;translate.c]</li>
+</ul>
+</li>
+<li><code>helper_load_callback</code> 里，env-&gt;sendbuf 是 cpu armstate结构体里划出来的一块临时内存。</li>
+<li>mem cb里会将mem trace 记在这里。</li>
+<li>env里是否有mem的寄存器信息？</li>
+<li>到end cb的时候，helper_load_callback里的所有东西都记好了，env的sendbuf里有完整的tb里的mem insn trace</li>
+</ul>
+<h2 id="qemu主函数调用"><a href="#qemu主函数调用" class="headerlink" title="qemu主函数调用"></a>qemu主函数调用</h2><ol>
+<li><p>main[.&#x2F;softmmu&#x2F;vl.c]</p>
+</li>
+<li><p>aarch64_cpu_instance_init[target&#x2F;arm&#x2F;cpu64.c]</p>
+</li>
+<li><p>aarch64_cpu_class_init[target&#x2F;arm&#x2F;cpu64.c]</p>
+</li>
+<li><p>cpu_exec[accel&#x2F;tcg&#x2F;cpu-exec.c]</p>
+<ul>
+<li>main execution loop</li>
+</ul>
+<ol>
+<li>tb_gen_code[accel&#x2F;tcg&#x2F;translate-all.c]<ul>
+<li>生成下一个tb块代码</li>
+</ul>
+<ol>
+<li>cpu_loop_exit[accel&#x2F;tcg&#x2F;cpu-exec-common.c]<ul>
+<li>exit the current TB</li>
+<li>抛出异常时触发</li>
+</ul>
+<ol>
+<li>helper_end_callback[target&#x2F;arm&#x2F;translate.c]<ul>
+<li>移植了gem5的分支预测器</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>cpu_loop_exec_tb[accel&#x2F;tcg&#x2F;cpu-exec.c]<ol>
+<li>cpu_tb_exec[accel&#x2F;tcg&#x2F;cpu-exec.c]</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>cpu_exec_exit[accel&#x2F;tcg&#x2F;cpu-exec.c]</p>
+</li>
+</ol>
+<ul>
+<li>退出qemu<code>ctrl+A+X</code></li>
+</ul>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>分支预测加在了每个tb运行结束的末尾，在运行到tb末尾时进行预测<br>当下一个tb运行完之后，取出该tb的头地址，并与上次预测结果比对验证</p>
+<p>checkpoint是系统层面的快照接口 在程序内部调用不好处理</p>
+<p>接下来首先篡改执行的tb路径，即迫使qemu按照分支预测结果执行</p>
+<p>在cpu_exec中主循环通过调用tb_lookup&#x2F;tb_gen_code来获得下一个执行的tb</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tb = tb_lookup(cpu, pc, cs_base, flags, cflags);</span><br><span class="line">tb = tb_gen_code(cpu, pc, cs_base, flags, cflags);</span><br></pre></td></tr></table></figure>
+<p>我们可以通过改变cpu的pc来控制下一个tb，既可以迫使其走上错误分支，也可以再恢复状态后安排它执行正确的pc<br>pc在这里取出<code>cpu_get_tb_cpu_state(cpu-&gt;env_ptr, &amp;pc, &amp;cs_base, &amp;flags);</code>，根据<code>cpu-&gt;env_ptr</code>内的值<br>这个指针实际指向CPUARMState<br>cpu_get_tb_cpu_state[target&#x2F;arm&#x2F;helper.c]中pc的值分两种情况 pc &#x2F; regs[15]  怎么选取?</p>
+<p>core的时候打屏可以 写文件不行</p>
+<ul>
+<li>s0, add a new file to do the following things</li>
+<li>s1, todo: secondery pointer, deep copy the whole struct</li>
+<li>s2, todo: backup the memory</li>
+<li>s3, checkpoint?</li>
+<li>当前仅修改pc，不做备份，只为了篡改执行路径</li>
+</ul>
+<p>分支当前的pc是tb块的最后一条指令(有时为跳转指令)的pc </p>
+<p>Tiny Code Generator (TCG)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tb_trace</span>&#123;</span></span><br><span class="line">    <span class="type">int</span> insn_num;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> pc_start;     <span class="comment">/* tb first pc */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">trace_info</span> <span class="title">ti</span>[512];</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TranslationBlock</span> &#123;</span></span><br><span class="line">    target_ulong pc;   <span class="comment">/* simulated PC corresponding to this block (EIP + CS base) */</span></span><br><span class="line">    target_ulong cs_base; <span class="comment">/* CS base for this block */</span></span><br><span class="line">    <span class="type">uint32_t</span> flags; <span class="comment">/* flags defining in which context the code was generated */</span></span><br><span class="line">    <span class="type">uint32_t</span> cflags;    <span class="comment">/* compile flags */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Per-vCPU dynamic tracing state used to generate this TB */</span></span><br><span class="line">    <span class="type">uint32_t</span> trace_vcpu_dstate;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Above fields used for comparing</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* size of target code for this block (1 &lt;= size &lt;= TARGET_PAGE_SIZE) */</span></span><br><span class="line">    <span class="type">uint16_t</span> size;</span><br><span class="line">    <span class="type">uint16_t</span> icount;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tb_tc</span> <span class="title">tc</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* first and second physical page containing code. The lower bit</span></span><br><span class="line"><span class="comment">       of the pointer tells the index in page_next[].</span></span><br><span class="line"><span class="comment">       The list is protected by the TB&#x27;s page(&#x27;s) lock(s) */</span></span><br><span class="line">    <span class="type">uintptr_t</span> page_next[<span class="number">2</span>];</span><br><span class="line">    <span class="type">tb_page_addr_t</span> page_addr[<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* jmp_lock placed here to fill a 4-byte hole. Its documentation is below */</span></span><br><span class="line">    QemuSpin jmp_lock;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* The following data are used to directly call another TB from</span></span><br><span class="line"><span class="comment">     * the code of this one. This can be done either by emitting direct or</span></span><br><span class="line"><span class="comment">     * indirect native jump instructions. These jumps are reset so that the TB</span></span><br><span class="line"><span class="comment">     * just continues its execution. The TB can be linked to another one by</span></span><br><span class="line"><span class="comment">     * setting one of the jump targets (or patching the jump instruction). Only</span></span><br><span class="line"><span class="comment">     * two of such jumps are supported.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">uint16_t</span> jmp_reset_offset[<span class="number">2</span>]; <span class="comment">/* offset of original jump target */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TB_JMP_RESET_OFFSET_INVALID 0xffff <span class="comment">/* indicates no jump generated */</span></span></span><br><span class="line">    <span class="type">uintptr_t</span> jmp_target_arg[<span class="number">2</span>];  <span class="comment">/* target address or offset */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Each TB has a NULL-terminated list (jmp_list_head) of incoming jumps.</span></span><br><span class="line"><span class="comment">     * Each TB can have two outgoing jumps, and therefore can participate</span></span><br><span class="line"><span class="comment">     * in two lists. The list entries are kept in jmp_list_next[2]. The least</span></span><br><span class="line"><span class="comment">     * significant bit (LSB) of the pointers in these lists is used to encode</span></span><br><span class="line"><span class="comment">     * which of the two list entries is to be used in the pointed TB.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * List traversals are protected by jmp_lock. The destination TB of each</span></span><br><span class="line"><span class="comment">     * outgoing jump is kept in jmp_dest[] so that the appropriate jmp_lock</span></span><br><span class="line"><span class="comment">     * can be acquired from any origin TB.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * jmp_dest[] are tagged pointers as well. The LSB is set when the TB is</span></span><br><span class="line"><span class="comment">     * being invalidated, so that no further outgoing jumps from it can be set.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * jmp_lock also protects the CF_INVALID cflag; a jump must not be chained</span></span><br><span class="line"><span class="comment">     * to a destination TB that has CF_INVALID set.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">uintptr_t</span> jmp_list_head;</span><br><span class="line">    <span class="type">uintptr_t</span> jmp_list_next[<span class="number">2</span>];</span><br><span class="line">    <span class="type">uintptr_t</span> jmp_dest[<span class="number">2</span>];</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> PPI_QR_FUNC</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tb_trace</span> *<span class="title">tt</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tb_mem</span> *<span class="title">tm</span>;</span></span><br><span class="line">    <span class="type">int</span> cpu_id;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>{standard input}: Assembler messages:<br>{standard input}:166160: Warning: end of file not at end of a line; newline inserted<br>{standard input}:166333: Error: expected comma after name &#96;_ZNSt8_Rb_treeIiSt4pairIKiSt3setI11met’ in .size directive<br>x86_64-xxx-linux-g++: internal compiler error: Killed (program cc1plus)<br>Please submit a full bug report,<br>with preprocessed source if appropriate.<br>See for instructions.<br>make[3]: *** [mds&#x2F;Server.lo] Error 1<br>make[3]: *** Waiting for unfinished jobs….</p>
+<p>这个错误的原因通常是，host机器内存不够导致的。 解决的办法是增加内存。硬件上的增加内存可以解决，或者kill系统当前其他的applications。甚至重新启动host，给编译器一个较为宽松的运行环境</p>
+<p>QEMU以TB为单位进行翻译并执行。这也就是说每当在code cache执行完一个TB之后，控制权必须交还给QEMU。这很没有效率。所以只要TB执行完之后，它的跳跃目标确定且该跳跃目标也已经在code cache里，那我们就把这两个TB串接起来。这个就叫做block chaining。有时QEMU开始执行一个基本块，然后被中断。然后，它可能会从一开始就重新执行该块，或者转换尚未执行的块的一部分并执行它。这将导致edge map中出现一些额外的edge。所以首先禁用QEMU的chaining特性。</p>
+<p>Tcgout branch生成两条<br>条件分支<br>一条b翻译成四条 非条件<br>条件 8条 jmmj<br>tcg_out_bl 条件跳转 翻译成call指令<br>改pc calue target<br>Guest知道bb最后一条</p>
+<p>Tcg gencode预测<br>翻译的时候记录指令<br>在此之前disas已经完成<br>在这里插入跳转指令</p>
+<p>2&gt; 输出系统错误</p>
+<p>guest -&gt; ir -&gt; host</p>
+<p>printf会影响回调函数的个数?</p>
+<ol>
+<li>start_callback 是当前block执行前执行的函数，在里面对当前block的最后一条分支指令进行分支预测。</li>
+<li>在当前block跳转指令执行前确定分支指令的跳转情况，用这个真实的跳转信息更新预测器</li>
+<li>修改ir的目标地址，使得下一个block为预测方向的block</li>
+<li>在错误路径执行N个block后恢复上次保存的信息，恢复到正常流程(N可以先写个固定的interval 比如5个block)</li>
+</ol>
+<ul>
+<li><p>cpu_gen_code 負責 guest binary → TCG IR → host binary 的翻譯。</p>
+<ul>
+<li>gen_intermediate_code_internal (target-*&#x2F;translate.c) 初始化並呼叫 disas_insn 反組譯 guest binary 成 TCG IR。<ul>
+<li>disas_insn 呼叫 tcg_gen_xxx (tcg&#x2F;tcg-op.h) 產生 TCG IR。分別將 opcode 寫入 gen_opc_ptr 指向的緩衝區 (translate-all.c 裡的 gen_opc_buf); operand 寫入 gen_opparam_ptr 指向的緩衝區 (translate-all.c 裡的 gen_opparam_buf )。</li>
+</ul>
+</li>
+<li>tcg_gen_code (tcg&#x2F;tcg.c) 呼叫 tcg_gen_code_common (tcg&#x2F;tcg.c) 將 TCG IR 轉成 host binary</li>
+</ul>
+</li>
+<li><p>tb_find_fast&#x2F;slow 傳回 translation block 後，交給 tcg_qemu_tb_exec 執行。</p>
+</li>
+</ul>
+<ol start="0">
+<li>插桩 start_cb, 插在BB块开始的部分，会随着BB一起翻译、执行</li>
+<li>翻译代码 Guest —(teg_gen)–&gt; IR —(tcg_out)–&gt; Host<ul>
+<li>aarch64_tr_translate_insn 调用tcg_gen</li>
+<li>在tcg_out_xxx中插桩，在执行阶段中会被执行</li>
+</ul>
+</li>
+<li>执行host代码</li>
+</ol>
+<h2 id="以cbz指令为例"><a href="#以cbz指令为例" class="headerlink" title="以cbz指令为例"></a>以cbz指令为例</h2><p>Guest(arrch64) —(teg_gen)–&gt; IR —(tcg_out)–&gt; Host(i386)<br>tcg_gen_brcondi_i64(tcg&#x2F;tcg-op.c)生成 ir</p>
+<p>brcond_i64 tmp2,$0x0,eq,$L1</p>
+<p>目标 找到一条arrch64的分支指令究竟被翻译成了哪些IR 这些IR又变成了哪些host指令(i386)<br>然后 在tcg_out中插桩，获得我想要的真实信息，篡改执行的BB块</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title function_">tcg_out_op</span><span class="params">(TCGContext* s, TCGOpcode opc, <span class="type">const</span> TCGArg* args, <span class="type">const</span> <span class="type">int</span>* const_args)</span></span><br><span class="line">&#123;</span><br><span class="line">    TCGArg a0, a1, a2;</span><br><span class="line">    <span class="type">int</span> c, const_a2, vexop, rexw = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 获取最常见的参数 Hoist the loads of the most common arguments.  */</span></span><br><span class="line">    a0 = args[<span class="number">0</span>];     <span class="comment">// = TCG_REG_EBP, 代表要比较的寄存器</span></span><br><span class="line">    a1 = args[<span class="number">1</span>];    <span class="comment">// = 0, 要比较的常数</span></span><br><span class="line">    a2 = args[<span class="number">2</span>];    <span class="comment">// = 0x9, 表示分支的条件</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (opc) &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">case</span> INDEX_op_brcond_i32:</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">            a2: 表示分支条件; </span></span><br><span class="line"><span class="comment">            a0 a1为要比较的变量和值, </span></span><br><span class="line"><span class="comment">            const_args[1]: 表示a1是否为常数</span></span><br><span class="line"><span class="comment">            arg_label(args[3]): 表示跳转目标的标签</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        tcg_out_brcond32(s, a2, a0, a1, const_args[<span class="number">1</span>], arg_label(args[<span class="number">3</span>]), <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">accel/tcg/translate-all.c::tb_gen_code --&gt;&gt; </span><br><span class="line">tcg/tcg.c::tcg_gen_code --&gt;&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TCGContext</span> &#123;</span></span><br><span class="line">    ...;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> gen_next_op_idx;    <span class="comment">//写入下一个操作码的位置</span></span><br><span class="line">    <span class="type">int</span> gen_next_parm_idx;    <span class="comment">//写入下一个操作数的位置</span></span><br><span class="line"></span><br><span class="line">    ...;</span><br><span class="line"></span><br><span class="line">    TCGOp gen_op_buf[OPC_BUF_SIZE]; <span class="comment">//保存生成的中间指令</span></span><br><span class="line">    TCGArg gen_opparam_buf[OPPARAM_BUF_SIZE];   <span class="comment">//保存中间指令的操作数</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint16_t</span> gen_insn_end_off[TCG_MAX_INSNS];</span><br><span class="line">    target_ulong gen_insn_data[TCG_MAX_INSNS][TARGET_INSN_START_WORDS];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    ...;</span><br><span class="line">    <span class="comment">/// 放Host指令的地方</span></span><br><span class="line">    <span class="type">void</span> *code_gen_buffer;      <span class="comment">//保存生成的指令的缓冲区</span></span><br><span class="line">    <span class="type">size_t</span> code_gen_buffer_size;    <span class="comment">//缓冲区大小</span></span><br><span class="line">    <span class="type">void</span> *code_gen_ptr;     <span class="comment">//写入下一个生成指令的位置, 位于code_gen_buffer内部</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">TCGCond</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    <span class="comment">/* non-signed */</span></span><br><span class="line">    TCG_COND_NEVER  = <span class="number">0</span> | <span class="number">0</span> | <span class="number">0</span> | <span class="number">0</span>,</span><br><span class="line">    TCG_COND_ALWAYS = <span class="number">0</span> | <span class="number">0</span> | <span class="number">0</span> | <span class="number">1</span>,</span><br><span class="line">    TCG_COND_EQ     = <span class="number">8</span> ,</span><br><span class="line">    TCG_COND_NE     = <span class="number">9</span>,</span><br><span class="line">    <span class="comment">/* signed */</span></span><br><span class="line">    TCG_COND_LT     = <span class="number">0</span> | <span class="number">0</span> | <span class="number">2</span> | <span class="number">0</span>,</span><br><span class="line">    TCG_COND_GE     = <span class="number">0</span> | <span class="number">0</span> | <span class="number">2</span> | <span class="number">1</span>,</span><br><span class="line">    TCG_COND_LE     = <span class="number">8</span> | <span class="number">0</span> | <span class="number">2</span> | <span class="number">0</span>,</span><br><span class="line">    TCG_COND_GT     = <span class="number">8</span> | <span class="number">0</span> | <span class="number">2</span> | <span class="number">1</span>,</span><br><span class="line">    <span class="comment">/* unsigned */</span></span><br><span class="line">    TCG_COND_LTU    = <span class="number">0</span> | <span class="number">4</span> | <span class="number">0</span> | <span class="number">0</span>,</span><br><span class="line">    TCG_COND_GEU    = <span class="number">0</span> | <span class="number">4</span> | <span class="number">0</span> | <span class="number">1</span>,</span><br><span class="line">    TCG_COND_LEU    = <span class="number">8</span> | <span class="number">4</span> | <span class="number">0</span> | <span class="number">0</span>,</span><br><span class="line">    TCG_COND_GTU    = <span class="number">8</span> | <span class="number">4</span> | <span class="number">0</span> | <span class="number">1</span>,</span><br><span class="line">&#125; TCGCond;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>armv8指令手册 page202<br>Unconditional branch<br>BL Branch with link<br>BR Branch to register<br>BLR Branch with link to register</p>
+<p>Conditional branch<br>B.cond Branch conditionally<br>CBNZ Compare and branch if nonzero<br>CBZ Compare and branch if zero<br>TBNZ Test bit and branch if nonzero<br>TBZ Test bit and branch if zero</p>
+<p>翻译的时候已经拿到预测结果 所以可以强行在tcg_out加跳转指令，<br>但是同时还需要知道真实的跳转指令，以便决定后面是否需要恢复<br>我可以利用重定向来进行篡改</p>
+<h1 id="prologue初始化"><a href="#prologue初始化" class="headerlink" title="prologue初始化"></a>prologue初始化</h1><ul>
+<li>prologue 用来切换 qemu 代码和 code cache 的代码上下文，在 tcg_prologue_init(tcg_ctx) 调用 host 的 tcg_target_qemu_prologue 来组装这块代码。</li>
+</ul>
+<p>在x86上组装出来的代码如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">0x5644ca0ab000:  push   %rbp               //函数调用过程中将callee saved的入栈保存,完成了callee本身需要做的事情，因此在执行tb代码时可以使用所有的寄存器，在tb执行过程中不遵循函数调用的接口规范了</span><br><span class="line">0x5644ca0ab001:  push   %rbx  </span><br><span class="line">0x5644ca0ab002:  push   %r12  </span><br><span class="line">0x5644ca0ab004:  push   %r13  </span><br><span class="line">0x5644ca0ab006:  push   %r14  </span><br><span class="line">0x5644ca0ab008:  push   %r15  </span><br><span class="line">0x5644ca0ab00a:  mov    %rdi,%r14      //env到r14中，本身指向CPULOONGARCHState的对象，tb操作的对象都在</span><br><span class="line">0x5644ca0ab00d:  add    $0xfffffffffffffb78,%rsp      //</span><br><span class="line">0x5644ca0ab014:  jmpq   *%rsi      //跳转的tb的起始位置</span><br><span class="line"></span><br><span class="line">0x5644ca0ab016:  xor    %eax,%eax           //epilogue位置，返回值为0. 主要是为了goto_ptr使用</span><br><span class="line">0x5644ca0ab018:  add    $0x488,%rsp      //正常退出</span><br><span class="line">0x5644ca0ab01f:  emms   </span><br><span class="line">0x5644ca0ab022:  pop    %r15          //saved寄存器出栈</span><br><span class="line">0x5644ca0ab024:  pop    %r14  </span><br><span class="line">0x5644ca0ab026:  pop    %r13  </span><br><span class="line">0x5644ca0ab028:  pop    %r12  </span><br><span class="line">0x5644ca0ab02a:  pop    %rbx  </span><br><span class="line">0x5644ca0ab02b:  pop    %rbp  </span><br><span class="line">0x5644ca0ab02c:  retq                    //退出到qemu中</span><br></pre></td></tr></table></figure>
+
+<h1 id="frontend的翻译"><a href="#frontend的翻译" class="headerlink" title="frontend的翻译"></a>frontend的翻译</h1><ul>
+<li>在target指令翻译过程TB以跳转指令结束，其他指令只需要根据语义翻译成IR指令就可以。<ul>
+<li>其中比较特殊的是跳转指令，TB开始和TB结束时的一些特殊代码.</li>
+</ul>
+</li>
+</ul>
+<h2 id="TB开始位置"><a href="#TB开始位置" class="headerlink" title="TB开始位置:"></a>TB开始位置:</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gen_tb_start</span><br><span class="line">    ld_i32 tmp0,env,$0xffffffffffffffe4        //env指向CPULOONGARCHState，偏移是CPUState.icount_decr.u32相对于env的偏移;</span><br><span class="line">    movi_i32 tmp1,$0x0</span><br><span class="line">    brcond_i32 tmp0,tmp1,lt,$L0        //如果icount_decr.u32小于0则跳转到label 0处</span><br></pre></td></tr></table></figure>
+
+<p>参考文档: <a target="_blank" rel="noopener" href="https://qemu.readthedocs.io/en/latest/devel/tcg-icount.html">https://qemu.readthedocs.io/en/latest/devel/tcg-icount.html</a></p>
+<ul>
+<li>icount只有在SOFTMMU中才有用，并且不能用在multi-threaded TCG 中，主要用于执行过程中指令的计数，后面详细再讲。</li>
+</ul>
+<h2 id="TB结束"><a href="#TB结束" class="headerlink" title="TB结束:"></a>TB结束:</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gen_tb_end</span><br><span class="line">   set_label $L0            //生成一个label 0，给`br $label`或者`brcond_i32/i64 label`，`goto_tb`这些提供錨点</span><br><span class="line">   exit_tb $0x55f975f8bec3     //退出到tb_ret_addr</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/02/07/C%E8%AF%AD%E8%A8%80%E5%86%85%E8%81%94%E6%B1%87%E7%BC%96/" rel="prev" title="C语言内联汇编">
+      <i class="fa fa-chevron-left"></i> C语言内联汇编
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/03/21/Effective%20C++(7)/" rel="next" title="Effective C++(7)--模版与范型编程">
+      Effective C++(7)--模版与范型编程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Qemu%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">1. Qemu说明</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Qemu%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">Qemu的两种模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-qemu%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">2. qemu执行流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-%E5%AE%8F"><span class="nav-number">2.1.</span> <span class="nav-text">0. 宏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-qemu%E5%90%AF%E5%8A%A8"><span class="nav-number">2.2.</span> <span class="nav-text">1. qemu启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-vcpu%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.3.</span> <span class="nav-text">2. vcpu初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%BF%BB%E8%AF%91"><span class="nav-number">2.4.</span> <span class="nav-text">3. 翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#guest-ir"><span class="nav-number">2.4.1.</span> <span class="nav-text">guest-&gt;ir</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ir-host%E7%9A%84%E6%9A%82%E4%B8%8D%E8%80%83%E8%99%91"><span class="nav-number">2.4.2.</span> <span class="nav-text">ir-&gt;host的暂不考虑</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%89%A7%E8%A1%8C"><span class="nav-number">2.5.</span> <span class="nav-text">4. 执行</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%A4%84%E7%90%86"><span class="nav-number">2.5.1.</span> <span class="nav-text">内存处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#qemu%E4%B8%BB%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="nav-number">2.6.</span> <span class="nav-text">qemu主函数调用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A5cbz%E6%8C%87%E4%BB%A4%E4%B8%BA%E4%BE%8B"><span class="nav-number">3.1.</span> <span class="nav-text">以cbz指令为例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#prologue%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">prologue初始化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#frontend%E7%9A%84%E7%BF%BB%E8%AF%91"><span class="nav-number">5.</span> <span class="nav-text">frontend的翻译</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#TB%E5%BC%80%E5%A7%8B%E4%BD%8D%E7%BD%AE"><span class="nav-number">5.1.</span> <span class="nav-text">TB开始位置:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TB%E7%BB%93%E6%9D%9F"><span class="nav-number">5.2.</span> <span class="nav-text">TB结束:</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

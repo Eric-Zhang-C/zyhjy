@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Qemu翻译实例–以arrch64 –&gt;&gt; i386为例0.前言 QEMU 是一个仿真器(emulator)，可以user mode 或是system mode 运行。   user mode 可以运行不同ISA 同一OS 的binary;  system mode 可以在当前作业系统上运行另外一个OS.   对QEMU 而言，被仿真的平台被称为guest，又称target; 运行QE">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Qemu翻译实例--以arrch64 --&gt;&gt; x86-64为例">
+<meta property="og:url" content="http://example.com/2023/02/07/Qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B--%E4%BB%A5arrch64%20--%3E%3E%20x86-64%E4%B8%BA%E4%BE%8B/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="Qemu翻译实例–以arrch64 –&gt;&gt; i386为例0.前言 QEMU 是一个仿真器(emulator)，可以user mode 或是system mode 运行。   user mode 可以运行不同ISA 同一OS 的binary;  system mode 可以在当前作业系统上运行另外一个OS.   对QEMU 而言，被仿真的平台被称为guest，又称target; 运行QE">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-07T09:28:50.000Z">
+<meta property="article:modified_time" content="2023-07-30T10:15:50.926Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/02/07/Qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B--%E4%BB%A5arrch64%20--%3E%3E%20x86-64%E4%B8%BA%E4%BE%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Qemu翻译实例--以arrch64 -->> x86-64为例 | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/07/Qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B--%E4%BB%A5arrch64%20--%3E%3E%20x86-64%E4%B8%BA%E4%BE%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Qemu翻译实例--以arrch64 -->> x86-64为例
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-02-07 17:28:50" itemprop="dateCreated datePublished" datetime="2023-02-07T17:28:50+08:00">2023-02-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Qemu翻译实例–以arrch64-–-i386为例"><a href="#Qemu翻译实例–以arrch64-–-i386为例" class="headerlink" title="Qemu翻译实例–以arrch64 –&gt;&gt; i386为例"></a>Qemu翻译实例–以arrch64 –&gt;&gt; i386为例</h1><h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0.前言"></a>0.前言</h2><ul>
+<li><p>QEMU 是一个仿真器(emulator)，可以user mode 或是system mode 运行。 </p>
+<ul>
+<li>user mode 可以运行不同ISA 同一OS 的binary; </li>
+<li>system mode 可以在当前作业系统上运行另外一个OS.</li>
+</ul>
+</li>
+<li><p>对QEMU 而言，被仿真的平台被称为guest，又称target; 运行QEMU 的平台称为host。</p>
+<ul>
+<li>QEMU 是利用动态翻译(dynamic translation) 的技术将guest binary 动态翻译成host binary，并交由host 运行翻译所得的host binary。</li>
+<li>Tiny Code Generator (TCG) 是QEMU 中负责动态翻译的组件。<ul>
+<li>对TCG 而言，target 有不同的含意，它代表TCG 是针对哪一个host 生成host binary。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>QEMU 极为依赖macro，这使得直接阅读源代码通常无法确定其函数呼叫，或是执行流程倒底为何。</p>
+</li>
+<li><p>请在编译QEMU 的时候加上<code>--extra-cflags=&quot;-save-temps&quot;</code>，如此可得展开marco 的 <code>*.i</code> 档。</p>
+</li>
+</ul>
+<h2 id="1-TCG"><a href="#1-TCG" class="headerlink" title="1. TCG"></a>1. TCG</h2><ul>
+<li>TCG 是QEMU 的核心。其基本流程如下:<ul>
+<li>guest binary -&gt; TCG IR -&gt; host binary</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-1-TCG-IR"><a href="#1-1-TCG-IR" class="headerlink" title="1.1 TCG IR"></a>1.1 TCG IR</h3><ul>
+<li><p>TCG 定义了一组IR (intermediate representation)，熟悉GCC 的各位对此应该不陌生。</p>
+</li>
+<li><p>TCG IR 大致分成以下几类:</p>
+<ul>
+<li>Move Operation: mov, movi, …</li>
+<li>Logic Operation: and, or, xor, shl, shr, …</li>
+<li>Arithmetic peration: add, sub, mul, div, …</li>
+<li>Branch Operation: jmp, br, brcond</li>
+<li>Fuction call: call</li>
+<li>Memory Operation: ld, st</li>
+<li>QEMU specific Operation: tb_exit, goto_tb, qemu_ld&#x2F;qemu_st</li>
+</ul>
+</li>
+<li><p>请见tcg&#x2F;*，特别是tcg.i，可以看到TCGOpcode。</p>
+</li>
+<li><p>tcg&#x2F;README 也别忘了。</p>
+</li>
+<li><p>TCG 在翻译guest binary 的时候是以一个translation block (tb) 为单位，其结尾通常是分支指令。</p>
+</li>
+<li><p>target&#x2F;ARCH&#x2F;* 定义了如何将ARCH binary 反汇编成TCG IR。</p>
+<ul>
+<li>target&#x2F;arm</li>
+</ul>
+</li>
+<li><p>tcg&#x2F;ARCH 定义了如何将TCG IR 翻译成ARCH binary。</p>
+<ul>
+<li>tcg&#x2F;i386</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-2-TCG-Flow"><a href="#1-2-TCG-Flow" class="headerlink" title="1.2 TCG Flow"></a>1.2 TCG Flow</h3><ul>
+<li><p>gen_opc_buf 和gen_opparam_buf (translate-all.c) 分别放置TCG Opcode 和Operand。</p>
+</li>
+<li><p>如果使用静态配置的缓冲区，static_code_gen_buffer (exec.c) 即为code cache，放置host binary。</p>
+</li>
+<li><p>在跳入&#x2F;出code cache 执行之前&#x2F;后，要执行prologue&#x2F;epilogue，请见code_gen_prologue (exec.c)。</p>
+</li>
+<li><p>这边的prologue&#x2F;epilogue 就是指function prologue&#x2F;epilogue。</p>
+</li>
+<li><p>QEMU 将跳至code cache (host binary) 执行的过程看成是函式呼叫，故有此prologue&#x2F;epilogue。</p>
+</li>
+<li><p>以qemu-arm 为例，流程大致如下:</p>
+<ul>
+<li><p>main() &#x2F;&#x2F; vl.c</p>
+</li>
+<li><p>–&gt;&gt; main_loop() &#x2F;&#x2F; vl.c</p>
+</li>
+<li><p>–&gt;&gt; arm_cpu_realizefn() &#x2F;&#x2F; target&#x2F;arm&#x2F;cpu.c，实例化虚拟机CPU设备模型 [GUEST]_cpu_realizefn</p>
+</li>
+<li><p>–&gt;&gt; qemu_init_vcpu() &#x2F;&#x2F; softmmu&#x2F;cpus.c，KVM没有enable，并且启_cpu_thread_fn用了TCG的情况下，tcg_enabled()</p>
+</li>
+<li><p>–&gt;&gt; qemu_tcg_init_vcpu() &#x2F;&#x2F; 启动VCPU线程，线程处理函数为qemu_tcg_cpu_thread_fn</p>
+</li>
+<li><p>–&gt;&gt; qemu_tcg_cpu_thread_fn()</p>
+</li>
+<li><p>–&gt;&gt; tcg_exec_all()</p>
+</li>
+<li><p>–&gt;&gt; tcg_cpu_exec()</p>
+</li>
+<li><p>–&gt;&gt; cpu_exec() &#x2F;&#x2F;cpu-exee.c</p>
+</li>
+<li><p>user mode:</p>
+<ul>
+<li>main (linux-user&#x2F;main.c) -&gt; cpu_create -&gt; tcg_prologue_init (tcg&#x2F;tcg.c) -&gt; cpu_loop (linux-user&#x2F;main.c)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>这边只介绍tcg_prologue_init (tcg&#x2F;tcg.c) -&gt; cpu_loop (linux-user&#x2F;arm&#x2F;cpu_loop.c) 这一段，因为这一段跟TCG 较为相关。</p>
+</li>
+<li><p>容我先讲cpu_loop (linux-user&#x2F;arm&#x2F;cpu_loop.c)。</p>
+</li>
+<li><p>cpu_loop(CPUARMState *env) (linux-user&#x2F;arm&#x2F;cpu_loop.c) -&gt; cpu_exec (accel&#x2F;tcg&#x2F;cpu-exec.c)。</p>
+</li>
+<li><p>cpu_exec 是主要执行回圈，其结构大致如下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* prepare setjmp context for exception handling */</span> </span><br><span class="line"><span class="keyword">if</span> (sigsetjmp(cpu-&gt;jmp_env, <span class="number">0</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">while</span> (!cpu_handle_exception(cpu, &amp;ret)) &#123;</span><br><span class="line">    <span class="keyword">while</span> (!cpu_handle_interrupt(cpu, &amp;last_tb)) &#123; </span><br><span class="line">        tb = tb_lookup(cpu, pc, cs_base, flags, cflags); <span class="comment">// 寻找下一个TB</span></span><br><span class="line">        <span class="keyword">if</span> (tb == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            tb = tb_gen_code(cpu, pc, cs_base, flags, cflags);</span><br><span class="line">        &#125;</span><br><span class="line">        cpu_loop_exec_tb(cpu, tb, &amp;last_tb, &amp;tb_exit);<span class="comment">// 跳至code cache 执行。</span></span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br><span class="line">cpu_exec_exit(cpu);</span><br></pre></td></tr></table></figure></li>
+<li><p>tcg_prologue_init (tcg&#x2F;tcg.c) -&gt; tcg_target_qemu_prologue (tcg&#x2F;arm&#x2F;tcg-target.c.inc)。</p>
+</li>
+<li><p>如前所述，QEMU 将跳至code cache (host binary) 执行的过程看成是函式呼叫。</p>
+</li>
+<li><p>不同平台的calling convention 各有不同，tcg_prologue_init 将产生prologue&#x2F;epilogue 的工作转交tcg_target_qemu_prologue。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">tcg_target_qemu_prologue</span><span class="params">(TCGContext *s)</span> &#123; </span><br><span class="line">    <span class="comment">/* Calling convention requires us to save r4-r11 and lr.  */</span></span><br><span class="line">    <span class="comment">/* stmdb sp!, &#123; r4 - r11, lr &#125; */</span></span><br><span class="line">    tcg_out32(s, (COND_AL &lt;&lt; <span class="number">28</span>) | <span class="number">0x092d4ff0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Reserve callee argument and tcg temp space.  */</span></span><br><span class="line">    tcg_out_dat_rI(s, COND_AL, ARITH_SUB, TCG_REG_CALL_STACK,</span><br><span class="line">                   TCG_REG_CALL_STACK, STACK_ADDEND, <span class="number">1</span>);</span><br><span class="line">    tcg_set_frame(s, TCG_REG_CALL_STACK, TCG_STATIC_CALL_ARGS_SIZE,</span><br><span class="line">                  CPU_TEMP_BUF_NLONGS * <span class="keyword">sizeof</span>(<span class="type">long</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* QEMU (cpu_exec) -&gt; 入栈*/</span> </span><br><span class="line">    tcg_out_mov(s, TCG_TYPE_PTR, TCG_AREG0, tcg_target_call_iarg_regs[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// tcg_target_call_iarg_regs 是函式呼叫负责传递参数的暂存器。</span></span><br><span class="line">    <span class="comment">// 跳至code cache 执行。</span></span><br><span class="line">    tcg_out_bx(s, COND_AL, tcg_target_call_iarg_regs[<span class="number">1</span>]);</span><br><span class="line">    <span class="comment">// 此时，s-&gt;code_ptr 指向code_gen_prologue 中prologue 和jmp to code cache 之后的位址。</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Return path for goto_ptr. Set return value to 0, a-la exit_tb,</span></span><br><span class="line"><span class="comment">     * and fall through to the rest of the epilogue.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    tcg_code_gen_epilogue = tcg_splitwx_to_rx(s-&gt;code_ptr);</span><br><span class="line">    tcg_out_movi(s, TCG_TYPE_PTR, TCG_REG_R0, <span class="number">0</span>);</span><br><span class="line">    tcg_out_epilogue(s); <span class="comment">/* 出栈-&gt; 返回QEMU (cpu_exec)，确切的讲是返回tcg_qemu_tb_exec */</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>这边小结一下。</p>
+<ul>
+<li>QEMU -&gt; prologue -&gt; code cache -&gt; epilogue -&gt; QEMU</li>
+</ul>
+</li>
+<li><p>在介绍cpu_exec 之前，我先介绍几个QEMU 资料结构，请善用SOURCEARCHIVE.com。</p>
+</li>
+<li><p>我们要知道所谓仿真或是虚拟化一个CPU (ISA)，简单来说就是用一个资料结构(struct) 储存该CPU的状态。</p>
+</li>
+<li><p>执行该虚拟CPU，就是从内存中读取该虚拟CPU的资料结构，运算后再存回去。</p>
+</li>
+<li><p>CPUX86State: 保存x86 register，eflags，eip，cs，…。</p>
+</li>
+<li><p>不同ISA 之间通用的资料结构被QEMU #define 成CPU_COMMON。</p>
+</li>
+<li><p>一般称此资料结构为CPUState。下文所提env 即为CPUState。</p>
+</li>
+<li><p>QEMU 运行虚拟CPU 都会利用env 这个变数。</p>
+</li>
+<li><p>TranslationBlock: 之前说过，QEMU 是以一个translation block 为单位进行翻译。</p>
+</li>
+<li><p>其中保存此translation block 对应guest binary 的pc, cs_base, eflags。</p>
+</li>
+<li><p>另外，tc_ptr 指向code cache (host binary)。其它栏位待以后再谈。</p>
+</li>
+<li><p>PageDesc: 主要保存guest page 中的第一个tb (TranslationBlock *)。</p>
+</li>
+<li><p>这跟QEMU 内部运作机制有关。某些情况下，guest page (guest binary) 可能被替换或是被写。</p>
+</li>
+<li><p>这个时候，QEMU 会以guest page (guest binary) 为单位，清空与它相关联的TB (code cache)。</p>
+</li>
+<li><p>这时再回来讲 TranslationBlock。TranslationBlock 有底下两个栏位:</p>
+<ul>
+<li>page_addr[2]: 存放TranslationBlock 对应guest binary 所在的guest page。注意! guest binary 有可能跨guest page，故这里有两个栏位。</li>
+<li>page_next[2]: 当透过PageDesc-&gt;first_tb 找到该guest page 的第一个tb，tb-&gt;page_next 就被用来找寻该guest page 的下一个tb。</li>
+</ul>
+</li>
+<li><p>再回来讲PageDesc。QEMU 替PageDesc 维护了一个二级页表l1_map。page_find 这个函式根据输入的address 搜寻l1_map，返回PageDesc。这在以guest page (guest binary) 为单位，清空与它相关联的TB (code cache) 的时候会用到。有一个名字很像的资料结构叫PhysPageDesc，QEMU 也替它维护一个二级页表l1_phys_map。这是在system mode 做地址转换之用，这边不谈。</p>
+</li>
+<li><p>TCGContext: 生成TCG IR 时会用到。</p>
+</li>
+<li><p>DisasContext: 反汇编guest binary 时会用到</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/01/14/spec2006%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91/" rel="prev" title="SPEC2006交叉编译">
+      <i class="fa fa-chevron-left"></i> SPEC2006交叉编译
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/02/07/C%E8%AF%AD%E8%A8%80%E5%86%85%E8%81%94%E6%B1%87%E7%BC%96/" rel="next" title="C语言内联汇编">
+      C语言内联汇编 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B%E2%80%93%E4%BB%A5arrch64-%E2%80%93-i386%E4%B8%BA%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">Qemu翻译实例–以arrch64 –&gt;&gt; i386为例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">0.前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-TCG"><span class="nav-number">1.2.</span> <span class="nav-text">1. TCG</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-TCG-IR"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.1 TCG IR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-TCG-Flow"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2 TCG Flow</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
