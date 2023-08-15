@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="性能分析工具–Valgrind, perf, PinValgrindValgrind是一个用于动态分析和调试的开源工具，它的主要功能是在不修改源代码的情况下，监测和分析程序的执行行为、内存使用以及性能瓶颈。Valgrind通过将目标程序解释成自己的中间表示，对程序执行过程中的内存访问和指令执行进行监视和控制。 Valgrind是开源的。 原理Valgrind的主要原理是动态二进制翻译（Dynami">
+<meta property="og:type" content="article">
+<meta property="og:title" content="性能分析工具--Valgrind, perf, pin">
+<meta property="og:url" content="http://example.com/2023/08/05/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-Valgrind-perf-pin/index.html">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="性能分析工具–Valgrind, perf, PinValgrindValgrind是一个用于动态分析和调试的开源工具，它的主要功能是在不修改源代码的情况下，监测和分析程序的执行行为、内存使用以及性能瓶颈。Valgrind通过将目标程序解释成自己的中间表示，对程序执行过程中的内存访问和指令执行进行监视和控制。 Valgrind是开源的。 原理Valgrind的主要原理是动态二进制翻译（Dynami">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-05T04:17:30.000Z">
+<meta property="article:modified_time" content="2023-08-15T13:09:13.175Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/08/05/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-Valgrind-perf-pin/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>性能分析工具--Valgrind, perf, pin | ZYHJY</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/05/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-Valgrind-perf-pin/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          性能分析工具--Valgrind, perf, pin
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-08-05 12:17:30" itemprop="dateCreated datePublished" datetime="2023-08-05T12:17:30+08:00">2023-08-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-15 21:09:13" itemprop="dateModified" datetime="2023-08-15T21:09:13+08:00">2023-08-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">性能分析</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Valgrind/" itemprop="url" rel="index"><span itemprop="name">Valgrind</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/perf/" itemprop="url" rel="index"><span itemprop="name">perf</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/pin/" itemprop="url" rel="index"><span itemprop="name">pin</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="性能分析工具–Valgrind-perf-Pin"><a href="#性能分析工具–Valgrind-perf-Pin" class="headerlink" title="性能分析工具–Valgrind, perf, Pin"></a>性能分析工具–Valgrind, perf, Pin</h1><h2 id="Valgrind"><a href="#Valgrind" class="headerlink" title="Valgrind"></a>Valgrind</h2><p><a target="_blank" rel="noopener" href="https://valgrind.org/">Valgrind</a>是一个用于动态分析和调试的开源工具，它的主要功能是在不修改源代码的情况下，监测和分析程序的执行行为、内存使用以及性能瓶颈。Valgrind通过将目标程序解释成自己的中间表示，对程序执行过程中的内存访问和指令执行进行监视和控制。</p>
+<p>Valgrind是<strong>开源</strong>的。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>Valgrind的主要原理是<strong>动态二进制翻译</strong>（Dynamic Binary Translation，DBT）。具体来说，Valgrind会将目标程序的机器码翻译成一种称为”Valgrind Intermediate Representation”（VIR）的中间表示。然后，在VIR的基础上，Valgrind会插入额外的代码来监测内存读写、分支执行、函数调用等情况。这样，Valgrind可以捕获程序在运行时的行为，同时检测可能的内存错误、泄漏、未初始化变量等问题。</p>
+<p>Valgrind主要包括以下几个部分：</p>
+<ol>
+<li><p><strong>前端（Front-End）：</strong> 前端负责将目标程序的二进制代码转换成VIR。这个过程中，Valgrind会将插桩代码注入到目标程序中，以便进行监控和分析。</p>
+</li>
+<li><p><strong>中间层（VIR）：</strong> VIR是Valgrind自己定义的一种中间表示。Valgrind在这个中间表示上进行监控和分析，而不是直接在原始机器码上操作。</p>
+</li>
+<li><p><strong>后端（Back-End）：</strong> 后端负责执行VIR上的代码，模拟程序的执行过程，并在必要时触发插桩代码。Valgrind会记录执行过程中的内存访问、分支预测等信息。</p>
+</li>
+<li><p><strong>工具（Tools）：</strong> Valgrind提供了不同的工具，用于检测不同类型的问题，如Memcheck用于内存错误检测，Cachegrind用于性能分析等。</p>
+</li>
+</ol>
+<h3 id="主要工具"><a href="#主要工具" class="headerlink" title="主要工具"></a>主要工具</h3><p>Valgrind 主要包括以下几个工具：</p>
+<ol>
+<li><p><strong>Memcheck：</strong> Memcheck 是 Valgrind 最常用的工具，用于检测内存错误。它会跟踪程序中每个字节的读写情况，检测未初始化的变量、内存越界、内存泄漏等问题。</p>
+</li>
+<li><p><strong>Cachegrind：</strong> Cachegrind 用于进行高级的缓存和分支预测分析。它可以估计程序执行时的缓存命中率，帮助你优化程序以减少缓存未命中。</p>
+</li>
+<li><p><strong>Callgrind：</strong> Callgrind 用于生成函数调用图和分析函数调用的性能。它可以帮助你了解程序中不同函数之间的调用关系，以及函数调用所花费的时间。</p>
+</li>
+<li><p><strong>Helgrind：</strong> Helgrind 用于检测多线程程序中的竞态条件和同步问题。它可以帮助你发现线程之间的竞争条件，以及可能导致死锁和数据竞争的地方。</p>
+</li>
+<li><p><strong>Massif：</strong> Massif 用于内存分析，可以帮助你找出程序中内存的使用情况和泄漏情况。</p>
+</li>
+</ol>
+<hr>
+<h2 id="Pin"><a href="#Pin" class="headerlink" title="Pin"></a>Pin</h2><p><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/articles/tool/pin-a-dynamic-binary-instrumentation-tool.html">Pin</a>是一个动态二进制插桩工具，用于在程序执行期间插入自定义代码，以监视和分析程序的行为。</p>
+<p>Intel Pin是<strong>开源</strong>的。</p>
+<p><strong>功能和用途：</strong></p>
+<ul>
+<li>Pin允许开发人员在不修改程序源代码的情况下，通过插入代码来监视和分析程序在执行时的行为。</li>
+<li>它可以用于性能分析、内存调试、代码覆盖率分析、安全研究等领域。</li>
+</ul>
+<p><strong>主要原理：</strong></p>
+<ul>
+<li>Pin使用了<strong>JIT（Just-In-Time）</strong>编译技术，它将目标程序的二进制代码进行动态重编译，插入自定义的插桩代码，然后执行重编译后的代码。</li>
+<li>在插桩代码中，开发人员可以实现自己的分析逻辑，如收集统计信息、记录内存访问、检测特定模式等。</li>
+<li>Pin提供了API供开发人员编写插桩代码，这使得用户能够实现高度定制的程序分析。</li>
+</ul>
+<hr>
+<h3 id="tips-SBT-DBT-JIT"><a href="#tips-SBT-DBT-JIT" class="headerlink" title="tips : SBT, DBT, JIT"></a>tips : SBT, DBT, JIT</h3><p><strong>JIT</strong>（Just-In-Time）编译和<strong>DBT</strong>（Dynamic Binary Translation）都是与代码执行优化和分析相关的技术，但它们有一些区别。以下是它们的主要区别：</p>
+<ol>
+<li><p><strong>定义：</strong></p>
+<ul>
+<li>JIT编译：JIT编译是一种将程序源代码或中间代码（如字节码）即时编译成机器码的技术。在程序执行过程中，JIT编译器会将部分代码编译成机器码，并直接在计算机上执行。这有助于提高代码的执行速度。</li>
+<li>DBT：DBT是一种将目标程序的机器码翻译成另一种中间表示，然后在这个中间表示上进行监视、分析和修改的技术。这种翻译是在程序执行之前进行的。</li>
+</ul>
+</li>
+<li><p><strong>执行时机：</strong></p>
+<ul>
+<li>JIT编译：JIT编译是在程序执行的过程中，动态地将代码从高级源代码或中间代码翻译成机器码。编译发生在程序运行时。</li>
+<li>DBT：DBT的翻译阶段是在程序执行之前进行的。目标程序的机器码被翻译成另一种中间表示，然后在这个中间表示上进行分析。</li>
+</ul>
+</li>
+<li><p><strong>实时性：</strong></p>
+<ul>
+<li>JIT编译：JIT编译可以实现实时性的优化，因为它是在程序执行过程中进行的。程序的执行速度可以因为 JIT 编译而获得即时的提升。</li>
+<li>DBT：DBT的翻译是在执行之前进行的，这意味着翻译本身不会在程序运行时对执行速度产生影响。然而，DBT 之后的分析和监视可能会对性能产生一些影响。</li>
+</ul>
+</li>
+<li><p><strong>应用领域：</strong></p>
+<ul>
+<li>JIT编译：常用于虚拟机环境（如Java虚拟机、.NET等），可以在运行时优化和执行中间代码。</li>
+<li>DBT：常用于动态分析、调试和模拟，可以在执行之前对目标程序进行监控和修改。</li>
+</ul>
+</li>
+</ol>
+<p>尽管JIT编译和DBT在某些方面有一些相似之处，但它们的主要应用场景和执行时机有所不同。 JIT更侧重于提高执行速度，而DBT则更侧重于分析和监视程序的行为。</p>
+<p>而<strong>静态二进制翻译</strong>（Static Binary Translation，SBT）用于将一个架构的机器代码翻译成另一个架构的机器代码，而无需运行程序。这与动态二进制翻译（Dynamic Binary Translation，DBT）不同，后者是在程序运行时将机器代码翻译成中间表示，然后在中间表示上执行。</p>
+<hr>
+<h2 id="perf"><a href="#perf" class="headerlink" title="perf"></a>perf</h2><p><code>perf</code> 是一个性能分析工具，用于在Linux系统上进行性能分析和调试。它可以帮助开发人员了解程序的运行时性能，找出瓶颈和优化机会。<code>perf</code> 提供了多种分析功能，包括性能计数器、事件跟踪、函数调用图等，用于收集和分析系统和应用程序的性能数据。</p>
+<p><code>perf</code> 是<strong>开源</strong>的，它是 Linux 操作系统自带的一部分，用户可以在终端中直接使用 <code>perf</code> 命令。<code>perf</code> 工具的源代码也是开放的，用户可以查看其实现、贡献改进或自定义特定需求。</p>
+<h3 id="主要原理："><a href="#主要原理：" class="headerlink" title="主要原理："></a>主要原理：</h3><p><code>perf</code> 基于 Linux 内核中的性能计数器子系统和事件跟踪机制。它使用硬件性能计数器来测量程序在 CPU 上的各种操作，如指令执行数、缓存命中率等。此外，<code>perf</code> 还可以使用事件跟踪机制，监视系统中的事件，如系统调用、函数调用、中断等。</p>
+<p><code>perf</code> 的主要原理包括以下几个步骤：</p>
+<ol>
+<li><p><strong>数据收集设置：</strong> 用户使用 <code>perf</code> 工具指定需要分析的事件、计数器等配置信息。</p>
+</li>
+<li><p><strong>性能计数器采样：</strong> <code>perf</code> 利用硬件性能计数器定期采样程序的运行时数据，如指令执行次数、缓存命中次数等。</p>
+</li>
+<li><p><strong>事件跟踪（可选）：</strong> 除了性能计数器，<code>perf</code> 还可以使用事件跟踪机制收集事件数据，如系统调用、函数调用、中断等。</p>
+</li>
+<li><p><strong>数据分析和报告生成：</strong> 采样数据被收集后，<code>perf</code> 将这些数据进行分析，并生成性能报告，包括热点函数、时间分布、缓存命中率等信息。</p>
+</li>
+</ol>
+<p>讲论文声音大</p>
+<p>linwei 可视化 gem5配置 + qemu？ 对齐</p>
+<p>gem5缓存这周结束</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/08/04/%E5%8D%95%E8%B0%83%E6%A0%88/" rel="prev" title="单调栈">
+      <i class="fa fa-chevron-left"></i> 单调栈
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E2%80%93Valgrind-perf-Pin"><span class="nav-number">1.</span> <span class="nav-text">性能分析工具–Valgrind, perf, Pin</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Valgrind"><span class="nav-number">1.1.</span> <span class="nav-text">Valgrind</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%B7%A5%E5%85%B7"><span class="nav-number">1.1.2.</span> <span class="nav-text">主要工具</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pin"><span class="nav-number">1.2.</span> <span class="nav-text">Pin</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#tips-SBT-DBT-JIT"><span class="nav-number">1.2.1.</span> <span class="nav-text">tips : SBT, DBT, JIT</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#perf"><span class="nav-number">1.3.</span> <span class="nav-text">perf</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%8E%9F%E7%90%86%EF%BC%9A"><span class="nav-number">1.3.1.</span> <span class="nav-text">主要原理：</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
