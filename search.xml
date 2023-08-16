@@ -48,6 +48,68 @@ string</a> for more info.</p>
       </categories>
   </entry>
   <entry>
+    <title>macOS teminal主题设置</title>
+    <url>/zyhjy/2022/05/26/mac-terminal/</url>
+    <content><![CDATA[<ul>
+<li>操作系统: <code>macOS Catalina version 10.15.3</code></li>
+<li>shell环境: <code>zsh</code></li>
+</ul>
+<h2 id="主题">主题</h2>
+<p>原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow
+Night，所以尝试一下。<br> 1. 下载<a
+href="https://github.com/chriskempson/tomorrow-theme/tree/master/OS%20X%20Terminal">Tomorrow
+Night git</a>需要的.terminal文件。 2. 导入<code>Terminal</code>: 1.
+shell &gt;&gt; 导入... <img src="/pics/2022-05-27-terminal.png"
+title="Import" alt="import" /> 2. 终端 &gt;&gt; 偏好设置 &gt;&gt;
+描述文件, 在左侧选择相应的theme。</p>
+<h2 id="oh-my-zsh">oh my zsh</h2>
+<h3 id="为什么要用-zsh">1. 为什么要用 Zsh</h3>
+<p>相比于默认的 Bash，Zsh 有更多的自定义选项，并支持扩展。因此 Zsh
+可以实现更强大的命令补全，命令高亮等一系列酷炫功能.<br>
+不过代价就是启动速度稍微有点慢（1秒左右，不过相比Bash还是慢了点），而且据说语法和标准
+Shell
+有点区别（至少我是在使用中完全没有碰到兼容性问题）。因此现在几乎所有的
+Linux / Unix 版本的默认 Shell 仍然是 Bash。<br></p>
+<h3 id="oh-my-zsh-1">2. oh my zsh</h3>
+<p>默认的 Zsh 配置有点麻烦。因此一个叫 robbyrussel 的用户在 GitHub
+上制作了一个配置文件 oh-my-zsh，这是目前为止最流行的 Zsh 配置：<a
+href="https://ohmyz.sh">oh my zsh官网</a><br> #### 安装 1.
+官网给出了两种安装方法：<br> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">$ sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br></pre></td></tr></table></figure>
+但是在mac上均会出错，试了网上各种方法均无效，原因未知：<br>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to raw.github.com:443 </span><br><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br><span class="line">--2022-05-27 16:15:36--  https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh</span><br><span class="line">正在解析主机 raw.github.com (raw.github.com)... 185.199.111.133, 185.199.110.133, 185.199.109.133, ...</span><br><span class="line">正在连接 raw.github.com (raw.github.com)|185.199.111.133|:443... 已连接。</span><br><span class="line">无法建立 SSL 连接</span><br></pre></td></tr></table></figure>
+其实我们仔细观察上面那个命令，只是去拿了一个.sh脚本然后执行，如果我们手动把它下载下来或者创建一份然后执行呢？
+2. 复制install.sh安装脚本内容<br> <a
+href="https://gitee.com/mirrors/oh-my-zsh/blob/master/tools/install.sh">oh
+my zsh on gitee</a>是oh my
+zsh这个项目在码云Gitee里的镜像仓库中具体安装脚本install.sh的位置，打开这个URL点击一键复制按钮将内容复制下来
+3. 新建脚本文件粘贴脚本内容<br> 在本地新建 install.sh
+文件，并将刚刚复制的内容粘贴进去 4. 添加执行权限并安装<br> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % chmod +x install.sh </span><br><span class="line">zyh@zyhs-MBP tools % sh -c ./install.sh</span><br><span class="line">Cloning Oh My Zsh...</span><br><span class="line">remote: Enumerating objects: 1295, done.</span><br><span class="line">remote: Counting objects: 100% (1295/1295), done.</span><br><span class="line">remote: Compressing objects: 100% (1249/1249), done.</span><br><span class="line">remote: Total 1295 (delta 26), reused 1253 (delta 26), pack-reused 0</span><br><span class="line">Receiving objects: 100% (1295/1295), 1.06 MiB | 4.90 MiB/s, done.</span><br><span class="line">Resolving deltas: 100% (26/26), done.</span><br><span class="line">From https://github.com/ohmyzsh/ohmyzsh</span><br><span class="line">...</span><br><span class="line">➜  tools </span><br></pre></td></tr></table></figure>
+注意到提示符变化了，安装成功。 5. 删除无用的安装脚本<br>
+<code>$ rm install.sh</code></p>
+<h4 id="主题配置">主题配置</h4>
+<p>你可能会觉得现在的主题已经超棒了，但是记得吗，我说过Zsh支持很多个性化配置和插件。现在，编辑<code>~/.zshrc</code>文件（比如用<code>Vim</code>或者<code>VSCode</code>），我们来尝试一下各种主题：<br>
+你会看到有一行<code>ZSH_THEME="robbyrussell"</code>，把它替换成<code>ZSH_THEME="agnoster"</code>。<br>
+然后回到终端，输入<code>source ~/.zshrc</code>，你会发现你的Zsh主题变了<br>
+现在你的主题名称是Agnoster，如果你觉得不太好看，你可以改。<br> 前往
+oh-my-zsh 的 Wiki 就可以看到大多数 oh-my-zsh
+的内置主题以及它们的截图。如果你看中的其中的一款，可以重复上面的步骤，编辑<code>~/.zshrc</code>，并更改<code>ZSH_THEME="xxx"</code>。<br>
+比如你看中了 ys 主题（我的最爱），你可以把 ZSH_THEME 改成
+"ys"，然后回到终端，执行 <code>source ~/.zshrc</code> 命令。<br> P.S.
+这些主题都保存在 <code>~/.oh-my-zsh/themes</code> 目录中<br></p>
+<h4 id="插件">插件</h4>
+<p>oh-my-zsh 的自带插件都储存在 <code>~/.oh-my-zsh/plugins</code>
+目录中，如果你希望安装一个插件，可以在 <code>~/.zshrc</code> 的
+<code>plugins=(xxx, xxx, ...)</code> 这一行里加入插件名称<br>
+如果你需要安装第三方插件和主题，你可以在 <code>~/.zshrc</code>
+的某一行（比如末尾）加入 <code>source /path/to/plugin</code><br>
+比如你希望添加一个 <code>zsh-syntax-highlighting</code> 插件<br>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">source ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh</span><br><span class="line"># 这里要根据你自己的输入目录，而不是抄我的，否则然并卵</span><br></pre></td></tr></table></figure></p>
+]]></content>
+      <categories>
+        <category>mac</category>
+      </categories>
+  </entry>
+  <entry>
     <title>LLVM与clang的关系</title>
     <url>/zyhjy/2022/05/24/llvm%E4%B8%8Eclang%E7%9A%84%E5%85%B3%E7%B3%BB/</url>
     <content><![CDATA[<p><strong>LLVM</strong>最初是底层虚拟机（<strong>L</strong>ow
@@ -109,68 +171,6 @@ on how to get the most out of LLVM.</p>
 ]]></content>
       <categories>
         <category>clang llvm</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>macOS teminal主题设置</title>
-    <url>/zyhjy/2022/05/26/mac-terminal/</url>
-    <content><![CDATA[<ul>
-<li>操作系统: <code>macOS Catalina version 10.15.3</code></li>
-<li>shell环境: <code>zsh</code></li>
-</ul>
-<h2 id="主题">主题</h2>
-<p>原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow
-Night，所以尝试一下。<br> 1. 下载<a
-href="https://github.com/chriskempson/tomorrow-theme/tree/master/OS%20X%20Terminal">Tomorrow
-Night git</a>需要的.terminal文件。 2. 导入<code>Terminal</code>: 1.
-shell &gt;&gt; 导入... <img src="/pics/2022-05-27-terminal.png"
-title="Import" alt="import" /> 2. 终端 &gt;&gt; 偏好设置 &gt;&gt;
-描述文件, 在左侧选择相应的theme。</p>
-<h2 id="oh-my-zsh">oh my zsh</h2>
-<h3 id="为什么要用-zsh">1. 为什么要用 Zsh</h3>
-<p>相比于默认的 Bash，Zsh 有更多的自定义选项，并支持扩展。因此 Zsh
-可以实现更强大的命令补全，命令高亮等一系列酷炫功能.<br>
-不过代价就是启动速度稍微有点慢（1秒左右，不过相比Bash还是慢了点），而且据说语法和标准
-Shell
-有点区别（至少我是在使用中完全没有碰到兼容性问题）。因此现在几乎所有的
-Linux / Unix 版本的默认 Shell 仍然是 Bash。<br></p>
-<h3 id="oh-my-zsh-1">2. oh my zsh</h3>
-<p>默认的 Zsh 配置有点麻烦。因此一个叫 robbyrussel 的用户在 GitHub
-上制作了一个配置文件 oh-my-zsh，这是目前为止最流行的 Zsh 配置：<a
-href="https://ohmyz.sh">oh my zsh官网</a><br> #### 安装 1.
-官网给出了两种安装方法：<br> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">$ sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br></pre></td></tr></table></figure>
-但是在mac上均会出错，试了网上各种方法均无效，原因未知：<br>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to raw.github.com:443 </span><br><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br><span class="line">--2022-05-27 16:15:36--  https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh</span><br><span class="line">正在解析主机 raw.github.com (raw.github.com)... 185.199.111.133, 185.199.110.133, 185.199.109.133, ...</span><br><span class="line">正在连接 raw.github.com (raw.github.com)|185.199.111.133|:443... 已连接。</span><br><span class="line">无法建立 SSL 连接</span><br></pre></td></tr></table></figure>
-其实我们仔细观察上面那个命令，只是去拿了一个.sh脚本然后执行，如果我们手动把它下载下来或者创建一份然后执行呢？
-2. 复制install.sh安装脚本内容<br> <a
-href="https://gitee.com/mirrors/oh-my-zsh/blob/master/tools/install.sh">oh
-my zsh on gitee</a>是oh my
-zsh这个项目在码云Gitee里的镜像仓库中具体安装脚本install.sh的位置，打开这个URL点击一键复制按钮将内容复制下来
-3. 新建脚本文件粘贴脚本内容<br> 在本地新建 install.sh
-文件，并将刚刚复制的内容粘贴进去 4. 添加执行权限并安装<br> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % chmod +x install.sh </span><br><span class="line">zyh@zyhs-MBP tools % sh -c ./install.sh</span><br><span class="line">Cloning Oh My Zsh...</span><br><span class="line">remote: Enumerating objects: 1295, done.</span><br><span class="line">remote: Counting objects: 100% (1295/1295), done.</span><br><span class="line">remote: Compressing objects: 100% (1249/1249), done.</span><br><span class="line">remote: Total 1295 (delta 26), reused 1253 (delta 26), pack-reused 0</span><br><span class="line">Receiving objects: 100% (1295/1295), 1.06 MiB | 4.90 MiB/s, done.</span><br><span class="line">Resolving deltas: 100% (26/26), done.</span><br><span class="line">From https://github.com/ohmyzsh/ohmyzsh</span><br><span class="line">...</span><br><span class="line">➜  tools </span><br></pre></td></tr></table></figure>
-注意到提示符变化了，安装成功。 5. 删除无用的安装脚本<br>
-<code>$ rm install.sh</code></p>
-<h4 id="主题配置">主题配置</h4>
-<p>你可能会觉得现在的主题已经超棒了，但是记得吗，我说过Zsh支持很多个性化配置和插件。现在，编辑<code>~/.zshrc</code>文件（比如用<code>Vim</code>或者<code>VSCode</code>），我们来尝试一下各种主题：<br>
-你会看到有一行<code>ZSH_THEME="robbyrussell"</code>，把它替换成<code>ZSH_THEME="agnoster"</code>。<br>
-然后回到终端，输入<code>source ~/.zshrc</code>，你会发现你的Zsh主题变了<br>
-现在你的主题名称是Agnoster，如果你觉得不太好看，你可以改。<br> 前往
-oh-my-zsh 的 Wiki 就可以看到大多数 oh-my-zsh
-的内置主题以及它们的截图。如果你看中的其中的一款，可以重复上面的步骤，编辑<code>~/.zshrc</code>，并更改<code>ZSH_THEME="xxx"</code>。<br>
-比如你看中了 ys 主题（我的最爱），你可以把 ZSH_THEME 改成
-"ys"，然后回到终端，执行 <code>source ~/.zshrc</code> 命令。<br> P.S.
-这些主题都保存在 <code>~/.oh-my-zsh/themes</code> 目录中<br></p>
-<h4 id="插件">插件</h4>
-<p>oh-my-zsh 的自带插件都储存在 <code>~/.oh-my-zsh/plugins</code>
-目录中，如果你希望安装一个插件，可以在 <code>~/.zshrc</code> 的
-<code>plugins=(xxx, xxx, ...)</code> 这一行里加入插件名称<br>
-如果你需要安装第三方插件和主题，你可以在 <code>~/.zshrc</code>
-的某一行（比如末尾）加入 <code>source /path/to/plugin</code><br>
-比如你希望添加一个 <code>zsh-syntax-highlighting</code> 插件<br>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">source ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh</span><br><span class="line"># 这里要根据你自己的输入目录，而不是抄我的，否则然并卵</span><br></pre></td></tr></table></figure></p>
-]]></content>
-      <categories>
-        <category>mac</category>
       </categories>
   </entry>
   <entry>
@@ -402,28 +402,6 @@ docs</a>的编译文档。</p>
       </categories>
   </entry>
   <entry>
-    <title>python3利用clang语法树识别文件中的函数</title>
-    <url>/zyhjy/2022/06/09/python3%E5%88%A9%E7%94%A8clang%E8%AF%AD%E6%B3%95%E6%A0%91%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0/</url>
-    <content><![CDATA[<h1 id="背景">背景</h1>
-<p>python3利用cindex库解析c文件时遇到空宏前缀、
-<code>#ifdef</code>作用域内函数无法识别的问题。</p>
-<h1 id="解决思路">解决思路</h1>
-<p>将c文件对应的<code>compile_commands.json</code>文件导入cindex库，然后解析。</p>
-<h1 id="具体步骤">具体步骤</h1>
-<ol type="1">
-<li><p>编译生成文件对应的<code>compile_commands.json</code>。
-公司里相关的项目没有用cmake,直接使用的make。
-这种情况比较好处理，make改为bear make即可。 具体见<a
-href="https://github.com/rizsotto/Bear">bear工具</a></p></li>
-<li><p>cindex导入<code>compile_commands.json</code>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/usr/bin/env python3</span><br><span class="line">from clang import cindex</span><br><span class="line"></span><br><span class="line">index = cindex.Index.create()</span><br><span class="line"># Step 1: load the compilation database</span><br><span class="line">compdb = cindex.CompilationDatabase.fromDirectory(your_cc.json_path)</span><br><span class="line"></span><br><span class="line"># Step 2: query compilation flags</span><br><span class="line">commands = compdb.getCompileCommands(you_target.c)</span><br><span class="line">file_args = []</span><br><span class="line">for command in commands:</span><br><span class="line">    for argument in command.arguments:</span><br><span class="line">        file_args.append(argument)</span><br><span class="line"></span><br><span class="line">translation_unit = index.parse(you_target.c, file_args[:-1]) # the last command it the target file self</span><br></pre></td></tr></table></figure></p></li>
-</ol>
-]]></content>
-      <categories>
-        <category>python3 clang AST</category>
-      </categories>
-  </entry>
-  <entry>
     <title>git clone常见报错</title>
     <url>/zyhjy/2022/05/18/git-clone%E6%8A%A5%E9%94%99443/</url>
     <content><![CDATA[<ul>
@@ -445,6 +423,28 @@ config常用命令总结</a></h5>
 ]]></content>
       <categories>
         <category>git</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>python3利用clang语法树识别文件中的函数</title>
+    <url>/zyhjy/2022/06/09/python3%E5%88%A9%E7%94%A8clang%E8%AF%AD%E6%B3%95%E6%A0%91%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0/</url>
+    <content><![CDATA[<h1 id="背景">背景</h1>
+<p>python3利用cindex库解析c文件时遇到空宏前缀、
+<code>#ifdef</code>作用域内函数无法识别的问题。</p>
+<h1 id="解决思路">解决思路</h1>
+<p>将c文件对应的<code>compile_commands.json</code>文件导入cindex库，然后解析。</p>
+<h1 id="具体步骤">具体步骤</h1>
+<ol type="1">
+<li><p>编译生成文件对应的<code>compile_commands.json</code>。
+公司里相关的项目没有用cmake,直接使用的make。
+这种情况比较好处理，make改为bear make即可。 具体见<a
+href="https://github.com/rizsotto/Bear">bear工具</a></p></li>
+<li><p>cindex导入<code>compile_commands.json</code>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/usr/bin/env python3</span><br><span class="line">from clang import cindex</span><br><span class="line"></span><br><span class="line">index = cindex.Index.create()</span><br><span class="line"># Step 1: load the compilation database</span><br><span class="line">compdb = cindex.CompilationDatabase.fromDirectory(your_cc.json_path)</span><br><span class="line"></span><br><span class="line"># Step 2: query compilation flags</span><br><span class="line">commands = compdb.getCompileCommands(you_target.c)</span><br><span class="line">file_args = []</span><br><span class="line">for command in commands:</span><br><span class="line">    for argument in command.arguments:</span><br><span class="line">        file_args.append(argument)</span><br><span class="line"></span><br><span class="line">translation_unit = index.parse(you_target.c, file_args[:-1]) # the last command it the target file self</span><br></pre></td></tr></table></figure></p></li>
+</ol>
+]]></content>
+      <categories>
+        <category>python3 clang AST</category>
       </categories>
   </entry>
   <entry>
@@ -500,6 +500,84 @@ docs</a>的编译文档。</p>
 ]]></content>
       <categories>
         <category>llvm pass</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>科学上网记录</title>
+    <url>/zyhjy/2022/06/10/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<h1 id="基础教程">基础教程</h1>
+<ul>
+<li>具体见<a
+href="https://github.com/mku228/trojan/blob/main/README.md">vpn傻瓜教程</a>
+# 注意事项 ## 机器选择</li>
+<li>Location: singapore</li>
+<li>CPU chose: 选$12, 后面选size变成$5，已经没有$3.5的了</li>
+<li>ssh-key填了没用</li>
+<li>左下角month选1，每月一续</li>
+</ul>
+<h2 id="安装trojan">安装Trojan</h2>
+<ol type="1">
+<li>SElinux开启:
+<ul>
+<li>选择重启</li>
+</ul></li>
+<li>域名解析失败
+<ul>
+<li>我申请的是xxx.tk,则输入www.xxx.tk</li>
+</ul></li>
+<li>证书申请失败
+<ul>
+<li>运行<code>curl https://get.acme.sh | sh -s email=my@example.com</code>,
+邮箱可不管</li>
+<li>然后运行安装脚本</li>
+</ul></li>
+</ol>
+<h2 id="mac端使用">Mac端使用</h2>
+<ol type="1">
+<li><p>下载 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">======================================================================</span><br><span class="line">Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数</span><br><span class="line">1、复制下面的链接，在浏览器打开，下载客户端</span><br><span class="line">Windows客户端下载:http://www.fxxkhwclose.tk/21439b51a3756814/trojan-cli.zip</span><br><span class="line">MacOS客户端下载:http://www.fxxkhwclose.tk/21439b51a3756814/trojan-mac.zip</span><br><span class="line">2、Windows将下载的客户端解压，打开文件夹，打开start.bat即打开并运行Trojan客户端</span><br><span class="line">3、MacOS将下载的客户端解压，打开文件夹，打开start.command即打开并运行Trojan客户端</span><br><span class="line">Trojan推荐使用 Mellow 工具代理（WIN/MAC通用）下载地址如下:</span><br><span class="line">https://github.com/mellow-io/mellow/releases  (exe为Win客户端,dmg为Mac客户端)</span><br><span class="line">======================================================================</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>下载后打开<code>config.json</code>文件,
+两个<code>verify</code>改成false</li>
+<li>run
+<code>cd path_to/trojan &amp;&amp; ./trojan -c config.json</code></li>
+</ul></li>
+<li><p>安装<code>SwitchyOmega</code>插件</p>
+<ul>
+<li>Chrome应用商店安装<code>Proxy SwitchyOmega</code></li>
+<li>插件配置见<a
+href="https://trojan123.com/index.php/2020/03/29/trojan-chrome-switchyomega-zidong/">说明</a></li>
+</ul></li>
+<li><p>系统代理还没配，只能Chrome使用</p></li>
+<li><p>ssh免密登陆:</p>
+<ul>
+<li>将id_rsa.pub 内容拷贝到~/.ssh/authorized_keys即可</li>
+</ul></li>
+</ol>
+<h1 id="测速">测速</h1>
+<ol type="1">
+<li>安装iperf3:
+<ul>
+<li>CentOS : <code>yum install iperf3</code></li>
+<li>MacOS : <code>brew  install iperf3</code></li>
+</ul></li>
+<li>测试:
+<ul>
+<li>在服务端启动server端的程序: <code>iperf3 -s</code></li>
+<li>接着在client端执行: <code>iperf3 -c 48.77.234.178</code></li>
+</ul></li>
+<li>可能出现错误:
+<code>iperf3: error - unable to connect to server: Connection refused</code>
+<ul>
+<li>原因: 防火墙端口未打开</li>
+<li>solution: <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">firewall-cmd --zone=public --list-ports</span><br><span class="line">firewall-cmd --zone=public --add-port=5201/tcp --permanent </span><br><span class="line">firewall-cmd --reload</span><br><span class="line">firewall-cmd --zone=public --list-ports</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+</ol>
+<ul>
+<li>iperf3默认5201端口,TCP</li>
+</ul>
+]]></content>
+      <categories>
+        <category>vpn</category>
       </categories>
   </entry>
   <entry>
@@ -678,84 +756,6 @@ Contention ratio是B+树在多线程环境下使用时与单线程环境相比�
 ]]></content>
       <categories>
         <category>os</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>科学上网记录</title>
-    <url>/zyhjy/2022/06/10/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<h1 id="基础教程">基础教程</h1>
-<ul>
-<li>具体见<a
-href="https://github.com/mku228/trojan/blob/main/README.md">vpn傻瓜教程</a>
-# 注意事项 ## 机器选择</li>
-<li>Location: singapore</li>
-<li>CPU chose: 选$12, 后面选size变成$5，已经没有$3.5的了</li>
-<li>ssh-key填了没用</li>
-<li>左下角month选1，每月一续</li>
-</ul>
-<h2 id="安装trojan">安装Trojan</h2>
-<ol type="1">
-<li>SElinux开启:
-<ul>
-<li>选择重启</li>
-</ul></li>
-<li>域名解析失败
-<ul>
-<li>我申请的是xxx.tk,则输入www.xxx.tk</li>
-</ul></li>
-<li>证书申请失败
-<ul>
-<li>运行<code>curl https://get.acme.sh | sh -s email=my@example.com</code>,
-邮箱可不管</li>
-<li>然后运行安装脚本</li>
-</ul></li>
-</ol>
-<h2 id="mac端使用">Mac端使用</h2>
-<ol type="1">
-<li><p>下载 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">======================================================================</span><br><span class="line">Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数</span><br><span class="line">1、复制下面的链接，在浏览器打开，下载客户端</span><br><span class="line">Windows客户端下载:http://www.fxxkhwclose.tk/21439b51a3756814/trojan-cli.zip</span><br><span class="line">MacOS客户端下载:http://www.fxxkhwclose.tk/21439b51a3756814/trojan-mac.zip</span><br><span class="line">2、Windows将下载的客户端解压，打开文件夹，打开start.bat即打开并运行Trojan客户端</span><br><span class="line">3、MacOS将下载的客户端解压，打开文件夹，打开start.command即打开并运行Trojan客户端</span><br><span class="line">Trojan推荐使用 Mellow 工具代理（WIN/MAC通用）下载地址如下:</span><br><span class="line">https://github.com/mellow-io/mellow/releases  (exe为Win客户端,dmg为Mac客户端)</span><br><span class="line">======================================================================</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>下载后打开<code>config.json</code>文件,
-两个<code>verify</code>改成false</li>
-<li>run
-<code>cd path_to/trojan &amp;&amp; ./trojan -c config.json</code></li>
-</ul></li>
-<li><p>安装<code>SwitchyOmega</code>插件</p>
-<ul>
-<li>Chrome应用商店安装<code>Proxy SwitchyOmega</code></li>
-<li>插件配置见<a
-href="https://trojan123.com/index.php/2020/03/29/trojan-chrome-switchyomega-zidong/">说明</a></li>
-</ul></li>
-<li><p>系统代理还没配，只能Chrome使用</p></li>
-<li><p>ssh免密登陆:</p>
-<ul>
-<li>将id_rsa.pub 内容拷贝到~/.ssh/authorized_keys即可</li>
-</ul></li>
-</ol>
-<h1 id="测速">测速</h1>
-<ol type="1">
-<li>安装iperf3:
-<ul>
-<li>CentOS : <code>yum install iperf3</code></li>
-<li>MacOS : <code>brew  install iperf3</code></li>
-</ul></li>
-<li>测试:
-<ul>
-<li>在服务端启动server端的程序: <code>iperf3 -s</code></li>
-<li>接着在client端执行: <code>iperf3 -c 48.77.234.178</code></li>
-</ul></li>
-<li>可能出现错误:
-<code>iperf3: error - unable to connect to server: Connection refused</code>
-<ul>
-<li>原因: 防火墙端口未打开</li>
-<li>solution: <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">firewall-cmd --zone=public --list-ports</span><br><span class="line">firewall-cmd --zone=public --add-port=5201/tcp --permanent </span><br><span class="line">firewall-cmd --reload</span><br><span class="line">firewall-cmd --zone=public --list-ports</span><br></pre></td></tr></table></figure></li>
-</ul></li>
-</ol>
-<ul>
-<li>iperf3默认5201端口,TCP</li>
-</ul>
-]]></content>
-      <categories>
-        <category>vpn</category>
       </categories>
   </entry>
   <entry>
@@ -3936,21 +3936,6 @@ parameters(非类型模板参数)造成的代码膨胀，往往可以消除，�
       </categories>
   </entry>
   <entry>
-    <title>CPU体系结构专业术语</title>
-    <url>/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/</url>
-    <content><![CDATA[<h1 id="mmiomemory-mapped-io">MMIO（Memory-Mapped I/O）</h1>
-<ul>
-<li><p>代表内存映射输入/输出。</p></li>
-<li><p>它是一种计算机系统中用于与外部设备进行通信的技术。在MMIO中，外部设备的寄存器或状态被映射到计算机的内存地址空间中的特定区域。通过读取或写入这些内存地址，计算机可以与外部设备进行数据交换和控制操作。</p></li>
-<li><p>MMIO的基本原理是通过在内存地址空间中保留一些特定的地址范围，让计算机能够直接访问外部设备的寄存器或状态。当计算机读取或写入这些地址时，数据被传递到或从外部设备进行处理。这种方式相对于使用专门的I/O指令进行输入/输出操作，提供了更简化和统一的编程界面。</p></li>
-<li><p>常见的MMIO设备包括网络接口卡、图形显示控制器、声卡、串口控制器等。通过使用MMIO技术，计算机可以通过内存访问方式与这些设备进行通信，从而实现数据传输、设备控制和信息交换等功能。</p></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Qemu</category>
-      </categories>
-  </entry>
-  <entry>
     <title></title>
     <url>/zyhjy/2023/04/12/Chiplets/</url>
     <content><![CDATA[<p>该论文讨论了系统级芯片（SoC）的复杂性和硅成本的增加促使将SoC分解为更小的“芯片块”。基于芯片块的SoC设计过程有望通过使用先进的封装技术将多个不同的芯片（例如CPU、GPU、内存、FPGA）紧密集成到一起来实现快速的SoC构建。然而，当将芯片块组装成单个SoC时，由于芯片块之间路由的复杂性增加，会出现正确性和性能问题。该论文提出了一种模块化但无死锁的路由方法，用于具有各种拓扑结构的基于芯片块的系统。</p>
@@ -4257,6 +4242,21 @@ VC技术创建与芯片在堆叠中的垂直位置相关联的单调VC排序；�
 基于芯片组的复杂SoCs的构建非常令人兴奋，因为它可以实现各种类型的系统，但这些系统必须易于设计和组装。当使用来自第三方硅IP供应商的黑盒芯片构建系统时，确保正确性变得更加具有挑战性和重要性。本文对基于芯片组的SoC设计方法论做出了重大贡献，重点是互连；然而，仍有其他有益的研究领域。如果系统中的不同芯片要具有高速缓存一致性，则必须设计一个正确运行并跨不同物理芯片扩展（以性能为准）的高速缓存一致性协议。虽然不是严格的正确性问题，但可能需要设计服务质量机制，以确保不同的芯片集成在一起“友好地协作”，特别是在实时组件（例如图形和音频）或更高级别的性能目标（例如数据中心服务级别协议）方面。</li>
 </ul>
 ]]></content>
+  </entry>
+  <entry>
+    <title>CPU体系结构专业术语</title>
+    <url>/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/</url>
+    <content><![CDATA[<h1 id="mmiomemory-mapped-io">MMIO（Memory-Mapped I/O）</h1>
+<ul>
+<li><p>代表内存映射输入/输出。</p></li>
+<li><p>它是一种计算机系统中用于与外部设备进行通信的技术。在MMIO中，外部设备的寄存器或状态被映射到计算机的内存地址空间中的特定区域。通过读取或写入这些内存地址，计算机可以与外部设备进行数据交换和控制操作。</p></li>
+<li><p>MMIO的基本原理是通过在内存地址空间中保留一些特定的地址范围，让计算机能够直接访问外部设备的寄存器或状态。当计算机读取或写入这些地址时，数据被传递到或从外部设备进行处理。这种方式相对于使用专门的I/O指令进行输入/输出操作，提供了更简化和统一的编程界面。</p></li>
+<li><p>常见的MMIO设备包括网络接口卡、图形显示控制器、声卡、串口控制器等。通过使用MMIO技术，计算机可以通过内存访问方式与这些设备进行通信，从而实现数据传输、设备控制和信息交换等功能。</p></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Qemu</category>
+      </categories>
   </entry>
   <entry>
     <title>Qemu TCG IR</title>
@@ -5347,6 +5347,15 @@ JITted code / 对JIT（即时编译）代码进行性能分析</h2>
       </categories>
   </entry>
   <entry>
+    <title>Qemu介绍</title>
+    <url>/zyhjy/2023/05/19/Qemu%E4%BB%8B%E7%BB%8D/</url>
+    <content><![CDATA[
+]]></content>
+      <categories>
+        <category>Qemu</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Qemu翻译实例--以arrch64 --&gt;&gt; x86-64为例</title>
     <url>/zyhjy/2023/02/07/Qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B--%E4%BB%A5arrch64%20--%3E%3E%20x86-64%E4%B8%BA%E4%BE%8B/</url>
     <content><![CDATA[<h1 id="qemu翻译实例--以arrch64----i386为例">Qemu翻译实例--以arrch64
@@ -5501,6 +5510,60 @@ page。注意! guest binary 有可能跨guest page，故这里有两个栏位。
 ]]></content>
       <categories>
         <category>linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Arrch64 CPU Structure</title>
+    <url>/zyhjy/2023/05/19/Arrch64%20MMU/</url>
+    <content><![CDATA[<h1 id="the-memory-management-unit">The Memory Management Unit</h1>
+<p>内存管理单元（Memory Management
+Unit，MMU）的一个重要功能是使系统能够运行多个任务，这些任务作为独立的程序在它们自己的私有虚拟内存空间中运行。它们不需要知道系统的物理内存映射，也就是硬件实际使用的地址，或者其他可能同时执行的程序。</p>
+<p>您可以为每个程序使用相同的虚拟内存地址空间。即使物理内存是碎片化的，您也可以使用连续的虚拟内存映射。这个虚拟地址空间与系统中实际的物理内存映射是分离的。您可以编写、编译和链接应用程序以在虚拟内存空间中运行。</p>
+<p><a
+href="https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit?lang=en#BABBEBII">图12.2</a>展示了一个示例系统，说明了内存的虚拟视图和物理视图。在单个系统中，不同的处理器和设备可能具有不同的虚拟和物理地址映射。操作系统会对MMU进行编程，以在这两个内存视图之间进行转换。</p>
+<p>为了实现这一点，在虚拟内存系统中的硬件必须提供地址转换，即将处理器发出的虚拟地址转换为主内存中的物理地址。</p>
+<p>虚拟地址是您、编译器和链接器在将代码放入内存时使用的地址。物理地址是实际硬件系统使用的地址。</p>
+<p>MMU使用虚拟地址的最高有效位来索引翻译表中的条目，并确定正在访问的块。MMU将代码和数据的虚拟地址转换为实际系统中的物理地址。这种转换是在硬件中自动进行的，并且对应用程序是透明的。除了地址转换之外，MMU还控制每个内存区域的内存访问权限、内存排序和缓存策略。</p>
+<h2 id="the-translation-lookaside-buffer">The Translation Lookaside
+Buffer</h2>
+<p>Translation Lookaside Buffer
+(TLB)是MMU中最近访问的页面转换的高速缓存。对于处理器执行的每个内存访问，MMU都会检查TLB中是否缓存了相应的转换。如果请求的地址转换在TLB中命中，地址的转换结果将立即可用。</p>
+<p>每个TLB条目通常不仅包含物理地址和虚拟地址，还包括诸如内存类型、缓存策略、访问权限、地址空间ID（ASID）和虚拟机ID（VMID）等属性。如果TLB中没有包含处理器发出的虚拟地址的有效转换，即TLB未命中，就会执行外部的转换表查找或遍历。MMU内的专用硬件使其能够读取内存中的转换表。新加载的转换结果可以被缓存到TLB中，以备后续使用，如果转换表的遍历过程不会导致页面错误。TLB的具体结构在不同的ARM处理器实现之间会有所不同。</p>
+<p>如果操作系统修改了可能缓存在TLB中的转换条目，那么操作系统有责任使这些过时的TLB条目失效。</p>
+<h2
+id="separation-of-kernel-and-application-virtual-address-spaces">Separation
+of kernel and application Virtual Address spaces</h2>
+<p>操作系统通常会同时运行多个应用程序或任务。每个应用程序都有自己独特的转换表集合，并且内核在切换上下文时会从一个转换表切换到另一个。然而，大部分内存系统只被内核使用，并具有固定的虚拟到物理地址映射，其中转换表条目很少改变。ARMv8架构提供了一些功能来有效地处理这一要求。</p>
+<p>转换表的基地址在Translation Table Base Registers
+(TTBR0_EL1)和(TTBR1_EL1)中指定。当VA的高位全为0时，选择TTBR0指向的转换表。当VA的高位全部设置为1时，选择TTBR1指向的转换表。您可以启用VA标记以排除检查过程中的前8位。</p>
+<p>处理器从指令获取或数据访问的虚拟地址是64位。然而，在48位物理地址内存映射中，您必须同时映射上述两个定义的区域。</p>
+<p>EL2和EL3都有一个TTBR0，但没有TTBR1。这意味着：</p>
+<p>如果EL2正在使用AArch64，它只能使用范围为0x0至0x0000FFFF_FFFFFFFF的虚拟地址。</p>
+<p>如果EL3正在使用AArch64，它只能使用范围为0x0至0x0000FFFF_FFFFFFFF的虚拟地址。</p>
+<p><a
+href="https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit/Separation-of-kernel-and-application-Virtual-Address-spaces?lang=en#CDDFFEJB">图12.4</a>显示了内核空间如何映射到内存的最高有效区域，每个应用程序关联的虚拟地址空间映射到内存的最低有效区域。然而，这两者都映射到一个更小的物理地址空间。</p>
+<p>TCR_EL1是转换控制寄存器，它定义了需要进行检查的最高有效位的确切数量。TCR_EL1包含了大小字段T0SZ[5:0]和T1SZ[5:0]。字段中的整数表示必须是全0或全1的最高有效位的数量。这些字段有指定的最小和最大值，这些值随着颗粒大小和起始表级别的不同而变化。因此，在所有系统中，您必须始终使用两个转换表，并且至少需要两个转换表。即使是一个没有操作系统的简单裸机系统，也需要一个包含错误条目的小型上层表。</p>
+<h2 id="context-switching-上下文切换">Context switching 上下文切换</h2>
+<p>实现ARMv8-A架构的处理器通常用于运行具有许多并发应用程序或任务的复杂操作系统的系统中。每个进程在物理内存中都有自己独特的转换表。当一个应用程序启动时，操作系统会为其分配一组转换表条目，将应用程序使用的代码和数据映射到物理内存。这些表可以随后由内核进行修改，例如映射额外的空间，并在应用程序不再运行时被删除。</p>
+<p>因此，内存系统中可能存在多个任务。内核调度程序定期将执行从一个任务转移至另一个任务。这被称为上下文切换，要求内核保存与进程关联的所有执行状态，并恢复要运行的进程的状态。内核还切换转换表条目到下一个要运行的进程的条目。当前未运行的任务的内存完全受到正在运行的任务的保护。</p>
+<p>实际上需要保存和恢复的内容因不同操作系统而异，但通常进程上下文切换包括保存或恢复以下一些或全部元素：
+- 通用寄存器 X0-X30。 - 高级SIMD和浮点寄存器 V0-V31。 - 一些状态寄存器。
+- TTBR0_EL1 和 TTBR0。 - 线程进程ID（TPIDxxx）寄存器。 -
+地址空间ID（ASID）。</p>
+<p>对于EL0和EL1，有两个转换表。TTBR0_EL1为虚拟地址空间底部（通常是应用程序空间）提供转换，而TTBR1_EL1覆盖虚拟地址空间的顶部（通常是内核空间）。这种分割意味着操作系统映射不必复制到每个任务的转换表中。</p>
+<p>转换表条目包含一个非全局（nG）位。如果nG位设置为特定页面，则与特定任务或应用程序相关联。如果该位标记为0，则条目是全局的，适用于所有任务。</p>
+<p>对于非全局条目，在更新TLB并将条目标记为非全局时，除了常规转换信息之外，还在TLB条目中存储一个值。该值称为地址空间ID（ASID），由操作系统分配给每个单独的任务。仅当当前ASID与存储在条目中的ASID匹配时，后续的TLB查找才与该条目匹配。这允许多个有效的TLB条目存在于标记为非全局的特定页面中，但具有不同的ASID值。换句话说，我们在上下文切换时不一定需要刷新TLB。</p>
+<p>在AArch64中，ASID值可以指定为8位或16位的值，由TCR_EL1.AS位控制。当前ASID值在TTBR0_EL1或TTBR1_EL1中指定。TCR_EL1控制哪个TTBR持有ASID，但通常是TTBR0_EL1，因为它对应应用程序空间。</p>
+<p>注意 -
+将当前ASID值存储在转换表寄存器中意味着您可以在一条指令中原子地修改转换表和ASID。与ARMv7-A架构相比，这简化了更改表和ASID的过程。</p>
+<p>此外，ARMv8-A架构提供了用于操作系统软件的线程ID寄存器。这些寄存器在硬件上没有特殊意义，通常由线程库用作每个线程数据的基指针。这通常称为线程本地存储（TLS）。例如，pthread库使用了这个特性，并包括以下寄存器：
+- 用户读写线程ID寄存器（TPIDR_EL0）。 -
+用户只读线程ID寄存器（TPIDRRO_EL0）。 -
+线程ID寄存器，仅特权访问（TPIDR_EL1）。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="type">uint64_t</span> c14_cntfrq; <span class="comment">/* Counter Frequency register */</span></span><br><span class="line">        <span class="type">uint64_t</span> c14_cntkctl; <span class="comment">/* Timer Control register */</span></span><br><span class="line">        <span class="type">uint32_t</span> cnthctl_el2; <span class="comment">/* Counter/Timer Hyp Control register */</span></span><br><span class="line">        <span class="type">uint64_t</span> cntvoff_el2; <span class="comment">/* Counter Virtual Offset register */</span></span><br><span class="line">        ARMGenericTimer c14_timer[NUM_GTIMERS];</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        <span class="comment">/* Stores the architectural value of the counter *the last time it was</span></span><br><span class="line"><span class="comment">         * updated* by pmccntr_op_start. Accesses should always be surrounded</span></span><br><span class="line"><span class="comment">         * by pmccntr_op_start/pmccntr_op_finish to guarantee the latest</span></span><br><span class="line"><span class="comment">         * architecturally-correct value is being read/set.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">uint64_t</span> c15_ccnt;</span><br><span class="line">        <span class="comment">/* Stores the delta between the architectural value and the underlying</span></span><br><span class="line"><span class="comment">         * cycle count during normal operation. It is used to update c15_ccnt</span></span><br><span class="line"><span class="comment">         * to be the correct architectural value before accesses. During</span></span><br><span class="line"><span class="comment">         * accesses, c15_ccnt_delta contains the underlying count being used</span></span><br><span class="line"><span class="comment">         * for the access, after which it reverts to the delta value in</span></span><br><span class="line"><span class="comment">         * pmccntr_op_finish.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">uint64_t</span> c15_ccnt_delta;</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevcntr[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevcntr_delta[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevtyper[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> pmccfiltr_el0; <span class="comment">/* Performance Monitor Filter Register */</span></span><br><span class="line">    &#125; cp15;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Qemu</category>
       </categories>
   </entry>
   <entry>
@@ -5816,69 +5879,6 @@ instructions</h3>
 立即值将在异常综合寄存器中提供给处理程序。这与ARMv7不同，ARMv7需要通过读取调用指令的操作码来确定立即值。详细信息请参阅<a
 href="https://developer.arm.com/documentation/den0024/a/AArch64-Exception-Handling?lang=en">AArch64异常处理</a>。</p>
 <p>要从异常返回，请使用ERET指令。此指令通过将SPSR_ELn复制到PSTATE并跳转到ELR_ELn中保存的返回地址来恢复处理器状态。</p>
-]]></content>
-      <categories>
-        <category>Qemu</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Arrch64 CPU Structure</title>
-    <url>/zyhjy/2023/05/19/Arrch64%20MMU/</url>
-    <content><![CDATA[<h1 id="the-memory-management-unit">The Memory Management Unit</h1>
-<p>内存管理单元（Memory Management
-Unit，MMU）的一个重要功能是使系统能够运行多个任务，这些任务作为独立的程序在它们自己的私有虚拟内存空间中运行。它们不需要知道系统的物理内存映射，也就是硬件实际使用的地址，或者其他可能同时执行的程序。</p>
-<p>您可以为每个程序使用相同的虚拟内存地址空间。即使物理内存是碎片化的，您也可以使用连续的虚拟内存映射。这个虚拟地址空间与系统中实际的物理内存映射是分离的。您可以编写、编译和链接应用程序以在虚拟内存空间中运行。</p>
-<p><a
-href="https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit?lang=en#BABBEBII">图12.2</a>展示了一个示例系统，说明了内存的虚拟视图和物理视图。在单个系统中，不同的处理器和设备可能具有不同的虚拟和物理地址映射。操作系统会对MMU进行编程，以在这两个内存视图之间进行转换。</p>
-<p>为了实现这一点，在虚拟内存系统中的硬件必须提供地址转换，即将处理器发出的虚拟地址转换为主内存中的物理地址。</p>
-<p>虚拟地址是您、编译器和链接器在将代码放入内存时使用的地址。物理地址是实际硬件系统使用的地址。</p>
-<p>MMU使用虚拟地址的最高有效位来索引翻译表中的条目，并确定正在访问的块。MMU将代码和数据的虚拟地址转换为实际系统中的物理地址。这种转换是在硬件中自动进行的，并且对应用程序是透明的。除了地址转换之外，MMU还控制每个内存区域的内存访问权限、内存排序和缓存策略。</p>
-<h2 id="the-translation-lookaside-buffer">The Translation Lookaside
-Buffer</h2>
-<p>Translation Lookaside Buffer
-(TLB)是MMU中最近访问的页面转换的高速缓存。对于处理器执行的每个内存访问，MMU都会检查TLB中是否缓存了相应的转换。如果请求的地址转换在TLB中命中，地址的转换结果将立即可用。</p>
-<p>每个TLB条目通常不仅包含物理地址和虚拟地址，还包括诸如内存类型、缓存策略、访问权限、地址空间ID（ASID）和虚拟机ID（VMID）等属性。如果TLB中没有包含处理器发出的虚拟地址的有效转换，即TLB未命中，就会执行外部的转换表查找或遍历。MMU内的专用硬件使其能够读取内存中的转换表。新加载的转换结果可以被缓存到TLB中，以备后续使用，如果转换表的遍历过程不会导致页面错误。TLB的具体结构在不同的ARM处理器实现之间会有所不同。</p>
-<p>如果操作系统修改了可能缓存在TLB中的转换条目，那么操作系统有责任使这些过时的TLB条目失效。</p>
-<h2
-id="separation-of-kernel-and-application-virtual-address-spaces">Separation
-of kernel and application Virtual Address spaces</h2>
-<p>操作系统通常会同时运行多个应用程序或任务。每个应用程序都有自己独特的转换表集合，并且内核在切换上下文时会从一个转换表切换到另一个。然而，大部分内存系统只被内核使用，并具有固定的虚拟到物理地址映射，其中转换表条目很少改变。ARMv8架构提供了一些功能来有效地处理这一要求。</p>
-<p>转换表的基地址在Translation Table Base Registers
-(TTBR0_EL1)和(TTBR1_EL1)中指定。当VA的高位全为0时，选择TTBR0指向的转换表。当VA的高位全部设置为1时，选择TTBR1指向的转换表。您可以启用VA标记以排除检查过程中的前8位。</p>
-<p>处理器从指令获取或数据访问的虚拟地址是64位。然而，在48位物理地址内存映射中，您必须同时映射上述两个定义的区域。</p>
-<p>EL2和EL3都有一个TTBR0，但没有TTBR1。这意味着：</p>
-<p>如果EL2正在使用AArch64，它只能使用范围为0x0至0x0000FFFF_FFFFFFFF的虚拟地址。</p>
-<p>如果EL3正在使用AArch64，它只能使用范围为0x0至0x0000FFFF_FFFFFFFF的虚拟地址。</p>
-<p><a
-href="https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit/Separation-of-kernel-and-application-Virtual-Address-spaces?lang=en#CDDFFEJB">图12.4</a>显示了内核空间如何映射到内存的最高有效区域，每个应用程序关联的虚拟地址空间映射到内存的最低有效区域。然而，这两者都映射到一个更小的物理地址空间。</p>
-<p>TCR_EL1是转换控制寄存器，它定义了需要进行检查的最高有效位的确切数量。TCR_EL1包含了大小字段T0SZ[5:0]和T1SZ[5:0]。字段中的整数表示必须是全0或全1的最高有效位的数量。这些字段有指定的最小和最大值，这些值随着颗粒大小和起始表级别的不同而变化。因此，在所有系统中，您必须始终使用两个转换表，并且至少需要两个转换表。即使是一个没有操作系统的简单裸机系统，也需要一个包含错误条目的小型上层表。</p>
-<h2 id="context-switching-上下文切换">Context switching 上下文切换</h2>
-<p>实现ARMv8-A架构的处理器通常用于运行具有许多并发应用程序或任务的复杂操作系统的系统中。每个进程在物理内存中都有自己独特的转换表。当一个应用程序启动时，操作系统会为其分配一组转换表条目，将应用程序使用的代码和数据映射到物理内存。这些表可以随后由内核进行修改，例如映射额外的空间，并在应用程序不再运行时被删除。</p>
-<p>因此，内存系统中可能存在多个任务。内核调度程序定期将执行从一个任务转移至另一个任务。这被称为上下文切换，要求内核保存与进程关联的所有执行状态，并恢复要运行的进程的状态。内核还切换转换表条目到下一个要运行的进程的条目。当前未运行的任务的内存完全受到正在运行的任务的保护。</p>
-<p>实际上需要保存和恢复的内容因不同操作系统而异，但通常进程上下文切换包括保存或恢复以下一些或全部元素：
-- 通用寄存器 X0-X30。 - 高级SIMD和浮点寄存器 V0-V31。 - 一些状态寄存器。
-- TTBR0_EL1 和 TTBR0。 - 线程进程ID（TPIDxxx）寄存器。 -
-地址空间ID（ASID）。</p>
-<p>对于EL0和EL1，有两个转换表。TTBR0_EL1为虚拟地址空间底部（通常是应用程序空间）提供转换，而TTBR1_EL1覆盖虚拟地址空间的顶部（通常是内核空间）。这种分割意味着操作系统映射不必复制到每个任务的转换表中。</p>
-<p>转换表条目包含一个非全局（nG）位。如果nG位设置为特定页面，则与特定任务或应用程序相关联。如果该位标记为0，则条目是全局的，适用于所有任务。</p>
-<p>对于非全局条目，在更新TLB并将条目标记为非全局时，除了常规转换信息之外，还在TLB条目中存储一个值。该值称为地址空间ID（ASID），由操作系统分配给每个单独的任务。仅当当前ASID与存储在条目中的ASID匹配时，后续的TLB查找才与该条目匹配。这允许多个有效的TLB条目存在于标记为非全局的特定页面中，但具有不同的ASID值。换句话说，我们在上下文切换时不一定需要刷新TLB。</p>
-<p>在AArch64中，ASID值可以指定为8位或16位的值，由TCR_EL1.AS位控制。当前ASID值在TTBR0_EL1或TTBR1_EL1中指定。TCR_EL1控制哪个TTBR持有ASID，但通常是TTBR0_EL1，因为它对应应用程序空间。</p>
-<p>注意 -
-将当前ASID值存储在转换表寄存器中意味着您可以在一条指令中原子地修改转换表和ASID。与ARMv7-A架构相比，这简化了更改表和ASID的过程。</p>
-<p>此外，ARMv8-A架构提供了用于操作系统软件的线程ID寄存器。这些寄存器在硬件上没有特殊意义，通常由线程库用作每个线程数据的基指针。这通常称为线程本地存储（TLS）。例如，pthread库使用了这个特性，并包括以下寄存器：
-- 用户读写线程ID寄存器（TPIDR_EL0）。 -
-用户只读线程ID寄存器（TPIDRRO_EL0）。 -
-线程ID寄存器，仅特权访问（TPIDR_EL1）。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="type">uint64_t</span> c14_cntfrq; <span class="comment">/* Counter Frequency register */</span></span><br><span class="line">        <span class="type">uint64_t</span> c14_cntkctl; <span class="comment">/* Timer Control register */</span></span><br><span class="line">        <span class="type">uint32_t</span> cnthctl_el2; <span class="comment">/* Counter/Timer Hyp Control register */</span></span><br><span class="line">        <span class="type">uint64_t</span> cntvoff_el2; <span class="comment">/* Counter Virtual Offset register */</span></span><br><span class="line">        ARMGenericTimer c14_timer[NUM_GTIMERS];</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        <span class="comment">/* Stores the architectural value of the counter *the last time it was</span></span><br><span class="line"><span class="comment">         * updated* by pmccntr_op_start. Accesses should always be surrounded</span></span><br><span class="line"><span class="comment">         * by pmccntr_op_start/pmccntr_op_finish to guarantee the latest</span></span><br><span class="line"><span class="comment">         * architecturally-correct value is being read/set.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">uint64_t</span> c15_ccnt;</span><br><span class="line">        <span class="comment">/* Stores the delta between the architectural value and the underlying</span></span><br><span class="line"><span class="comment">         * cycle count during normal operation. It is used to update c15_ccnt</span></span><br><span class="line"><span class="comment">         * to be the correct architectural value before accesses. During</span></span><br><span class="line"><span class="comment">         * accesses, c15_ccnt_delta contains the underlying count being used</span></span><br><span class="line"><span class="comment">         * for the access, after which it reverts to the delta value in</span></span><br><span class="line"><span class="comment">         * pmccntr_op_finish.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">uint64_t</span> c15_ccnt_delta;</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevcntr[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevcntr_delta[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevtyper[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> pmccfiltr_el0; <span class="comment">/* Performance Monitor Filter Register */</span></span><br><span class="line">    &#125; cp15;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Qemu</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Qemu介绍</title>
-    <url>/zyhjy/2023/05/19/Qemu%E4%BB%8B%E7%BB%8D/</url>
-    <content><![CDATA[
 ]]></content>
       <categories>
         <category>Qemu</category>
@@ -6206,6 +6206,541 @@ unique_lock ｜ 实现可移动的互斥体所有权包装器 ｜ ｜ shared_loc
       <categories>
         <category>C++</category>
       </categories>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/zyhjy/2023/06/06/gmock/</url>
+    <content><![CDATA[<p>DISABLED_可以禁用测试 TEST(StarterTest, DISABLED_TrieNodeInsertTest)
+{</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>C++并发编程</title>
+    <url>/zyhjy/2023/06/04/C++%E4%BE%AF%E6%8D%B7STL%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h1 id="section"></h1>
+<p>标准库 &gt; STL</p>
+<h1 id="section-1"></h1>
+<p>STL六大组件</p>
+<p>allocator Adapters con it func container Iterator Alogrithms
+Functors</p>
+<h1 id="pointer-rebind的目的是什么">pointer rebind的目的是什么</h1>
+<p>在stl的list中有如下代码： <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_Alloc</span>&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">__list_imp</span></span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">    <span class="keyword">typedef</span> __list_node_base&lt;value_type, __void_pointer&gt;            __node_base;</span><br><span class="line">    <span class="keyword">typedef</span> __list_node&lt;value_type, __void_pointer&gt;                 __node;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这里为什么要在node的类型参数中增加void pointer？</p>
+<p>并且在实际使用的时候 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_VoidPtr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__list_node_pointer_traits</span> &#123;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __node_pointer;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node_base&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __base_pointer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> 将void通过rebind转化成了
+__list_node&lt;_Tp, _VoidPtr&gt;的指针类型</p>
+<p>为何多此一举，不直接使用Nodeptr*呢</p>
+<h2 id="section-2"></h2>
+<p>The answer to this question comes from allocators, too. Let's take a
+look at how _Rebind_pointer_t is defined: <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Ptr</span>, <span class="keyword">class</span> <span class="title class_">_Ty</span>&gt;</span><br><span class="line"><span class="keyword">using</span> _Rebind_pointer_t = <span class="keyword">typename</span> pointer_traits&lt;_Ptr&gt;::<span class="keyword">template</span> rebind&lt;_Ty&gt;;</span><br></pre></td></tr></table></figure></p>
+<p>That is, we have</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Value_type</span>, <span class="keyword">class</span> <span class="title class_">_Voidptr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">_List_node</span> &#123;</span><br><span class="line">    <span class="keyword">using</span> _Nodeptr = <span class="keyword">typename</span> pointer_traits&lt;_Voidptr&gt;::<span class="keyword">template</span> rebind&lt;_List_node&gt;;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>_Voidptr也是不可或缺的，因为不知道_List_node的指针是什么类型，未必是简单的*_List_node可以概括的，所以需要一个基础类型的void指针，以此为基准将_Voidptr转化为_Nodeptr</p>
+<p>相当于使用_Voidptr的特化了指针萃取的行为，是必须的</p>
+<p>Now let's take a look at how _List_node is used: <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> _Node = _List_node&lt;_Ty, <span class="keyword">typename</span> _Alty_traits::void_pointer&gt;;</span><br></pre></td></tr></table></figure>
+Effectively, we rebind allocator's void_pointer to _List_node pointer.
+This trick is needed to support allocators that use fancy pointers
+internally.</p>
+<p>One such example can be found in Boost.Interprocess library. It has
+boost::interprocess::allocator:</p>
+<p>An STL compatible allocator that uses a segment manager as memory
+source. The internal pointer type will of the same type (raw, smart) as
+<code>typename SegmentManager::void_pointer</code> type. This allows
+placing the allocator in shared memory, memory mapped-files, etc...</p>
+<p>For example, we can write <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">namespace</span> bi = boost::interprocess;</span><br><span class="line"><span class="keyword">using</span> Allocator = bi::allocator&lt;<span class="type">int</span>, bi::managed_shared_memory::segment_manager&gt;;</span><br><span class="line"><span class="function">std::list&lt;<span class="type">int</span>, Allocator&gt; <span class="title">list</span><span class="params">(<span class="comment">/* allocator object */</span>)</span></span>;</span><br></pre></td></tr></table></figure> Now
+<code>std::allocator_traits&lt;decltype(list)::allocator_type&gt;::void_pointer</code>
+will be not <code>void*</code> as with default allocator, but
+<code>boost::interprocess::offset_ptr&lt;void, ...&gt;</code>. As a
+result, <code>_Nodeptr</code> will be not <code>_Nodeptr*</code>, but
+<code>boost::interprocess::offset_ptr&lt;_Nodeptr, ...&gt;</code>.</p>
+<p>https://stackoverflow.com/questions/65262899/what-is-the-purpose-of-pointer-rebind</p>
+]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Topdown论文--ISPASS2014</title>
+    <url>/zyhjy/2023/06/04/A%20Top-Down%20method%20for%20performance%20analysis%20and%20counters%20architecture/</url>
+    <content><![CDATA[<h1 id="abstract">Abstract</h1>
+<p>针对给定的微体系结构优化应用程序的性能变得非常困难。
+日益增加的微架构复杂性、工作负载多样性以及性能工具产生的难以管理的数据量增加了优化挑战。
+同时，随着最近出现的细分市场的出现，资源和时间限制变得更加严格。
+这进一步需要准确和及时的分析方法。
+在本文中，开发了一种自上而下的分析——一种快速识别乱序处理器中真正瓶颈的实用方法。
+开发的方法在结构化的分层方法中使用指定的性能计数器来快速，更重要的是，正确识别主要性能瓶颈。
+开发的方法被包括 VTune 在内的多种生产工具所采用。 来自 VTune
+普通用户的反馈表明，由于简化的层次结构避免了与微体系结构细节相关的高学习曲线，分析变得更加容易。
+针对 SPEC CPU2006 基准测试和关键企业工作负载报告了此方法的表征结果。
+除了针对最新一代英特尔酷睿™
+产品的架构探索研究外，还包括该方法指导软件优化的现场案例研究。
+这种方法的见解指导了一种新颖的性能计数器架构的提议，该架构可以确定通用乱序处理器的真正瓶颈。
+与其他方法不同，我们的分析方法成本低，并且已经在生产系统中得到应用——它只需要将八个简单的新性能事件添加到传统
+PMU 中。 它是全面的——对预定义的性能问题集没有限制。
+它解决了超标量核心中的粒度瓶颈，这是早期方法遗漏的。</p>
+<span id="more"></span>
+<h1 id="s1">S1</h1>
+<p>性能监控单元 (PMU)
+的主要目标是帮助软件开发人员优化其工作负载，以在给定系统上实现最佳性能。现代处理器有数百个性能事件，但可能很难确定哪些事件与特定工作负载的瓶颈有关。这是因为这些表演活动历来是以广告自下而上的方式定义的，PMU设计师试图通过
+“专门的失误活动”
+来报道关键问题。但是，这种方法可能无法解释设计时未明确预见的性能问题。</p>
+<p>为了应对这一挑战，研究人员提出了一种新的性能计数器架构，该架构可以确定一般失序处理器的真正瓶颈。与其他方法不同，他们的分析方法低成本，并且已经在生产系统中使用。只需要向传统
+PMU
+添加八个简单的新性能事件。它很全面，对预定义的一组性能问题没有限制。它解释了超标量内核中的细粒度瓶颈，而早期方法可能忽略了这些瓶颈。</p>
+<p>识别瓶颈有许多用途。计算机架构师可以更好地了解新兴工作负载的资源需求。工作负载特征通常使用原始事件计数数据，但此类未处理的数据不一定指向架构师应解决的正确瓶颈。编译器编写者可以更有效地确定哪种配置文件引导优化
+(PGO)
+适合工作负载，开销更少。虚拟系统的监视器可以提高资源利用率并最大限度地减少能耗。</p>
+<p>突出显示的文本描述了一种名为自上而下分析的方法，该方法是识别失序 CPU
+中的关键瓶颈的快速可行方法。该方法涉及以分层方式进行结构化深入分析，将权重分配给树中的节点，以指导用户将分析工作重点放在重要问题上，而忽略微不足道的问题。例如，如果某个应用程序受到指令提取问题的严重影响，则该方法会在树的最上层将其归类为
+Frontend Bound，并且用户只能向下钻取层次结构的 Frontend
+子树。向下钻取以递归方式执行，直到到达树叶为止，树叶可以指向工作负载的特定停顿状态，也可以表示可能限制应用程序性能的常见微架构症状的一部分问题。</p>
+<p>代号为Ivy Bridge的英特尔第三代酷睿™
+采用了该方法，并且使用了一小部分自上而下的定向计数器来克服瓶颈识别挑战。多种工具都采用了这种方法，包括VTune和标准Linux性能实用程序的附加包。使用该方法的现场经验揭示了一些以前被传统方法低估的性能问题。该方法的见解用于提出一种新的性能计数器架构，该架构可以通过自上而下的方法确定一般乱序架构的真正瓶颈。</p>
+<p>性能监控单元 (PMU)
+的主要目标是使软件开发人员能够有效地调整其工作负载，以在给定系统上实现最佳性能。所提出的方法成本低廉，已在生产系统中使用，只需要在传统的PMU中添加八个简单的新性能事件。它很全面，对预定义的一组性能问题没有限制，并且解释了早期方法所遗漏的超标量内核中的细粒度瓶颈。</p>
+<p>本文的其余部分组织如下：第 2 节提供了背景信息，并讨论了在失序 CPU
+中识别瓶颈所面临的挑战。第 3
+节介绍了自上而下的分析方法及其抽象指标。在第 4
+节中，提出了一种新的低成本计数器架构来获得这些指标。第 5
+节介绍了常见工作负载的结果以及示例用例。第6节讨论了相关工作，最后，第7节总结并概述了未来的工作。</p>
+<h1 id="section2-background">Section2 Background</h1>
+<p>现代高性能CPU通过采用诸如大窗口乱序执行、预测性猜测和硬件预取等技术，竭尽全力保持其执行流水线的繁忙状态。在广泛的传统工作负载范围内，这些高性能架构在以每个周期指令数（IPC）的高速率执行任意代码方面取得了很大成功。然而，由于这些复杂的超标量乱序机器试图在“边缘”操作，即使是小的性能故障也可能限制工作负载远低于其潜力。不幸的是，在这些CPU中，从众多可以容忍的不重要问题中识别出真正的性能限制因素仍然是一个未解决的问题。</p>
+<p>从鸟瞰角度来看，现代乱序CPU的流水线主要由前端和后端两个部分组成。前端负责从内存中获取指令并将其转换为微操作（uops）。这些uops被送到后端部分进行调度、执行和提交（retire），按照原始程序的顺序。为了保持机器的平衡，已经准备好供后端使用的uops通常会被缓存在某个“ready-uops-queue”中。图1显示了Ivy
+Bridge微架构的示例块图，包括底层的功能单元。</p>
+<p>传统方法<a
+href="#section-3">4</a>对停顿进行简单估计。例如，某些缓存的缺失次数乘以预定义的延迟时间：</p>
+<p>确实，这种“天真方法”可能适用于按顺序执行的CPU，但对于现代乱序CPU来说，由于多种原因，它显然不太合适：</p>
+<ol type="1">
+<li><p>停顿重叠：许多单元可以并行工作。例如，当数据缓存缺失时，可以处理一些未来指令缺失指令缓存的情况。</p></li>
+<li><p>预测执行：当CPU按照错误的控制路径执行时，来自错误路径的事件比来自正确路径的事件更不重要。</p></li>
+<li><p>惩罚因素与工作负载相关：而天真方法假设所有工作负载的惩罚都是固定的。例如，分支之间的距离可能增加错误预测的成本。</p></li>
+<li><p>限制于预定义的缺失事件集合：这些复杂的微架构存在许多可能的故障，而只有最常见的子集由专用事件涵盖。</p></li>
+<li><p>超标量不准确性：CPU可以在一个周期内发射、执行和退役多个操作。一些（例如客户端）应用程序由于流水线的带宽限制而受到限制，因为通过越来越多的技术来减轻延迟。</p></li>
+</ol>
+<p>因此，简单地依靠基于缓存缺失和预定义延迟的简单估计，可能无法准确评估现代乱序CPU中的性能限制。需要使用更先进的分析和性能分析技术，以识别和解决这些架构中真正的性能限制因素。</p>
+<p>我们通过以下方法解决了这些问题。我们将一个名为“Bad
+Speculation”（稍后定义）的主要类别放置在层次结构的顶部。它涵盖了由于错误预测而引起的停顿，以及由于执行错误路径而浪费的资源。这不仅将问题首先引起用户的注意，而且还简化了层次结构中其他地方使用的硬件计数器的要求。我们引入了一打真正的“自上而下”指定的计数器，以便处理其他问题。我们发现，在解决问题（1）和（3）时，确定要查看的流水线阶段和“计数的时机很重要。例如，我们不仅仅检查总内存访问持续时间，而是仅检查由于待定内存访问而导致执行单元利用率不足的子持续时间。通过调用与“专用缺失事件”无关的通用事件，我们可以处理问题（4）。其中一些是占用事件，用于处理问题（5）。</p>
+<h1 id="section-3.top-down-analysis">SECTION 3.Top-Down Analysis</h1>
+<p>自上而下分析方法的目标是准确且快速地确定性能瓶颈。它引导用户在性能优化阶段关注真正重要的问题。这个阶段通常在整个应用程序开发过程中受到时间和资源的限制，因此迅速确定瓶颈变得更加重要。</p>
+<p>这种方法本身很简单：首先对CPU执行时间进行高层次的分类。这一步会标记（报告高分数）一些可能需要调查的领域。接下来，用户可以深入研究这些被标记的领域，并可以安全地忽略所有未被标记的领域。该过程以分层方式重复进行，直到确定特定的性能问题，或者至少确定了一小部分候选问题，可以进行进一步调查。</p>
+<p>在本节中，我们首先概述层次结构，然后介绍层次结构上层背后的启发式方法。</p>
+<p>该层次结构如图2所示。首先，我们假设用户对分析有预定义的标准。例如，用户可以选择查看至少占总执行时间20%的热点。另一个例子是分析为什么给定的热点在不同硬件代际之间没有显示出预期的加速效果。热点可以是软件模块、函数、循环或基本块之间的一系列指令。</p>
+<p>Top-Down分解方法应用于有趣的热点，其中可用的流水线槽被分为四个基本类别：退役（Retiring）、坏预测（Bad
+Speculation）、前端受限（Frontend Bound）和后端受限（Backend
+Bound）。这些术语在以下子部分中进行了定义。最好通过一个例子来说明这种方法。以一个受数据缓存性能限制的工作负载为例。该方法标记了后端受限（Backend
+Bound），而前端受限（Frontend
+Bound）不会被标记。这意味着用户需要下一步深入研究后端受限（Backend
+Bound）类别，而忽略所有与前端相关的问题。在深入研究后端受限（Backend
+Bound）时，如果应用程序被认为对缓存敏感，那么会标记内存受限（Memory
+Bound）类别。类似地，在这一点上，用户可以跳过非内存相关的问题。接下来，进行内存受限（Memory
+Bound）的深入研究。L1、L2和L3-Bound自然地细分了内存受限（Memory
+Bound）类别。每个类别表示工作负载受到该缓存级别限制的部分。L1受限（L1
+Bound）应该在那里被标记。最后，由于与先前存储的重叠或缓存行分割加载，加载操作可能成为L1受限（L1
+Bound）下面的特定性能问题。该方法最终会建议用户将注意力集中在这个领域上。</p>
+<p>请注意，层次结构在查看计数器值时提供了一种自然的安全保障。除非从根节点到特定节点的路径上的所有节点都被标记，否则应该忽略内部节点的值。例如，一个简单的代码在一个内存缓冲区上执行一些除法操作，可能会显示图2中Ext.
+Memory
+Bound和Divider节点的高值。尽管Divider节点本身可能具有高的分数值，但假设工作负载真正受内存限制，应该忽略它。这是因为Backend.CoreBound不会被标记。我们将此称为层次安全属性（hierarchical-safety
+property）。还请注意，只有兄弟节点的权重可以进行比较。这是因为它们在同一流水线阶段计算。不建议比较非兄弟节点的分数值。</p>
+<h2 id="top-level-breakdown">3.2. Top Level Breakdown</h2>
+<p>在高度复杂的微架构中，首先需要对流水线活动进行一级分类。第一个有趣的问题是如何以及在哪里进行第一级分解？我们选择问题点（在图1中用星号标记）作为自然的边界，将机器的前端和后端部分分割开来。这样可以实现高度准确的最高级别分类。</p>
+<p>在问题点上，我们将每个流水线槽分类为四个基本类别：前端受限（Frontend
+Bound）、后端受限（Backend Bound）、坏预测（Bad
+Speculation）和退役（Retiring），如图3所示。如果在给定的周期内发出了一个微操作（uop），它最终将被退役或取消。因此，它可以分别归属于退役或坏预测类别。</p>
+<p>否则，流水线槽可以被分为是否存在后端停顿。后端停顿是后端在资源不可用（例如缺少加载缓冲区条目）时施加的反压机制。在这种情况下，我们将停顿归因于后端，因为即使前端准备好了更多的微操作，它也无法将它们传递到流水线中。如果没有后端停顿，这意味着前端在后端准备接收微操作时应该已经传递了一些微操作；因此，我们将其标记为前端受限。</p>
+<p>这种后端停顿的条件是关键的，正如我们在下一节中的FetchBubbles定义中所概述的。</p>
+<p>实际上，分类是以流水线槽的粒度进行的，因为超标量CPU能够每个周期发出多个微操作。这使得分解非常准确和稳健，这在层次结构的最高级别上是必要的。这种准确的分类将我们的方法与之前的方法[1]
+<a href="#section-3">5</a> [6]区分开来。</p>
+<h2 id="frontend-bound-category">3.3. Frontend Bound Category</h2>
+<p>回想一下，前端表示流水线的第一部分，其中分支预测器预测下一个要获取的地址，缓存行被获取并解析为指令，然后解码为后端稍后可以执行的微操作。前端受限表示当CPU的前端供应不足时，即后端本来愿意接受微操作。</p>
+<p>处理前端问题有一些棘手，因为它们发生在长而缓冲的流水线的最开始部分。这意味着在许多情况下，短暂的问题不会主导实际性能。因此，在仅在最高级别标记为前端受限时才深入研究这个领域非常重要。话虽如此，我们观察到在许多情况下，前端供应带宽可以主导性能，特别是当高IPC适用时。这导致添加了专用单元来隐藏获取流水线的延迟并保持所需的带宽。循环流检测器（Loop
+Stream Detector）以及解码指令缓存（即DSB，Sandy
+Bridge引入的解码微操作流缓冲区）是英特尔Core系列中的一些例子<a
+href="#section-4">7</a>。</p>
+<p>Top-Down方法进一步区分延迟和带宽阻塞。指令缓存缺失将被归类为前端延迟受限，而指令解码器的低效将被归类为前端带宽受限。最终，我们希望这些指标只在流水线的其余部分可能受到影响时才计算，正如之前讨论的那样。</p>
+<p>请注意，这些度量标准是在Top-Down方法中定义的；前端延迟包括导致无法提供uop的获取饥饿情况（即没有uop传递的症状），无论是由什么原因引起的。熟悉的指令缓存和指令转换后备缓冲（i-TLB）缺失都属于此类。例如，<a
+href="#section-2">4</a>已将指令长度解码标记为获取瓶颈。它是特定于CPU的，因此在图2中未显示。分支重建则考虑了由于分支错误预测而导致的流水线刷新延迟等情况。它与错误预测成本密切相关（我们在错误预测成本方面有详细说明）。</p>
+<p>该方法还根据将uop插入到uops-ready队列的获取单元对带宽问题进行分类。指令解码器通常用于将主流指令转换为其他部分可以理解的uop
+-
+这将是一个获取单元。而复杂的指令（如CPUID）通常具有专用单元来提供长的uop流
+- 这将是第二个获取单元，依此类推。</p>
+<h2 id="bad-speculation-category">3.4. Bad Speculation Category</h2>
+<p>"错误推测"是指处理器流水线中由于错误的推测而导致资源浪费的概念。它包括两个主要方面：
+1.
+用于发出未最终执行的微操作（uops）的时钟周期。这些是被猜测的指令，但实际上没有在正确的程序路径上执行。
+2.
+由于先前错误的推测而导致发射流水线阻塞的时钟周期。这包括由于错误的预测（例如错误的分支预测）而导致流水线停顿或刷新的情况。</p>
+<p>在顶层分析中包含"错误推测"类别是至关重要的，因为它确定了被分析工作负载中受到错误执行路径影响的部分。这对于准确评估其他类别中的观察结果至关重要。此外，它允许较低层级的节点使用传统计数器，因为大多数乱序处理器中的计数器都会对错误推测进行计数。"错误推测"类别的高值将作为一个"红旗"，在查看其他类别之前需要进行调查。减少错误推测不仅提高资源利用率，还增强了层次结构中报告的指标的可信度。</p>
+<p>该方法将"错误推测"时钟周期分为"分支错误预测"和"流水线清除"两个子类别。尽管前者比较常见，但后者会导致类似的情况，其中流水线被刷新。例如，错误的数据推测可能会引发"内存序重排"（Memory
+Ordering
+Nukes）——这是"流水线清除"的一种子集。我们区分这两种情况是因为对它们进行进一步分析的下一步可能完全不同。前者处理如何使程序的控制流对分支预测器更友好，而后者通常指向意外情况。</p>
+<h2 id="retiring-category">3.5. Retiring Category</h2>
+<p>这个类别反映了被"好的uops"利用的时钟周期——即最终被执行和退役的uops。理想情况下，我们希望将所有时钟周期归属于"退役"类别；也就是说，100%的退役对应于达到给定微架构每个周期最大可退役的uops数。例如，假设一个指令解码成一个uop，50%的退役意味着在一个四路发射机器上实现了IPC为2。因此，最大化退役可以提高IPC。</p>
+<p>然而，高退役值并不一定意味着没有提升性能的空间。诸如浮点（FP）辅助之类的微码序列通常会降低性能，可以避免使用<a
+href="#section-4">7</a>。它们在微序列度量下被隔离，以引起用户的注意。</p>
+<p>对于非矢量化代码，高退役值可能是用户矢量化代码的一个好的提示。这样做实际上使得更多的操作可以由单个指令/uop完成，从而提高性能。有关更多详细信息，请参见第5节中的矩阵乘法用例。由于FP性能在HPC领域具有特殊重要性，我们进一步将基本的退役类别细分为具有标量和矢量操作区别的FP算术。请注意，这是一种信息性的、源自字段的扩展。其他关于已退役操作分布的细分方式也可能适用。</p>
+<h2 id="backend-bound-category">3.6. Backend Bound Category</h2>
+<p>Backend
+Bound（后端受限）反映了由于后端缺乏所需资源而导致无法将uops传送到发射流水线的时钟周期。此类问题的例子包括数据缓存未命中或因除法器过载而导致的停顿。</p>
+<p>Backend Bound又被细分为Memory Bound（内存受限）和Core
+Bound（核心受限）。这是通过根据执行单元在每个时钟周期中的占用情况来分解后端停顿来实现的。自然地，为了保持最大IPC，必须使执行单元保持忙碌状态。例如，在一个四路发射的机器上，如果在某段代码的稳态下只执行三个或更少的uops，那么它将无法实现最优IPC为4。这些次优的时钟周期被称为Execution
+Stalls（执行停顿）。</p>
+<p>Memory
+Bound对应于与内存子系统相关的执行停顿。这些停顿通常表现为在短时间内执行单元饥饿，例如在加载指令未命中所有缓存的情况下。</p>
+<p>而Core
+Bound则稍微复杂一些。它的停顿可以表现为短暂的执行饥饿周期，或者是执行端口利用率不佳：长延迟的除法操作可能会导致执行序列化，而对特定类型uops的执行端口的压力可能表现为一个周期中使用的端口数量较少。实际的度量计算在第4节中进行了描述。</p>
+<p>通过更好的代码生成通常可以缓解Core
+Bound问题。例如，一系列相关的算术操作会被归类为Core
+Bound。编译器可以通过更好的指令调度来缓解这个问题。矢量化也可以缓解Core
+Bound问题，如第5.5节所示。</p>
+<h2 id="memory-bound-breakdown-within-backend">3.7. Memory Bound
+Breakdown (within backend)</h2>
+<p>现代CPU实现了三级缓存层次结构，以隐藏外部内存的延迟。在英特尔Core处理器中，第一级是数据缓存（L1D）。L2是第二级共享指令和数据缓存，每个核心都有私有的L2缓存。L3是最后一级的缓存，由兄弟核心共享。在这里，我们假设存在一个三级缓存层次结构和统一的外部内存；尽管度量标准足够通用，可以适应其他的缓存和内存组织方式，包括NUMA。</p>
+<p>为了处理重叠效应，我们引入了一种新的启发式方法来确定内存访问的实际惩罚。<strong>一个好的乱序调度器应该能够通过使执行单元保持忙碌来隐藏一些内存访问的停顿</strong>，这些执行单元执行的是不依赖于未完成的内存访问的有用uops。因此，内存访问的真正惩罚是当调度器没有准备好的uops可供执行单元使用时发生的。进一步的uops可能正在等待未完成的内存访问，或者依赖于其他尚未准备好的uops。当没有缺失某个缓存层级的需求加载时，如果存在显著的Execution
+Stalls，则提示执行很可能受限于该层级本身。图4还说明了如何根据缓存层级来划分Execution
+Stalls。</p>
+<p>例如，L1D缓存通常具有与ALU停顿相当的短延迟。然而，在某些情况下，比如加载被阻塞以从早期存储器中的重叠地址转发数据，加载操作可能会遭受较高的延迟，尽管最终会由L1D满足。在这种情况下，正在进行中的加载操作将持续很长时间而不会错过L1D。因此，根据图4中的流程图，它被标记为L1
+Bound。由于4K别名（4K
+Aliasing）而导致的加载阻塞是另一种具有相同症状的场景。某些方法[1] <a
+href="#section-3">5</a>无法处理L1命中和近层缓存未命中的这类情况。</p>
+<p>请注意，性能中断（如上述的L1
+Bound场景）会出现在图2中的叶节点中。由于范围限制，我们没有列出它们。</p>
+<p>到目前为止，内存子系统的加载操作已经得到了处理。由于x86体系结构的内存顺序要求，存储操作在乱序CPU中被缓冲并在退休后（完成后）执行。在很大程度上，它们对性能影响较小（如结果部分所示）；但是不能完全忽略。Top-Down定义了Stores
+Bound（存储受限）指标，用于表示执行端口利用率较低且缓冲的存储操作数量较多的周期的比例。如果同时存在加载和存储问题，我们将优先处理加载节点，根据前面提到的洞察力进行处理。</p>
+<p>数据TLB未命中可以归类为Memory
+Bound的子节点。例如，如果TLB翻译由L1D缓存满足，那么它将被标记为L1
+Bound。</p>
+<p>最后，我们使用了一个简单的启发式方法来区分Ext. Memory Bound下的MEM
+Bandwidth（内存带宽）和MEM
+Latency（内存延迟）。我们测量了从内存控制器返回的数据待处理请求的占用情况。每当占用度超过一定阈值，例如内存控制器可以同时服务的请求的最大数量的70%，我们将其标记为可能受到内存带宽限制。剩余的部分将归因于内存延迟。</p>
+<h1 id="section-4.counters-architecture">SECTION 4.Counters
+Architecture</h1>
+<p>本节描述了实现所述Top-Down分析所需的硬件支持。我们假设在现代CPU中具备基线PMU（例如x86或ARM），该PMU提供了一小组通用计数器，能够计算性能事件。几乎十几个事件就足以涵盖层次结构的关键节点。事实上，只需要八个指定的新事件即可。其余的事件已经可以在现有的PMU中找到，这些在表1中标有星号。例如，TotalSlots事件可以通过基本的Clockticks事件计算得出。通过层次安全性特性，可以使用其他PMU传统事件来进一步扩展层次结构，这在第3节中进行了描述。</p>
+<p>值得注意的是，需要低成本的硬件支持。这八个新事件易于实现。它们依赖于本地设计信号，可能通过延迟指示进行屏蔽。与IBM
+POWERS [6]中所需的退休标记不同，也不需要像Accurate CPI Stacks提案[1] <a
+href="#section-5">8</a> <a
+href="#section-6">9</a>中那样复杂的具有延迟计数器的结构。</p>
+<h2 id="top-down-events">4.1. Top-Down Events</h2>
+<p>The basic Top-Down generic events are summarized in Table 1. Please
+refer to Appendix 1 for the Intel implementation of these events. Notice
+there, an implementation can provide simpler events and yet get fairly
+good results.</p>
+<h2 id="top-down-metrics">4.2. Top-Down Metrics</h2>
+<p>The events in Table 1 can be directly used to calculate the metrics
+using formulas shown in Table 2. In certain cases, a flavor of the
+baseline hardware event is used3. Italic #-prefixed metric denotes an
+auxiliary expression.</p>
+<p>请注意，ExecutionStall表示在其中没有或很少执行uop的次优周期。在这种情况下，工作负载不太可能达到最大IPC。虽然这些阈值是特定于实现的，但我们的数据表明，在类似Sandy
+Bridge核心的情况下，执行0、1或2个uop的周期很好地代表了核心限制的场景。</p>
+<h1 id="section-5.results">SECTION 5.Results</h1>
+<p>在本节中，我们展示了SPEC
+CPU2006基准测试在单线程（1C）和多副本（4C）模式下的Top-Down分析结果，其设置如表3所述。然后，通过对多个CPU进行研究，展示了架构探索的使用案例。由于在CPU2006中，前端限制往往不是瓶颈，因此我们还包括了关键服务器工作负载的结果。最后，我们分享了一些使用Top-Down分析来调优性能问题的案例。</p>
+<h2 id="spec-cpu2006-1c">5.1. SPEC CPU2006 1C</h2>
+<p>在顶层（Top
+Level），图5a显示了基准测试应用程序的多样化分布。从性能角度来看，Retiring类别接近50%，与相同一组运行的聚合IPC约为1.7相符。请记住，100%的Retiring意味着每个周期有四个已退休的uop，而对于SPEC
+CPU2006，平均而言，一个指令被解码成略多于一个uop。请注意，Retiring与IPC的相关性良好，这是为了与已建立的指标进行交叉验证。</p>
+<p>整体上，Backend
+Bound占主导地位。因此，我们在图5中的下一个图表中进行了详细分析。Backend
+Level图表指导用户接下来查看核心(Core)或内存(Memory)问题。例如，456.hmmer被标记为Backend
+Core
+Bound。通过使用VTune查看顶级热点，确实可以看到具有紧密数据相关算术指令的循环。</p>
+<p>整数型应用程序对前端限制（Frontend Bound）和错误预测（Bad
+Speculation）更为敏感，而浮点型应用程序则相对较不敏感。这与使用专有的逐周期模拟器进行的模拟数据以及Jaleel的先前分析一致。例如，Jaleel的分析报告称gcc、perlbench、xalancbmk、gobmk和sjeng的代码占用空间超过32KB，它们被归类为前端限制最严重的工作负载。请注意，通过这种分类方式，可以更容易地评估多个瓶颈的相对重要性。</p>
+<h2 id="spec-cpu2006-4c">5.2. SPEC CPU2006 4C</h2>
+<p>在运行4个副本的情况下，这些应用程序的结果如图6所示。顶层显示与单个副本相似，但仔细观察，某些应用程序确实表现出更大的Backend
+Bound。根据图6b中更大的Memory
+Bound比例，这些是内存敏感型应用程序。这是可以预期的，因为L3缓存在核心之间是“共享”的。由于每个物理核心中都运行着相同的线程，并且给定CPU2006几乎没有i-cache缺失，因此4个副本中的前端限制（Frontend
+Bound）和错误预测（Bad Speculation）与单个副本几乎没有变化。</p>
+<p>对于不太可扩展的应用程序，将Figure 6c与Figure 5c
+4进行比较可以看出，Memory
+Bound的细分指向了核外争用。主要差异出现在两类应用程序中，一类是对可用内存带宽敏感的应用程序，另一类是受到线程之间共享缓存竞争影响的应用程序。其中一个例子是470.lbm，它以其高内存带宽需求而闻名<a
+href="#section-7">12</a>。在1个和4个副本之间，其大型的MEM
+Bound是主要的差异。</p>
+<p>另一个重要的例子是482.sphinx3。仔细观察Memory
+Bound的细分可以发现，4个副本的L3 Bound减少，而MEM
+Bound大幅增加；共享L3缓存中的线程之间的容量竞争导致更多的L3缺失。这个结论可以通过查看此工作负载的工作集进行验证[11]：单个副本在1个副本中需求8MB（与LLC容量相同），而4个副本运行时每个核心的LLC共享为2MB有效。</p>
+<p>图7显示了一些FP应用程序中离芯资源的利用情况，分别以1个副本和4个副本并排显示。柱状图的高度表示内存控制器为某些请求提供服务的运行时间的比例。
+"MEM
+Bandwidth"是许多请求同时被服务的相对部分。注意，我们可以以其本地单位绘制这些指标，这要归功于层次安全属性。不过，我们应该仔细考虑它们。</p>
+<p>可用的25GB/s带宽明显满足1份数据的需求。在4份数据中，情况有所不同。435.gromacs、447.dealII、454.calculix和465.tonto由于每千条指令L3缺失次数的增加而花费更多的内存周期，增加了1.3至3.6倍，这是通过一组不同的性能计数器测量得出的结果。然而，需要注意的是，根据图6b显示，它们在内存和核心停顿分数方面与1份数据时相当，这可能是因为乱序执行可以减轻大部分这些内存周期。这与4份数据时测得的IPC在1.7至2.3之间的范围内相吻合。相比之下，410.bwaves、433.milc、437.leslie3d和470.lbm在4份数据中变得更加受内存限制，根据图6c的描述。根据图7所示，这是由于1份数据中的内存延迟转变为4份数据中的内存带宽（4倍的数据需求）。Top-Down正确地将470.lbm分类为受内存带宽限制的应用程序<a
+href="#section-7">12</a>。</p>
+<h2 id="microarchitectures-comparison">5.3. Microarchitectures
+Comparison</h2>
+<p>到目前为止，我们已经展示了相同系统的结果。本节将展示Top-Down如何辅助硬件架构师。图8展示了Intel
+Core第三代和第四代CPU的顶层视图，以并列方式显示了一部分CPU2006整数基准测试。较新的Intel
+Core具有改进的前端，支持具有更好时序的推测性iTLB和i-cache访问，以提高预取的效益<a
+href="#section-4">7</a>。这在受益的基准测试中可以明显注意到Frontend
+Bound的减少。这个验证结果增加了对早两代发明的基础启发式方法的信心。</p>
+<h2 id="server-workloads">5.4. Server Workloads</h2>
+<p>图9显示了在Sandy Bridge
+EP上的关键服务器工作负载的结果。相较于SPEC工作负载，退休指令较少，这符合较低IPC范围（测得为0.4至1之间）。由于足迹更大，后端和前端限制更为显著。</p>
+<p>有趣的是，DBMS工作负载的特征与之前的研究<a
+href="#section-2">4</a>一致，该研究报告称这些工作负载主要受限于最后一级数据缓存缺失和一级指令缓存缺失。</p>
+<p>在前端方面，延迟问题在所有服务器工作负载中占主导地位。这是由于预期的更多i-cache和i-TLB缺失，与客户端工作负载相比，其前端限制几乎均匀分布在延迟和带宽问题之间（由于论文范围限制，未显示）。</p>
+<h2 id="case-study-1-matrix-multiply">5.5. Case Study 1:
+Matrix-Multiply</h2>
+<p>使用Top-Down对矩阵相乘的经典内核进行了分析。这展示了性能调优的迭代性质。</p>
+<p>在multiply()函数的初始代码中，由于大矩阵以不友好的方式遍历，它非常受限于内存。这导致了内存限制。</p>
+<p>通过在multiply2()中应用循环交换优化，获得了显著的加速。优化后的代码仍然受限于后端，但从内存限制转变为受核心限制。</p>
+<p>接下来，在multiply3()中尝试进行向量化，它通过减少端口利用率和减少净指令数进一步提高了性能。这实现了另一个加速效果。</p>
+<h1 id="case-study-2-false-sharing">5.6. Case Study 2: False
+Sharing</h1>
+<p>一门大学课程通过一个例子来教导学生如何通过并行化串行计算密集型代码来避免多线程陷阱。首次尝试由于伪共享（False
+Sharing）而没有加速（甚至速度变慢）。伪共享是多线程中的一个问题，即多个线程争用映射到同一缓存行的不同数据元素。通过添加填充以使线程访问不同的缓存行，可以很容易地避免伪共享。</p>
+<p>单线程代码的IPC（每指令周期执行的指令数）适中。Top-Down正确将第一个多线程代码尝试分类为后端内存存储限制（Stores
+Bound），因为伪共享必须有一个线程将数据写入内存（即存储操作）。在修复后的多线程版本中，存储限制问题被消除了。</p>
+<h2 id="case-study-3-software-prefetch">5.7. Case Study 3: Software
+Prefetch</h2>
+<p>使用Top-Down对客户专有的物体识别实际应用进行了分析。根据应用程序范围的分类，该工作负载被归类为后端内存扩展内存延迟限制（ExtMemory
+LatencyBound）。在最大的热点函数中也是如此，尽管在那里指标的分数更加明显。这表明在其他热点中存在更多非内存瓶颈。</p>
+<p>在算法的关键循环中引入了软件预取（Software
+Prefetches）[10]，以预取下一次迭代的数据。根据算法得分，实现了35%的加速，这在工作负载范围内相当于1.21倍的速度提升。需要注意的是，优化后的版本显示出更高的内存带宽利用率，并且已经更多地受限于后端核心（Backend
+CoreBound）方面。</p>
+<h1 id="section-6.related-work">SECTION 6.Related Work</h1>
+<p>一些研究（如<a href="#section-2">4</a> <a
+href="#section-3">5</a>）采用了广泛使用的天真方法进行命名。尽管这对于顺序执行的CPU可能有效，但对于乱序执行的CPU来说远非准确，原因在于：停顿重叠、推测性缺失和工作负载相关的惩罚，如第2节所详述。</p>
+<p>IBM POWER5
+[6]具有专用的性能监控单元（PMU）事件，可在退休（提交）阶段辅助计算CPI（每周期指令数）的分解。无退休的停顿周期按照下一条将退休的指令类型进行计数，可能会与缺失事件相关联。同样，这是一组在自下而上方式中选择的固定事件集。虽然这相对于天真方法是一种改进，但它低估了前端缺失的代价，因为它们在调度器队列清空后才被计入。Levinthal
+<a href="#section-3">5</a>提出了一种适用于早期Intel
+Core实现的周期账户方法。在执行阶段进行平坦的分解，将总周期分解为退休、非退休和停顿组件。然后，分解停顿组件使用了不足的天真方法，正如作者本人在文中所指出的那样。</p>
+<p>相比之下，Top-Down在发射阶段进行了更细粒度（槽位）的分解，并避免将所有惩罚简单地汇总到一个平坦的分解中。相反，它以分层的方式深入挖掘停顿，每个层级都会放大到管道的适当部分。此外，使用指定的Top-Down事件；启用对前端发射进行采样（而不是计数），以及在开启超线程时进行分解。<a
+href="#section-3">5</a>中没有涉及到这些内容。</p>
+<p>一些研究人员试图准确地分类乱序体系结构上的性能影响。Eyerman等人在[1]
+<a
+href="#section-6">9</a>中使用基于仿真的区间分析模型，提出了一种构建准确CPI堆栈的计数器体系结构。所呈现的结果在与天真方法和IBM
+POWER5相比方面都显示出改进，更接近参考的基于仿真的模型。这种方法（及其参考模型）的一个主要缺点是将所有停顿限制在一组固定的八个预定义的缺失事件上。在[1]
+<a href="#section-2">4</a> <a
+href="#section-3">5</a>中没有考虑（获取）带宽问题以及像L1
+Bound这样的低延迟瓶颈。此外，由于跟踪结构相当复杂，<a
+href="#section-5">8</a>中的作者自</p>
+<p>己后来在文中提到了高硬件成本的问题。尽管<a
+href="#section-5">8</a>用较小的FIFO替换了原始结构，但仍需要额外的逻辑来计算惩罚并将其聚合到新的专用计数器中。相比之下，我们的方法采用简单的事件，不需要额外的计数器/逻辑。在前面的部分中，我们已经指出了更多的缺点。</p>
+<p>最近，<a href="#section-8">13</a>和<a
+href="#section-7">12</a>提出了基于仪器的工具来分析数据局部性和可扩展性瓶颈。在<a
+href="#section-8">13</a>中，通过PMU对平均内存延迟进行采样，并结合Pin和缓存模拟器获取的重用距离，以便优先考虑优化工作。离线分析器将这些指标映射回源代码，并允许用户从主函数开始以分层的方式探索数据。<a
+href="#section-7">12</a>提出了一种针对特定类型并行程序获得加速堆栈的方法，同时考虑了三个瓶颈：缓存容量、外部内存带宽和同步。</p>
+<p>这些可以看作是特定于优化的高级技术，可以在Top-Down中触发，一旦被标记为后端内存限制（Backend
+MemoryBound）。此外，我们的MemStalls.
+L3Miss事件等更好的指标可以用来代替<a
+href="#section-8">13</a>中的原始延迟值，以量化何时可以应用加速。首先在更高的程序范围内检查指标，可以应用于我们的方法，就像VTune的General
+Exploration view [2]已经做的那样。尽管<a
+href="#section-7">12</a>估计了加速比（我们的方法没有），但它只考虑了一部分可扩展性瓶颈。例如，在5.6的情况下，它没有涵盖它们的三个瓶颈。</p>
+<h1 id="section-7.summary-and-future-work">SECTION 7.Summary and Future
+Work</h1>
+<p>本文介绍了一种名为Top-Down分析方法的综合、系统化的在生产中分析方法，用于识别乱序CPU中的关键性能瓶颈。该方法利用通用多核心中的指定PMU事件，采用分层分类，使用户能够准确定位导致性能不佳的问题。该方法经过演示，能够对各种客户端和服务器工作负载、多个微架构世代以及单线程和多核场景进行关键性能瓶颈分类。</p>
+<p>该方法的见解被用于提出一种新颖的低成本性能计数器架构，可以确定一般乱序处理器的真正瓶颈。只需要八个简单的新事件。</p>
+<p>所提出的方法在PMU架构和工具方面提出了一些观点。分解几个层级需要同时收集多个事件。某些技术可能可以容忍，例如Sandy
+Bridge对最多支持八个通用计数器的支持[10]，或工具中的事件复用[2] <a
+href="#section-1">3</a>。然而，仍然希望有更好的硬件支持。此外，将已识别的问题追溯到用户代码可以极大地惠及软件开发人员。虽然PMU的精确机制是一个有希望的方向，但某些微架构领域的覆盖仍然不足。此外，企业级应用程序对平坦的长尾轮廓提出了额外的挑战。</p>
+<p>在硬件超线程（HT）的背景下正确地分类瓶颈绝对是一个具有挑战性的前沿领域。虽然超出了本文的范围，但一些Top-Down事件的设计确实考虑了HT，使得顶层在启用HT时起作用；但这只是一个开始。最后，虽然我们的方法的目标是识别关键性能瓶颈，但它并不评估在修复底层问题后可能带来的加速。通常，确定问题修复是否会转化为加速（或是否会产生加速）是棘手的。工作负载通常会转移到下一个关键性能瓶颈上。<a
+href="#section-7">12</a>在可扩展性瓶颈的背景下在这方面取得了不错的进展。</p>
+<h1 id="appendix-1">10. Appendix 1</h1>
+<p>英特尔Core™微架构是一个4-wide的指令发射机制。表7总结了使用Ivy Bridge
+PMU事件名称实现的指标。其中一些Top-Down指定的事件在硬件中并不直接可用，而是提供了一个公式来从可用事件中近似计算指标。请注意，表中没有出现的指标对英特尔实现没有特殊要求，可以直接从表2中使用。</p>
+<h1 id="pre">PRE</h1>
+<h1 id="section">1.</h1>
+<p>一种自上而下的性能分析方法和计数器架构</p>
+<p>使用top-down分析方法 快速识别乱序处理器中真正瓶颈</p>
+<p>计数器架构（Counters Architecture）
+是收集和记录特定指标或事件的硬件或软件机制。
+用于监测系统性能、资源利用和事件发生。</p>
+<p>计数器（Counters）：存储单元。硬/软。可以统计如指令执行次数、缓存命中、中断发生次数等各种系统活动。</p>
+<h1 id="动机">2. 动机</h1>
+<p>性能优化具有一定的挑战性，原因如下：</p>
+<ol type="1">
+<li><p>复杂的微体系结构：现代计算机的微体系结构变得越来越复杂，涉及多级缓存、超标量执行、预取等技术。这增加了性能分析和优化的复杂性，需要深入理解硬件特性以找到性能瓶颈。</p></li>
+<li><p>应用程序/工作负载多样性：不同的应用程序和工作负载具有不同的性能特征和行为。优化性能需要针对具体应用的特点进行分析和调整，而这种多样性增加了优化的挑战。</p></li>
+<li><p>难以管理的数据：在大规模系统中收集和管理性能数据是一项具有挑战性的任务。性能计数器、事件跟踪和日志可能会生成大量数据，分析和提取有用的信息需要合适的工具和技术。</p></li>
+<li><p>更严格的约束条件：性能优化通常受到时间、资源和优先级等更严格的约束条件限制。有时，需要在有限的时间内取得显著的性能改进，而同时要考虑可用资源和其他任务的优先级。</p></li>
+</ol>
+<p>一旦真正的性能瓶颈被确定，就会有机会进行优化，可以采取以下方法：</p>
+<ol type="1">
+<li><p>软件调优/优化：对应用程序的代码进行调优，消除性能瓶颈和低效操作。这可能涉及算法改进、代码重构、并行化等技术。</p></li>
+<li><p>工作负载特性分析：深入分析工作负载的特点和行为，了解其对系统的需求和资源利用模式。这有助于针对性地优化和配置系统以满足特定工作负载的需求。</p></li>
+<li><p>基于剖析的优化：使用剖析工具收集应用程序的运行时数据，例如函数调用频率、循环迭代次数等，以指导优化决策。通过剖析数据，可以针对性地优化关键代码路径和热点。</p></li>
+<li><p>云中的资源利用：在云计算环境中，性能优化还涉及到合理利用云服务提供的资源。根据工作负载的需求，动态分配和释放资源，以实现更高的性能和效率。</p></li>
+</ol>
+<p>性能优化是一个迭代的过程，需要持续监测和改进。通过克服上述挑战，利用合适的工具和技术，可以实现系统的性能提升和资源利用的优化。</p>
+<h1 id="section-1">3</h1>
+<p>顶层分析（Top Down
+Analysis）是一种识别真正瓶颈的方法，具有以下特点：</p>
+<ul>
+<li>简单：采用结构化的层级方法。通过几个步骤即可追溯到最底层的问题点。</li>
+<li>快速：能够快速定位到问题的根源。</li>
+<li>实用：被生产环境中的工具所采用，例如VTune[2]。</li>
+</ul>
+<p>这种方法本身很简单：首先对CPU执行时间进行高层次的分类。这一步会标记（报告高分数）一些可能需要调查的领域。接下来，用户可以深入研究这些被标记的领域，并可以安全地忽略所有未被标记的领域。该过程以分层方式重复进行，直到确定特定的性能问题，或者至少确定了一小部分候选问题，可以进行进一步调查。</p>
+<p>顶层分析的好处包括：</p>
+<ul>
+<li>使非专家用户更容易进行分析，简化了微架构的学习曲线。 假设</li>
+<li>目标是检测瓶颈，而不是量化加速效果。</li>
+<li>分析过程的一个子层级包括系统、应用程序和微架构。</li>
+</ul>
+<p>通过顶层分析方法，可以更轻松地识别系统中的瓶颈，使分析过程更加简化和实用。</p>
+<h1 id="section-2">4</h1>
+<p>顶层启发式：
+顶层启发式是指在解决问题或做决策时，基于经验或常识的一般原则或指导方针。它们可以帮助人们在面对复杂的情况时快速做出决策或采取行动。</p>
+<h1 id="section-3">5</h1>
+<p>intel内核微架构</p>
+<p>Where and How to start in this Complex microarchitecture?</p>
+<p>从鸟瞰角度来看，现代乱序CPU的流水线主要由前端和后端两个部分组成。前端负责从内存中获取指令并将其转换为微操作（uops）。这些uops被送到后端部分进行调度、执行和提交（retire），按照原始程序的顺序。为了保持机器的平衡，已经准备好供后端使用的uops通常会被缓存在某个“ready-uops-queue”中。</p>
+<h1 id="挑战">6 挑战</h1>
+<p>传统方法： • 傻瓜式方法 - 停顿周期 = Σ 惩罚i * 错误事件i •
+不适用于乱序（间隙）情况 1) 停顿重叠 数据cache miss和指令cache
+miss同时发生 2) 推测执行
+来自错误路径的事件比来自正确路径的事件更不重要。 3) 工作负载相关的惩罚
+而天真方法假设所有工作负载的惩罚都是固定的。例如，分支之间的距离可能增加错误预测的成本。
+如果目标地址距离过远，预测的目标地址可能不会立即可用，导致预测错误和流水线的清空与填充，从而降低了处理器的性能
+4) 预定义的错误事件集合
+这些复杂的微架构存在许多可能的故障，而只有最常见的子集由专用事件涵盖。
+5) 超标量不准确性
+CPU可以在一个周期内发射、执行和退役多个操作。一些（例如客户端）应用程序由于流水线的带宽限制而受到限制，因为通过越来越多的技术来减轻延迟。</p>
+<p>自顶向下分析： • 一个层次结构 - 在适当的流水线阶段指定自顶向下事件 -
+"层次安全属性" • 解决间隙问题 - 顶部的错误推测 -
+通用的自顶向下事件，对计数的时间和位置都有影响 - 占用事件</p>
+<p>“Bad Speculation”放置在顶层 涵盖了 错误预测而引起的停顿 以及
+执行错误路径而浪费的资源</p>
+<p>我们引入了一打真正的“自上而下”指定的计数器，以便处理其他问题。
+我们发现，在解决问题（1）和（3）时，确定要查看的流水线阶段和“计数的时机很重要。
+例如，我们不仅仅检查总内存访问持续时间，而是仅检查由于待定内存访问而导致执行单元利用率不足的子持续时间。
+通过调用与“专用缺失事件”无关的通用事件，我们可以处理问题（4）。
+其中一些是占用事件，用于处理问题（5）。</p>
+<h1 id="section-4">7</h1>
+<p>首先概述层次结构</p>
+<p>流水线槽被分为四个基本类别：退役（Retiring）、坏预测（Bad
+Speculation）、前端受限（Frontend Bound）和后端受限（Backend
+Bound）。</p>
+<h1 id="section-5">8</h1>
+<p>以一个受 数据缓存性能限制 的工作负载为例。
+该方法标记了后端受限（Backend Bound），而前端受限（Frontend
+Bound）不会被标记。这意味着用户需要下一步深入研究后端受限（Backend
+Bound）类别，而忽略所有与前端相关的问题。 在深入研究后端受限（Backend
+Bound）时，如果应用程序被认为对缓存敏感，那么会标记内存受限（Memory
+Bound）类别。
+类似地，在这一点上，用户可以跳过非内存相关的问题。接下来，进行内存受限（Memory
+Bound）的深入研究。 L1、L2和L3-Bound自然地细分了内存受限（Memory
+Bound）类别。每个类别表示工作负载受到该缓存级别限制的部分。L1受限（L1
+Bound）应该在那里被标记。
+该方法最终会建议用户将注意力集中在这个领域上。</p>
+<h1 id="section-6">9</h1>
+<p>在高度复杂的微架构中，首先需要对流水线活动进行一级分类。第一个有趣的问题是如何以及在哪里进行第一级分解？我们选择问题点（在图1中用星号标记）作为自然的边界，将机器的前端和后端部分分割开来。这样可以实现高度准确的最高级别分类。</p>
+<p>在问题点上，我们将每个流水线槽分类为四个基本类别：前端受限（Frontend
+Bound）、后端受限（Backend Bound）、坏预测（Bad
+Speculation）和退役（Retiring），</p>
+<p>如图3所示。如果在给定的周期内发出了一个微操作（uop），它最终将被退役或取消。因此，它可以分别归属于退役或坏预测类别。</p>
+<p>否则，流水线槽可以被分为是否存在后端停顿。后端停顿是后端在资源不可用（例如缺少加载缓冲区条目）时施加的反压机制。在这种情况下，我们将停顿归因于后端，因为即使前端准备好了更多的微操作，它也无法将它们传递到流水线中。
+如果没有后端停顿，这意味着前端在后端准备接收微操作时应该已经传递了一些微操作；因此，我们将其标记为前端受限。</p>
+<p>分类是以流水线槽的粒度进行的</p>
+<p>100%的退役对应于达到给定微架构每个周期最大可退役的uops数。例如，假设一个指令解码成一个uop，50%的退役意味着在一个四路发射机器上实现了IPC为2。</p>
+<p>然而，高退役值并不一定意味着没有提升性能的空间。诸如浮点（FP）辅助之类的微码序列通常会降低性能，可以避免使用<a
+href="#section-4">7</a>。它们在微序列度量下被隔离，以引起用户的注意。</p>
+<p>对于非矢量化代码，高退役值可能是用户矢量化代码的一个好的提示。这样做实际上使得更多的操作可以由单个指令/uop完成，从而提高性能。</p>
+<h1 id="section-7">12</h1>
+<p>计数器架构是指在计算机系统中用于性能监测和分析的计数器的结构和组织方式。</p>
+<p>我们假设有一个基线的常见性能监控单元（PMU），它具有有限数量的通用计数器，但这些计数器可以用于计算多个性能事件。我们需要一组性能事件来捕获关键层级节点（以实现对性能层次结构节点的特征化），其中只有8个是新的TopDown事件，其余的已经存在于PMU中。</p>
+<p>（PMU是一个硬件组件，负责监测和测量计算机系统的各种与性能相关的指标。它提供计数器，可以编程以计算特定的事件，例如缓存失效、分支指令或内存访问。）</p>
+<p>以 Frontend Bound（前端受限）为例，该架构使用了以下指标和事件：</p>
+<ul>
+<li>TopDown 事件：
+<ul>
+<li>FetchBubbles：未被利用的发射流水线插槽，且没有后端停顿。</li>
+<li>TotalSlots：发射流水线插槽的总数（例如，英特尔处理器中为
+4*时钟周期）。</li>
+</ul></li>
+<li>TopDown 指标：
+<ul>
+<li>Frontend Bound（前端受限）= FetchBubbles / TotalSlots。</li>
+</ul></li>
+</ul>
+<p>这个指标可以用来衡量前端是否限制了整体性能，即是否有大量未被利用的发射流水线插槽导致性能瓶颈。</p>
+<h1 id="section-8">13</h1>
+<p>事件名称：总槽位数（TotalSlots） 定义：总的发射流水线槽位数量。
+解释：该事件用于统计线程未停顿的时钟周期数，可用于估计处理器的工作负载。</p>
+<p>事件名称：发射槽位利用数（SlotsIssued）
+定义：用于发射操作的已利用发射流水线槽位数量。
+解释：该事件统计发射的微操作数量，包括任何类型的微操作。</p>
+<p>事件名称：退休槽位利用数（SlotsRetired）
+定义：用于退休（完成）操作的已利用发射流水线槽位数量。
+解释：该事件统计已退休（完成）的微操作数量，即已成功执行的操作数量。</p>
+<p>事件名称：取指气泡（FetchBubbles）
+定义：在没有后端停顿的情况下未利用的发射流水线槽位数量。
+解释：该事件用于统计未交付到指令队列的微操作数量，表示未利用的发射槽位数量，当发射流水线上没有后端停顿时。</p>
+<p>事件名称：恢复气泡（RecoveryBubbles）
+定义：由于从先前的错误预测中恢复而未利用的发射流水线槽位数量</p>
+<h1 id="section-9">14</h1>
+<p>在顶层（Top Level），图5a显示了基准测试应用程序的多样化分布。
+从性能角度来看，Retiring类别接近50%，与相同一组运行的聚合IPC约为1.7相符。请记住，100%的Retiring意味着每个周期有四个已退休的uop，而对于SPEC
+CPU2006，平均而言，一个指令被解码成略多于一个uop。请注意，Retiring与IPC的相关性良好，这是为了与已建立的指标进行交叉验证。</p>
+<p>整体上，Backend Bound占主导地位。</p>
+<p>整数型应用程序对前端限制（Frontend Bound）和错误预测（Bad
+Speculation）更为敏感，而浮点型应用程序则相对较不敏感。
+这与使用专有的逐周期模拟器进行的模拟数据以及Jaleel的先前分析一致。例如，Jaleel的分析报告称gcc、perlbench、xalancbmk、gobmk和sjeng的代码占用空间超过32KB，它们被归类为前端限制最严重的工作负载。请注意，通过这种分类方式，可以更容易地评估多个瓶颈的相对重要性。</p>
+<h1 id="section-10">15</h1>
+<p>在微架构的支持方面，Haswell（第四代Core处理器）改进了前端部分。它引入了具有更好时序的预测性iTLB（指令翻译缓冲器）和缓存访问，以提高预取的效益。</p>
+<p>这些改进使得受益于此的基准测试清楚地显示了前端受限的减少。这意味着在Haswell处理器上使用Top
+Down
+Analysis（自顶向下分析）时，可以更好地识别和分析前端部分对性能的影响。</p>
+<h1 id="section-11">16</h1>
+<p>在运行4个副本的情况下，
+顶层显示与单个副本相似，但仔细观察，<strong>某些应用程序确实表现出更大的Backend
+Bound</strong>。根据图6b中更大的Memory
+Bound比例，这些是内存敏感型应用程序。这是可以预期的，<strong>因为L3缓存在核心之间是“共享”的</strong>。由于每个物理核心中都运行着相同的线程，并且给定CPU2006几乎没有i-cache缺失，因此4个副本中的前端限制（Frontend
+Bound）和错误预测（Bad Speculation）与单个副本几乎没有变化。</p>
+<p>对于不太可扩展的应用程序，将Figure 6c与Figure 5c
+4进行比较可以看出，Memory Bound的细分指向了<strong>核外争用</strong>。
+主要差异出现在两类应用程序中，一类是<strong>对可用内存带宽敏感的应用程序</strong>，另一类是受到线程之间共享缓存竞争影响的应用程序。其中一个例子是470.lbm，它以其高内存带宽需求而闻名<a
+href="#section-7">12</a>。在1个和4个副本之间，其大型的MEM
+Bound是主要的差异。</p>
+<p>另一个重要的例子是482.sphinx3。仔细观察Memory
+Bound的细分可以发现，4个副本的L3 Bound减少，而MEM
+Bound大幅增加；共享L3缓存中的线程之间的容量竞争导致更多的L3缺失。这个结论可以通过查看此工作负载的工作集进行验证[11]：单个副本在1个副本中需求8MB（与LLC容量相同），而4个副本运行时每个核心的LLC共享为2MB有效。</p>
+<h1 id="section-12">17</h1>
+<p>在这个案例研究中，我们以"Matrix
+Multiply"（矩阵乘法）为例进行了迭代的Top-Down分析。下面是具体的分析过程：</p>
+<ol type="1">
+<li><p>初始情况：矩阵较大，内存访问是性能的瓶颈（MEM
+Bound）。这意味着矩阵乘法的执行受限于内存访问速度，而不是处理器的计算能力。</p></li>
+<li><p>循环交换（Loop
+Interchange）：进行了12倍的循环交换优化。通过重新排列循环，可以更好地利用处理器的执行端口，从而减少了核心受限（CoreBound）的情况。现在，性能瓶颈不再是内存访问，而是处理器核心的利用率。</p></li>
+<li><p>向量化（Vectorization）：经过向量化优化后，性能提升了17倍。向量化是利用处理器的向量指令集来并行处理多个数据元素的技术。这进一步减轻了核心受限的情况，提高了矩阵乘法的执行效率。</p></li>
+<li><p>结果：通过这些优化步骤，multiply3（第三次优化后的矩阵乘法）成功减轻了核心受限的问题。这意味着处理器核心的利用率得到了更好的改善，从而提高了整体性能。</p></li>
+</ol>
+<p>这个案例研究说明了如何使用Top-Down分析来识别性能瓶颈并应用优化策略来改进矩阵乘法的执行效率。通过不断迭代分析和优化，我们能够逐步解决不同的性能限制，从而取得更好的性能结果。</p>
+<p>使用Top-Down对矩阵相乘的经典内核进行了分析。这展示了性能调优的迭代性质。</p>
+<p>在multiply()函数的初始代码中，由于大矩阵以不友好的方式遍历，它非常受限于内存。这导致了内存限制。</p>
+<p>通过在multiply2()中应用循环交换优化，获得了显著的加速。优化后的代码仍然受限于后端，但从内存限制转变为受核心限制。</p>
+<p>接下来，在multiply3()中尝试进行向量化，它通过减少端口利用率和减少净指令数进一步提高了性能。这实现了另一个加速效果。</p>
+<h1 id="section-13">18</h1>
+<p>在相关的研究中，有一些与性能分析和优化相关的工作。以下是对这些研究的简要描述：</p>
+<ol type="1">
+<li><p><a href="#section-3">4</a>
+使用了朴素方法：这些研究采用了一种简单的方法来进行性能分析，可能没有考虑到复杂的因素和优化策略。</p></li>
+<li><p>[6] IBM POWER5：该研究使用了IBM
+POWER5处理器，并在提交阶段对CPI进行了分解，并统计了各种类型的下一条指令的停顿周期。</p></li>
+<li><p><a href="#section-3">5</a>
+周期计算（x-Intel）：这项研究在执行阶段对周期进行了详细的分解，以提供更详细的性能信息。</p></li>
+<li><p>[1][6]<a href="#section-5">8</a>
+CPI堆栈：这些研究使用基于模拟的间隔分析，以改进性能分析的准确性，相比于朴素方法有所提高。然而，这些方法可能需要更高的硬件成本，并且在某些情况下需要额外的逻辑用于惩罚计算和聚合。</p></li>
+<li><p><a href="#section-8">12</a>
+数据局部性和可扩展性瓶颈：这些研究使用基于仪器和模拟的工具，针对数据局部性和可扩展性瓶颈进行分析。一旦发现内存受限情况，可以调用高级的优化特定技术来进行优化。</p></li>
+</ol>
+<p>这些研究与性能分析和优化相关，提供了不同的方法和技术来理解和改进计算机系统的性能。在使用Top
+Down进行性能分析时，可以借鉴这些研究的成果，并结合具体的问题和目标进行相应的分析和优化。</p>
+<h1 id="section-14">19</h1>
+<p>总结如下：</p>
+<ul>
+<li><p>Top
+Down分析方法：该方法可以识别关键的瓶颈，它简单、结构化且快速。它已经在许多工作负载中得到验证，并在生产环境中使用，例如VTuneTM和perf*。此外，它还具有与Intel核心的向前兼容性。</p></li>
+<li><p>计数器架构：为了支持通用的乱序处理器，设计了计数器架构。它使用了8个简单的事件，成本较低，并且在不同平台之间实现了标准化。</p></li>
+</ul>
+<p>作者鼓励读者查看他们的论文，并提供反馈意见。</p>
+]]></content>
+      <categories>
+        <category>体系结构</category>
+        <category>Topdown</category>
+      </categories>
+      <tags>
+        <tag>Paper</tag>
+        <tag>Pre</tag>
+      </tags>
   </entry>
   <entry>
     <title>Arrch64 CPU Structure</title>
@@ -7077,541 +7612,6 @@ Multi-Processing)操作的操作系统内核通常具有任务调度器，该调
       </categories>
   </entry>
   <entry>
-    <title></title>
-    <url>/zyhjy/2023/06/06/gmock/</url>
-    <content><![CDATA[<p>DISABLED_可以禁用测试 TEST(StarterTest, DISABLED_TrieNodeInsertTest)
-{</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>C++并发编程</title>
-    <url>/zyhjy/2023/06/04/C++%E4%BE%AF%E6%8D%B7STL%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h1 id="section"></h1>
-<p>标准库 &gt; STL</p>
-<h1 id="section-1"></h1>
-<p>STL六大组件</p>
-<p>allocator Adapters con it func container Iterator Alogrithms
-Functors</p>
-<h1 id="pointer-rebind的目的是什么">pointer rebind的目的是什么</h1>
-<p>在stl的list中有如下代码： <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_Alloc</span>&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">__list_imp</span></span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">    <span class="keyword">typedef</span> __list_node_base&lt;value_type, __void_pointer&gt;            __node_base;</span><br><span class="line">    <span class="keyword">typedef</span> __list_node&lt;value_type, __void_pointer&gt;                 __node;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-这里为什么要在node的类型参数中增加void pointer？</p>
-<p>并且在实际使用的时候 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_VoidPtr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__list_node_pointer_traits</span> &#123;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __node_pointer;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node_base&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __base_pointer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> 将void通过rebind转化成了
-__list_node&lt;_Tp, _VoidPtr&gt;的指针类型</p>
-<p>为何多此一举，不直接使用Nodeptr*呢</p>
-<h2 id="section-2"></h2>
-<p>The answer to this question comes from allocators, too. Let's take a
-look at how _Rebind_pointer_t is defined: <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Ptr</span>, <span class="keyword">class</span> <span class="title class_">_Ty</span>&gt;</span><br><span class="line"><span class="keyword">using</span> _Rebind_pointer_t = <span class="keyword">typename</span> pointer_traits&lt;_Ptr&gt;::<span class="keyword">template</span> rebind&lt;_Ty&gt;;</span><br></pre></td></tr></table></figure></p>
-<p>That is, we have</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Value_type</span>, <span class="keyword">class</span> <span class="title class_">_Voidptr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">_List_node</span> &#123;</span><br><span class="line">    <span class="keyword">using</span> _Nodeptr = <span class="keyword">typename</span> pointer_traits&lt;_Voidptr&gt;::<span class="keyword">template</span> rebind&lt;_List_node&gt;;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>_Voidptr也是不可或缺的，因为不知道_List_node的指针是什么类型，未必是简单的*_List_node可以概括的，所以需要一个基础类型的void指针，以此为基准将_Voidptr转化为_Nodeptr</p>
-<p>相当于使用_Voidptr的特化了指针萃取的行为，是必须的</p>
-<p>Now let's take a look at how _List_node is used: <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> _Node = _List_node&lt;_Ty, <span class="keyword">typename</span> _Alty_traits::void_pointer&gt;;</span><br></pre></td></tr></table></figure>
-Effectively, we rebind allocator's void_pointer to _List_node pointer.
-This trick is needed to support allocators that use fancy pointers
-internally.</p>
-<p>One such example can be found in Boost.Interprocess library. It has
-boost::interprocess::allocator:</p>
-<p>An STL compatible allocator that uses a segment manager as memory
-source. The internal pointer type will of the same type (raw, smart) as
-<code>typename SegmentManager::void_pointer</code> type. This allows
-placing the allocator in shared memory, memory mapped-files, etc...</p>
-<p>For example, we can write <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">namespace</span> bi = boost::interprocess;</span><br><span class="line"><span class="keyword">using</span> Allocator = bi::allocator&lt;<span class="type">int</span>, bi::managed_shared_memory::segment_manager&gt;;</span><br><span class="line"><span class="function">std::list&lt;<span class="type">int</span>, Allocator&gt; <span class="title">list</span><span class="params">(<span class="comment">/* allocator object */</span>)</span></span>;</span><br></pre></td></tr></table></figure> Now
-<code>std::allocator_traits&lt;decltype(list)::allocator_type&gt;::void_pointer</code>
-will be not <code>void*</code> as with default allocator, but
-<code>boost::interprocess::offset_ptr&lt;void, ...&gt;</code>. As a
-result, <code>_Nodeptr</code> will be not <code>_Nodeptr*</code>, but
-<code>boost::interprocess::offset_ptr&lt;_Nodeptr, ...&gt;</code>.</p>
-<p>https://stackoverflow.com/questions/65262899/what-is-the-purpose-of-pointer-rebind</p>
-]]></content>
-      <categories>
-        <category>C++</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Topdown论文--ISPASS2014</title>
-    <url>/zyhjy/2023/06/04/A%20Top-Down%20method%20for%20performance%20analysis%20and%20counters%20architecture/</url>
-    <content><![CDATA[<h1 id="abstract">Abstract</h1>
-<p>针对给定的微体系结构优化应用程序的性能变得非常困难。
-日益增加的微架构复杂性、工作负载多样性以及性能工具产生的难以管理的数据量增加了优化挑战。
-同时，随着最近出现的细分市场的出现，资源和时间限制变得更加严格。
-这进一步需要准确和及时的分析方法。
-在本文中，开发了一种自上而下的分析——一种快速识别乱序处理器中真正瓶颈的实用方法。
-开发的方法在结构化的分层方法中使用指定的性能计数器来快速，更重要的是，正确识别主要性能瓶颈。
-开发的方法被包括 VTune 在内的多种生产工具所采用。 来自 VTune
-普通用户的反馈表明，由于简化的层次结构避免了与微体系结构细节相关的高学习曲线，分析变得更加容易。
-针对 SPEC CPU2006 基准测试和关键企业工作负载报告了此方法的表征结果。
-除了针对最新一代英特尔酷睿™
-产品的架构探索研究外，还包括该方法指导软件优化的现场案例研究。
-这种方法的见解指导了一种新颖的性能计数器架构的提议，该架构可以确定通用乱序处理器的真正瓶颈。
-与其他方法不同，我们的分析方法成本低，并且已经在生产系统中得到应用——它只需要将八个简单的新性能事件添加到传统
-PMU 中。 它是全面的——对预定义的性能问题集没有限制。
-它解决了超标量核心中的粒度瓶颈，这是早期方法遗漏的。</p>
-<span id="more"></span>
-<h1 id="s1">S1</h1>
-<p>性能监控单元 (PMU)
-的主要目标是帮助软件开发人员优化其工作负载，以在给定系统上实现最佳性能。现代处理器有数百个性能事件，但可能很难确定哪些事件与特定工作负载的瓶颈有关。这是因为这些表演活动历来是以广告自下而上的方式定义的，PMU设计师试图通过
-“专门的失误活动”
-来报道关键问题。但是，这种方法可能无法解释设计时未明确预见的性能问题。</p>
-<p>为了应对这一挑战，研究人员提出了一种新的性能计数器架构，该架构可以确定一般失序处理器的真正瓶颈。与其他方法不同，他们的分析方法低成本，并且已经在生产系统中使用。只需要向传统
-PMU
-添加八个简单的新性能事件。它很全面，对预定义的一组性能问题没有限制。它解释了超标量内核中的细粒度瓶颈，而早期方法可能忽略了这些瓶颈。</p>
-<p>识别瓶颈有许多用途。计算机架构师可以更好地了解新兴工作负载的资源需求。工作负载特征通常使用原始事件计数数据，但此类未处理的数据不一定指向架构师应解决的正确瓶颈。编译器编写者可以更有效地确定哪种配置文件引导优化
-(PGO)
-适合工作负载，开销更少。虚拟系统的监视器可以提高资源利用率并最大限度地减少能耗。</p>
-<p>突出显示的文本描述了一种名为自上而下分析的方法，该方法是识别失序 CPU
-中的关键瓶颈的快速可行方法。该方法涉及以分层方式进行结构化深入分析，将权重分配给树中的节点，以指导用户将分析工作重点放在重要问题上，而忽略微不足道的问题。例如，如果某个应用程序受到指令提取问题的严重影响，则该方法会在树的最上层将其归类为
-Frontend Bound，并且用户只能向下钻取层次结构的 Frontend
-子树。向下钻取以递归方式执行，直到到达树叶为止，树叶可以指向工作负载的特定停顿状态，也可以表示可能限制应用程序性能的常见微架构症状的一部分问题。</p>
-<p>代号为Ivy Bridge的英特尔第三代酷睿™
-采用了该方法，并且使用了一小部分自上而下的定向计数器来克服瓶颈识别挑战。多种工具都采用了这种方法，包括VTune和标准Linux性能实用程序的附加包。使用该方法的现场经验揭示了一些以前被传统方法低估的性能问题。该方法的见解用于提出一种新的性能计数器架构，该架构可以通过自上而下的方法确定一般乱序架构的真正瓶颈。</p>
-<p>性能监控单元 (PMU)
-的主要目标是使软件开发人员能够有效地调整其工作负载，以在给定系统上实现最佳性能。所提出的方法成本低廉，已在生产系统中使用，只需要在传统的PMU中添加八个简单的新性能事件。它很全面，对预定义的一组性能问题没有限制，并且解释了早期方法所遗漏的超标量内核中的细粒度瓶颈。</p>
-<p>本文的其余部分组织如下：第 2 节提供了背景信息，并讨论了在失序 CPU
-中识别瓶颈所面临的挑战。第 3
-节介绍了自上而下的分析方法及其抽象指标。在第 4
-节中，提出了一种新的低成本计数器架构来获得这些指标。第 5
-节介绍了常见工作负载的结果以及示例用例。第6节讨论了相关工作，最后，第7节总结并概述了未来的工作。</p>
-<h1 id="section2-background">Section2 Background</h1>
-<p>现代高性能CPU通过采用诸如大窗口乱序执行、预测性猜测和硬件预取等技术，竭尽全力保持其执行流水线的繁忙状态。在广泛的传统工作负载范围内，这些高性能架构在以每个周期指令数（IPC）的高速率执行任意代码方面取得了很大成功。然而，由于这些复杂的超标量乱序机器试图在“边缘”操作，即使是小的性能故障也可能限制工作负载远低于其潜力。不幸的是，在这些CPU中，从众多可以容忍的不重要问题中识别出真正的性能限制因素仍然是一个未解决的问题。</p>
-<p>从鸟瞰角度来看，现代乱序CPU的流水线主要由前端和后端两个部分组成。前端负责从内存中获取指令并将其转换为微操作（uops）。这些uops被送到后端部分进行调度、执行和提交（retire），按照原始程序的顺序。为了保持机器的平衡，已经准备好供后端使用的uops通常会被缓存在某个“ready-uops-queue”中。图1显示了Ivy
-Bridge微架构的示例块图，包括底层的功能单元。</p>
-<p>传统方法<a
-href="#section-3">4</a>对停顿进行简单估计。例如，某些缓存的缺失次数乘以预定义的延迟时间：</p>
-<p>确实，这种“天真方法”可能适用于按顺序执行的CPU，但对于现代乱序CPU来说，由于多种原因，它显然不太合适：</p>
-<ol type="1">
-<li><p>停顿重叠：许多单元可以并行工作。例如，当数据缓存缺失时，可以处理一些未来指令缺失指令缓存的情况。</p></li>
-<li><p>预测执行：当CPU按照错误的控制路径执行时，来自错误路径的事件比来自正确路径的事件更不重要。</p></li>
-<li><p>惩罚因素与工作负载相关：而天真方法假设所有工作负载的惩罚都是固定的。例如，分支之间的距离可能增加错误预测的成本。</p></li>
-<li><p>限制于预定义的缺失事件集合：这些复杂的微架构存在许多可能的故障，而只有最常见的子集由专用事件涵盖。</p></li>
-<li><p>超标量不准确性：CPU可以在一个周期内发射、执行和退役多个操作。一些（例如客户端）应用程序由于流水线的带宽限制而受到限制，因为通过越来越多的技术来减轻延迟。</p></li>
-</ol>
-<p>因此，简单地依靠基于缓存缺失和预定义延迟的简单估计，可能无法准确评估现代乱序CPU中的性能限制。需要使用更先进的分析和性能分析技术，以识别和解决这些架构中真正的性能限制因素。</p>
-<p>我们通过以下方法解决了这些问题。我们将一个名为“Bad
-Speculation”（稍后定义）的主要类别放置在层次结构的顶部。它涵盖了由于错误预测而引起的停顿，以及由于执行错误路径而浪费的资源。这不仅将问题首先引起用户的注意，而且还简化了层次结构中其他地方使用的硬件计数器的要求。我们引入了一打真正的“自上而下”指定的计数器，以便处理其他问题。我们发现，在解决问题（1）和（3）时，确定要查看的流水线阶段和“计数的时机很重要。例如，我们不仅仅检查总内存访问持续时间，而是仅检查由于待定内存访问而导致执行单元利用率不足的子持续时间。通过调用与“专用缺失事件”无关的通用事件，我们可以处理问题（4）。其中一些是占用事件，用于处理问题（5）。</p>
-<h1 id="section-3.top-down-analysis">SECTION 3.Top-Down Analysis</h1>
-<p>自上而下分析方法的目标是准确且快速地确定性能瓶颈。它引导用户在性能优化阶段关注真正重要的问题。这个阶段通常在整个应用程序开发过程中受到时间和资源的限制，因此迅速确定瓶颈变得更加重要。</p>
-<p>这种方法本身很简单：首先对CPU执行时间进行高层次的分类。这一步会标记（报告高分数）一些可能需要调查的领域。接下来，用户可以深入研究这些被标记的领域，并可以安全地忽略所有未被标记的领域。该过程以分层方式重复进行，直到确定特定的性能问题，或者至少确定了一小部分候选问题，可以进行进一步调查。</p>
-<p>在本节中，我们首先概述层次结构，然后介绍层次结构上层背后的启发式方法。</p>
-<p>该层次结构如图2所示。首先，我们假设用户对分析有预定义的标准。例如，用户可以选择查看至少占总执行时间20%的热点。另一个例子是分析为什么给定的热点在不同硬件代际之间没有显示出预期的加速效果。热点可以是软件模块、函数、循环或基本块之间的一系列指令。</p>
-<p>Top-Down分解方法应用于有趣的热点，其中可用的流水线槽被分为四个基本类别：退役（Retiring）、坏预测（Bad
-Speculation）、前端受限（Frontend Bound）和后端受限（Backend
-Bound）。这些术语在以下子部分中进行了定义。最好通过一个例子来说明这种方法。以一个受数据缓存性能限制的工作负载为例。该方法标记了后端受限（Backend
-Bound），而前端受限（Frontend
-Bound）不会被标记。这意味着用户需要下一步深入研究后端受限（Backend
-Bound）类别，而忽略所有与前端相关的问题。在深入研究后端受限（Backend
-Bound）时，如果应用程序被认为对缓存敏感，那么会标记内存受限（Memory
-Bound）类别。类似地，在这一点上，用户可以跳过非内存相关的问题。接下来，进行内存受限（Memory
-Bound）的深入研究。L1、L2和L3-Bound自然地细分了内存受限（Memory
-Bound）类别。每个类别表示工作负载受到该缓存级别限制的部分。L1受限（L1
-Bound）应该在那里被标记。最后，由于与先前存储的重叠或缓存行分割加载，加载操作可能成为L1受限（L1
-Bound）下面的特定性能问题。该方法最终会建议用户将注意力集中在这个领域上。</p>
-<p>请注意，层次结构在查看计数器值时提供了一种自然的安全保障。除非从根节点到特定节点的路径上的所有节点都被标记，否则应该忽略内部节点的值。例如，一个简单的代码在一个内存缓冲区上执行一些除法操作，可能会显示图2中Ext.
-Memory
-Bound和Divider节点的高值。尽管Divider节点本身可能具有高的分数值，但假设工作负载真正受内存限制，应该忽略它。这是因为Backend.CoreBound不会被标记。我们将此称为层次安全属性（hierarchical-safety
-property）。还请注意，只有兄弟节点的权重可以进行比较。这是因为它们在同一流水线阶段计算。不建议比较非兄弟节点的分数值。</p>
-<h2 id="top-level-breakdown">3.2. Top Level Breakdown</h2>
-<p>在高度复杂的微架构中，首先需要对流水线活动进行一级分类。第一个有趣的问题是如何以及在哪里进行第一级分解？我们选择问题点（在图1中用星号标记）作为自然的边界，将机器的前端和后端部分分割开来。这样可以实现高度准确的最高级别分类。</p>
-<p>在问题点上，我们将每个流水线槽分类为四个基本类别：前端受限（Frontend
-Bound）、后端受限（Backend Bound）、坏预测（Bad
-Speculation）和退役（Retiring），如图3所示。如果在给定的周期内发出了一个微操作（uop），它最终将被退役或取消。因此，它可以分别归属于退役或坏预测类别。</p>
-<p>否则，流水线槽可以被分为是否存在后端停顿。后端停顿是后端在资源不可用（例如缺少加载缓冲区条目）时施加的反压机制。在这种情况下，我们将停顿归因于后端，因为即使前端准备好了更多的微操作，它也无法将它们传递到流水线中。如果没有后端停顿，这意味着前端在后端准备接收微操作时应该已经传递了一些微操作；因此，我们将其标记为前端受限。</p>
-<p>这种后端停顿的条件是关键的，正如我们在下一节中的FetchBubbles定义中所概述的。</p>
-<p>实际上，分类是以流水线槽的粒度进行的，因为超标量CPU能够每个周期发出多个微操作。这使得分解非常准确和稳健，这在层次结构的最高级别上是必要的。这种准确的分类将我们的方法与之前的方法[1]
-<a href="#section-3">5</a> [6]区分开来。</p>
-<h2 id="frontend-bound-category">3.3. Frontend Bound Category</h2>
-<p>回想一下，前端表示流水线的第一部分，其中分支预测器预测下一个要获取的地址，缓存行被获取并解析为指令，然后解码为后端稍后可以执行的微操作。前端受限表示当CPU的前端供应不足时，即后端本来愿意接受微操作。</p>
-<p>处理前端问题有一些棘手，因为它们发生在长而缓冲的流水线的最开始部分。这意味着在许多情况下，短暂的问题不会主导实际性能。因此，在仅在最高级别标记为前端受限时才深入研究这个领域非常重要。话虽如此，我们观察到在许多情况下，前端供应带宽可以主导性能，特别是当高IPC适用时。这导致添加了专用单元来隐藏获取流水线的延迟并保持所需的带宽。循环流检测器（Loop
-Stream Detector）以及解码指令缓存（即DSB，Sandy
-Bridge引入的解码微操作流缓冲区）是英特尔Core系列中的一些例子<a
-href="#section-4">7</a>。</p>
-<p>Top-Down方法进一步区分延迟和带宽阻塞。指令缓存缺失将被归类为前端延迟受限，而指令解码器的低效将被归类为前端带宽受限。最终，我们希望这些指标只在流水线的其余部分可能受到影响时才计算，正如之前讨论的那样。</p>
-<p>请注意，这些度量标准是在Top-Down方法中定义的；前端延迟包括导致无法提供uop的获取饥饿情况（即没有uop传递的症状），无论是由什么原因引起的。熟悉的指令缓存和指令转换后备缓冲（i-TLB）缺失都属于此类。例如，<a
-href="#section-2">4</a>已将指令长度解码标记为获取瓶颈。它是特定于CPU的，因此在图2中未显示。分支重建则考虑了由于分支错误预测而导致的流水线刷新延迟等情况。它与错误预测成本密切相关（我们在错误预测成本方面有详细说明）。</p>
-<p>该方法还根据将uop插入到uops-ready队列的获取单元对带宽问题进行分类。指令解码器通常用于将主流指令转换为其他部分可以理解的uop
--
-这将是一个获取单元。而复杂的指令（如CPUID）通常具有专用单元来提供长的uop流
-- 这将是第二个获取单元，依此类推。</p>
-<h2 id="bad-speculation-category">3.4. Bad Speculation Category</h2>
-<p>"错误推测"是指处理器流水线中由于错误的推测而导致资源浪费的概念。它包括两个主要方面：
-1.
-用于发出未最终执行的微操作（uops）的时钟周期。这些是被猜测的指令，但实际上没有在正确的程序路径上执行。
-2.
-由于先前错误的推测而导致发射流水线阻塞的时钟周期。这包括由于错误的预测（例如错误的分支预测）而导致流水线停顿或刷新的情况。</p>
-<p>在顶层分析中包含"错误推测"类别是至关重要的，因为它确定了被分析工作负载中受到错误执行路径影响的部分。这对于准确评估其他类别中的观察结果至关重要。此外，它允许较低层级的节点使用传统计数器，因为大多数乱序处理器中的计数器都会对错误推测进行计数。"错误推测"类别的高值将作为一个"红旗"，在查看其他类别之前需要进行调查。减少错误推测不仅提高资源利用率，还增强了层次结构中报告的指标的可信度。</p>
-<p>该方法将"错误推测"时钟周期分为"分支错误预测"和"流水线清除"两个子类别。尽管前者比较常见，但后者会导致类似的情况，其中流水线被刷新。例如，错误的数据推测可能会引发"内存序重排"（Memory
-Ordering
-Nukes）——这是"流水线清除"的一种子集。我们区分这两种情况是因为对它们进行进一步分析的下一步可能完全不同。前者处理如何使程序的控制流对分支预测器更友好，而后者通常指向意外情况。</p>
-<h2 id="retiring-category">3.5. Retiring Category</h2>
-<p>这个类别反映了被"好的uops"利用的时钟周期——即最终被执行和退役的uops。理想情况下，我们希望将所有时钟周期归属于"退役"类别；也就是说，100%的退役对应于达到给定微架构每个周期最大可退役的uops数。例如，假设一个指令解码成一个uop，50%的退役意味着在一个四路发射机器上实现了IPC为2。因此，最大化退役可以提高IPC。</p>
-<p>然而，高退役值并不一定意味着没有提升性能的空间。诸如浮点（FP）辅助之类的微码序列通常会降低性能，可以避免使用<a
-href="#section-4">7</a>。它们在微序列度量下被隔离，以引起用户的注意。</p>
-<p>对于非矢量化代码，高退役值可能是用户矢量化代码的一个好的提示。这样做实际上使得更多的操作可以由单个指令/uop完成，从而提高性能。有关更多详细信息，请参见第5节中的矩阵乘法用例。由于FP性能在HPC领域具有特殊重要性，我们进一步将基本的退役类别细分为具有标量和矢量操作区别的FP算术。请注意，这是一种信息性的、源自字段的扩展。其他关于已退役操作分布的细分方式也可能适用。</p>
-<h2 id="backend-bound-category">3.6. Backend Bound Category</h2>
-<p>Backend
-Bound（后端受限）反映了由于后端缺乏所需资源而导致无法将uops传送到发射流水线的时钟周期。此类问题的例子包括数据缓存未命中或因除法器过载而导致的停顿。</p>
-<p>Backend Bound又被细分为Memory Bound（内存受限）和Core
-Bound（核心受限）。这是通过根据执行单元在每个时钟周期中的占用情况来分解后端停顿来实现的。自然地，为了保持最大IPC，必须使执行单元保持忙碌状态。例如，在一个四路发射的机器上，如果在某段代码的稳态下只执行三个或更少的uops，那么它将无法实现最优IPC为4。这些次优的时钟周期被称为Execution
-Stalls（执行停顿）。</p>
-<p>Memory
-Bound对应于与内存子系统相关的执行停顿。这些停顿通常表现为在短时间内执行单元饥饿，例如在加载指令未命中所有缓存的情况下。</p>
-<p>而Core
-Bound则稍微复杂一些。它的停顿可以表现为短暂的执行饥饿周期，或者是执行端口利用率不佳：长延迟的除法操作可能会导致执行序列化，而对特定类型uops的执行端口的压力可能表现为一个周期中使用的端口数量较少。实际的度量计算在第4节中进行了描述。</p>
-<p>通过更好的代码生成通常可以缓解Core
-Bound问题。例如，一系列相关的算术操作会被归类为Core
-Bound。编译器可以通过更好的指令调度来缓解这个问题。矢量化也可以缓解Core
-Bound问题，如第5.5节所示。</p>
-<h2 id="memory-bound-breakdown-within-backend">3.7. Memory Bound
-Breakdown (within backend)</h2>
-<p>现代CPU实现了三级缓存层次结构，以隐藏外部内存的延迟。在英特尔Core处理器中，第一级是数据缓存（L1D）。L2是第二级共享指令和数据缓存，每个核心都有私有的L2缓存。L3是最后一级的缓存，由兄弟核心共享。在这里，我们假设存在一个三级缓存层次结构和统一的外部内存；尽管度量标准足够通用，可以适应其他的缓存和内存组织方式，包括NUMA。</p>
-<p>为了处理重叠效应，我们引入了一种新的启发式方法来确定内存访问的实际惩罚。<strong>一个好的乱序调度器应该能够通过使执行单元保持忙碌来隐藏一些内存访问的停顿</strong>，这些执行单元执行的是不依赖于未完成的内存访问的有用uops。因此，内存访问的真正惩罚是当调度器没有准备好的uops可供执行单元使用时发生的。进一步的uops可能正在等待未完成的内存访问，或者依赖于其他尚未准备好的uops。当没有缺失某个缓存层级的需求加载时，如果存在显著的Execution
-Stalls，则提示执行很可能受限于该层级本身。图4还说明了如何根据缓存层级来划分Execution
-Stalls。</p>
-<p>例如，L1D缓存通常具有与ALU停顿相当的短延迟。然而，在某些情况下，比如加载被阻塞以从早期存储器中的重叠地址转发数据，加载操作可能会遭受较高的延迟，尽管最终会由L1D满足。在这种情况下，正在进行中的加载操作将持续很长时间而不会错过L1D。因此，根据图4中的流程图，它被标记为L1
-Bound。由于4K别名（4K
-Aliasing）而导致的加载阻塞是另一种具有相同症状的场景。某些方法[1] <a
-href="#section-3">5</a>无法处理L1命中和近层缓存未命中的这类情况。</p>
-<p>请注意，性能中断（如上述的L1
-Bound场景）会出现在图2中的叶节点中。由于范围限制，我们没有列出它们。</p>
-<p>到目前为止，内存子系统的加载操作已经得到了处理。由于x86体系结构的内存顺序要求，存储操作在乱序CPU中被缓冲并在退休后（完成后）执行。在很大程度上，它们对性能影响较小（如结果部分所示）；但是不能完全忽略。Top-Down定义了Stores
-Bound（存储受限）指标，用于表示执行端口利用率较低且缓冲的存储操作数量较多的周期的比例。如果同时存在加载和存储问题，我们将优先处理加载节点，根据前面提到的洞察力进行处理。</p>
-<p>数据TLB未命中可以归类为Memory
-Bound的子节点。例如，如果TLB翻译由L1D缓存满足，那么它将被标记为L1
-Bound。</p>
-<p>最后，我们使用了一个简单的启发式方法来区分Ext. Memory Bound下的MEM
-Bandwidth（内存带宽）和MEM
-Latency（内存延迟）。我们测量了从内存控制器返回的数据待处理请求的占用情况。每当占用度超过一定阈值，例如内存控制器可以同时服务的请求的最大数量的70%，我们将其标记为可能受到内存带宽限制。剩余的部分将归因于内存延迟。</p>
-<h1 id="section-4.counters-architecture">SECTION 4.Counters
-Architecture</h1>
-<p>本节描述了实现所述Top-Down分析所需的硬件支持。我们假设在现代CPU中具备基线PMU（例如x86或ARM），该PMU提供了一小组通用计数器，能够计算性能事件。几乎十几个事件就足以涵盖层次结构的关键节点。事实上，只需要八个指定的新事件即可。其余的事件已经可以在现有的PMU中找到，这些在表1中标有星号。例如，TotalSlots事件可以通过基本的Clockticks事件计算得出。通过层次安全性特性，可以使用其他PMU传统事件来进一步扩展层次结构，这在第3节中进行了描述。</p>
-<p>值得注意的是，需要低成本的硬件支持。这八个新事件易于实现。它们依赖于本地设计信号，可能通过延迟指示进行屏蔽。与IBM
-POWERS [6]中所需的退休标记不同，也不需要像Accurate CPI Stacks提案[1] <a
-href="#section-5">8</a> <a
-href="#section-6">9</a>中那样复杂的具有延迟计数器的结构。</p>
-<h2 id="top-down-events">4.1. Top-Down Events</h2>
-<p>The basic Top-Down generic events are summarized in Table 1. Please
-refer to Appendix 1 for the Intel implementation of these events. Notice
-there, an implementation can provide simpler events and yet get fairly
-good results.</p>
-<h2 id="top-down-metrics">4.2. Top-Down Metrics</h2>
-<p>The events in Table 1 can be directly used to calculate the metrics
-using formulas shown in Table 2. In certain cases, a flavor of the
-baseline hardware event is used3. Italic #-prefixed metric denotes an
-auxiliary expression.</p>
-<p>请注意，ExecutionStall表示在其中没有或很少执行uop的次优周期。在这种情况下，工作负载不太可能达到最大IPC。虽然这些阈值是特定于实现的，但我们的数据表明，在类似Sandy
-Bridge核心的情况下，执行0、1或2个uop的周期很好地代表了核心限制的场景。</p>
-<h1 id="section-5.results">SECTION 5.Results</h1>
-<p>在本节中，我们展示了SPEC
-CPU2006基准测试在单线程（1C）和多副本（4C）模式下的Top-Down分析结果，其设置如表3所述。然后，通过对多个CPU进行研究，展示了架构探索的使用案例。由于在CPU2006中，前端限制往往不是瓶颈，因此我们还包括了关键服务器工作负载的结果。最后，我们分享了一些使用Top-Down分析来调优性能问题的案例。</p>
-<h2 id="spec-cpu2006-1c">5.1. SPEC CPU2006 1C</h2>
-<p>在顶层（Top
-Level），图5a显示了基准测试应用程序的多样化分布。从性能角度来看，Retiring类别接近50%，与相同一组运行的聚合IPC约为1.7相符。请记住，100%的Retiring意味着每个周期有四个已退休的uop，而对于SPEC
-CPU2006，平均而言，一个指令被解码成略多于一个uop。请注意，Retiring与IPC的相关性良好，这是为了与已建立的指标进行交叉验证。</p>
-<p>整体上，Backend
-Bound占主导地位。因此，我们在图5中的下一个图表中进行了详细分析。Backend
-Level图表指导用户接下来查看核心(Core)或内存(Memory)问题。例如，456.hmmer被标记为Backend
-Core
-Bound。通过使用VTune查看顶级热点，确实可以看到具有紧密数据相关算术指令的循环。</p>
-<p>整数型应用程序对前端限制（Frontend Bound）和错误预测（Bad
-Speculation）更为敏感，而浮点型应用程序则相对较不敏感。这与使用专有的逐周期模拟器进行的模拟数据以及Jaleel的先前分析一致。例如，Jaleel的分析报告称gcc、perlbench、xalancbmk、gobmk和sjeng的代码占用空间超过32KB，它们被归类为前端限制最严重的工作负载。请注意，通过这种分类方式，可以更容易地评估多个瓶颈的相对重要性。</p>
-<h2 id="spec-cpu2006-4c">5.2. SPEC CPU2006 4C</h2>
-<p>在运行4个副本的情况下，这些应用程序的结果如图6所示。顶层显示与单个副本相似，但仔细观察，某些应用程序确实表现出更大的Backend
-Bound。根据图6b中更大的Memory
-Bound比例，这些是内存敏感型应用程序。这是可以预期的，因为L3缓存在核心之间是“共享”的。由于每个物理核心中都运行着相同的线程，并且给定CPU2006几乎没有i-cache缺失，因此4个副本中的前端限制（Frontend
-Bound）和错误预测（Bad Speculation）与单个副本几乎没有变化。</p>
-<p>对于不太可扩展的应用程序，将Figure 6c与Figure 5c
-4进行比较可以看出，Memory
-Bound的细分指向了核外争用。主要差异出现在两类应用程序中，一类是对可用内存带宽敏感的应用程序，另一类是受到线程之间共享缓存竞争影响的应用程序。其中一个例子是470.lbm，它以其高内存带宽需求而闻名<a
-href="#section-7">12</a>。在1个和4个副本之间，其大型的MEM
-Bound是主要的差异。</p>
-<p>另一个重要的例子是482.sphinx3。仔细观察Memory
-Bound的细分可以发现，4个副本的L3 Bound减少，而MEM
-Bound大幅增加；共享L3缓存中的线程之间的容量竞争导致更多的L3缺失。这个结论可以通过查看此工作负载的工作集进行验证[11]：单个副本在1个副本中需求8MB（与LLC容量相同），而4个副本运行时每个核心的LLC共享为2MB有效。</p>
-<p>图7显示了一些FP应用程序中离芯资源的利用情况，分别以1个副本和4个副本并排显示。柱状图的高度表示内存控制器为某些请求提供服务的运行时间的比例。
-"MEM
-Bandwidth"是许多请求同时被服务的相对部分。注意，我们可以以其本地单位绘制这些指标，这要归功于层次安全属性。不过，我们应该仔细考虑它们。</p>
-<p>可用的25GB/s带宽明显满足1份数据的需求。在4份数据中，情况有所不同。435.gromacs、447.dealII、454.calculix和465.tonto由于每千条指令L3缺失次数的增加而花费更多的内存周期，增加了1.3至3.6倍，这是通过一组不同的性能计数器测量得出的结果。然而，需要注意的是，根据图6b显示，它们在内存和核心停顿分数方面与1份数据时相当，这可能是因为乱序执行可以减轻大部分这些内存周期。这与4份数据时测得的IPC在1.7至2.3之间的范围内相吻合。相比之下，410.bwaves、433.milc、437.leslie3d和470.lbm在4份数据中变得更加受内存限制，根据图6c的描述。根据图7所示，这是由于1份数据中的内存延迟转变为4份数据中的内存带宽（4倍的数据需求）。Top-Down正确地将470.lbm分类为受内存带宽限制的应用程序<a
-href="#section-7">12</a>。</p>
-<h2 id="microarchitectures-comparison">5.3. Microarchitectures
-Comparison</h2>
-<p>到目前为止，我们已经展示了相同系统的结果。本节将展示Top-Down如何辅助硬件架构师。图8展示了Intel
-Core第三代和第四代CPU的顶层视图，以并列方式显示了一部分CPU2006整数基准测试。较新的Intel
-Core具有改进的前端，支持具有更好时序的推测性iTLB和i-cache访问，以提高预取的效益<a
-href="#section-4">7</a>。这在受益的基准测试中可以明显注意到Frontend
-Bound的减少。这个验证结果增加了对早两代发明的基础启发式方法的信心。</p>
-<h2 id="server-workloads">5.4. Server Workloads</h2>
-<p>图9显示了在Sandy Bridge
-EP上的关键服务器工作负载的结果。相较于SPEC工作负载，退休指令较少，这符合较低IPC范围（测得为0.4至1之间）。由于足迹更大，后端和前端限制更为显著。</p>
-<p>有趣的是，DBMS工作负载的特征与之前的研究<a
-href="#section-2">4</a>一致，该研究报告称这些工作负载主要受限于最后一级数据缓存缺失和一级指令缓存缺失。</p>
-<p>在前端方面，延迟问题在所有服务器工作负载中占主导地位。这是由于预期的更多i-cache和i-TLB缺失，与客户端工作负载相比，其前端限制几乎均匀分布在延迟和带宽问题之间（由于论文范围限制，未显示）。</p>
-<h2 id="case-study-1-matrix-multiply">5.5. Case Study 1:
-Matrix-Multiply</h2>
-<p>使用Top-Down对矩阵相乘的经典内核进行了分析。这展示了性能调优的迭代性质。</p>
-<p>在multiply()函数的初始代码中，由于大矩阵以不友好的方式遍历，它非常受限于内存。这导致了内存限制。</p>
-<p>通过在multiply2()中应用循环交换优化，获得了显著的加速。优化后的代码仍然受限于后端，但从内存限制转变为受核心限制。</p>
-<p>接下来，在multiply3()中尝试进行向量化，它通过减少端口利用率和减少净指令数进一步提高了性能。这实现了另一个加速效果。</p>
-<h1 id="case-study-2-false-sharing">5.6. Case Study 2: False
-Sharing</h1>
-<p>一门大学课程通过一个例子来教导学生如何通过并行化串行计算密集型代码来避免多线程陷阱。首次尝试由于伪共享（False
-Sharing）而没有加速（甚至速度变慢）。伪共享是多线程中的一个问题，即多个线程争用映射到同一缓存行的不同数据元素。通过添加填充以使线程访问不同的缓存行，可以很容易地避免伪共享。</p>
-<p>单线程代码的IPC（每指令周期执行的指令数）适中。Top-Down正确将第一个多线程代码尝试分类为后端内存存储限制（Stores
-Bound），因为伪共享必须有一个线程将数据写入内存（即存储操作）。在修复后的多线程版本中，存储限制问题被消除了。</p>
-<h2 id="case-study-3-software-prefetch">5.7. Case Study 3: Software
-Prefetch</h2>
-<p>使用Top-Down对客户专有的物体识别实际应用进行了分析。根据应用程序范围的分类，该工作负载被归类为后端内存扩展内存延迟限制（ExtMemory
-LatencyBound）。在最大的热点函数中也是如此，尽管在那里指标的分数更加明显。这表明在其他热点中存在更多非内存瓶颈。</p>
-<p>在算法的关键循环中引入了软件预取（Software
-Prefetches）[10]，以预取下一次迭代的数据。根据算法得分，实现了35%的加速，这在工作负载范围内相当于1.21倍的速度提升。需要注意的是，优化后的版本显示出更高的内存带宽利用率，并且已经更多地受限于后端核心（Backend
-CoreBound）方面。</p>
-<h1 id="section-6.related-work">SECTION 6.Related Work</h1>
-<p>一些研究（如<a href="#section-2">4</a> <a
-href="#section-3">5</a>）采用了广泛使用的天真方法进行命名。尽管这对于顺序执行的CPU可能有效，但对于乱序执行的CPU来说远非准确，原因在于：停顿重叠、推测性缺失和工作负载相关的惩罚，如第2节所详述。</p>
-<p>IBM POWER5
-[6]具有专用的性能监控单元（PMU）事件，可在退休（提交）阶段辅助计算CPI（每周期指令数）的分解。无退休的停顿周期按照下一条将退休的指令类型进行计数，可能会与缺失事件相关联。同样，这是一组在自下而上方式中选择的固定事件集。虽然这相对于天真方法是一种改进，但它低估了前端缺失的代价，因为它们在调度器队列清空后才被计入。Levinthal
-<a href="#section-3">5</a>提出了一种适用于早期Intel
-Core实现的周期账户方法。在执行阶段进行平坦的分解，将总周期分解为退休、非退休和停顿组件。然后，分解停顿组件使用了不足的天真方法，正如作者本人在文中所指出的那样。</p>
-<p>相比之下，Top-Down在发射阶段进行了更细粒度（槽位）的分解，并避免将所有惩罚简单地汇总到一个平坦的分解中。相反，它以分层的方式深入挖掘停顿，每个层级都会放大到管道的适当部分。此外，使用指定的Top-Down事件；启用对前端发射进行采样（而不是计数），以及在开启超线程时进行分解。<a
-href="#section-3">5</a>中没有涉及到这些内容。</p>
-<p>一些研究人员试图准确地分类乱序体系结构上的性能影响。Eyerman等人在[1]
-<a
-href="#section-6">9</a>中使用基于仿真的区间分析模型，提出了一种构建准确CPI堆栈的计数器体系结构。所呈现的结果在与天真方法和IBM
-POWER5相比方面都显示出改进，更接近参考的基于仿真的模型。这种方法（及其参考模型）的一个主要缺点是将所有停顿限制在一组固定的八个预定义的缺失事件上。在[1]
-<a href="#section-2">4</a> <a
-href="#section-3">5</a>中没有考虑（获取）带宽问题以及像L1
-Bound这样的低延迟瓶颈。此外，由于跟踪结构相当复杂，<a
-href="#section-5">8</a>中的作者自</p>
-<p>己后来在文中提到了高硬件成本的问题。尽管<a
-href="#section-5">8</a>用较小的FIFO替换了原始结构，但仍需要额外的逻辑来计算惩罚并将其聚合到新的专用计数器中。相比之下，我们的方法采用简单的事件，不需要额外的计数器/逻辑。在前面的部分中，我们已经指出了更多的缺点。</p>
-<p>最近，<a href="#section-8">13</a>和<a
-href="#section-7">12</a>提出了基于仪器的工具来分析数据局部性和可扩展性瓶颈。在<a
-href="#section-8">13</a>中，通过PMU对平均内存延迟进行采样，并结合Pin和缓存模拟器获取的重用距离，以便优先考虑优化工作。离线分析器将这些指标映射回源代码，并允许用户从主函数开始以分层的方式探索数据。<a
-href="#section-7">12</a>提出了一种针对特定类型并行程序获得加速堆栈的方法，同时考虑了三个瓶颈：缓存容量、外部内存带宽和同步。</p>
-<p>这些可以看作是特定于优化的高级技术，可以在Top-Down中触发，一旦被标记为后端内存限制（Backend
-MemoryBound）。此外，我们的MemStalls.
-L3Miss事件等更好的指标可以用来代替<a
-href="#section-8">13</a>中的原始延迟值，以量化何时可以应用加速。首先在更高的程序范围内检查指标，可以应用于我们的方法，就像VTune的General
-Exploration view [2]已经做的那样。尽管<a
-href="#section-7">12</a>估计了加速比（我们的方法没有），但它只考虑了一部分可扩展性瓶颈。例如，在5.6的情况下，它没有涵盖它们的三个瓶颈。</p>
-<h1 id="section-7.summary-and-future-work">SECTION 7.Summary and Future
-Work</h1>
-<p>本文介绍了一种名为Top-Down分析方法的综合、系统化的在生产中分析方法，用于识别乱序CPU中的关键性能瓶颈。该方法利用通用多核心中的指定PMU事件，采用分层分类，使用户能够准确定位导致性能不佳的问题。该方法经过演示，能够对各种客户端和服务器工作负载、多个微架构世代以及单线程和多核场景进行关键性能瓶颈分类。</p>
-<p>该方法的见解被用于提出一种新颖的低成本性能计数器架构，可以确定一般乱序处理器的真正瓶颈。只需要八个简单的新事件。</p>
-<p>所提出的方法在PMU架构和工具方面提出了一些观点。分解几个层级需要同时收集多个事件。某些技术可能可以容忍，例如Sandy
-Bridge对最多支持八个通用计数器的支持[10]，或工具中的事件复用[2] <a
-href="#section-1">3</a>。然而，仍然希望有更好的硬件支持。此外，将已识别的问题追溯到用户代码可以极大地惠及软件开发人员。虽然PMU的精确机制是一个有希望的方向，但某些微架构领域的覆盖仍然不足。此外，企业级应用程序对平坦的长尾轮廓提出了额外的挑战。</p>
-<p>在硬件超线程（HT）的背景下正确地分类瓶颈绝对是一个具有挑战性的前沿领域。虽然超出了本文的范围，但一些Top-Down事件的设计确实考虑了HT，使得顶层在启用HT时起作用；但这只是一个开始。最后，虽然我们的方法的目标是识别关键性能瓶颈，但它并不评估在修复底层问题后可能带来的加速。通常，确定问题修复是否会转化为加速（或是否会产生加速）是棘手的。工作负载通常会转移到下一个关键性能瓶颈上。<a
-href="#section-7">12</a>在可扩展性瓶颈的背景下在这方面取得了不错的进展。</p>
-<h1 id="appendix-1">10. Appendix 1</h1>
-<p>英特尔Core™微架构是一个4-wide的指令发射机制。表7总结了使用Ivy Bridge
-PMU事件名称实现的指标。其中一些Top-Down指定的事件在硬件中并不直接可用，而是提供了一个公式来从可用事件中近似计算指标。请注意，表中没有出现的指标对英特尔实现没有特殊要求，可以直接从表2中使用。</p>
-<h1 id="pre">PRE</h1>
-<h1 id="section">1.</h1>
-<p>一种自上而下的性能分析方法和计数器架构</p>
-<p>使用top-down分析方法 快速识别乱序处理器中真正瓶颈</p>
-<p>计数器架构（Counters Architecture）
-是收集和记录特定指标或事件的硬件或软件机制。
-用于监测系统性能、资源利用和事件发生。</p>
-<p>计数器（Counters）：存储单元。硬/软。可以统计如指令执行次数、缓存命中、中断发生次数等各种系统活动。</p>
-<h1 id="动机">2. 动机</h1>
-<p>性能优化具有一定的挑战性，原因如下：</p>
-<ol type="1">
-<li><p>复杂的微体系结构：现代计算机的微体系结构变得越来越复杂，涉及多级缓存、超标量执行、预取等技术。这增加了性能分析和优化的复杂性，需要深入理解硬件特性以找到性能瓶颈。</p></li>
-<li><p>应用程序/工作负载多样性：不同的应用程序和工作负载具有不同的性能特征和行为。优化性能需要针对具体应用的特点进行分析和调整，而这种多样性增加了优化的挑战。</p></li>
-<li><p>难以管理的数据：在大规模系统中收集和管理性能数据是一项具有挑战性的任务。性能计数器、事件跟踪和日志可能会生成大量数据，分析和提取有用的信息需要合适的工具和技术。</p></li>
-<li><p>更严格的约束条件：性能优化通常受到时间、资源和优先级等更严格的约束条件限制。有时，需要在有限的时间内取得显著的性能改进，而同时要考虑可用资源和其他任务的优先级。</p></li>
-</ol>
-<p>一旦真正的性能瓶颈被确定，就会有机会进行优化，可以采取以下方法：</p>
-<ol type="1">
-<li><p>软件调优/优化：对应用程序的代码进行调优，消除性能瓶颈和低效操作。这可能涉及算法改进、代码重构、并行化等技术。</p></li>
-<li><p>工作负载特性分析：深入分析工作负载的特点和行为，了解其对系统的需求和资源利用模式。这有助于针对性地优化和配置系统以满足特定工作负载的需求。</p></li>
-<li><p>基于剖析的优化：使用剖析工具收集应用程序的运行时数据，例如函数调用频率、循环迭代次数等，以指导优化决策。通过剖析数据，可以针对性地优化关键代码路径和热点。</p></li>
-<li><p>云中的资源利用：在云计算环境中，性能优化还涉及到合理利用云服务提供的资源。根据工作负载的需求，动态分配和释放资源，以实现更高的性能和效率。</p></li>
-</ol>
-<p>性能优化是一个迭代的过程，需要持续监测和改进。通过克服上述挑战，利用合适的工具和技术，可以实现系统的性能提升和资源利用的优化。</p>
-<h1 id="section-1">3</h1>
-<p>顶层分析（Top Down
-Analysis）是一种识别真正瓶颈的方法，具有以下特点：</p>
-<ul>
-<li>简单：采用结构化的层级方法。通过几个步骤即可追溯到最底层的问题点。</li>
-<li>快速：能够快速定位到问题的根源。</li>
-<li>实用：被生产环境中的工具所采用，例如VTune[2]。</li>
-</ul>
-<p>这种方法本身很简单：首先对CPU执行时间进行高层次的分类。这一步会标记（报告高分数）一些可能需要调查的领域。接下来，用户可以深入研究这些被标记的领域，并可以安全地忽略所有未被标记的领域。该过程以分层方式重复进行，直到确定特定的性能问题，或者至少确定了一小部分候选问题，可以进行进一步调查。</p>
-<p>顶层分析的好处包括：</p>
-<ul>
-<li>使非专家用户更容易进行分析，简化了微架构的学习曲线。 假设</li>
-<li>目标是检测瓶颈，而不是量化加速效果。</li>
-<li>分析过程的一个子层级包括系统、应用程序和微架构。</li>
-</ul>
-<p>通过顶层分析方法，可以更轻松地识别系统中的瓶颈，使分析过程更加简化和实用。</p>
-<h1 id="section-2">4</h1>
-<p>顶层启发式：
-顶层启发式是指在解决问题或做决策时，基于经验或常识的一般原则或指导方针。它们可以帮助人们在面对复杂的情况时快速做出决策或采取行动。</p>
-<h1 id="section-3">5</h1>
-<p>intel内核微架构</p>
-<p>Where and How to start in this Complex microarchitecture?</p>
-<p>从鸟瞰角度来看，现代乱序CPU的流水线主要由前端和后端两个部分组成。前端负责从内存中获取指令并将其转换为微操作（uops）。这些uops被送到后端部分进行调度、执行和提交（retire），按照原始程序的顺序。为了保持机器的平衡，已经准备好供后端使用的uops通常会被缓存在某个“ready-uops-queue”中。</p>
-<h1 id="挑战">6 挑战</h1>
-<p>传统方法： • 傻瓜式方法 - 停顿周期 = Σ 惩罚i * 错误事件i •
-不适用于乱序（间隙）情况 1) 停顿重叠 数据cache miss和指令cache
-miss同时发生 2) 推测执行
-来自错误路径的事件比来自正确路径的事件更不重要。 3) 工作负载相关的惩罚
-而天真方法假设所有工作负载的惩罚都是固定的。例如，分支之间的距离可能增加错误预测的成本。
-如果目标地址距离过远，预测的目标地址可能不会立即可用，导致预测错误和流水线的清空与填充，从而降低了处理器的性能
-4) 预定义的错误事件集合
-这些复杂的微架构存在许多可能的故障，而只有最常见的子集由专用事件涵盖。
-5) 超标量不准确性
-CPU可以在一个周期内发射、执行和退役多个操作。一些（例如客户端）应用程序由于流水线的带宽限制而受到限制，因为通过越来越多的技术来减轻延迟。</p>
-<p>自顶向下分析： • 一个层次结构 - 在适当的流水线阶段指定自顶向下事件 -
-"层次安全属性" • 解决间隙问题 - 顶部的错误推测 -
-通用的自顶向下事件，对计数的时间和位置都有影响 - 占用事件</p>
-<p>“Bad Speculation”放置在顶层 涵盖了 错误预测而引起的停顿 以及
-执行错误路径而浪费的资源</p>
-<p>我们引入了一打真正的“自上而下”指定的计数器，以便处理其他问题。
-我们发现，在解决问题（1）和（3）时，确定要查看的流水线阶段和“计数的时机很重要。
-例如，我们不仅仅检查总内存访问持续时间，而是仅检查由于待定内存访问而导致执行单元利用率不足的子持续时间。
-通过调用与“专用缺失事件”无关的通用事件，我们可以处理问题（4）。
-其中一些是占用事件，用于处理问题（5）。</p>
-<h1 id="section-4">7</h1>
-<p>首先概述层次结构</p>
-<p>流水线槽被分为四个基本类别：退役（Retiring）、坏预测（Bad
-Speculation）、前端受限（Frontend Bound）和后端受限（Backend
-Bound）。</p>
-<h1 id="section-5">8</h1>
-<p>以一个受 数据缓存性能限制 的工作负载为例。
-该方法标记了后端受限（Backend Bound），而前端受限（Frontend
-Bound）不会被标记。这意味着用户需要下一步深入研究后端受限（Backend
-Bound）类别，而忽略所有与前端相关的问题。 在深入研究后端受限（Backend
-Bound）时，如果应用程序被认为对缓存敏感，那么会标记内存受限（Memory
-Bound）类别。
-类似地，在这一点上，用户可以跳过非内存相关的问题。接下来，进行内存受限（Memory
-Bound）的深入研究。 L1、L2和L3-Bound自然地细分了内存受限（Memory
-Bound）类别。每个类别表示工作负载受到该缓存级别限制的部分。L1受限（L1
-Bound）应该在那里被标记。
-该方法最终会建议用户将注意力集中在这个领域上。</p>
-<h1 id="section-6">9</h1>
-<p>在高度复杂的微架构中，首先需要对流水线活动进行一级分类。第一个有趣的问题是如何以及在哪里进行第一级分解？我们选择问题点（在图1中用星号标记）作为自然的边界，将机器的前端和后端部分分割开来。这样可以实现高度准确的最高级别分类。</p>
-<p>在问题点上，我们将每个流水线槽分类为四个基本类别：前端受限（Frontend
-Bound）、后端受限（Backend Bound）、坏预测（Bad
-Speculation）和退役（Retiring），</p>
-<p>如图3所示。如果在给定的周期内发出了一个微操作（uop），它最终将被退役或取消。因此，它可以分别归属于退役或坏预测类别。</p>
-<p>否则，流水线槽可以被分为是否存在后端停顿。后端停顿是后端在资源不可用（例如缺少加载缓冲区条目）时施加的反压机制。在这种情况下，我们将停顿归因于后端，因为即使前端准备好了更多的微操作，它也无法将它们传递到流水线中。
-如果没有后端停顿，这意味着前端在后端准备接收微操作时应该已经传递了一些微操作；因此，我们将其标记为前端受限。</p>
-<p>分类是以流水线槽的粒度进行的</p>
-<p>100%的退役对应于达到给定微架构每个周期最大可退役的uops数。例如，假设一个指令解码成一个uop，50%的退役意味着在一个四路发射机器上实现了IPC为2。</p>
-<p>然而，高退役值并不一定意味着没有提升性能的空间。诸如浮点（FP）辅助之类的微码序列通常会降低性能，可以避免使用<a
-href="#section-4">7</a>。它们在微序列度量下被隔离，以引起用户的注意。</p>
-<p>对于非矢量化代码，高退役值可能是用户矢量化代码的一个好的提示。这样做实际上使得更多的操作可以由单个指令/uop完成，从而提高性能。</p>
-<h1 id="section-7">12</h1>
-<p>计数器架构是指在计算机系统中用于性能监测和分析的计数器的结构和组织方式。</p>
-<p>我们假设有一个基线的常见性能监控单元（PMU），它具有有限数量的通用计数器，但这些计数器可以用于计算多个性能事件。我们需要一组性能事件来捕获关键层级节点（以实现对性能层次结构节点的特征化），其中只有8个是新的TopDown事件，其余的已经存在于PMU中。</p>
-<p>（PMU是一个硬件组件，负责监测和测量计算机系统的各种与性能相关的指标。它提供计数器，可以编程以计算特定的事件，例如缓存失效、分支指令或内存访问。）</p>
-<p>以 Frontend Bound（前端受限）为例，该架构使用了以下指标和事件：</p>
-<ul>
-<li>TopDown 事件：
-<ul>
-<li>FetchBubbles：未被利用的发射流水线插槽，且没有后端停顿。</li>
-<li>TotalSlots：发射流水线插槽的总数（例如，英特尔处理器中为
-4*时钟周期）。</li>
-</ul></li>
-<li>TopDown 指标：
-<ul>
-<li>Frontend Bound（前端受限）= FetchBubbles / TotalSlots。</li>
-</ul></li>
-</ul>
-<p>这个指标可以用来衡量前端是否限制了整体性能，即是否有大量未被利用的发射流水线插槽导致性能瓶颈。</p>
-<h1 id="section-8">13</h1>
-<p>事件名称：总槽位数（TotalSlots） 定义：总的发射流水线槽位数量。
-解释：该事件用于统计线程未停顿的时钟周期数，可用于估计处理器的工作负载。</p>
-<p>事件名称：发射槽位利用数（SlotsIssued）
-定义：用于发射操作的已利用发射流水线槽位数量。
-解释：该事件统计发射的微操作数量，包括任何类型的微操作。</p>
-<p>事件名称：退休槽位利用数（SlotsRetired）
-定义：用于退休（完成）操作的已利用发射流水线槽位数量。
-解释：该事件统计已退休（完成）的微操作数量，即已成功执行的操作数量。</p>
-<p>事件名称：取指气泡（FetchBubbles）
-定义：在没有后端停顿的情况下未利用的发射流水线槽位数量。
-解释：该事件用于统计未交付到指令队列的微操作数量，表示未利用的发射槽位数量，当发射流水线上没有后端停顿时。</p>
-<p>事件名称：恢复气泡（RecoveryBubbles）
-定义：由于从先前的错误预测中恢复而未利用的发射流水线槽位数量</p>
-<h1 id="section-9">14</h1>
-<p>在顶层（Top Level），图5a显示了基准测试应用程序的多样化分布。
-从性能角度来看，Retiring类别接近50%，与相同一组运行的聚合IPC约为1.7相符。请记住，100%的Retiring意味着每个周期有四个已退休的uop，而对于SPEC
-CPU2006，平均而言，一个指令被解码成略多于一个uop。请注意，Retiring与IPC的相关性良好，这是为了与已建立的指标进行交叉验证。</p>
-<p>整体上，Backend Bound占主导地位。</p>
-<p>整数型应用程序对前端限制（Frontend Bound）和错误预测（Bad
-Speculation）更为敏感，而浮点型应用程序则相对较不敏感。
-这与使用专有的逐周期模拟器进行的模拟数据以及Jaleel的先前分析一致。例如，Jaleel的分析报告称gcc、perlbench、xalancbmk、gobmk和sjeng的代码占用空间超过32KB，它们被归类为前端限制最严重的工作负载。请注意，通过这种分类方式，可以更容易地评估多个瓶颈的相对重要性。</p>
-<h1 id="section-10">15</h1>
-<p>在微架构的支持方面，Haswell（第四代Core处理器）改进了前端部分。它引入了具有更好时序的预测性iTLB（指令翻译缓冲器）和缓存访问，以提高预取的效益。</p>
-<p>这些改进使得受益于此的基准测试清楚地显示了前端受限的减少。这意味着在Haswell处理器上使用Top
-Down
-Analysis（自顶向下分析）时，可以更好地识别和分析前端部分对性能的影响。</p>
-<h1 id="section-11">16</h1>
-<p>在运行4个副本的情况下，
-顶层显示与单个副本相似，但仔细观察，<strong>某些应用程序确实表现出更大的Backend
-Bound</strong>。根据图6b中更大的Memory
-Bound比例，这些是内存敏感型应用程序。这是可以预期的，<strong>因为L3缓存在核心之间是“共享”的</strong>。由于每个物理核心中都运行着相同的线程，并且给定CPU2006几乎没有i-cache缺失，因此4个副本中的前端限制（Frontend
-Bound）和错误预测（Bad Speculation）与单个副本几乎没有变化。</p>
-<p>对于不太可扩展的应用程序，将Figure 6c与Figure 5c
-4进行比较可以看出，Memory Bound的细分指向了<strong>核外争用</strong>。
-主要差异出现在两类应用程序中，一类是<strong>对可用内存带宽敏感的应用程序</strong>，另一类是受到线程之间共享缓存竞争影响的应用程序。其中一个例子是470.lbm，它以其高内存带宽需求而闻名<a
-href="#section-7">12</a>。在1个和4个副本之间，其大型的MEM
-Bound是主要的差异。</p>
-<p>另一个重要的例子是482.sphinx3。仔细观察Memory
-Bound的细分可以发现，4个副本的L3 Bound减少，而MEM
-Bound大幅增加；共享L3缓存中的线程之间的容量竞争导致更多的L3缺失。这个结论可以通过查看此工作负载的工作集进行验证[11]：单个副本在1个副本中需求8MB（与LLC容量相同），而4个副本运行时每个核心的LLC共享为2MB有效。</p>
-<h1 id="section-12">17</h1>
-<p>在这个案例研究中，我们以"Matrix
-Multiply"（矩阵乘法）为例进行了迭代的Top-Down分析。下面是具体的分析过程：</p>
-<ol type="1">
-<li><p>初始情况：矩阵较大，内存访问是性能的瓶颈（MEM
-Bound）。这意味着矩阵乘法的执行受限于内存访问速度，而不是处理器的计算能力。</p></li>
-<li><p>循环交换（Loop
-Interchange）：进行了12倍的循环交换优化。通过重新排列循环，可以更好地利用处理器的执行端口，从而减少了核心受限（CoreBound）的情况。现在，性能瓶颈不再是内存访问，而是处理器核心的利用率。</p></li>
-<li><p>向量化（Vectorization）：经过向量化优化后，性能提升了17倍。向量化是利用处理器的向量指令集来并行处理多个数据元素的技术。这进一步减轻了核心受限的情况，提高了矩阵乘法的执行效率。</p></li>
-<li><p>结果：通过这些优化步骤，multiply3（第三次优化后的矩阵乘法）成功减轻了核心受限的问题。这意味着处理器核心的利用率得到了更好的改善，从而提高了整体性能。</p></li>
-</ol>
-<p>这个案例研究说明了如何使用Top-Down分析来识别性能瓶颈并应用优化策略来改进矩阵乘法的执行效率。通过不断迭代分析和优化，我们能够逐步解决不同的性能限制，从而取得更好的性能结果。</p>
-<p>使用Top-Down对矩阵相乘的经典内核进行了分析。这展示了性能调优的迭代性质。</p>
-<p>在multiply()函数的初始代码中，由于大矩阵以不友好的方式遍历，它非常受限于内存。这导致了内存限制。</p>
-<p>通过在multiply2()中应用循环交换优化，获得了显著的加速。优化后的代码仍然受限于后端，但从内存限制转变为受核心限制。</p>
-<p>接下来，在multiply3()中尝试进行向量化，它通过减少端口利用率和减少净指令数进一步提高了性能。这实现了另一个加速效果。</p>
-<h1 id="section-13">18</h1>
-<p>在相关的研究中，有一些与性能分析和优化相关的工作。以下是对这些研究的简要描述：</p>
-<ol type="1">
-<li><p><a href="#section-3">4</a>
-使用了朴素方法：这些研究采用了一种简单的方法来进行性能分析，可能没有考虑到复杂的因素和优化策略。</p></li>
-<li><p>[6] IBM POWER5：该研究使用了IBM
-POWER5处理器，并在提交阶段对CPI进行了分解，并统计了各种类型的下一条指令的停顿周期。</p></li>
-<li><p><a href="#section-3">5</a>
-周期计算（x-Intel）：这项研究在执行阶段对周期进行了详细的分解，以提供更详细的性能信息。</p></li>
-<li><p>[1][6]<a href="#section-5">8</a>
-CPI堆栈：这些研究使用基于模拟的间隔分析，以改进性能分析的准确性，相比于朴素方法有所提高。然而，这些方法可能需要更高的硬件成本，并且在某些情况下需要额外的逻辑用于惩罚计算和聚合。</p></li>
-<li><p><a href="#section-8">12</a>
-数据局部性和可扩展性瓶颈：这些研究使用基于仪器和模拟的工具，针对数据局部性和可扩展性瓶颈进行分析。一旦发现内存受限情况，可以调用高级的优化特定技术来进行优化。</p></li>
-</ol>
-<p>这些研究与性能分析和优化相关，提供了不同的方法和技术来理解和改进计算机系统的性能。在使用Top
-Down进行性能分析时，可以借鉴这些研究的成果，并结合具体的问题和目标进行相应的分析和优化。</p>
-<h1 id="section-14">19</h1>
-<p>总结如下：</p>
-<ul>
-<li><p>Top
-Down分析方法：该方法可以识别关键的瓶颈，它简单、结构化且快速。它已经在许多工作负载中得到验证，并在生产环境中使用，例如VTuneTM和perf*。此外，它还具有与Intel核心的向前兼容性。</p></li>
-<li><p>计数器架构：为了支持通用的乱序处理器，设计了计数器架构。它使用了8个简单的事件，成本较低，并且在不同平台之间实现了标准化。</p></li>
-</ul>
-<p>作者鼓励读者查看他们的论文，并提供反馈意见。</p>
-]]></content>
-      <categories>
-        <category>体系结构</category>
-        <category>Topdown</category>
-      </categories>
-      <tags>
-        <tag>Paper</tag>
-        <tag>Pre</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>线段树</title>
     <url>/zyhjy/2023/07/27/%E7%BA%BF%E6%AE%B5%E6%A0%91/</url>
     <content><![CDATA[<h2 id="线段树">线段树</h2>
@@ -7810,6 +7810,506 @@ max\_load\_factor\)</span>，则需要对<code>hash_table</code>扩容。<code>h
       <tags>
         <tag>offer</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Memory-Efficient Hashed Page Tables</title>
+    <url>/zyhjy/2023/07/31/Memory-Efficient-Hashed-Page-Tables/</url>
+    <content><![CDATA[<h1 id="memory-efficient-hashed-page-tables">Memory-Efficient Hashed
+Page Tables</h1>
+<p>该论文工作基于<em>Elastic Cuckoo Page Tables: Rethinking Virtual
+Memory Translation for Parallelism</em>展开。</p>
+<h3 id="摘要">摘要</h3>
+<p>传统的基数树页表在可扩展性方面存在挑战，因为在TLB（转换后备缓冲器）未命中后，地址转换可能需要多次连续的内存访问。另一种选择是哈希页表（HPTs），在这种情况下，概念上地址转换只需要一次内存访问。传统上，由于处理冲突的成本高和其他限制，HPTs一直被回避。尽管最近的进展使得HPTs变得引人注目，HPT设计中的一个主要问题依然是它们对相当连续(
+substantial <em>contiguous</em>)的物理内存的需求。</p>
+<p>本文解决了这个问题。为了最小化HPTs对连续内存的需求，它引入了<em>逻辑到物理表</em>（<em>Logical
+to Physical (L2P)
+Table</em>）和<em>动态变化块大小</em>(<em>Dynamically-Changing Chunk
+Sizes</em>)的使用。这些技术将HPTs分解成不连续的物理内存块。此外，本文还介绍了两种最小化HPTs总内存需求的技术，间接地降低内存的连续性需求。这些技术是<em>原地页表调整(</em>In-place
+Page Table Resizing<em>)和逐路调整(</em>Per-way
+Resizing<em>)。我们称这个完整的设计为</em>内存高效*的HPTs（ME-HPTs）。与最先进的HPTs相比，ME-HPTs:
+(i) 平均减少了92%的连续内存分配需求，(ii)
+平均提高了8.9%的性能。对于两个最要求的工作负载，连续内存需求从64MB减少到1MB。此外，与最先进的基数树页表相比，ME-HPTs
+在平均速度上实现了1.23倍的加速（不使用大页面）和1.28倍的加速（使用大页面）。</p>
+<span id="more"></span>
+<hr />
+<h4 id="tips">tips:</h4>
+<p><strong>Radix tree</strong>（基数树），也称为 Patricia
+tree（前缀树），是一种用于实现动态集合或关联数组的数据结构。它通常用于在计算机科学中高效地存储和查找大量的键-值对。</p>
+<p>基数树的特点在于它将键按照前缀进行分割，并将每个前缀存储在树的节点上。这样做可以大幅减少树的高度，从而提高查找效率。基数树的每个节点可以包含一个或多个字符，而不是像二叉查找树那样每个节点只能包含一个键。</p>
+<p>由于基数树在每个节点上都存储了部分键，所以在查找时，只需要按照键的前缀逐级搜索树，而无需遍历整个树。这使得基数树在某些情况下比传统的平衡树结构（如红黑树）更加高效。</p>
+<p>基数树通常用于处理字符串的搜索和匹配问题，比如在字典中查找单词，路由表中查找IP地址，以及许多其他数据检索的场景。在操作系统中，基数树常用于虚拟内存管理，特别是在页表结构中，用于将虚拟地址映射到物理地址。</p>
+<hr />
+<h2 id="introduction">1. INTRODUCTION</h2>
+<p>目前最先进的页表使用基数树（radix-tree）组织[5]，[42]。在TLB未命中时，地址转换通过遍历一个页面树来进行，该树逐步将搜索导向包含所需转换的叶子节点。这种方法高效地使用内存，并经过几十年的多重缓存结构优化。然而，它的可扩展性很差。原因在于，为了获得正确的转换，系统可能需要<em>依次</em>执行高达四次内存访问。每次访问都使用前一次访问返回的值作为其地址。这个过程可能很慢，并且无法充分利用现代处理器提供的内存级并行性。此外，随着另一层被添加到转换树中以满足新兴应用程序更大的内存需求[40]，[41]，这个过程变得越来越慢。</p>
+<p>基数树页表的替代方案是哈希页表（hashed page
+tables，简称HPTs）[18]，[24]，[26]，[33]，[36]，[37]，[39]，[44]，[45]，[77]，[83]，[88]。在这里，转换信息被保存在一个表中。在TLB未命中时，地址转换通过哈希虚拟页号，并使用哈希键索引表来获取物理页号。假设没有哈希冲突，这种方法只需要进行一次内存访问即可完成地址转换。</p>
+<p>传统上，哈希页表（HPTs）由Barr等人[9]指出至少有三个不受欢迎的原因。首先，访问页表缺乏空间局部性。这是因为哈希散布了相邻虚拟页面的转换。其次，需要将哈希标签（即虚拟页号）与每个HPT条目关联，这会消耗空间。最后，处理哈希冲突是昂贵的：要么需要复杂的硬件，要么操作系统需要遍历冲突的条目[9]，[39]，[88]。</p>
+<p>另一个问题是，理论上的一个单一全局HPT来保存机器中所有活动进程的页表条目是行不通的[24]，[83]，[88]。原因在于，为了支持进程之间的页面共享和多种页面大小，需要在转换中添加额外的间接级别。此外，在进程终止时，需要顺序搜索HPT以删除过时的条目和修复冲突。另一种方法是使用每个进程一个HPT，但这种方法很具有挑战性[77]，因为不清楚如何设置每个进程的HPT大小。为每个进程分配大型HPT会导致内存耗尽的风险。</p>
+<p>近期的进展使HPTs变得更加引人注目。例如，为了改善HPT的局部性，Yaniv和Tsafrir[88]将多个连续的页表条目放在一个单独的缓存行中。此外，他们使用未使用的位对每个条目编码哈希标签。另外，Skarlatos等人[77]使用Cuckoo哈希来有效处理哈希冲突。此外，他们通过在创建进程时分配小型HPT，并使用弹性Cuckoo哈希相对廉价地动态增长HPTs来支持每个进程的HPTs。</p>
+<p>然而，HPT设计的一个重要缺点是它们需要相当数量的<em>连续</em>物理内存。这个需求源于明显需要将HPT（或者更精确地说，每个HPT的分支）放在连续的物理内存中。在我们的测量中，一个HPT分支可以达到64MB。在实践中，在繁忙的计算机中分配一个大块连续内存通常是耗时的，并且在某些情况下可能导致程序失败。相比之下，在基数树页表中，找到连续的内存并不是一个问题，因为内存是一次分配一个页面。</p>
+<p>本论文解决了HPT的这个缺陷。为了最小化HPT对连续内存的需求，我们引入了两种技术：<em>逻辑到物理表</em>和<em>动态变化块大小</em>的使用。这些技术将HPT分解成内存高效、不连续的物理内存块。此外，我们还引入了另外两种技术，最小化HPT的总内存需求，并间接地减少了内存的连续性要求。这些技术是<em>原地页表调整</em>和<em>逐路调整</em>。我们将得到的设计称为<em>内存高效</em>的HPTs（ME-HPTs）。</p>
+<p>我们通过全系统模拟运行一组内存密集型工作负载来评估ME-HPTs。与最先进的HPT相比，ME-HPTs：(i)
+平均减少了92%的连续内存分配需求，(ii)
+平均提高了8.9%的性能。对于两个最要求的工作负载，连续内存需求从64MB减少到1MB。此外，与最先进的基数树页表相比，ME-HPTs
+在平均速度上实现了1.23倍的加速（不使用大页面）和1.28倍的加速（使用大页面）。</p>
+<p>本文的贡献包括：</p>
+<ul>
+<li>内存高效的HPTs（ME-HPTs），引入了四种新技术，直接或间接地最小化了HPT需要的连续物理内存。</li>
+<li>对ME-HPT技术的评估，表明它们解决了HPT的内存连续性限制问题。</li>
+</ul>
+<h2 id="background">2. BACKGROUND</h2>
+<h3 id="a.-limitations-of-radix-tree-page-tables"><em>A. Limitations of
+Radix-Tree Page Tables</em></h3>
+<p>当前处理器主要使用基数树（radix-tree）页表，这种页表以树的形式进行组织。在TLB未命中时，硬件按顺序遍历树的每个级别。图1显示了x86-64翻译的过程，它在搜索对应于虚拟地址（VA）的物理地址（PA）时，需要访问四个<em>连续</em>的页表：PGD（Page
+Global Directory）、PUD（Page Upper Directory）、PMD（Page Middle
+Directory）和PTE（Page Table Entry）。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731142926230.png"
+alt="image-20230731142926230" />
+<figcaption aria-hidden="true">image-20230731142926230</figcaption>
+</figure>
+<p>现代处理器使用小的Page Walk Caches (PWCs)
+[2]，[9]，[12]，[13]来缓存中间页表条目，以避免在每一步中访问内存。然而，许多新兴应用程序会溢出这些缓存，导致关键路径上出现多次连续的内存访问。此外，制造商正在增加转换树中的级数。例如，新的英特尔Sunny
+Cove
+[40]，[41]在树中添加了第五级。然而，随着非易失性存储器的出现，非常大的内存可能会出现，这种方法几乎没有可扩展性。</p>
+<h3 id="b.-hashed-page-tables"><em>B. Hashed Page Tables</em></h3>
+<p>哈希页表（Hashed page
+tables，简称HPTs）[18]，[24]，[26]，[33]，[36]，[37]，[39]，[44]，[45]，[77]，[79]，[83]，[88]采用了不同的设计。在TLB未命中时，地址转换通过对虚拟页号（VPN）进行哈希，并使用哈希键索引页表来完成。假设没有哈希冲突，地址转换只需要一次内存访问。HPTs已经在IBM
+PowerPC [38]，HP PA-RISC [37]和Intel Itanium [39]架构中实现。</p>
+<h4 id="challenges-of-hashed-page-tables.">Challenges of Hashed Page
+Tables.</h4>
+<p>哈希页表（HPTs）存在一些限制，导致业界不太青睐它们[9]。首先，HPT的访问失去了空间局部性。这是由于哈希散布了相邻虚拟页面的HPT条目。此外，需要将哈希标签与每个页表条目关联，这会消耗内存空间。最重要的是，哈希冲突会导致更多的内存访问，因为系统需要遍历冲突链[9]。诸如冲突链(collision
+chaining)[39]和开放地址法(open
+addressing)[88]等策略引入了昂贵的内存引用，用于遍历冲突的条目。</p>
+<p>除此之外，无法通过简单的设计实现一个包含机器中所有活动进程的页表条目的单一全局HPT
+[24]，[88]。原因在于，支持多种页面大小（例如，大页面）或进程之间的页面共享需要额外的复杂性。例如，为了支持这两个特性，IBM
+PowerPC架构为每个内存引用使用了一个两级的转换过程[38]。此外，当一个进程被终止时，系统需要对整个HPT进行线性扫描，以找到并删除该进程的条目。不幸的是，删除一个条目的成本很高：可能需要长时间的哈希表查找（对于开放地址法）或者遍历冲突链。此外，在开放地址法中删除一个页表条目可能会影响未来查找中的冲突探测。</p>
+<h4 id="making-hashed-page-tables-compelling.">Making Hashed Page Tables
+Compelling.</h4>
+<p>近期的研究解决了一些HPT的限制。例如，Yaniv和Tsafrir
+[88]提出了一种HPT设计，使用了页表条目聚集，将多个连续的页表条目放在一个单独的HPT条目中，其大小等于一个缓存行。此外，他们还提出了页表条目压缩(Page
+Table Entry
+Compaction)，将多个连续的页表条目的未使用的高位用于存储哈希标签。</p>
+<p>为了简化冲突处理，Skarlatos等人[77]，[79]提出在HPT中使用了Cuckoo哈希算法[64]。给定页面大小的HPT采用W路组相联的方式，每个路使用不同的哈希函数。要插入一个元素p，选择一条路，并将p插入其哈希位置。如果选定的条目已经被使用，当前占用者q将被挤出，并在另一条路中重新插入，在q的哈希位置上。如果该位置也被使用，就再次挤出占用者，并重复这个过程。该过程可能会多次重复。通过仔细设置允许的最大HPT占用量，可以选择一个合理的最大重插次数，使最终HPT条目被逐出的概率非常小。在Cuckoo哈希中，元素查找需要检查所有W路（并行进行）。</p>
+<p>Skarlatos等人的设计[77]，[79]采用了<em>进程私有</em>的HPT（哈希页表）。与使用可能会在高负载机器上耗尽内存的默认每个进程的HPT大小不同，HPT开始时很小，并且可以<em>动态调整大小</em>。该方案被称为Elastic
+Cuckoo Page
+Tables（ECPTs）。当HPT占用量达到高阈值时，会触发一个<em>扩容</em>操作；当HPT占用量达到低阈值时，会触发一个<em>缩容</em>操作。这些扩容/缩容操作不会停止程序执行：它们会与程序执行高效地重叠。</p>
+<h4 id="mechanics-of-an-hpt-upsize.">Mechanics of an HPT Upsize.</h4>
+<p>当一个W路组相联的HPT占用量达到高阈值时，会分配一个新的双倍大小的W路组相联的HPT[77]。从此以后，每当操作系统被调用来将一个元素插入HPT时，操作系统会利用这个机会将一个元素从旧的HPT重新散列（即移动）到新的HPT。为了高效地执行<em>重新散列</em>，每个旧HPT的路i都添加了一个<em>重新散列指针</em>$P_i
+<span class="math inline">\(。在每个路中，\)</span>P_i <span
+class="math inline">\(最初指向HPT的基址。在从路i重新散列一个元素时，操作系统取\)</span>P_i
+<span
+class="math inline">\(指向的元素，将其插入到新的HPT的路i中，并将\)</span>P_i
+<span class="math inline">\(递增。在任何时候，\)</span>P_i <span
+class="math inline">\(将旧HPT的路i划分为两个区域：索引小于\)</span>P_i
+<span
+class="math inline">\(的条目（*迁移区域*）和索引等于或大于\)</span>P_i
+$的条目（<em>存活区域</em>）。随着逐步重新散列的进行，旧HPT中的路的迁移区域不断增长。最终，当迁移区域完全覆盖所有路时，旧HPT将被释放。</p>
+<p>在调整大小过程中，将元素p插入W路组相联的HPT的过程如下。系统随机选择旧HPT的一条路，并使用其哈希函数对p进行哈希。如果哈希键落在该路的存活区域内，元素将被插入到旧的HPT中；否则，p将使用新HPT的相同路的哈希函数进行哈希，并将元素插入新HPT中。通过这种设计，在调整大小期间查找元素p只需要W次探测(probes,
+探测不等于哈希，探测是指根据hash结果去找对应的entry，涉及一次内存访问)。事实上，p是使用旧HPT的所有哈希函数进行哈希的。对于每条路i，如果哈希键落在存活区域，将对旧HPT的路进行探测；否则，p将使用新HPT中相同路的哈希函数进行哈希，并对新HPT的路进行探测。这样，通过利用已有的旧HPT和新HPT的哈希函数，可以高效地实现元素的插入和查找过程。</p>
+<h2 id="motivation-for-improving-hpts">3. MOTIVATION FOR IMPROVING
+HPTS</h2>
+<p>虽然前面提到的进展使HPTs具有竞争力，但HPTs仍然有一个重要的限制：它们需要分配相当数量的连续物理内存。这在表I中有所体现，该表列出了我们在本研究中分析的一些应用程序的特性。这些应用程序将在第VI节中进行讨论。</p>
+<p>在表I中，可能会看到这些应用程序对于HPT的内存需求较大，并且需要大块的连续物理内存来存储它们的页表数据结构。这可能会导致在繁忙的系统中分配这些大块连续内存成为一个耗时的过程，并且在某些情况下可能会导致程序执行失败。因此，HPT设计中如何减少对连续物理内存的需求仍然是一个重要的挑战，值得进一步研究和解决。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731150538530.png"
+alt="image-20230731150538530" />
+<figcaption aria-hidden="true">image-20230731150538530</figcaption>
+</figure>
+<p>表中的第2列显示了应用程序数据的最大内存消耗。第3列和第4列分别显示了使用基数树和ECPT组织的页表分配的最大<em>连续</em>内存。在基数树组织中，连续内存始终为4KB，这是一个页面的大小。在ECPT组织中，所显示的数字是HPT一路（way）的最大大小。<em>直观地说</em>，一个组相联的HPT的每个路都需要在连续的物理内存块中进行分配。ECPT的这些数字对应于没有用于应用程序数据的<strong>透明大页面</strong>（transparent
+huge pages
+，THP）[85]的环境，这是最不利的情况。从表中可以看出，两个应用程序中的HPT一路使用了64MB的连续内存。</p>
+<p>在繁忙的服务器中分配大块连续内存是昂贵的，尤其是当内存高度碎片化时。我们在一个基于Linux的服务器上进行了实验，使用了一个开源的碎片化工具[1]来测试不同碎片化水平下的性能。我们测得，在2
+GHz和0.7碎片化（即较高）的FMFI度量[32]，[49]中，分配和清零4KB、8KB、1MB、8MB和64MB内存块分别需要4K、5K、750K、13M和120M个周期。这些数据与先前的测量结果一致[49]。随着块大小的增加，开销增加得更快。<em>更重要的是</em>，当我们将内存碎片化程度提高到0.7以上时，系统无法分配64MB的连续内存，并返回错误。因此，ECPT的运行无法完成。</p>
+<p>第5列至第8列显示了使用基数树和ECPT组织的页表在没有和使用THP的情况下的最大内存消耗。可以看出，与没有THP的基数树相比，ECPT的页表内存使用量平均增加了138%；与使用THP的基数树相比，ECPT的页表内存使用量平均增加了128%。与应用程序数据消耗的内存相比，页表消耗的内存更高，但并不显著。然而，正如我们将在后面展示的那样，减少HPT的总内存消耗也有助于减少其对连续内存的需求。</p>
+<hr />
+<h4 id="tips-1">tips:</h4>
+<p>透明大页面（<em>Transparent Huge
+Pages</em>，简称THP）是一种内存管理技术，用于优化大内存页面的使用。在传统的页面管理中，内存被分成固定大小的页面，通常是4KB大小。然而，对于一些内存密集型应用程序或工作负载，使用更大的页面（比如2MB或1GB）可能会提高性能，因为更大的页面可以减少页表的大小，减少内存访问的开销。</p>
+<p>THP允许操作系统动态地将多个连续的小页面合并成一个大页面，并将这些大页面透明地提供给应用程序。这样，应用程序无需修改代码，也无需知道大页面的存在，操作系统会自动将小页面合并为大页面，并对应用程序透明地提供更大的内存页面。</p>
+<p>THP的使用可以提高内存访问效率和系统性能，特别是对于那些需要大量内存的应用程序。它是操作系统在内存管理方面的一项优化技术，可以有效地减少页表的大小，并降低内存访问的开销，从而提高系统的整体性能。</p>
+<hr />
+<h2 id="designing-memory-efficient-hpts">4. DESIGNING MEMORY-EFFICIENT
+HPTS</h2>
+<p>为了解决HPT（Hashed Page
+Tables）连续性问题，我们提出了四种新的硬件辅助原语来实现内存高效的HPT。其中两种直接减少HPT需要的连续物理内存：(i)
+<em>逻辑到物理（L2P）表</em>和(ii)
+<em>动态更改块大小</em>。另外两种间接减少HPT需要的连续物理内存，通过减少HPT所需的总物理内存：(i)
+<em>原地页表调整</em>(<em>In-place Page Table Resizing</em>)和(ii)
+<em>逐路调整</em>(<em>Per-way Resizing</em>)。</p>
+<h3 id="a.-logical-to-physical-l2p-table"><em>A. Logical to Physical
+(L2P) Table</em></h3>
+<p>如图2a所示，传统的HPT（Hashed Page
+Table）路需要在一个连续的内存区域中进行分配。这是因为在TLB（Translation
+Lookaside
+Buffer）缺失时，虚拟页号（VPN）被进行哈希计算，得到的哈希键与HPT的基地址相加，从而得到对应的物理页号（PPN）的入口。这种设计不允许表中出现不连续性，这与基数页表不同。在我们的实验中，我们发现有些应用的HPT每个路需要高达64MB的内存。找到64MB连续内存通常是耗时的。此外，在内存高度碎片化的机器上，我们发现这会导致程序崩溃。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801181109866.png"
+alt="image-20230801181109866" />
+<figcaption aria-hidden="true">image-20230801181109866</figcaption>
+</figure>
+<hr />
+<h4 id="tips-2">tips</h4>
+<p>hash算出来的是vpn对应的entry的index。</p>
+<hr />
+<p>为了解决这个问题，我们提出了一种设计，将HPT的每个路（way）分成多个固定大小的<em>块</em>（Chunk），这些块不需要连续。然后，在内存管理单元（MMU）中添加一个小的间接表，称为<em>逻辑到物理（L2P）表</em>，用于将访问重定向到这些块。这种机制对软件透明，而且硬件高度局部化。通过合理选择参数，每个块只需要适量的连续内存，而L2P表足够小，具有可接受的访问时间。</p>
+<p>如图2b所示，HPT的路被拆分为大小为<em>ChunkSize</em>（CS）的一组块。在TLB缺失时，VPN的哈希值被除以CS，并添加到L2P表的基地址。该位置的内容（如图2b中的b1）是一个指向包含所需PPN的块的基地址的指针。然后，VPN的哈希值取模CS，并添加到块的基地址，从而得到具有PPN的入口。</p>
+<p>在任何时候，MMU只包含当前正在运行的进程的L2P表。在上下文切换时，操作系统保存和恢复L2P表。此操作的开销较低。原因是，正如我们将在后面看到的那样，L2P表不是很大，我们只需要保存和恢复正在使用的L2P表条目，这些条目平均只占所有条目的一小部分。</p>
+<p>由于CS是2的幂，图2b中的除法和取模操作实际上是<em>位移和掩码</em>操作。因此，我们估计，在硬件中访问时，一个MMU驻留的L2P表将在基线页面遍历（如图2a所示）中增加约几个周期的开销。这种开销是完全可以接受的，至少对于HPT的Elastic
+Cuckoo Page
+Table（ECPT）实现来说。这是因为这种开销在大多数情况下可以通过与ECPT的Cuckoo
+Walk Cache（CWC）访问的重叠来隐藏。我们将在第五节详细讨论细节。</p>
+<h3 id="b.-dynamically-changing-chunk-sizes"><em>B. Dynamically Changing
+Chunk Sizes</em></h3>
+<p>为了最小化L2P表的访问时间，L2P表必须足够小，最多可以容纳几十个块的指针。因此，我们需要设置CS的值，以便所有这几十个块的组合能够容纳一个HPT路的所有条目。</p>
+<p>在实践中，应用程序的行为有很大的差异。一方面，大数据应用程序分配大量内存，可能需要每个HPT路几十兆字节或几百兆字节。另一方面，许多系统服务、功能和微服务所需的内存较少，可能每个HPT路只需要几千字节。对于第一类应用程序，要容纳所有的页面映射，需要将每个块设置在兆字节的范围内。然而，对于第二类应用程序，大块会浪费大量内存。需要注意的是，在所有情况下，一个块由一次性分配的一个或多个连续物理页面组成。</p>
+<p>为了解决这个问题，我们提议根据应用程序的行为随时间<em>动态</em>改变分配给应用程序的块大小。我们选择一组从小到大的块大小。当一个应用程序启动时，它使用最小的块大小。随着应用程序增加其HPT路的需求，它可以改变块大小。有了这种支持，小内存和大内存应用程序的HPT都可以<em>高效地</em>使用非连续内存。</p>
+<p>第五节列出了我们使用的L2P表大小和不同块大小，并进行了解释。然而，为了理解操作，我们现在展示一个示例，该示例使用64个条目的L2P表，以及8KB和1MB的块大小。图3a显示了一个应用程序，它一开始只需要4KB的HPT路。在这种情况下，操作系统使用小的块大小（8KB），只分配一个块。只使用L2P表的一个条目，HPT路使用了8KB块的一半。如果应用程序的HPT路翻倍，操作系统简单地填满了块的后半部分，同时仍然只使用L2P表的一个条目（图3b）。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801202605397.png"
+alt="image-20230801202605397" />
+<figcaption aria-hidden="true">image-20230801202605397</figcaption>
+</figure>
+<p>如果应用程序进一步将其HPT翻倍至16KB，操作系统会分配第二个小块，并在L2P表中使用第二个条目（图3c）。这个过程重复进行，直到L2P表的所有64个条目都被使用，形成一个总共512KB大小的HPT路（图3d）。如果再次翻倍HPT大小，将触发块大小的转换，这涉及分配一个新的1MB块，将旧块中的条目重新哈希到新块中，并释放旧块。在调整大小后，我们使用L2P表的一个条目，指向1MB块（图3e）。进一步的扩大会分配更多的1MB块，因此会使用更多的L2P表条目。一旦L2P表的所有64个条目都指向完整的1MB块，另一个HPT的扩大将需要分配一个更大尺寸的块。总体上，无论是小尺寸的应用程序还是大尺寸的应用程序都可以高效地使用HPT内存。硬件使用MMU中的一些位来记录HPT当前使用的块大小，以及是否需要改变块大小进行扩大。</p>
+<h3 id="c.-in-place-page-table-resizing"><em>C. In-place Page Table
+Resizing</em></h3>
+<p>这项技术和接下来的一项技术都能减少HPT（Hashed Page
+Table）所需的总物理内存；我们稍后会看到，间接地它们也能减少连续物理内存的需求。</p>
+<p>为了理解这项技术，回想一下我们的最先进的基准方案（即ECPT），它在程序运行时动态调整HPT的大小，在调整大小期间，旧的和新的HPT共存于内存中。这种方法可能会占用相当大的内存。例如，我们的一些应用程序需要一个由三个64MB组成的HPT，总共192MB。因此，在调整大小为192MB时，新旧HPT表共占用192
++ 96 =
+288MB的内存。此外，调整大小操作需要时间，而在大多数程序的执行时间内，会有两个HPT（旧+新）共存于内存中；我们测得平均情况下，总执行时间的87.3％是这种情况。在机器上运行多个进程，每个进程都有一个针对不同页面大小的HPT，可能会导致多个HPT同时调整大小，从而消耗大量内存。</p>
+<p>操作系统需要对所有旧的HPT条目进行重新散列。然而，只有在插入新的HPT条目时，才会重新散列单个条目（或一小组条目）。等到有新的条目插入时才重新散列条目的原因是为了重复使用插入触发的操作系统调用。当然，可以为所有重新散列分配另一个操作系统线程，但这会增加开销。</p>
+<hr />
+<h4 id="tips-3">tips</h4>
+<p>重新散列的机制是什么？？？</p>
+<hr />
+<p>为了减少内存使用量，本文提出了<em>就地</em>HPT调整大小。其思想是让新旧HPT共享同一块内存空间。这确保在任何时候，两个HPT使用的内存等于两者中较大的那个，而不是两者的总和。为了形象化说明，图4显示了如何扩展HPT（a）在原地扩展和（b）非原地扩展。为简单起见，图中仅显示了一个HPT的路。此外，图中将HPT路描述为连续的内存。实际上，根据第IV-A和IV-B节，<em>HPT路（旧的和新的）由一组非连续的块组成</em>。</p>
+<p>为了与原始的ECPT论文一致，图4假设地址从图的顶部到底部递增。回忆一下，在进行传统的非原地调整大小的HPT（图4a）时，有三个区域：旧HPT中的Migrated和Live区域以及新HPT。插入操作将条目放入新的HPT或Live区域。重新散列将Migrated区域向下扩展，将Live区域的条目取出并插入到新的HPT中。Migrated区域不放置任何条目。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801203815590.png"
+alt="image-20230801203815590" />
+<figcaption aria-hidden="true">image-20230801203815590</figcaption>
+</figure>
+<p>在我们提出的就地调整大小方案（图4b）中，插入操作和重新散列操作都可能将条目放入Migrated区域，因为它与新的HPT重叠。为了防止这些新条目造成混淆，我们提出了一个简单的技术：新HPT使用与旧HPT相同的散列函数，但是为了索引新的HPT，在散列键的结果中使用了一个额外的位（在上调大小时）或减少了一个位（在下调大小时）。添加的位是散列键的最高有效位（most
+significant bit, MSB）之后的一位(The bit added is the one beyond the
+most significant bit (MSB) of the hash
+key,即更高的一位)；移除的位是散列键的最高有效位（MSB）。此外，我们只将HPT的每个路上调或下调到下一个较高/较低的<em>二次幂大小</em>。</p>
+<hr />
+<h4 id="tips-4">tips</h4>
+<p>散列函数的结果有很多位，比如n bit，旧的HPT只使用m
+bit，而新的扩容后的HPT使用m + 1 bit.</p>
+<hr />
+<h4 id="detailed-rehash-algorithm.">Detailed Rehash Algorithm.</h4>
+<p>在HPT调整大小期间，重新散列操作将一个元素从旧HPT的第i个路（Hi）移动到新HPT的相同方式（Hi′）。被移动的元素是位于Hi的Live区域顶部的元素，并由该方式的重新散列指针（Pi）指向（见第二节）。在移动后，Pi被递增。为了描述算法，首先考虑HPT的上调大小，然后再考虑HPT的下调大小。</p>
+<p>在HPT上调大小中，假设要重新散列的条目是图5a中的<em>OldEntry</em>。我们使用原始的散列函数对其VPN进行散列，但使用结果散列键的一个额外位。在这一点上，有两种可能的结果：如果额外位为零，该条目将保持原位（图5b中的<em>NewEntry</em>）；如果额外位为一，该条目将移动到新HPT的第二半部分，并在新HPT中与旧HPT相同的偏移位置（图5c中的<em>NewEntry</em>）。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801205831755.png"
+alt="image-20230801205831755" />
+<figcaption aria-hidden="true">image-20230801205831755</figcaption>
+</figure>
+<p>在HPT下调大小中，相反的情况发生：两个来自旧HPT的条目可能被重新散列到新HPT中的相同位置，因此其中一个条目将会被插入到不同的路中。例如，在图5d和图5e中，旧HPT的两个<em>OldEntry</em>条目将被重新散列到新HPT的相同位置，该位置由图5f中的<em>NewEntry</em>给出。</p>
+<h4 id="other-operations.">Other Operations.</h4>
+<p>在HPT调整大小期间执行的其他操作使用与弹性布谷哈希（Elastic Cuckoo
+Hashing）[77]中描述的相同算法。以下我们假设正在进行HPT上调大小。在查找操作中，对于每个路i，使用旧函数创建的哈希键与Rehashing
+Pointer（Pi）进行比较。如果哈希键大于或等于Pi，则使用旧哈希键来索引HPT；否则，使用新哈希键来索引HPT。新的哈希键与旧的哈希键相同，只是包含了最高位（MSB）之外的那一位。每个HPT路只需要单个访问。</p>
+<p>删除操作遵循查找过程，并在找到元素时清除该条目。最后，插入操作涉及随机选择一个路i，使用旧函数创建一个哈希键，并将哈希键与Pi进行比较。如果哈希键大于或等于Pi，则将元素插入由旧哈希键指向的条目；否则，将元素插入由新哈希键指向的条目。如果出现冲突，则将现有条目替换到另一个方式中。</p>
+<h4
+id="interaction-between-resizing-and-changing-chunk-sizes.">Interaction
+between Resizing and Changing Chunk Sizes.</h4>
+<p>所有不涉及更改块大小的上调和下调HPT操作都执行原地HPT调整大小。所有需要更改块大小的上调和下调HPT操作，根据设计要求，都需要进行非原地HPT调整大小。</p>
+<h4 id="d.-per-way-resizing"><em>D. Per-way Resizing</em></h4>
+<p>在现有的方案中，HPT以集合关联方式组织，以减少冲突，并且在调整大小时，所有W个路由、都进行上调或下调。然而，这种方法在内存使用上可能是不高效的：HPT每次都是倍增/减少大小，而实际上可能只需要稍微多一些/少一些空间。</p>
+<p>为了减少HPT内存消耗的浪费，我们提出了<em>逐路调整（Per-Way
+Resizing）</em>的方法。该方法的思想是一次只对一个路进行上调或下调。通过这种方法，在上调时，只需分配新HPT中原本需要添加的内存的1/W部分。与前一节一样，这种方法应用于由多个非连续块组成的HPT路。</p>
+<p>虽然这种改进节省了内存，但它引入了两个新问题。具体来说，我们需要确定选择哪个路进行上调或下调，同时避免路的不平衡。我们还需要确定在HPT中插入项的算法。接下来我们将讨论这些问题。</p>
+<h4 id="deciding-which-way-to-upsize-or-downsize.">Deciding Which Way to
+Upsize or Downsize.</h4>
+<p>在传统的全路调整大小中，操作系统保持一个包含整个HPT占用率的计数器；当计数器达到阈值时，HPT将被调整大小。而在每路调整大小中，操作系统使用每路计数器来跟踪每个单独路的占用率。当其中一个计数器达到阈值时，对应的路将被调整大小。</p>
+<p>需要避免以牺牲其他路为代价，反复对同一路进行上调（或下调）。为了保持不同路的平衡，我们在允许调整某一路之前添加一个额外的条件。具体来说，候选路的大小不能比另一路更大（在上调时），或者比另一路更小（在下调时）。通过这个约束，一条路永远不会比另一条路的大小大两倍（或小于一半）。</p>
+<h4 id="deciding-where-to-insert-an-element.">Deciding Where to Insert
+an Element.</h4>
+<p>在传统的设计中，所有的路都是等大小的，可以在插入时随机选择一条路，并自然地保持路的平衡占用率。然而，在每路调整大小的情况下，随机插入不再合适：调整大小后的路可能无法充分利用其全部容量，而其他路仍然会保持高占用率。这将导致频繁的冲突和重新插入。</p>
+<p>为了避免这个问题，我们提出了一种<em>加权</em>随机插入算法。具体来说，由于操作系统知道每个路的占用率和大小，它也知道每个路有多少空闲槽位。因此，我们的算法将将元素插入路i的概率设置为路i中空闲槽位数与所有路空闲槽位数之比。换句话说，我们在0到1之间生成一个随机数，并为每个路i赋予权重<span
+class="math inline">\(FREE_i/FREE_{sum}\)</span>。此外，如果某条路比其他路更大，并且其占用率已经达到了预定义的上限，我们将其权重设为零，从效果上阻止在该路中插入。</p>
+<p>采用这种算法后，我们可以得到期望的结果。首先，在某条路调整大小后，大多数插入操作会选择该路，从而推迟其他路的调整大小。其次，一旦一条较大的路的占用率达到了阈值，插入操作不会在调整较小的路之前选择该路。</p>
+<h3 id="e.-reducing-hpt-size-reduces-memory-contiguity"><em>E. Reducing
+HPT Size Reduces Memory Contiguity</em></h3>
+<p>最后两种技术是用于减小HPT尺寸的软件策略。然而，它们也可以间接地降低HPT的内存连续性要求。原因在于较小的HPT可能可以使用较小尺寸的内存块，而不需要较大HPT那样的块。例如，我们将在评估部分看到，多亏这些技术，我们的两个应用程序能够使用1MB内存块来构建它们的HPT，而不需要更大尺寸的块。</p>
+<h2 id="v.-me-hpt-implementation-aspects">V. ME-HPT IMPLEMENTATION
+ASPECTS</h2>
+<p>在这一节中，我们将讨论ME-HPT（Memory-Efficient Hashed Page
+Tables）的几个方面：L2P表项的“抢占”、选定的块大小、L2P表的可扩展性以及隐藏对L2P表的访问。</p>
+<h3 id="a.-l2p-table-entry-stealing"><em>A. L2P Table Entry
+Stealing</em></h3>
+<p>为了最小化访问时间，我们将每个应用程序的L2P表大小设置为每种页面大小和HPT路的32个条目。回想一下，我们支持三种页面大小（即4KB、2MB和1GB）。假设我们有三个HPT路，则对于一个应用程序，我们将有九个子表格在L2P表中。现在考虑第i个路的三个子表格，分别用于4KB、2MB和1GB的页面大小。很不可能这三个子表格都会被高度利用。最有可能的情况是其中一个或多个子表格的条目较少。因此，如果需要，我们允许某个页面大小的子表格从其他页面大小的子表格中“抢占”条目。这样可以更好地利用L2P表的条目。</p>
+<hr />
+<h4 id="tips-5">tips</h4>
+<p>假设有三种Page Size(4KB，2MB，1GB),则L2P表共3 *
+32共96个缓存行，每个缓存行有每一路的entry（多路组相连），下图为3路的情况。</p>
+<hr />
+<p>图6a展示了我们提出的设计。在MMU中，我们将同一路i的三个子表格连续放置。1GB的子表格放在中间，因为它最不可能被使用。4KB和2MB的L2P子表格在相反方向增长。图6a展示了4KB和2MB子表格各使用两个条目的情况。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802095758236.png"
+alt="image-20230802095758236" />
+<figcaption aria-hidden="true">image-20230802095758236</figcaption>
+</figure>
+<p>现在假设4KB子表格使用了全部32个条目并且需要进行扩容。如果1GB子表格中没有任何条目在使用中，我们允许4KB子表格从1GB子表格中获取所有条目，并扩容到64个条目（图6b）。这时候，内存块大小保持不变。如果之后，4KB子表格想再次进行扩容，它只能通过分配一个更大的内存块并将所有条目重新散列到新内存块中来完成。</p>
+<p>如果在4KB子表格从1GB子表格中获取所有条目后，1GB子表格需要一个条目，系统会使用2MB子表格中最重要的一个条目（图6c）。</p>
+<h3 id="b.-chosen-chunk-sizes"><em>B. Chosen Chunk Sizes</em></h3>
+<p>通过这种支持，我们选择内存块的大小从小到大依次为8KB、1MB、8MB和64MB。尽管对于我们的应用程序，我们只需要8KB和1MB的内存块。具体来说，让我们从最小的8KB内存块大小开始。当使用8KB内存块的子表格达到64个条目（图3d）时，它的HPT
+way将扩展到8KB×64 = 512KB。如果HPT
+way现在需要扩容，操作系统将内存块大小更改为1MB，分配一个单独的内存块，并在L2P表中使用一个条目（图3e）。</p>
+<p>如果应用程序使用1MB内存块填充了所有64个条目，每个way将使用64MB。如果HPT
+way现在需要扩容到128MB，操作系统将使用下一个内存块大小。由于这种情况很少发生，并且我们不想分配大的连续内存块，我们将下一个内存块大小设置为8MB。在这种情况下，操作系统分配16个内存块，并在L2P表中使用16个条目。如果应用程序填充了所有64个条目并且HPT
+way需要扩容，下一个内存块大小（很少使用）将为64MB。</p>
+<p>一个应用程序的L2P表的大小是适度的。考虑使用8KB内存块的最坏情况。对于一个46位的物理地址，8KB内存块的基地址为33位，后面跟着13个零。我们只需要存储这33位。因此，L2P表的总大小为32个条目×
+3个way × 3个页面大小 × 33位 = 1.16KB。</p>
+<p>请注意，内存块的大小不需要局限于上面列出的大小。相反，操作系统可以根据每个进程和每个系统状态做出决策。为了确定下一个内存块的大小，操作系统可以基于当前的内存碎片化水平和预期的最终HPT
+way大小动态使用启发式方法。我们将这个主题视为未来的工作。</p>
+<h3 id="c.-scalability-of-l2p-tables-with-changing-chunks"><em>C.
+Scalability of L2P Tables with Changing Chunks</em></h3>
+<p>ME-HPT提供了一种可扩展的HPT解决方案，通过L2P表和动态改变chunk大小实现。正如前面所述，MMU仅包含正在运行进程的L2P表。对于一个进程，L2P表包括所有页面大小和way，共有288个条目，使用1.16KB的内存。在进行上下文切换时，操作系统只保存和恢复L2P表中的有效条目，这些条目通常聚集在表的两端。应用程序通常只使用L2P表的几个条目。在第VII-E4节中，我们将展示平均来看，它们只使用53个条目。因此，保存和恢复L2P表的开销是适度的。此外，在虚拟化系统中，开销会更小，有两个原因。首先，由于客户机HPT不是连续的，它们分布在主机页面中，因此没有客户机L2P表。其次，在客户机上下文切换时，不会保存或恢复主机L2P表。</p>
+<p>对于HPT，最大连续内存需求是一个chunk的大小（在我们的应用程序中为8KB或1MB）。表II显示了不同chunk大小的HPT
+way的最大大小，以及生成的总HPT（即所有三个way）在使用4KB页面和大页（2MB）页面时可以映射的最大物理内存空间。我们可以看到，对于8KB的chunks，ME-HPT可以构建一个64x8KB=512KB的HPT
+way。如果HPT用于4KB页面，生成的3-way
+HPT可以映射768MB的应用程序数据；如果HPT用于2MB页面，则生成的3-way
+HPT可以映射384GB的应用程序数据。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802133353257.png"
+alt="image-20230802133353257" />
+<figcaption aria-hidden="true">image-20230802133353257</figcaption>
+</figure>
+<p>使用1MB的chunk，ME-HPT可以构建一个64x1MB=64MB的HPT
+way。与之前一样，如果HPT用于4KB页面，则3-way
+HPT可以映射96GB的应用程序数据；如果HPT用于大页，则3-way
+HPT可以映射48TB的数据。</p>
+<p>使用8MB的chunk，ME-HPT可以构建一个64x8MB=512MB的HPT
+way。如果HPT用于4KB页面，则3-way
+HPT可以映射768GB的应用程序数据；如果HPT用于大页，则生成的HPT可以映射384TB的应用程序数据。</p>
+<p>如果应用程序更大，我们可以切换到64MB的chunk。在这种情况下，ME-HPT可以构建一个64x64MB=4GB的HPT
+way。如果HPT用于4KB页面，则3-way
+HPT可以映射6TB的应用程序数据；如果HPT用于大页，则生成的HPT可以映射3PB的应用程序数据。</p>
+<p>当操作系统对HPT
+way进行升级时，它会分配一个或多个额外的chunk。这些chunk<em>既不与彼此连续，也不与当前HPT的chunk连续</em>。一个HPT
+way始终是由多个非连续的chunk组成的。虽然对于我们的应用程序，chunk大小为8KB或1MB，但更大的应用程序可能需要更大的chunk。为了在高度碎片化的机器上为大chunk找到空间，操作系统可能会执行内存压缩或交换页面，就像通常分配大页一样。升级操作不会失败，除非请求的chunk大小太大，以至于操作系统无法提供如此大的连续内存。</p>
+<h3 id="d.-hiding-the-access-to-the-l2p-table"><em>D. Hiding the Access
+to the L2P Table</em></h3>
+<p>ECPT设计中访问L2P表（第IV-A节）增加的额外延迟并不会明显减慢页面遍历的速度。原因在于这种额外延迟可以与ECPT设计中的Cuckoo
+Walk Cache（CWC）硬件结构的访问重叠。</p>
+<hr />
+<h4 id="tips-6">tips</h4>
+<p>CWC的工作原理？？</p>
+<hr />
+<p>图7显示了设计。在TLB（转换后备缓冲）未命中时，缺失虚拟地址的转换可以存在于任何页面大小的HPT（哈希页表）的任何路中。为了减少需要检查的内存位置数量，ECPT硬件首先访问CWC硬件缓存。根据访问结果确定应该访问哪个页面大小的HPT的哪个路。同时，如果正在进行调整大小操作，则会检查重新哈希指针，以决定是访问旧的HPT还是新的HPT。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802144500427.png"
+alt="image-20230802144500427" />
+<figcaption aria-hidden="true">image-20230802144500427</figcaption>
+</figure>
+<p>同时，我们提出硬件在内存管理单元（MMU）中访问进程的L2P表，并生成潜在的内存地址进行访问。在CWC和重新哈希指针检查完成后，它们选择要执行的内存访问操作。因此，L2P表访问的延迟被隐藏了。</p>
+<p>唯一不隐藏L2P表访问延迟的情况是由于HPT冲突而进行的Cuckoo重新插入。在这种情况下，不访问CWC，L2P表访问的延迟位于关键路径上。幸运的是，在这种情况下，几个周期的访问延迟是可以忽略的。原因在于元素插入或Cuckoo重新哈希是由操作系统执行而不是由硬件执行的，而调用操作系统具有更高的开销。</p>
+]]></content>
+      <categories>
+        <category>体系结构</category>
+        <category>Virtual memory</category>
+        <category>Page tables</category>
+        <category>Hashed page tables</category>
+      </categories>
+      <tags>
+        <tag>Paper</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>单调栈</title>
+    <url>/zyhjy/2023/08/04/%E5%8D%95%E8%B0%83%E6%A0%88/</url>
+    <content><![CDATA[<h1 id="单调栈monotone-stack">单调栈(monotone-stack)</h1>
+<p>单调栈，即满足单调性的栈，与普通的栈相比，就是在入栈时将不满足要求栈顶的元素弹出。</p>
+<p>比如，我们要维护一个从栈底到栈顶单调减少的栈，在某次操作前，栈内有元素：<code>(bottom) 12, 8, 5, 1 (top)</code>;
+此时要将7入栈，由于7
+大于栈顶元素<code>1,  5</code>,于是需要将其弹出，再将7入栈，此时栈为<code>(bottom) 12, 8, 7 (top)</code>。</p>
+<p>单调栈本身很好理解，主要是做题的时候，
+如何将题目转化为用单调栈的思路，接下来通过几个例题分析。</p>
+<span id="more"></span>
+<h2 id="leetcode-402.-移掉-k-位数字">LeetCode 402. 移掉 K 位数字</h2>
+<p><a href="https://leetcode.cn/problems/remove-k-digits/">402. 移掉 K
+位数字</a></p>
+<p>给你一个以字符串表示的非负整数 <code>num</code> 和一个整数
+<code>k</code> ，移除这个数中的 <code>k</code>
+位数字，使得剩下的数字最小。请你以字符串形式返回这个最小的数字。</p>
+<p><strong>示例 1 ：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：num = &quot;1432219&quot;, k = 3</span><br><span class="line">输出：&quot;1219&quot;</span><br><span class="line">解释：移除掉三个数字 4, 3, 和 2 形成一个新的最小的数字 1219 。</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2 ：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：num = &quot;10200&quot;, k = 1</span><br><span class="line">输出：&quot;200&quot;</span><br><span class="line">解释：移掉首位的 1 剩下的数字为 200. 注意输出不能有任何前导零。</span><br></pre></td></tr></table></figure>
+<p><strong>示例 3 ：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：num = &quot;10&quot;, k = 2</span><br><span class="line">输出：&quot;0&quot;</span><br><span class="line">解释：从原数字移除所有的数字，剩余为空就是 0 。</span><br></pre></td></tr></table></figure>
+<h3 id="思路">思路</h3>
+<p>首先观察示例1，"1432219"若要去除一个数字，肯定选4，因为3 &lt;
+4,所以132XXX &lt; 142XXX,；之后同理，去除3，因为12XXX &lt;
+13XXX;一般地，<span
+class="math inline">\(L_0...L_{i-1}L_iL_{i+1}...L{n}\)</span>,
+<strong>如果<span class="math inline">\(L_{i-1} &gt;
+L_i\)</span>，肯定考虑删除<span
+class="math inline">\(L_{i-1}\)</span></strong>。</p>
+<p>这样就和单调栈联系起来了，因为左边高位的优先级高于右边低位，所以我们从左到右，每次向栈中放入一个数字，如果当前数字小于小于栈顶元素，则将栈顶元素剔除，始终保持单调栈单调递增，再根据题目限制适当修改，栈底到栈顶即为最终答案。</p>
+<h2 id="leetcode-316.-去除重复字母">LeetCode 316. 去除重复字母</h2>
+<p><a href="https://leetcode.cn/problems/remove-duplicate-letters/">316.
+去除重复字母</a></p>
+<p>给你一个字符串 <code>s</code>
+，请你去除字符串中重复的字母，使得每个字母只出现一次。需保证
+<strong>返回结果的字典序最小</strong>（要求不能打乱其他字符的相对位置）。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：s = &quot;bcabc&quot;</span><br><span class="line">输出：&quot;abc&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：s = &quot;cbacdcbc&quot;</span><br><span class="line">输出：&quot;acdb&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="思路-1">思路</h3>
+<p>题目要求每个字母只出现一次，所以只出现过一次的字母肯定是不能删除的，</p>
+<p>要求字典序最小，类似上一题要求剩下的数字最小，肯定是<strong>小的字母尽量排在前面</strong>。与上一题思路相同，考虑单调栈，<strong>每次压入字母c时需弹出栈顶字典序大于c的的字母</strong>。</p>
+<p>但是，题目要求出现一次，所以开始时先统计每个字母的个数；每次单调栈需要弹出时，如果栈顶字母只剩一个，则不可弹出；否则，弹出且对计数-1；另外记录已经入栈且未被弹出的字母，后续遇到则不需入栈。</p>
+]]></content>
+      <categories>
+        <category>数据结构</category>
+        <category>算法题</category>
+      </categories>
+      <tags>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>性能分析工具--Valgrind, perf, pin</title>
+    <url>/zyhjy/2023/08/05/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-Valgrind-perf-pin/</url>
+    <content><![CDATA[<h1 id="性能分析工具--valgrind-perf-pin">性能分析工具--Valgrind, perf,
+Pin</h1>
+<p>对比主流性能分析工具。</p>
+<span id="more"></span>
+<h2 id="valgrind">Valgrind</h2>
+<p><a
+href="https://valgrind.org/">Valgrind</a>是一个用于动态分析和调试的开源工具，它的主要功能是在不修改源代码的情况下，监测和分析程序的执行行为、内存使用以及性能瓶颈。Valgrind通过将目标程序解释成自己的中间表示，对程序执行过程中的内存访问和指令执行进行监视和控制。</p>
+<p>Valgrind是<strong>开源</strong>的。</p>
+<h3 id="原理">原理</h3>
+<p>Valgrind的主要原理是<strong>动态二进制翻译</strong>（Dynamic Binary
+Translation，DBT）。具体来说，Valgrind会将目标程序的机器码翻译成一种称为"Valgrind
+Intermediate
+Representation"（VIR）的中间表示。然后，在VIR的基础上，Valgrind会插入额外的代码来监测内存读写、分支执行、函数调用等情况。这样，Valgrind可以捕获程序在运行时的行为，同时检测可能的内存错误、泄漏、未初始化变量等问题。</p>
+<p>Valgrind主要包括以下几个部分：</p>
+<ol type="1">
+<li><p><strong>前端（Front-End）：</strong>
+前端负责将目标程序的二进制代码转换成VIR。这个过程中，Valgrind会将插桩代码注入到目标程序中，以便进行监控和分析。</p></li>
+<li><p><strong>中间层（VIR）：</strong>
+VIR是Valgrind自己定义的一种中间表示。Valgrind在这个中间表示上进行监控和分析，而不是直接在原始机器码上操作。</p></li>
+<li><p><strong>后端（Back-End）：</strong>
+后端负责执行VIR上的代码，模拟程序的执行过程，并在必要时触发插桩代码。Valgrind会记录执行过程中的内存访问、分支预测等信息。</p></li>
+<li><p><strong>工具（Tools）：</strong>
+Valgrind提供了不同的工具，用于检测不同类型的问题，如Memcheck用于内存错误检测，Cachegrind用于性能分析等。</p></li>
+</ol>
+<h3 id="主要工具">主要工具</h3>
+<p>Valgrind 主要包括以下几个工具：</p>
+<ol type="1">
+<li><p><strong>Memcheck：</strong> Memcheck 是 Valgrind
+最常用的工具，用于检测内存错误。它会跟踪程序中每个字节的读写情况，检测未初始化的变量、内存越界、内存泄漏等问题。</p></li>
+<li><p><strong>Cachegrind：</strong> Cachegrind
+用于进行高级的缓存和分支预测分析。它可以估计程序执行时的缓存命中率，帮助你优化程序以减少缓存未命中。</p></li>
+<li><p><strong>Callgrind：</strong> Callgrind
+用于生成函数调用图和分析函数调用的性能。它可以帮助你了解程序中不同函数之间的调用关系，以及函数调用所花费的时间。</p></li>
+<li><p><strong>Helgrind：</strong> Helgrind
+用于检测多线程程序中的竞态条件和同步问题。它可以帮助你发现线程之间的竞争条件，以及可能导致死锁和数据竞争的地方。</p></li>
+<li><p><strong>Massif：</strong> Massif
+用于内存分析，可以帮助你找出程序中内存的使用情况和泄漏情况。</p></li>
+</ol>
+<hr />
+<h2 id="pin">Pin</h2>
+<p><a
+href="https://www.intel.com/content/www/us/en/developer/articles/tool/pin-a-dynamic-binary-instrumentation-tool.html">Pin</a>是一个动态二进制插桩工具，用于在程序执行期间插入自定义代码，以监视和分析程序的行为。</p>
+<p>Intel Pin是<strong>开源</strong>的。</p>
+<p><strong>功能和用途：</strong> -
+Pin允许开发人员在不修改程序源代码的情况下，通过插入代码来监视和分析程序在执行时的行为。
+- 它可以用于性能分析、内存调试、代码覆盖率分析、安全研究等领域。</p>
+<p><strong>主要原理：</strong> -
+Pin使用了<strong>JIT（Just-In-Time）</strong>编译技术，它将目标程序的二进制代码进行动态重编译，插入自定义的插桩代码，然后执行重编译后的代码。
+-
+在插桩代码中，开发人员可以实现自己的分析逻辑，如收集统计信息、记录内存访问、检测特定模式等。
+-
+Pin提供了API供开发人员编写插桩代码，这使得用户能够实现高度定制的程序分析。</p>
+<hr />
+<h3 id="tips-sbt-dbt-jit">tips : SBT, DBT, JIT</h3>
+<p><strong>JIT</strong>（Just-In-Time）编译和<strong>DBT</strong>（Dynamic
+Binary
+Translation）都是与代码执行优化和分析相关的技术，但它们有一些区别。以下是它们的主要区别：</p>
+<ol type="1">
+<li><strong>定义：</strong>
+<ul>
+<li>JIT编译：JIT编译是一种将程序源代码或中间代码（如字节码）即时编译成机器码的技术。在程序执行过程中，JIT编译器会将部分代码编译成机器码，并直接在计算机上执行。这有助于提高代码的执行速度。</li>
+<li>DBT：DBT是一种将目标程序的机器码翻译成另一种中间表示，然后在这个中间表示上进行监视、分析和修改的技术。这种翻译是在程序执行之前进行的。</li>
+</ul></li>
+<li><strong>执行时机：</strong>
+<ul>
+<li>JIT编译：JIT编译是在程序执行的过程中，动态地将代码从高级源代码或中间代码翻译成机器码。编译发生在程序运行时。</li>
+<li>DBT：DBT的翻译阶段是在程序执行之前进行的。目标程序的机器码被翻译成另一种中间表示，然后在这个中间表示上进行分析。</li>
+</ul></li>
+<li><strong>实时性：</strong>
+<ul>
+<li>JIT编译：JIT编译可以实现实时性的优化，因为它是在程序执行过程中进行的。程序的执行速度可以因为
+JIT 编译而获得即时的提升。</li>
+<li>DBT：DBT的翻译是在执行之前进行的，这意味着翻译本身不会在程序运行时对执行速度产生影响。然而，DBT
+之后的分析和监视可能会对性能产生一些影响。</li>
+</ul></li>
+<li><strong>应用领域：</strong>
+<ul>
+<li>JIT编译：常用于虚拟机环境（如Java虚拟机、.NET等），可以在运行时优化和执行中间代码。</li>
+<li>DBT：常用于动态分析、调试和模拟，可以在执行之前对目标程序进行监控和修改。</li>
+</ul></li>
+</ol>
+<p>尽管JIT编译和DBT在某些方面有一些相似之处，但它们的主要应用场景和执行时机有所不同。
+JIT更侧重于提高执行速度，而DBT则更侧重于分析和监视程序的行为。</p>
+<p>而<strong>静态二进制翻译</strong>（Static Binary
+Translation，SBT）用于将一个架构的机器代码翻译成另一个架构的机器代码，而无需运行程序。这与动态二进制翻译（Dynamic
+Binary
+Translation，DBT）不同，后者是在程序运行时将机器代码翻译成中间表示，然后在中间表示上执行。</p>
+<hr />
+<h2 id="perf">perf</h2>
+<p><code>perf</code>
+是一个性能分析工具，用于在Linux系统上进行性能分析和调试。它可以帮助开发人员了解程序的运行时性能，找出瓶颈和优化机会。<code>perf</code>
+提供了多种分析功能，包括性能计数器、事件跟踪、函数调用图等，用于收集和分析系统和应用程序的性能数据。</p>
+<p><code>perf</code> 是<strong>开源</strong>的，它是 Linux
+操作系统自带的一部分，用户可以在终端中直接使用 <code>perf</code>
+命令。<code>perf</code>
+工具的源代码也是开放的，用户可以查看其实现、贡献改进或自定义特定需求。</p>
+<h3 id="主要原理">主要原理：</h3>
+<p><code>perf</code> 基于 Linux
+内核中的性能计数器子系统和事件跟踪机制。它使用硬件性能计数器来测量程序在
+CPU 上的各种操作，如指令执行数、缓存命中率等。此外，<code>perf</code>
+还可以使用事件跟踪机制，监视系统中的事件，如系统调用、函数调用、中断等。</p>
+<p><code>perf</code> 的主要原理包括以下几个步骤：</p>
+<ol type="1">
+<li><p><strong>数据收集设置：</strong> 用户使用 <code>perf</code>
+工具指定需要分析的事件、计数器等配置信息。</p></li>
+<li><p><strong>性能计数器采样：</strong> <code>perf</code>
+利用硬件性能计数器定期采样程序的运行时数据，如指令执行次数、缓存命中次数等。</p></li>
+<li><p><strong>事件跟踪（可选）：</strong>
+除了性能计数器，<code>perf</code>
+还可以使用事件跟踪机制收集事件数据，如系统调用、函数调用、中断等。</p></li>
+<li><p><strong>数据分析和报告生成：</strong>
+采样数据被收集后，<code>perf</code>
+将这些数据进行分析，并生成性能报告，包括热点函数、时间分布、缓存命中率等信息。</p></li>
+</ol>
+<p>讲论文声音大</p>
+<p>linwei 可视化 gem5配置 + qemu？ 对齐</p>
+<p>gem5缓存这周结束</p>
+]]></content>
+      <categories>
+        <category>性能分析</category>
+        <category>Valgrind</category>
+        <category>perf</category>
+        <category>pin</category>
+      </categories>
   </entry>
   <entry>
     <title>Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism</title>
@@ -8482,505 +8982,5 @@ THP中需要84％。由3-叉结构引起的额外访问对性能影响相对较�
       <tags>
         <tag>Paper</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>单调栈</title>
-    <url>/zyhjy/2023/08/04/%E5%8D%95%E8%B0%83%E6%A0%88/</url>
-    <content><![CDATA[<h1 id="单调栈monotone-stack">单调栈(monotone-stack)</h1>
-<p>单调栈，即满足单调性的栈，与普通的栈相比，就是在入栈时将不满足要求栈顶的元素弹出。</p>
-<p>比如，我们要维护一个从栈底到栈顶单调减少的栈，在某次操作前，栈内有元素：<code>(bottom) 12, 8, 5, 1 (top)</code>;
-此时要将7入栈，由于7
-大于栈顶元素<code>1,  5</code>,于是需要将其弹出，再将7入栈，此时栈为<code>(bottom) 12, 8, 7 (top)</code>。</p>
-<p>单调栈本身很好理解，主要是做题的时候，
-如何将题目转化为用单调栈的思路，接下来通过几个例题分析。</p>
-<span id="more"></span>
-<h2 id="leetcode-402.-移掉-k-位数字">LeetCode 402. 移掉 K 位数字</h2>
-<p><a href="https://leetcode.cn/problems/remove-k-digits/">402. 移掉 K
-位数字</a></p>
-<p>给你一个以字符串表示的非负整数 <code>num</code> 和一个整数
-<code>k</code> ，移除这个数中的 <code>k</code>
-位数字，使得剩下的数字最小。请你以字符串形式返回这个最小的数字。</p>
-<p><strong>示例 1 ：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：num = &quot;1432219&quot;, k = 3</span><br><span class="line">输出：&quot;1219&quot;</span><br><span class="line">解释：移除掉三个数字 4, 3, 和 2 形成一个新的最小的数字 1219 。</span><br></pre></td></tr></table></figure>
-<p><strong>示例 2 ：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：num = &quot;10200&quot;, k = 1</span><br><span class="line">输出：&quot;200&quot;</span><br><span class="line">解释：移掉首位的 1 剩下的数字为 200. 注意输出不能有任何前导零。</span><br></pre></td></tr></table></figure>
-<p><strong>示例 3 ：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：num = &quot;10&quot;, k = 2</span><br><span class="line">输出：&quot;0&quot;</span><br><span class="line">解释：从原数字移除所有的数字，剩余为空就是 0 。</span><br></pre></td></tr></table></figure>
-<h3 id="思路">思路</h3>
-<p>首先观察示例1，"1432219"若要去除一个数字，肯定选4，因为3 &lt;
-4,所以132XXX &lt; 142XXX,；之后同理，去除3，因为12XXX &lt;
-13XXX;一般地，<span
-class="math inline">\(L_0...L_{i-1}L_iL_{i+1}...L{n}\)</span>,
-<strong>如果<span class="math inline">\(L_{i-1} &gt;
-L_i\)</span>，肯定考虑删除<span
-class="math inline">\(L_{i-1}\)</span></strong>。</p>
-<p>这样就和单调栈联系起来了，因为左边高位的优先级高于右边低位，所以我们从左到右，每次向栈中放入一个数字，如果当前数字小于小于栈顶元素，则将栈顶元素剔除，始终保持单调栈单调递增，再根据题目限制适当修改，栈底到栈顶即为最终答案。</p>
-<h2 id="leetcode-316.-去除重复字母">LeetCode 316. 去除重复字母</h2>
-<p><a href="https://leetcode.cn/problems/remove-duplicate-letters/">316.
-去除重复字母</a></p>
-<p>给你一个字符串 <code>s</code>
-，请你去除字符串中重复的字母，使得每个字母只出现一次。需保证
-<strong>返回结果的字典序最小</strong>（要求不能打乱其他字符的相对位置）。</p>
-<p><strong>示例 1：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：s = &quot;bcabc&quot;</span><br><span class="line">输出：&quot;abc&quot;</span><br></pre></td></tr></table></figure>
-<p><strong>示例 2：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：s = &quot;cbacdcbc&quot;</span><br><span class="line">输出：&quot;acdb&quot;</span><br></pre></td></tr></table></figure>
-<h3 id="思路-1">思路</h3>
-<p>题目要求每个字母只出现一次，所以只出现过一次的字母肯定是不能删除的，</p>
-<p>要求字典序最小，类似上一题要求剩下的数字最小，肯定是<strong>小的字母尽量排在前面</strong>。与上一题思路相同，考虑单调栈，<strong>每次压入字母c时需弹出栈顶字典序大于c的的字母</strong>。</p>
-<p>但是，题目要求出现一次，所以开始时先统计每个字母的个数；每次单调栈需要弹出时，如果栈顶字母只剩一个，则不可弹出；否则，弹出且对计数-1；另外记录已经入栈且未被弹出的字母，后续遇到则不需入栈。</p>
-]]></content>
-      <categories>
-        <category>数据结构</category>
-        <category>算法题</category>
-      </categories>
-      <tags>
-        <tag>offer</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Memory-Efficient Hashed Page Tables</title>
-    <url>/zyhjy/2023/07/31/Memory-Efficient-Hashed-Page-Tables/</url>
-    <content><![CDATA[<h1 id="memory-efficient-hashed-page-tables">Memory-Efficient Hashed
-Page Tables</h1>
-<p>该论文工作基于<em>Elastic Cuckoo Page Tables: Rethinking Virtual
-Memory Translation for Parallelism</em>展开。</p>
-<h3 id="摘要">摘要</h3>
-<p>传统的基数树页表在可扩展性方面存在挑战，因为在TLB（转换后备缓冲器）未命中后，地址转换可能需要多次连续的内存访问。另一种选择是哈希页表（HPTs），在这种情况下，概念上地址转换只需要一次内存访问。传统上，由于处理冲突的成本高和其他限制，HPTs一直被回避。尽管最近的进展使得HPTs变得引人注目，HPT设计中的一个主要问题依然是它们对相当连续(
-substantial <em>contiguous</em>)的物理内存的需求。</p>
-<p>本文解决了这个问题。为了最小化HPTs对连续内存的需求，它引入了<em>逻辑到物理表</em>（<em>Logical
-to Physical (L2P)
-Table</em>）和<em>动态变化块大小</em>(<em>Dynamically-Changing Chunk
-Sizes</em>)的使用。这些技术将HPTs分解成不连续的物理内存块。此外，本文还介绍了两种最小化HPTs总内存需求的技术，间接地降低内存的连续性需求。这些技术是<em>原地页表调整(</em>In-place
-Page Table Resizing<em>)和逐路调整(</em>Per-way
-Resizing<em>)。我们称这个完整的设计为</em>内存高效*的HPTs（ME-HPTs）。与最先进的HPTs相比，ME-HPTs:
-(i) 平均减少了92%的连续内存分配需求，(ii)
-平均提高了8.9%的性能。对于两个最要求的工作负载，连续内存需求从64MB减少到1MB。此外，与最先进的基数树页表相比，ME-HPTs
-在平均速度上实现了1.23倍的加速（不使用大页面）和1.28倍的加速（使用大页面）。</p>
-<span id="more"></span>
-<hr />
-<h4 id="tips">tips:</h4>
-<p><strong>Radix tree</strong>（基数树），也称为 Patricia
-tree（前缀树），是一种用于实现动态集合或关联数组的数据结构。它通常用于在计算机科学中高效地存储和查找大量的键-值对。</p>
-<p>基数树的特点在于它将键按照前缀进行分割，并将每个前缀存储在树的节点上。这样做可以大幅减少树的高度，从而提高查找效率。基数树的每个节点可以包含一个或多个字符，而不是像二叉查找树那样每个节点只能包含一个键。</p>
-<p>由于基数树在每个节点上都存储了部分键，所以在查找时，只需要按照键的前缀逐级搜索树，而无需遍历整个树。这使得基数树在某些情况下比传统的平衡树结构（如红黑树）更加高效。</p>
-<p>基数树通常用于处理字符串的搜索和匹配问题，比如在字典中查找单词，路由表中查找IP地址，以及许多其他数据检索的场景。在操作系统中，基数树常用于虚拟内存管理，特别是在页表结构中，用于将虚拟地址映射到物理地址。</p>
-<hr />
-<h2 id="introduction">1. INTRODUCTION</h2>
-<p>目前最先进的页表使用基数树（radix-tree）组织[5]，[42]。在TLB未命中时，地址转换通过遍历一个页面树来进行，该树逐步将搜索导向包含所需转换的叶子节点。这种方法高效地使用内存，并经过几十年的多重缓存结构优化。然而，它的可扩展性很差。原因在于，为了获得正确的转换，系统可能需要<em>依次</em>执行高达四次内存访问。每次访问都使用前一次访问返回的值作为其地址。这个过程可能很慢，并且无法充分利用现代处理器提供的内存级并行性。此外，随着另一层被添加到转换树中以满足新兴应用程序更大的内存需求[40]，[41]，这个过程变得越来越慢。</p>
-<p>基数树页表的替代方案是哈希页表（hashed page
-tables，简称HPTs）[18]，[24]，[26]，[33]，[36]，[37]，[39]，[44]，[45]，[77]，[83]，[88]。在这里，转换信息被保存在一个表中。在TLB未命中时，地址转换通过哈希虚拟页号，并使用哈希键索引表来获取物理页号。假设没有哈希冲突，这种方法只需要进行一次内存访问即可完成地址转换。</p>
-<p>传统上，哈希页表（HPTs）由Barr等人[9]指出至少有三个不受欢迎的原因。首先，访问页表缺乏空间局部性。这是因为哈希散布了相邻虚拟页面的转换。其次，需要将哈希标签（即虚拟页号）与每个HPT条目关联，这会消耗空间。最后，处理哈希冲突是昂贵的：要么需要复杂的硬件，要么操作系统需要遍历冲突的条目[9]，[39]，[88]。</p>
-<p>另一个问题是，理论上的一个单一全局HPT来保存机器中所有活动进程的页表条目是行不通的[24]，[83]，[88]。原因在于，为了支持进程之间的页面共享和多种页面大小，需要在转换中添加额外的间接级别。此外，在进程终止时，需要顺序搜索HPT以删除过时的条目和修复冲突。另一种方法是使用每个进程一个HPT，但这种方法很具有挑战性[77]，因为不清楚如何设置每个进程的HPT大小。为每个进程分配大型HPT会导致内存耗尽的风险。</p>
-<p>近期的进展使HPTs变得更加引人注目。例如，为了改善HPT的局部性，Yaniv和Tsafrir[88]将多个连续的页表条目放在一个单独的缓存行中。此外，他们使用未使用的位对每个条目编码哈希标签。另外，Skarlatos等人[77]使用Cuckoo哈希来有效处理哈希冲突。此外，他们通过在创建进程时分配小型HPT，并使用弹性Cuckoo哈希相对廉价地动态增长HPTs来支持每个进程的HPTs。</p>
-<p>然而，HPT设计的一个重要缺点是它们需要相当数量的<em>连续</em>物理内存。这个需求源于明显需要将HPT（或者更精确地说，每个HPT的分支）放在连续的物理内存中。在我们的测量中，一个HPT分支可以达到64MB。在实践中，在繁忙的计算机中分配一个大块连续内存通常是耗时的，并且在某些情况下可能导致程序失败。相比之下，在基数树页表中，找到连续的内存并不是一个问题，因为内存是一次分配一个页面。</p>
-<p>本论文解决了HPT的这个缺陷。为了最小化HPT对连续内存的需求，我们引入了两种技术：<em>逻辑到物理表</em>和<em>动态变化块大小</em>的使用。这些技术将HPT分解成内存高效、不连续的物理内存块。此外，我们还引入了另外两种技术，最小化HPT的总内存需求，并间接地减少了内存的连续性要求。这些技术是<em>原地页表调整</em>和<em>逐路调整</em>。我们将得到的设计称为<em>内存高效</em>的HPTs（ME-HPTs）。</p>
-<p>我们通过全系统模拟运行一组内存密集型工作负载来评估ME-HPTs。与最先进的HPT相比，ME-HPTs：(i)
-平均减少了92%的连续内存分配需求，(ii)
-平均提高了8.9%的性能。对于两个最要求的工作负载，连续内存需求从64MB减少到1MB。此外，与最先进的基数树页表相比，ME-HPTs
-在平均速度上实现了1.23倍的加速（不使用大页面）和1.28倍的加速（使用大页面）。</p>
-<p>本文的贡献包括：</p>
-<ul>
-<li>内存高效的HPTs（ME-HPTs），引入了四种新技术，直接或间接地最小化了HPT需要的连续物理内存。</li>
-<li>对ME-HPT技术的评估，表明它们解决了HPT的内存连续性限制问题。</li>
-</ul>
-<h2 id="background">2. BACKGROUND</h2>
-<h3 id="a.-limitations-of-radix-tree-page-tables"><em>A. Limitations of
-Radix-Tree Page Tables</em></h3>
-<p>当前处理器主要使用基数树（radix-tree）页表，这种页表以树的形式进行组织。在TLB未命中时，硬件按顺序遍历树的每个级别。图1显示了x86-64翻译的过程，它在搜索对应于虚拟地址（VA）的物理地址（PA）时，需要访问四个<em>连续</em>的页表：PGD（Page
-Global Directory）、PUD（Page Upper Directory）、PMD（Page Middle
-Directory）和PTE（Page Table Entry）。</p>
-<figure>
-<img
-src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731142926230.png"
-alt="image-20230731142926230" />
-<figcaption aria-hidden="true">image-20230731142926230</figcaption>
-</figure>
-<p>现代处理器使用小的Page Walk Caches (PWCs)
-[2]，[9]，[12]，[13]来缓存中间页表条目，以避免在每一步中访问内存。然而，许多新兴应用程序会溢出这些缓存，导致关键路径上出现多次连续的内存访问。此外，制造商正在增加转换树中的级数。例如，新的英特尔Sunny
-Cove
-[40]，[41]在树中添加了第五级。然而，随着非易失性存储器的出现，非常大的内存可能会出现，这种方法几乎没有可扩展性。</p>
-<h3 id="b.-hashed-page-tables"><em>B. Hashed Page Tables</em></h3>
-<p>哈希页表（Hashed page
-tables，简称HPTs）[18]，[24]，[26]，[33]，[36]，[37]，[39]，[44]，[45]，[77]，[79]，[83]，[88]采用了不同的设计。在TLB未命中时，地址转换通过对虚拟页号（VPN）进行哈希，并使用哈希键索引页表来完成。假设没有哈希冲突，地址转换只需要一次内存访问。HPTs已经在IBM
-PowerPC [38]，HP PA-RISC [37]和Intel Itanium [39]架构中实现。</p>
-<h4 id="challenges-of-hashed-page-tables.">Challenges of Hashed Page
-Tables.</h4>
-<p>哈希页表（HPTs）存在一些限制，导致业界不太青睐它们[9]。首先，HPT的访问失去了空间局部性。这是由于哈希散布了相邻虚拟页面的HPT条目。此外，需要将哈希标签与每个页表条目关联，这会消耗内存空间。最重要的是，哈希冲突会导致更多的内存访问，因为系统需要遍历冲突链[9]。诸如冲突链(collision
-chaining)[39]和开放地址法(open
-addressing)[88]等策略引入了昂贵的内存引用，用于遍历冲突的条目。</p>
-<p>除此之外，无法通过简单的设计实现一个包含机器中所有活动进程的页表条目的单一全局HPT
-[24]，[88]。原因在于，支持多种页面大小（例如，大页面）或进程之间的页面共享需要额外的复杂性。例如，为了支持这两个特性，IBM
-PowerPC架构为每个内存引用使用了一个两级的转换过程[38]。此外，当一个进程被终止时，系统需要对整个HPT进行线性扫描，以找到并删除该进程的条目。不幸的是，删除一个条目的成本很高：可能需要长时间的哈希表查找（对于开放地址法）或者遍历冲突链。此外，在开放地址法中删除一个页表条目可能会影响未来查找中的冲突探测。</p>
-<h4 id="making-hashed-page-tables-compelling.">Making Hashed Page Tables
-Compelling.</h4>
-<p>近期的研究解决了一些HPT的限制。例如，Yaniv和Tsafrir
-[88]提出了一种HPT设计，使用了页表条目聚集，将多个连续的页表条目放在一个单独的HPT条目中，其大小等于一个缓存行。此外，他们还提出了页表条目压缩(Page
-Table Entry
-Compaction)，将多个连续的页表条目的未使用的高位用于存储哈希标签。</p>
-<p>为了简化冲突处理，Skarlatos等人[77]，[79]提出在HPT中使用了Cuckoo哈希算法[64]。给定页面大小的HPT采用W路组相联的方式，每个路使用不同的哈希函数。要插入一个元素p，选择一条路，并将p插入其哈希位置。如果选定的条目已经被使用，当前占用者q将被挤出，并在另一条路中重新插入，在q的哈希位置上。如果该位置也被使用，就再次挤出占用者，并重复这个过程。该过程可能会多次重复。通过仔细设置允许的最大HPT占用量，可以选择一个合理的最大重插次数，使最终HPT条目被逐出的概率非常小。在Cuckoo哈希中，元素查找需要检查所有W路（并行进行）。</p>
-<p>Skarlatos等人的设计[77]，[79]采用了<em>进程私有</em>的HPT（哈希页表）。与使用可能会在高负载机器上耗尽内存的默认每个进程的HPT大小不同，HPT开始时很小，并且可以<em>动态调整大小</em>。该方案被称为Elastic
-Cuckoo Page
-Tables（ECPTs）。当HPT占用量达到高阈值时，会触发一个<em>扩容</em>操作；当HPT占用量达到低阈值时，会触发一个<em>缩容</em>操作。这些扩容/缩容操作不会停止程序执行：它们会与程序执行高效地重叠。</p>
-<h4 id="mechanics-of-an-hpt-upsize.">Mechanics of an HPT Upsize.</h4>
-<p>当一个W路组相联的HPT占用量达到高阈值时，会分配一个新的双倍大小的W路组相联的HPT[77]。从此以后，每当操作系统被调用来将一个元素插入HPT时，操作系统会利用这个机会将一个元素从旧的HPT重新散列（即移动）到新的HPT。为了高效地执行<em>重新散列</em>，每个旧HPT的路i都添加了一个<em>重新散列指针</em>$P_i
-<span class="math inline">\(。在每个路中，\)</span>P_i <span
-class="math inline">\(最初指向HPT的基址。在从路i重新散列一个元素时，操作系统取\)</span>P_i
-<span
-class="math inline">\(指向的元素，将其插入到新的HPT的路i中，并将\)</span>P_i
-<span class="math inline">\(递增。在任何时候，\)</span>P_i <span
-class="math inline">\(将旧HPT的路i划分为两个区域：索引小于\)</span>P_i
-<span
-class="math inline">\(的条目（*迁移区域*）和索引等于或大于\)</span>P_i
-$的条目（<em>存活区域</em>）。随着逐步重新散列的进行，旧HPT中的路的迁移区域不断增长。最终，当迁移区域完全覆盖所有路时，旧HPT将被释放。</p>
-<p>在调整大小过程中，将元素p插入W路组相联的HPT的过程如下。系统随机选择旧HPT的一条路，并使用其哈希函数对p进行哈希。如果哈希键落在该路的存活区域内，元素将被插入到旧的HPT中；否则，p将使用新HPT的相同路的哈希函数进行哈希，并将元素插入新HPT中。通过这种设计，在调整大小期间查找元素p只需要W次探测(probes,
-探测不等于哈希，探测是指根据hash结果去找对应的entry，涉及一次内存访问)。事实上，p是使用旧HPT的所有哈希函数进行哈希的。对于每条路i，如果哈希键落在存活区域，将对旧HPT的路进行探测；否则，p将使用新HPT中相同路的哈希函数进行哈希，并对新HPT的路进行探测。这样，通过利用已有的旧HPT和新HPT的哈希函数，可以高效地实现元素的插入和查找过程。</p>
-<h2 id="motivation-for-improving-hpts">3. MOTIVATION FOR IMPROVING
-HPTS</h2>
-<p>虽然前面提到的进展使HPTs具有竞争力，但HPTs仍然有一个重要的限制：它们需要分配相当数量的连续物理内存。这在表I中有所体现，该表列出了我们在本研究中分析的一些应用程序的特性。这些应用程序将在第VI节中进行讨论。</p>
-<p>在表I中，可能会看到这些应用程序对于HPT的内存需求较大，并且需要大块的连续物理内存来存储它们的页表数据结构。这可能会导致在繁忙的系统中分配这些大块连续内存成为一个耗时的过程，并且在某些情况下可能会导致程序执行失败。因此，HPT设计中如何减少对连续物理内存的需求仍然是一个重要的挑战，值得进一步研究和解决。</p>
-<figure>
-<img
-src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731150538530.png"
-alt="image-20230731150538530" />
-<figcaption aria-hidden="true">image-20230731150538530</figcaption>
-</figure>
-<p>表中的第2列显示了应用程序数据的最大内存消耗。第3列和第4列分别显示了使用基数树和ECPT组织的页表分配的最大<em>连续</em>内存。在基数树组织中，连续内存始终为4KB，这是一个页面的大小。在ECPT组织中，所显示的数字是HPT一路（way）的最大大小。<em>直观地说</em>，一个组相联的HPT的每个路都需要在连续的物理内存块中进行分配。ECPT的这些数字对应于没有用于应用程序数据的<strong>透明大页面</strong>（transparent
-huge pages
-，THP）[85]的环境，这是最不利的情况。从表中可以看出，两个应用程序中的HPT一路使用了64MB的连续内存。</p>
-<p>在繁忙的服务器中分配大块连续内存是昂贵的，尤其是当内存高度碎片化时。我们在一个基于Linux的服务器上进行了实验，使用了一个开源的碎片化工具[1]来测试不同碎片化水平下的性能。我们测得，在2
-GHz和0.7碎片化（即较高）的FMFI度量[32]，[49]中，分配和清零4KB、8KB、1MB、8MB和64MB内存块分别需要4K、5K、750K、13M和120M个周期。这些数据与先前的测量结果一致[49]。随着块大小的增加，开销增加得更快。<em>更重要的是</em>，当我们将内存碎片化程度提高到0.7以上时，系统无法分配64MB的连续内存，并返回错误。因此，ECPT的运行无法完成。</p>
-<p>第5列至第8列显示了使用基数树和ECPT组织的页表在没有和使用THP的情况下的最大内存消耗。可以看出，与没有THP的基数树相比，ECPT的页表内存使用量平均增加了138%；与使用THP的基数树相比，ECPT的页表内存使用量平均增加了128%。与应用程序数据消耗的内存相比，页表消耗的内存更高，但并不显著。然而，正如我们将在后面展示的那样，减少HPT的总内存消耗也有助于减少其对连续内存的需求。</p>
-<hr />
-<h4 id="tips-1">tips:</h4>
-<p>透明大页面（<em>Transparent Huge
-Pages</em>，简称THP）是一种内存管理技术，用于优化大内存页面的使用。在传统的页面管理中，内存被分成固定大小的页面，通常是4KB大小。然而，对于一些内存密集型应用程序或工作负载，使用更大的页面（比如2MB或1GB）可能会提高性能，因为更大的页面可以减少页表的大小，减少内存访问的开销。</p>
-<p>THP允许操作系统动态地将多个连续的小页面合并成一个大页面，并将这些大页面透明地提供给应用程序。这样，应用程序无需修改代码，也无需知道大页面的存在，操作系统会自动将小页面合并为大页面，并对应用程序透明地提供更大的内存页面。</p>
-<p>THP的使用可以提高内存访问效率和系统性能，特别是对于那些需要大量内存的应用程序。它是操作系统在内存管理方面的一项优化技术，可以有效地减少页表的大小，并降低内存访问的开销，从而提高系统的整体性能。</p>
-<hr />
-<h2 id="designing-memory-efficient-hpts">4. DESIGNING MEMORY-EFFICIENT
-HPTS</h2>
-<p>为了解决HPT（Hashed Page
-Tables）连续性问题，我们提出了四种新的硬件辅助原语来实现内存高效的HPT。其中两种直接减少HPT需要的连续物理内存：(i)
-<em>逻辑到物理（L2P）表</em>和(ii)
-<em>动态更改块大小</em>。另外两种间接减少HPT需要的连续物理内存，通过减少HPT所需的总物理内存：(i)
-<em>原地页表调整</em>(<em>In-place Page Table Resizing</em>)和(ii)
-<em>逐路调整</em>(<em>Per-way Resizing</em>)。</p>
-<h3 id="a.-logical-to-physical-l2p-table"><em>A. Logical to Physical
-(L2P) Table</em></h3>
-<p>如图2a所示，传统的HPT（Hashed Page
-Table）路需要在一个连续的内存区域中进行分配。这是因为在TLB（Translation
-Lookaside
-Buffer）缺失时，虚拟页号（VPN）被进行哈希计算，得到的哈希键与HPT的基地址相加，从而得到对应的物理页号（PPN）的入口。这种设计不允许表中出现不连续性，这与基数页表不同。在我们的实验中，我们发现有些应用的HPT每个路需要高达64MB的内存。找到64MB连续内存通常是耗时的。此外，在内存高度碎片化的机器上，我们发现这会导致程序崩溃。</p>
-<figure>
-<img
-src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801181109866.png"
-alt="image-20230801181109866" />
-<figcaption aria-hidden="true">image-20230801181109866</figcaption>
-</figure>
-<hr />
-<h4 id="tips-2">tips</h4>
-<p>hash算出来的是vpn对应的entry的index。</p>
-<hr />
-<p>为了解决这个问题，我们提出了一种设计，将HPT的每个路（way）分成多个固定大小的<em>块</em>（Chunk），这些块不需要连续。然后，在内存管理单元（MMU）中添加一个小的间接表，称为<em>逻辑到物理（L2P）表</em>，用于将访问重定向到这些块。这种机制对软件透明，而且硬件高度局部化。通过合理选择参数，每个块只需要适量的连续内存，而L2P表足够小，具有可接受的访问时间。</p>
-<p>如图2b所示，HPT的路被拆分为大小为<em>ChunkSize</em>（CS）的一组块。在TLB缺失时，VPN的哈希值被除以CS，并添加到L2P表的基地址。该位置的内容（如图2b中的b1）是一个指向包含所需PPN的块的基地址的指针。然后，VPN的哈希值取模CS，并添加到块的基地址，从而得到具有PPN的入口。</p>
-<p>在任何时候，MMU只包含当前正在运行的进程的L2P表。在上下文切换时，操作系统保存和恢复L2P表。此操作的开销较低。原因是，正如我们将在后面看到的那样，L2P表不是很大，我们只需要保存和恢复正在使用的L2P表条目，这些条目平均只占所有条目的一小部分。</p>
-<p>由于CS是2的幂，图2b中的除法和取模操作实际上是<em>位移和掩码</em>操作。因此，我们估计，在硬件中访问时，一个MMU驻留的L2P表将在基线页面遍历（如图2a所示）中增加约几个周期的开销。这种开销是完全可以接受的，至少对于HPT的Elastic
-Cuckoo Page
-Table（ECPT）实现来说。这是因为这种开销在大多数情况下可以通过与ECPT的Cuckoo
-Walk Cache（CWC）访问的重叠来隐藏。我们将在第五节详细讨论细节。</p>
-<h3 id="b.-dynamically-changing-chunk-sizes"><em>B. Dynamically Changing
-Chunk Sizes</em></h3>
-<p>为了最小化L2P表的访问时间，L2P表必须足够小，最多可以容纳几十个块的指针。因此，我们需要设置CS的值，以便所有这几十个块的组合能够容纳一个HPT路的所有条目。</p>
-<p>在实践中，应用程序的行为有很大的差异。一方面，大数据应用程序分配大量内存，可能需要每个HPT路几十兆字节或几百兆字节。另一方面，许多系统服务、功能和微服务所需的内存较少，可能每个HPT路只需要几千字节。对于第一类应用程序，要容纳所有的页面映射，需要将每个块设置在兆字节的范围内。然而，对于第二类应用程序，大块会浪费大量内存。需要注意的是，在所有情况下，一个块由一次性分配的一个或多个连续物理页面组成。</p>
-<p>为了解决这个问题，我们提议根据应用程序的行为随时间<em>动态</em>改变分配给应用程序的块大小。我们选择一组从小到大的块大小。当一个应用程序启动时，它使用最小的块大小。随着应用程序增加其HPT路的需求，它可以改变块大小。有了这种支持，小内存和大内存应用程序的HPT都可以<em>高效地</em>使用非连续内存。</p>
-<p>第五节列出了我们使用的L2P表大小和不同块大小，并进行了解释。然而，为了理解操作，我们现在展示一个示例，该示例使用64个条目的L2P表，以及8KB和1MB的块大小。图3a显示了一个应用程序，它一开始只需要4KB的HPT路。在这种情况下，操作系统使用小的块大小（8KB），只分配一个块。只使用L2P表的一个条目，HPT路使用了8KB块的一半。如果应用程序的HPT路翻倍，操作系统简单地填满了块的后半部分，同时仍然只使用L2P表的一个条目（图3b）。</p>
-<figure>
-<img
-src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801202605397.png"
-alt="image-20230801202605397" />
-<figcaption aria-hidden="true">image-20230801202605397</figcaption>
-</figure>
-<p>如果应用程序进一步将其HPT翻倍至16KB，操作系统会分配第二个小块，并在L2P表中使用第二个条目（图3c）。这个过程重复进行，直到L2P表的所有64个条目都被使用，形成一个总共512KB大小的HPT路（图3d）。如果再次翻倍HPT大小，将触发块大小的转换，这涉及分配一个新的1MB块，将旧块中的条目重新哈希到新块中，并释放旧块。在调整大小后，我们使用L2P表的一个条目，指向1MB块（图3e）。进一步的扩大会分配更多的1MB块，因此会使用更多的L2P表条目。一旦L2P表的所有64个条目都指向完整的1MB块，另一个HPT的扩大将需要分配一个更大尺寸的块。总体上，无论是小尺寸的应用程序还是大尺寸的应用程序都可以高效地使用HPT内存。硬件使用MMU中的一些位来记录HPT当前使用的块大小，以及是否需要改变块大小进行扩大。</p>
-<h3 id="c.-in-place-page-table-resizing"><em>C. In-place Page Table
-Resizing</em></h3>
-<p>这项技术和接下来的一项技术都能减少HPT（Hashed Page
-Table）所需的总物理内存；我们稍后会看到，间接地它们也能减少连续物理内存的需求。</p>
-<p>为了理解这项技术，回想一下我们的最先进的基准方案（即ECPT），它在程序运行时动态调整HPT的大小，在调整大小期间，旧的和新的HPT共存于内存中。这种方法可能会占用相当大的内存。例如，我们的一些应用程序需要一个由三个64MB组成的HPT，总共192MB。因此，在调整大小为192MB时，新旧HPT表共占用192
-+ 96 =
-288MB的内存。此外，调整大小操作需要时间，而在大多数程序的执行时间内，会有两个HPT（旧+新）共存于内存中；我们测得平均情况下，总执行时间的87.3％是这种情况。在机器上运行多个进程，每个进程都有一个针对不同页面大小的HPT，可能会导致多个HPT同时调整大小，从而消耗大量内存。</p>
-<p>操作系统需要对所有旧的HPT条目进行重新散列。然而，只有在插入新的HPT条目时，才会重新散列单个条目（或一小组条目）。等到有新的条目插入时才重新散列条目的原因是为了重复使用插入触发的操作系统调用。当然，可以为所有重新散列分配另一个操作系统线程，但这会增加开销。</p>
-<hr />
-<h4 id="tips-3">tips</h4>
-<p>重新散列的机制是什么？？？</p>
-<hr />
-<p>为了减少内存使用量，本文提出了<em>就地</em>HPT调整大小。其思想是让新旧HPT共享同一块内存空间。这确保在任何时候，两个HPT使用的内存等于两者中较大的那个，而不是两者的总和。为了形象化说明，图4显示了如何扩展HPT（a）在原地扩展和（b）非原地扩展。为简单起见，图中仅显示了一个HPT的路。此外，图中将HPT路描述为连续的内存。实际上，根据第IV-A和IV-B节，<em>HPT路（旧的和新的）由一组非连续的块组成</em>。</p>
-<p>为了与原始的ECPT论文一致，图4假设地址从图的顶部到底部递增。回忆一下，在进行传统的非原地调整大小的HPT（图4a）时，有三个区域：旧HPT中的Migrated和Live区域以及新HPT。插入操作将条目放入新的HPT或Live区域。重新散列将Migrated区域向下扩展，将Live区域的条目取出并插入到新的HPT中。Migrated区域不放置任何条目。</p>
-<figure>
-<img
-src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801203815590.png"
-alt="image-20230801203815590" />
-<figcaption aria-hidden="true">image-20230801203815590</figcaption>
-</figure>
-<p>在我们提出的就地调整大小方案（图4b）中，插入操作和重新散列操作都可能将条目放入Migrated区域，因为它与新的HPT重叠。为了防止这些新条目造成混淆，我们提出了一个简单的技术：新HPT使用与旧HPT相同的散列函数，但是为了索引新的HPT，在散列键的结果中使用了一个额外的位（在上调大小时）或减少了一个位（在下调大小时）。添加的位是散列键的最高有效位（most
-significant bit, MSB）之后的一位(The bit added is the one beyond the
-most significant bit (MSB) of the hash
-key,即更高的一位)；移除的位是散列键的最高有效位（MSB）。此外，我们只将HPT的每个路上调或下调到下一个较高/较低的<em>二次幂大小</em>。</p>
-<hr />
-<h4 id="tips-4">tips</h4>
-<p>散列函数的结果有很多位，比如n bit，旧的HPT只使用m
-bit，而新的扩容后的HPT使用m + 1 bit.</p>
-<hr />
-<h4 id="detailed-rehash-algorithm.">Detailed Rehash Algorithm.</h4>
-<p>在HPT调整大小期间，重新散列操作将一个元素从旧HPT的第i个路（Hi）移动到新HPT的相同方式（Hi′）。被移动的元素是位于Hi的Live区域顶部的元素，并由该方式的重新散列指针（Pi）指向（见第二节）。在移动后，Pi被递增。为了描述算法，首先考虑HPT的上调大小，然后再考虑HPT的下调大小。</p>
-<p>在HPT上调大小中，假设要重新散列的条目是图5a中的<em>OldEntry</em>。我们使用原始的散列函数对其VPN进行散列，但使用结果散列键的一个额外位。在这一点上，有两种可能的结果：如果额外位为零，该条目将保持原位（图5b中的<em>NewEntry</em>）；如果额外位为一，该条目将移动到新HPT的第二半部分，并在新HPT中与旧HPT相同的偏移位置（图5c中的<em>NewEntry</em>）。</p>
-<figure>
-<img
-src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801205831755.png"
-alt="image-20230801205831755" />
-<figcaption aria-hidden="true">image-20230801205831755</figcaption>
-</figure>
-<p>在HPT下调大小中，相反的情况发生：两个来自旧HPT的条目可能被重新散列到新HPT中的相同位置，因此其中一个条目将会被插入到不同的路中。例如，在图5d和图5e中，旧HPT的两个<em>OldEntry</em>条目将被重新散列到新HPT的相同位置，该位置由图5f中的<em>NewEntry</em>给出。</p>
-<h4 id="other-operations.">Other Operations.</h4>
-<p>在HPT调整大小期间执行的其他操作使用与弹性布谷哈希（Elastic Cuckoo
-Hashing）[77]中描述的相同算法。以下我们假设正在进行HPT上调大小。在查找操作中，对于每个路i，使用旧函数创建的哈希键与Rehashing
-Pointer（Pi）进行比较。如果哈希键大于或等于Pi，则使用旧哈希键来索引HPT；否则，使用新哈希键来索引HPT。新的哈希键与旧的哈希键相同，只是包含了最高位（MSB）之外的那一位。每个HPT路只需要单个访问。</p>
-<p>删除操作遵循查找过程，并在找到元素时清除该条目。最后，插入操作涉及随机选择一个路i，使用旧函数创建一个哈希键，并将哈希键与Pi进行比较。如果哈希键大于或等于Pi，则将元素插入由旧哈希键指向的条目；否则，将元素插入由新哈希键指向的条目。如果出现冲突，则将现有条目替换到另一个方式中。</p>
-<h4
-id="interaction-between-resizing-and-changing-chunk-sizes.">Interaction
-between Resizing and Changing Chunk Sizes.</h4>
-<p>所有不涉及更改块大小的上调和下调HPT操作都执行原地HPT调整大小。所有需要更改块大小的上调和下调HPT操作，根据设计要求，都需要进行非原地HPT调整大小。</p>
-<h4 id="d.-per-way-resizing"><em>D. Per-way Resizing</em></h4>
-<p>在现有的方案中，HPT以集合关联方式组织，以减少冲突，并且在调整大小时，所有W个路由、都进行上调或下调。然而，这种方法在内存使用上可能是不高效的：HPT每次都是倍增/减少大小，而实际上可能只需要稍微多一些/少一些空间。</p>
-<p>为了减少HPT内存消耗的浪费，我们提出了<em>逐路调整（Per-Way
-Resizing）</em>的方法。该方法的思想是一次只对一个路进行上调或下调。通过这种方法，在上调时，只需分配新HPT中原本需要添加的内存的1/W部分。与前一节一样，这种方法应用于由多个非连续块组成的HPT路。</p>
-<p>虽然这种改进节省了内存，但它引入了两个新问题。具体来说，我们需要确定选择哪个路进行上调或下调，同时避免路的不平衡。我们还需要确定在HPT中插入项的算法。接下来我们将讨论这些问题。</p>
-<h4 id="deciding-which-way-to-upsize-or-downsize.">Deciding Which Way to
-Upsize or Downsize.</h4>
-<p>在传统的全路调整大小中，操作系统保持一个包含整个HPT占用率的计数器；当计数器达到阈值时，HPT将被调整大小。而在每路调整大小中，操作系统使用每路计数器来跟踪每个单独路的占用率。当其中一个计数器达到阈值时，对应的路将被调整大小。</p>
-<p>需要避免以牺牲其他路为代价，反复对同一路进行上调（或下调）。为了保持不同路的平衡，我们在允许调整某一路之前添加一个额外的条件。具体来说，候选路的大小不能比另一路更大（在上调时），或者比另一路更小（在下调时）。通过这个约束，一条路永远不会比另一条路的大小大两倍（或小于一半）。</p>
-<h4 id="deciding-where-to-insert-an-element.">Deciding Where to Insert
-an Element.</h4>
-<p>在传统的设计中，所有的路都是等大小的，可以在插入时随机选择一条路，并自然地保持路的平衡占用率。然而，在每路调整大小的情况下，随机插入不再合适：调整大小后的路可能无法充分利用其全部容量，而其他路仍然会保持高占用率。这将导致频繁的冲突和重新插入。</p>
-<p>为了避免这个问题，我们提出了一种<em>加权</em>随机插入算法。具体来说，由于操作系统知道每个路的占用率和大小，它也知道每个路有多少空闲槽位。因此，我们的算法将将元素插入路i的概率设置为路i中空闲槽位数与所有路空闲槽位数之比。换句话说，我们在0到1之间生成一个随机数，并为每个路i赋予权重<span
-class="math inline">\(FREE_i/FREE_{sum}\)</span>。此外，如果某条路比其他路更大，并且其占用率已经达到了预定义的上限，我们将其权重设为零，从效果上阻止在该路中插入。</p>
-<p>采用这种算法后，我们可以得到期望的结果。首先，在某条路调整大小后，大多数插入操作会选择该路，从而推迟其他路的调整大小。其次，一旦一条较大的路的占用率达到了阈值，插入操作不会在调整较小的路之前选择该路。</p>
-<h3 id="e.-reducing-hpt-size-reduces-memory-contiguity"><em>E. Reducing
-HPT Size Reduces Memory Contiguity</em></h3>
-<p>最后两种技术是用于减小HPT尺寸的软件策略。然而，它们也可以间接地降低HPT的内存连续性要求。原因在于较小的HPT可能可以使用较小尺寸的内存块，而不需要较大HPT那样的块。例如，我们将在评估部分看到，多亏这些技术，我们的两个应用程序能够使用1MB内存块来构建它们的HPT，而不需要更大尺寸的块。</p>
-<h2 id="v.-me-hpt-implementation-aspects">V. ME-HPT IMPLEMENTATION
-ASPECTS</h2>
-<p>在这一节中，我们将讨论ME-HPT（Memory-Efficient Hashed Page
-Tables）的几个方面：L2P表项的“抢占”、选定的块大小、L2P表的可扩展性以及隐藏对L2P表的访问。</p>
-<h3 id="a.-l2p-table-entry-stealing"><em>A. L2P Table Entry
-Stealing</em></h3>
-<p>为了最小化访问时间，我们将每个应用程序的L2P表大小设置为每种页面大小和HPT路的32个条目。回想一下，我们支持三种页面大小（即4KB、2MB和1GB）。假设我们有三个HPT路，则对于一个应用程序，我们将有九个子表格在L2P表中。现在考虑第i个路的三个子表格，分别用于4KB、2MB和1GB的页面大小。很不可能这三个子表格都会被高度利用。最有可能的情况是其中一个或多个子表格的条目较少。因此，如果需要，我们允许某个页面大小的子表格从其他页面大小的子表格中“抢占”条目。这样可以更好地利用L2P表的条目。</p>
-<hr />
-<h4 id="tips-5">tips</h4>
-<p>假设有三种Page Size(4KB，2MB，1GB),则L2P表共3 *
-32共96个缓存行，每个缓存行有每一路的entry（多路组相连），下图为3路的情况。</p>
-<hr />
-<p>图6a展示了我们提出的设计。在MMU中，我们将同一路i的三个子表格连续放置。1GB的子表格放在中间，因为它最不可能被使用。4KB和2MB的L2P子表格在相反方向增长。图6a展示了4KB和2MB子表格各使用两个条目的情况。</p>
-<figure>
-<img
-src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802095758236.png"
-alt="image-20230802095758236" />
-<figcaption aria-hidden="true">image-20230802095758236</figcaption>
-</figure>
-<p>现在假设4KB子表格使用了全部32个条目并且需要进行扩容。如果1GB子表格中没有任何条目在使用中，我们允许4KB子表格从1GB子表格中获取所有条目，并扩容到64个条目（图6b）。这时候，内存块大小保持不变。如果之后，4KB子表格想再次进行扩容，它只能通过分配一个更大的内存块并将所有条目重新散列到新内存块中来完成。</p>
-<p>如果在4KB子表格从1GB子表格中获取所有条目后，1GB子表格需要一个条目，系统会使用2MB子表格中最重要的一个条目（图6c）。</p>
-<h3 id="b.-chosen-chunk-sizes"><em>B. Chosen Chunk Sizes</em></h3>
-<p>通过这种支持，我们选择内存块的大小从小到大依次为8KB、1MB、8MB和64MB。尽管对于我们的应用程序，我们只需要8KB和1MB的内存块。具体来说，让我们从最小的8KB内存块大小开始。当使用8KB内存块的子表格达到64个条目（图3d）时，它的HPT
-way将扩展到8KB×64 = 512KB。如果HPT
-way现在需要扩容，操作系统将内存块大小更改为1MB，分配一个单独的内存块，并在L2P表中使用一个条目（图3e）。</p>
-<p>如果应用程序使用1MB内存块填充了所有64个条目，每个way将使用64MB。如果HPT
-way现在需要扩容到128MB，操作系统将使用下一个内存块大小。由于这种情况很少发生，并且我们不想分配大的连续内存块，我们将下一个内存块大小设置为8MB。在这种情况下，操作系统分配16个内存块，并在L2P表中使用16个条目。如果应用程序填充了所有64个条目并且HPT
-way需要扩容，下一个内存块大小（很少使用）将为64MB。</p>
-<p>一个应用程序的L2P表的大小是适度的。考虑使用8KB内存块的最坏情况。对于一个46位的物理地址，8KB内存块的基地址为33位，后面跟着13个零。我们只需要存储这33位。因此，L2P表的总大小为32个条目×
-3个way × 3个页面大小 × 33位 = 1.16KB。</p>
-<p>请注意，内存块的大小不需要局限于上面列出的大小。相反，操作系统可以根据每个进程和每个系统状态做出决策。为了确定下一个内存块的大小，操作系统可以基于当前的内存碎片化水平和预期的最终HPT
-way大小动态使用启发式方法。我们将这个主题视为未来的工作。</p>
-<h3 id="c.-scalability-of-l2p-tables-with-changing-chunks"><em>C.
-Scalability of L2P Tables with Changing Chunks</em></h3>
-<p>ME-HPT提供了一种可扩展的HPT解决方案，通过L2P表和动态改变chunk大小实现。正如前面所述，MMU仅包含正在运行进程的L2P表。对于一个进程，L2P表包括所有页面大小和way，共有288个条目，使用1.16KB的内存。在进行上下文切换时，操作系统只保存和恢复L2P表中的有效条目，这些条目通常聚集在表的两端。应用程序通常只使用L2P表的几个条目。在第VII-E4节中，我们将展示平均来看，它们只使用53个条目。因此，保存和恢复L2P表的开销是适度的。此外，在虚拟化系统中，开销会更小，有两个原因。首先，由于客户机HPT不是连续的，它们分布在主机页面中，因此没有客户机L2P表。其次，在客户机上下文切换时，不会保存或恢复主机L2P表。</p>
-<p>对于HPT，最大连续内存需求是一个chunk的大小（在我们的应用程序中为8KB或1MB）。表II显示了不同chunk大小的HPT
-way的最大大小，以及生成的总HPT（即所有三个way）在使用4KB页面和大页（2MB）页面时可以映射的最大物理内存空间。我们可以看到，对于8KB的chunks，ME-HPT可以构建一个64x8KB=512KB的HPT
-way。如果HPT用于4KB页面，生成的3-way
-HPT可以映射768MB的应用程序数据；如果HPT用于2MB页面，则生成的3-way
-HPT可以映射384GB的应用程序数据。</p>
-<figure>
-<img
-src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802133353257.png"
-alt="image-20230802133353257" />
-<figcaption aria-hidden="true">image-20230802133353257</figcaption>
-</figure>
-<p>使用1MB的chunk，ME-HPT可以构建一个64x1MB=64MB的HPT
-way。与之前一样，如果HPT用于4KB页面，则3-way
-HPT可以映射96GB的应用程序数据；如果HPT用于大页，则3-way
-HPT可以映射48TB的数据。</p>
-<p>使用8MB的chunk，ME-HPT可以构建一个64x8MB=512MB的HPT
-way。如果HPT用于4KB页面，则3-way
-HPT可以映射768GB的应用程序数据；如果HPT用于大页，则生成的HPT可以映射384TB的应用程序数据。</p>
-<p>如果应用程序更大，我们可以切换到64MB的chunk。在这种情况下，ME-HPT可以构建一个64x64MB=4GB的HPT
-way。如果HPT用于4KB页面，则3-way
-HPT可以映射6TB的应用程序数据；如果HPT用于大页，则生成的HPT可以映射3PB的应用程序数据。</p>
-<p>当操作系统对HPT
-way进行升级时，它会分配一个或多个额外的chunk。这些chunk<em>既不与彼此连续，也不与当前HPT的chunk连续</em>。一个HPT
-way始终是由多个非连续的chunk组成的。虽然对于我们的应用程序，chunk大小为8KB或1MB，但更大的应用程序可能需要更大的chunk。为了在高度碎片化的机器上为大chunk找到空间，操作系统可能会执行内存压缩或交换页面，就像通常分配大页一样。升级操作不会失败，除非请求的chunk大小太大，以至于操作系统无法提供如此大的连续内存。</p>
-<h3 id="d.-hiding-the-access-to-the-l2p-table"><em>D. Hiding the Access
-to the L2P Table</em></h3>
-<p>ECPT设计中访问L2P表（第IV-A节）增加的额外延迟并不会明显减慢页面遍历的速度。原因在于这种额外延迟可以与ECPT设计中的Cuckoo
-Walk Cache（CWC）硬件结构的访问重叠。</p>
-<hr />
-<h4 id="tips-6">tips</h4>
-<p>CWC的工作原理？？</p>
-<hr />
-<p>图7显示了设计。在TLB（转换后备缓冲）未命中时，缺失虚拟地址的转换可以存在于任何页面大小的HPT（哈希页表）的任何路中。为了减少需要检查的内存位置数量，ECPT硬件首先访问CWC硬件缓存。根据访问结果确定应该访问哪个页面大小的HPT的哪个路。同时，如果正在进行调整大小操作，则会检查重新哈希指针，以决定是访问旧的HPT还是新的HPT。</p>
-<figure>
-<img
-src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802144500427.png"
-alt="image-20230802144500427" />
-<figcaption aria-hidden="true">image-20230802144500427</figcaption>
-</figure>
-<p>同时，我们提出硬件在内存管理单元（MMU）中访问进程的L2P表，并生成潜在的内存地址进行访问。在CWC和重新哈希指针检查完成后，它们选择要执行的内存访问操作。因此，L2P表访问的延迟被隐藏了。</p>
-<p>唯一不隐藏L2P表访问延迟的情况是由于HPT冲突而进行的Cuckoo重新插入。在这种情况下，不访问CWC，L2P表访问的延迟位于关键路径上。幸运的是，在这种情况下，几个周期的访问延迟是可以忽略的。原因在于元素插入或Cuckoo重新哈希是由操作系统执行而不是由硬件执行的，而调用操作系统具有更高的开销。</p>
-]]></content>
-      <categories>
-        <category>体系结构</category>
-        <category>Virtual memory</category>
-        <category>Page tables</category>
-        <category>Hashed page tables</category>
-      </categories>
-      <tags>
-        <tag>Paper</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>性能分析工具--Valgrind, perf, pin</title>
-    <url>/zyhjy/2023/08/05/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-Valgrind-perf-pin/</url>
-    <content><![CDATA[<h1 id="性能分析工具--valgrind-perf-pin">性能分析工具--Valgrind, perf,
-Pin</h1>
-<p>对比主流性能分析工具。</p>
-<span id="more"></span>
-<h2 id="valgrind">Valgrind</h2>
-<p><a
-href="https://valgrind.org/">Valgrind</a>是一个用于动态分析和调试的开源工具，它的主要功能是在不修改源代码的情况下，监测和分析程序的执行行为、内存使用以及性能瓶颈。Valgrind通过将目标程序解释成自己的中间表示，对程序执行过程中的内存访问和指令执行进行监视和控制。</p>
-<p>Valgrind是<strong>开源</strong>的。</p>
-<h3 id="原理">原理</h3>
-<p>Valgrind的主要原理是<strong>动态二进制翻译</strong>（Dynamic Binary
-Translation，DBT）。具体来说，Valgrind会将目标程序的机器码翻译成一种称为"Valgrind
-Intermediate
-Representation"（VIR）的中间表示。然后，在VIR的基础上，Valgrind会插入额外的代码来监测内存读写、分支执行、函数调用等情况。这样，Valgrind可以捕获程序在运行时的行为，同时检测可能的内存错误、泄漏、未初始化变量等问题。</p>
-<p>Valgrind主要包括以下几个部分：</p>
-<ol type="1">
-<li><p><strong>前端（Front-End）：</strong>
-前端负责将目标程序的二进制代码转换成VIR。这个过程中，Valgrind会将插桩代码注入到目标程序中，以便进行监控和分析。</p></li>
-<li><p><strong>中间层（VIR）：</strong>
-VIR是Valgrind自己定义的一种中间表示。Valgrind在这个中间表示上进行监控和分析，而不是直接在原始机器码上操作。</p></li>
-<li><p><strong>后端（Back-End）：</strong>
-后端负责执行VIR上的代码，模拟程序的执行过程，并在必要时触发插桩代码。Valgrind会记录执行过程中的内存访问、分支预测等信息。</p></li>
-<li><p><strong>工具（Tools）：</strong>
-Valgrind提供了不同的工具，用于检测不同类型的问题，如Memcheck用于内存错误检测，Cachegrind用于性能分析等。</p></li>
-</ol>
-<h3 id="主要工具">主要工具</h3>
-<p>Valgrind 主要包括以下几个工具：</p>
-<ol type="1">
-<li><p><strong>Memcheck：</strong> Memcheck 是 Valgrind
-最常用的工具，用于检测内存错误。它会跟踪程序中每个字节的读写情况，检测未初始化的变量、内存越界、内存泄漏等问题。</p></li>
-<li><p><strong>Cachegrind：</strong> Cachegrind
-用于进行高级的缓存和分支预测分析。它可以估计程序执行时的缓存命中率，帮助你优化程序以减少缓存未命中。</p></li>
-<li><p><strong>Callgrind：</strong> Callgrind
-用于生成函数调用图和分析函数调用的性能。它可以帮助你了解程序中不同函数之间的调用关系，以及函数调用所花费的时间。</p></li>
-<li><p><strong>Helgrind：</strong> Helgrind
-用于检测多线程程序中的竞态条件和同步问题。它可以帮助你发现线程之间的竞争条件，以及可能导致死锁和数据竞争的地方。</p></li>
-<li><p><strong>Massif：</strong> Massif
-用于内存分析，可以帮助你找出程序中内存的使用情况和泄漏情况。</p></li>
-</ol>
-<hr />
-<h2 id="pin">Pin</h2>
-<p><a
-href="https://www.intel.com/content/www/us/en/developer/articles/tool/pin-a-dynamic-binary-instrumentation-tool.html">Pin</a>是一个动态二进制插桩工具，用于在程序执行期间插入自定义代码，以监视和分析程序的行为。</p>
-<p>Intel Pin是<strong>开源</strong>的。</p>
-<p><strong>功能和用途：</strong> -
-Pin允许开发人员在不修改程序源代码的情况下，通过插入代码来监视和分析程序在执行时的行为。
-- 它可以用于性能分析、内存调试、代码覆盖率分析、安全研究等领域。</p>
-<p><strong>主要原理：</strong> -
-Pin使用了<strong>JIT（Just-In-Time）</strong>编译技术，它将目标程序的二进制代码进行动态重编译，插入自定义的插桩代码，然后执行重编译后的代码。
--
-在插桩代码中，开发人员可以实现自己的分析逻辑，如收集统计信息、记录内存访问、检测特定模式等。
--
-Pin提供了API供开发人员编写插桩代码，这使得用户能够实现高度定制的程序分析。</p>
-<hr />
-<h3 id="tips-sbt-dbt-jit">tips : SBT, DBT, JIT</h3>
-<p><strong>JIT</strong>（Just-In-Time）编译和<strong>DBT</strong>（Dynamic
-Binary
-Translation）都是与代码执行优化和分析相关的技术，但它们有一些区别。以下是它们的主要区别：</p>
-<ol type="1">
-<li><strong>定义：</strong>
-<ul>
-<li>JIT编译：JIT编译是一种将程序源代码或中间代码（如字节码）即时编译成机器码的技术。在程序执行过程中，JIT编译器会将部分代码编译成机器码，并直接在计算机上执行。这有助于提高代码的执行速度。</li>
-<li>DBT：DBT是一种将目标程序的机器码翻译成另一种中间表示，然后在这个中间表示上进行监视、分析和修改的技术。这种翻译是在程序执行之前进行的。</li>
-</ul></li>
-<li><strong>执行时机：</strong>
-<ul>
-<li>JIT编译：JIT编译是在程序执行的过程中，动态地将代码从高级源代码或中间代码翻译成机器码。编译发生在程序运行时。</li>
-<li>DBT：DBT的翻译阶段是在程序执行之前进行的。目标程序的机器码被翻译成另一种中间表示，然后在这个中间表示上进行分析。</li>
-</ul></li>
-<li><strong>实时性：</strong>
-<ul>
-<li>JIT编译：JIT编译可以实现实时性的优化，因为它是在程序执行过程中进行的。程序的执行速度可以因为
-JIT 编译而获得即时的提升。</li>
-<li>DBT：DBT的翻译是在执行之前进行的，这意味着翻译本身不会在程序运行时对执行速度产生影响。然而，DBT
-之后的分析和监视可能会对性能产生一些影响。</li>
-</ul></li>
-<li><strong>应用领域：</strong>
-<ul>
-<li>JIT编译：常用于虚拟机环境（如Java虚拟机、.NET等），可以在运行时优化和执行中间代码。</li>
-<li>DBT：常用于动态分析、调试和模拟，可以在执行之前对目标程序进行监控和修改。</li>
-</ul></li>
-</ol>
-<p>尽管JIT编译和DBT在某些方面有一些相似之处，但它们的主要应用场景和执行时机有所不同。
-JIT更侧重于提高执行速度，而DBT则更侧重于分析和监视程序的行为。</p>
-<p>而<strong>静态二进制翻译</strong>（Static Binary
-Translation，SBT）用于将一个架构的机器代码翻译成另一个架构的机器代码，而无需运行程序。这与动态二进制翻译（Dynamic
-Binary
-Translation，DBT）不同，后者是在程序运行时将机器代码翻译成中间表示，然后在中间表示上执行。</p>
-<hr />
-<h2 id="perf">perf</h2>
-<p><code>perf</code>
-是一个性能分析工具，用于在Linux系统上进行性能分析和调试。它可以帮助开发人员了解程序的运行时性能，找出瓶颈和优化机会。<code>perf</code>
-提供了多种分析功能，包括性能计数器、事件跟踪、函数调用图等，用于收集和分析系统和应用程序的性能数据。</p>
-<p><code>perf</code> 是<strong>开源</strong>的，它是 Linux
-操作系统自带的一部分，用户可以在终端中直接使用 <code>perf</code>
-命令。<code>perf</code>
-工具的源代码也是开放的，用户可以查看其实现、贡献改进或自定义特定需求。</p>
-<h3 id="主要原理">主要原理：</h3>
-<p><code>perf</code> 基于 Linux
-内核中的性能计数器子系统和事件跟踪机制。它使用硬件性能计数器来测量程序在
-CPU 上的各种操作，如指令执行数、缓存命中率等。此外，<code>perf</code>
-还可以使用事件跟踪机制，监视系统中的事件，如系统调用、函数调用、中断等。</p>
-<p><code>perf</code> 的主要原理包括以下几个步骤：</p>
-<ol type="1">
-<li><p><strong>数据收集设置：</strong> 用户使用 <code>perf</code>
-工具指定需要分析的事件、计数器等配置信息。</p></li>
-<li><p><strong>性能计数器采样：</strong> <code>perf</code>
-利用硬件性能计数器定期采样程序的运行时数据，如指令执行次数、缓存命中次数等。</p></li>
-<li><p><strong>事件跟踪（可选）：</strong>
-除了性能计数器，<code>perf</code>
-还可以使用事件跟踪机制收集事件数据，如系统调用、函数调用、中断等。</p></li>
-<li><p><strong>数据分析和报告生成：</strong>
-采样数据被收集后，<code>perf</code>
-将这些数据进行分析，并生成性能报告，包括热点函数、时间分布、缓存命中率等信息。</p></li>
-</ol>
-<p>讲论文声音大</p>
-<p>linwei 可视化 gem5配置 + qemu？ 对齐</p>
-<p>gem5缓存这周结束</p>
-]]></content>
-      <categories>
-        <category>性能分析</category>
-        <category>Valgrind</category>
-        <category>perf</category>
-        <category>pin</category>
-      </categories>
   </entry>
 </search>
