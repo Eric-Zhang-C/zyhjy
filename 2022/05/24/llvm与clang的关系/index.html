@@ -28,13 +28,13 @@
 <meta property="og:site_name" content="ZYHJY">
 <meta property="og:description" content="LLVM最初是底层虚拟机（Low Level Virtual Machine）的缩写，指架构编译器的框架系统，用C++编写而成。我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。 LLVM的子项目： LLVM CoreLLVM Core libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行CPU（">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://zyh-eric.gitee.io/pics/20160718211639694.png">
-<meta property="og:image" content="https://zyh-eric.gitee.io/pics/223786_M9G9ETTWNHNZP65.png">
+<meta property="og:image" content="https://zyh-eric.gitee.io/zyhjy/pics/20160718211639694.png">
+<meta property="og:image" content="https://zyh-eric.gitee.io/zyhjy/pics/223786_M9G9ETTWNHNZP65.png">
 <meta property="article:published_time" content="2022-05-24T15:22:50.000Z">
 <meta property="article:modified_time" content="2023-07-30T10:15:18.554Z">
 <meta property="article:author" content="Yuhang Zhang">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://zyh-eric.gitee.io/pics/20160718211639694.png">
+<meta name="twitter:image" content="https://zyh-eric.gitee.io/zyhjy/pics/20160718211639694.png">
 
 <link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2022/05/24/llvm%E4%B8%8Eclang%E7%9A%84%E5%85%B3%E7%B3%BB/">
 
@@ -225,7 +225,7 @@
         <p><strong>LLVM</strong>最初是底层虚拟机（<strong>L</strong>ow <strong>L</strong>evel <strong>V</strong>irtual <strong>M</strong>achine）的缩写，指<strong>架构编译器</strong>的框架系统，用C++编写而成。<br><br>我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。<br></p>
 <h3 id="LLVM的子项目："><a href="#LLVM的子项目：" class="headerlink" title="LLVM的子项目："></a>LLVM的子项目：</h3><ol>
 <li>LLVM Core<br><br><strong>LLVM Core</strong> libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行CPU（以及一些不太常见的CPU）的架构后端生成支持。这些库是围绕一个称为LLVM中间码（LLVM intermediate representation, “LLVM IR”）的的工具来构建的。LLVM核心库的文档特别详细，所以用LLVM作为优化器和代码生成器来形成自己的语言（或移植现有编译器）是非常容易的。</li>
-<li><strong>Clang</strong><br><br>   Clang是一个LLVM“原配”的C&#x2F;C ++&#x2F;Objective-C编译器，旨在提供高效快速的编译效率（例如，在debug模式下编译Objective-C代码时比GCC快3倍），风格良好的warning和error信息，以及作为开源库来构建第三方语言的编译器。<br>   <img src="/pics/20160718211639694.png" alt="clangAndLLVM" title="clangAndLLVM"><br>   Clang Static Analyzer是一个静态的自动查找代码中的错误的工具，是使用Clang前端作为依赖库来解析C&#x2F;C++代码的工具类型的一个很好的例子。</li>
+<li><strong>Clang</strong><br><br>   Clang是一个LLVM“原配”的C&#x2F;C ++&#x2F;Objective-C编译器，旨在提供高效快速的编译效率（例如，在debug模式下编译Objective-C代码时比GCC快3倍），风格良好的warning和error信息，以及作为开源库来构建第三方语言的编译器。<br>   <img src="/zyhjy/pics/20160718211639694.png" alt="clangAndLLVM" title="clangAndLLVM"><br>   Clang Static Analyzer是一个静态的自动查找代码中的错误的工具，是使用Clang前端作为依赖库来解析C&#x2F;C++代码的工具类型的一个很好的例子。</li>
 <li>LLDB<br><br>   LLDB项目以LLVM和Clang提供的库为基础，提供了一个出色的native级别调试器。它使用Clang AST和表达式解析器、LLVM JIT、LLVM反汇编器等元生组件，所以跟它们配合的很好。在加载调试符号时，它也比GDB快多了而且能够更好的节约内存。</li>
 <li>libc++ and libc++ ABI<br><br>libc++和libc++ ABI项目提供了符合C++标准库的高性能实现，而且还包括对C++11和C++14的完整支持。</li>
 <li>compiler-rt<br><br>compiler-rt项目为动态测试工具（如AddressSanitizer，ThreadSanitizer，MemorySanitizer和DataFlowSanitizer）提供了运行时库的实现。它还为像“__fixunsdfdi”这样的低级代码生成器支持进程提供高层面的调整实现，也提供当目标没有用于实现核心IR操作的短序列本机指令时生成的其他调用。</li>
@@ -249,7 +249,7 @@
 <li>用于测试和生成除上面列出的目标之外的目标的本机代码的C后端。</li>
 <li>与gprof类似的分析系统。</li>
 <li>具有许多基准代码和应用程​​序的测试框架。</li>
-<li>API和调试工具，以简化LLVM组件的快速开发。<br><img src="/pics/223786_M9G9ETTWNHNZP65.png" alt="LLVM"></li>
+<li>API和调试工具，以简化LLVM组件的快速开发。<br><img src="/zyhjy/pics/223786_M9G9ETTWNHNZP65.png" alt="LLVM"></li>
 </ul>
 </li>
 </ul>

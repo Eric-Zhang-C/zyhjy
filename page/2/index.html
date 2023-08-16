@@ -2717,89 +2717,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/" class="post-title-link" itemprop="url">CPU体系结构专业术语</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-05-18 11:23:50" itemprop="dateCreated datePublished" datetime="2023-05-18T11:23:50+08:00">2023-05-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="MMIO（Memory-Mapped-I-O）"><a href="#MMIO（Memory-Mapped-I-O）" class="headerlink" title="MMIO（Memory-Mapped I&#x2F;O）"></a>MMIO（Memory-Mapped I&#x2F;O）</h1><ul>
-<li><p>代表内存映射输入&#x2F;输出。</p>
-</li>
-<li><p>它是一种计算机系统中用于与外部设备进行通信的技术。在MMIO中，外部设备的寄存器或状态被映射到计算机的内存地址空间中的特定区域。通过读取或写入这些内存地址，计算机可以与外部设备进行数据交换和控制操作。</p>
-</li>
-<li><p>MMIO的基本原理是通过在内存地址空间中保留一些特定的地址范围，让计算机能够直接访问外部设备的寄存器或状态。当计算机读取或写入这些地址时，数据被传递到或从外部设备进行处理。这种方式相对于使用专门的I&#x2F;O指令进行输入&#x2F;输出操作，提供了更简化和统一的编程界面。</p>
-</li>
-<li><p>常见的MMIO设备包括网络接口卡、图形显示控制器、声卡、串口控制器等。通过使用MMIO技术，计算机可以通过内存访问方式与这些设备进行通信，从而实现数据传输、设备控制和信息交换等功能。</p>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/Qemu%20icount/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2901,6 +2818,89 @@
 </ul>
 </li>
 <li><p>以上是处理这类指令的要求。通过调用gen_io_start()，我们可以确保在执行I&#x2F;O操作之前记录正确的icount计数，并且在完成指令后结束TB以防止进一步执行不必要的指令。</p>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/" class="post-title-link" itemprop="url">CPU体系结构专业术语</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-18 11:23:50" itemprop="dateCreated datePublished" datetime="2023-05-18T11:23:50+08:00">2023-05-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MMIO（Memory-Mapped-I-O）"><a href="#MMIO（Memory-Mapped-I-O）" class="headerlink" title="MMIO（Memory-Mapped I&#x2F;O）"></a>MMIO（Memory-Mapped I&#x2F;O）</h1><ul>
+<li><p>代表内存映射输入&#x2F;输出。</p>
+</li>
+<li><p>它是一种计算机系统中用于与外部设备进行通信的技术。在MMIO中，外部设备的寄存器或状态被映射到计算机的内存地址空间中的特定区域。通过读取或写入这些内存地址，计算机可以与外部设备进行数据交换和控制操作。</p>
+</li>
+<li><p>MMIO的基本原理是通过在内存地址空间中保留一些特定的地址范围，让计算机能够直接访问外部设备的寄存器或状态。当计算机读取或写入这些地址时，数据被传递到或从外部设备进行处理。这种方式相对于使用专门的I&#x2F;O指令进行输入&#x2F;输出操作，提供了更简化和统一的编程界面。</p>
+</li>
+<li><p>常见的MMIO设备包括网络接口卡、图形显示控制器、声卡、串口控制器等。通过使用MMIO技术，计算机可以通过内存访问方式与这些设备进行通信，从而实现数据传输、设备控制和信息交换等功能。</p>
 </li>
 </ul>
 
