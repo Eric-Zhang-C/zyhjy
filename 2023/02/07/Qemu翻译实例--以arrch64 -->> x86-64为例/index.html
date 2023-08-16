@@ -15,18 +15,19 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Qemu翻译实例–以arrch64 –&gt;&gt; i386为例0.前言 QEMU 是一个仿真器(emulator)，可以user mode 或是system mode 运行。   user mode 可以运行不同ISA 同一OS 的binary;  system mode 可以在当前作业系统上运行另外一个OS.   对QEMU 而言，被仿真的平台被称为guest，又称target; 运行QE">
+  <meta name="description" content="Qemu翻译实例--以arrch64 --&gt;&gt; i386为例 0.前言  QEMU 是一个仿真器(emulator)，可以user mode 或是system mode 运行。  user mode 可以运行不同ISA 同一OS 的binary; system mode 可以在当前作业系统上运行另外一个OS.  对QEMU 而言，被仿真的平台被称为guest，又称target; 运行Q">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Qemu翻译实例--以arrch64 --&gt;&gt; x86-64为例">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/02/07/Qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B--%E4%BB%A5arrch64%20--%3E%3E%20x86-64%E4%B8%BA%E4%BE%8B/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="Qemu翻译实例–以arrch64 –&gt;&gt; i386为例0.前言 QEMU 是一个仿真器(emulator)，可以user mode 或是system mode 运行。   user mode 可以运行不同ISA 同一OS 的binary;  system mode 可以在当前作业系统上运行另外一个OS.   对QEMU 而言，被仿真的平台被称为guest，又称target; 运行QE">
+<meta property="og:description" content="Qemu翻译实例--以arrch64 --&gt;&gt; i386为例 0.前言  QEMU 是一个仿真器(emulator)，可以user mode 或是system mode 运行。  user mode 可以运行不同ISA 同一OS 的binary; system mode 可以在当前作业系统上运行另外一个OS.  对QEMU 而言，被仿真的平台被称为guest，又称target; 运行Q">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-02-07T09:28:50.000Z">
 <meta property="article:modified_time" content="2023-07-30T10:15:50.926Z">
@@ -48,6 +49,15 @@
 
   <title>Qemu翻译实例--以arrch64 -->> x86-64为例 | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -104,6 +114,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -138,11 +149,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -208,7 +246,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -219,36 +271,43 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Qemu翻译实例–以arrch64-–-i386为例"><a href="#Qemu翻译实例–以arrch64-–-i386为例" class="headerlink" title="Qemu翻译实例–以arrch64 –&gt;&gt; i386为例"></a>Qemu翻译实例–以arrch64 –&gt;&gt; i386为例</h1><h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0.前言"></a>0.前言</h2><ul>
-<li><p>QEMU 是一个仿真器(emulator)，可以user mode 或是system mode 运行。 </p>
+        <h1 id="qemu翻译实例--以arrch64----i386为例">Qemu翻译实例--以arrch64
+--&gt;&gt; i386为例</h1>
+<h2 id="前言">0.前言</h2>
 <ul>
-<li>user mode 可以运行不同ISA 同一OS 的binary; </li>
+<li>QEMU 是一个仿真器(emulator)，可以user mode 或是system mode 运行。
+<ul>
+<li>user mode 可以运行不同ISA 同一OS 的binary;</li>
 <li>system mode 可以在当前作业系统上运行另外一个OS.</li>
-</ul>
-</li>
-<li><p>对QEMU 而言，被仿真的平台被称为guest，又称target; 运行QEMU 的平台称为host。</p>
+</ul></li>
+<li>对QEMU 而言，被仿真的平台被称为guest，又称target; 运行QEMU
+的平台称为host。
 <ul>
-<li>QEMU 是利用动态翻译(dynamic translation) 的技术将guest binary 动态翻译成host binary，并交由host 运行翻译所得的host binary。</li>
-<li>Tiny Code Generator (TCG) 是QEMU 中负责动态翻译的组件。<ul>
-<li>对TCG 而言，target 有不同的含意，它代表TCG 是针对哪一个host 生成host binary。</li>
+<li>QEMU 是利用动态翻译(dynamic translation) 的技术将guest binary
+动态翻译成host binary，并交由host 运行翻译所得的host binary。</li>
+<li>Tiny Code Generator (TCG) 是QEMU 中负责动态翻译的组件。
+<ul>
+<li>对TCG 而言，target 有不同的含意，它代表TCG 是针对哪一个host 生成host
+binary。</li>
+</ul></li>
+</ul></li>
+<li>QEMU
+极为依赖macro，这使得直接阅读源代码通常无法确定其函数呼叫，或是执行流程倒底为何。</li>
+<li>请在编译QEMU
+的时候加上<code>--extra-cflags="-save-temps"</code>，如此可得展开marco
+的 <code>*.i</code> 档。</li>
 </ul>
-</li>
-</ul>
-</li>
-<li><p>QEMU 极为依赖macro，这使得直接阅读源代码通常无法确定其函数呼叫，或是执行流程倒底为何。</p>
-</li>
-<li><p>请在编译QEMU 的时候加上<code>--extra-cflags=&quot;-save-temps&quot;</code>，如此可得展开marco 的 <code>*.i</code> 档。</p>
-</li>
-</ul>
-<h2 id="1-TCG"><a href="#1-TCG" class="headerlink" title="1. TCG"></a>1. TCG</h2><ul>
-<li>TCG 是QEMU 的核心。其基本流程如下:<ul>
+<h2 id="tcg">1. TCG</h2>
+<ul>
+<li>TCG 是QEMU 的核心。其基本流程如下:
+<ul>
 <li>guest binary -&gt; TCG IR -&gt; host binary</li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<h3 id="1-1-TCG-IR"><a href="#1-1-TCG-IR" class="headerlink" title="1.1 TCG IR"></a>1.1 TCG IR</h3><ul>
-<li><p>TCG 定义了一组IR (intermediate representation)，熟悉GCC 的各位对此应该不陌生。</p>
-</li>
+<h3 id="tcg-ir">1.1 TCG IR</h3>
+<ul>
+<li><p>TCG 定义了一组IR (intermediate representation)，熟悉GCC
+的各位对此应该不陌生。</p></li>
 <li><p>TCG IR 大致分成以下几类:</p>
 <ul>
 <li>Move Operation: mov, movi, …</li>
@@ -257,122 +316,109 @@
 <li>Branch Operation: jmp, br, brcond</li>
 <li>Fuction call: call</li>
 <li>Memory Operation: ld, st</li>
-<li>QEMU specific Operation: tb_exit, goto_tb, qemu_ld&#x2F;qemu_st</li>
-</ul>
-</li>
-<li><p>请见tcg&#x2F;*，特别是tcg.i，可以看到TCGOpcode。</p>
-</li>
-<li><p>tcg&#x2F;README 也别忘了。</p>
-</li>
-<li><p>TCG 在翻译guest binary 的时候是以一个translation block (tb) 为单位，其结尾通常是分支指令。</p>
-</li>
-<li><p>target&#x2F;ARCH&#x2F;* 定义了如何将ARCH binary 反汇编成TCG IR。</p>
+<li>QEMU specific Operation: tb_exit, goto_tb, qemu_ld/qemu_st</li>
+</ul></li>
+<li><p>请见tcg/*，特别是tcg.i，可以看到TCGOpcode。</p></li>
+<li><p>tcg/README 也别忘了。</p></li>
+<li><p>TCG 在翻译guest binary 的时候是以一个translation block (tb)
+为单位，其结尾通常是分支指令。</p></li>
+<li><p>target/ARCH/* 定义了如何将ARCH binary 反汇编成TCG IR。</p>
 <ul>
-<li>target&#x2F;arm</li>
-</ul>
-</li>
-<li><p>tcg&#x2F;ARCH 定义了如何将TCG IR 翻译成ARCH binary。</p>
+<li>target/arm</li>
+</ul></li>
+<li><p>tcg/ARCH 定义了如何将TCG IR 翻译成ARCH binary。</p>
 <ul>
-<li>tcg&#x2F;i386</li>
+<li>tcg/i386</li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<h3 id="1-2-TCG-Flow"><a href="#1-2-TCG-Flow" class="headerlink" title="1.2 TCG Flow"></a>1.2 TCG Flow</h3><ul>
-<li><p>gen_opc_buf 和gen_opparam_buf (translate-all.c) 分别放置TCG Opcode 和Operand。</p>
-</li>
-<li><p>如果使用静态配置的缓冲区，static_code_gen_buffer (exec.c) 即为code cache，放置host binary。</p>
-</li>
-<li><p>在跳入&#x2F;出code cache 执行之前&#x2F;后，要执行prologue&#x2F;epilogue，请见code_gen_prologue (exec.c)。</p>
-</li>
-<li><p>这边的prologue&#x2F;epilogue 就是指function prologue&#x2F;epilogue。</p>
-</li>
-<li><p>QEMU 将跳至code cache (host binary) 执行的过程看成是函式呼叫，故有此prologue&#x2F;epilogue。</p>
-</li>
+<h3 id="tcg-flow">1.2 TCG Flow</h3>
+<ul>
+<li><p>gen_opc_buf 和gen_opparam_buf (translate-all.c) 分别放置TCG
+Opcode 和Operand。</p></li>
+<li><p>如果使用静态配置的缓冲区，static_code_gen_buffer (exec.c)
+即为code cache，放置host binary。</p></li>
+<li><p>在跳入/出code cache
+执行之前/后，要执行prologue/epilogue，请见code_gen_prologue
+(exec.c)。</p></li>
+<li><p>这边的prologue/epilogue 就是指function
+prologue/epilogue。</p></li>
+<li><p>QEMU 将跳至code cache (host binary)
+执行的过程看成是函式呼叫，故有此prologue/epilogue。</p></li>
 <li><p>以qemu-arm 为例，流程大致如下:</p>
 <ul>
-<li><p>main() &#x2F;&#x2F; vl.c</p>
-</li>
-<li><p>–&gt;&gt; main_loop() &#x2F;&#x2F; vl.c</p>
-</li>
-<li><p>–&gt;&gt; arm_cpu_realizefn() &#x2F;&#x2F; target&#x2F;arm&#x2F;cpu.c，实例化虚拟机CPU设备模型 [GUEST]_cpu_realizefn</p>
-</li>
-<li><p>–&gt;&gt; qemu_init_vcpu() &#x2F;&#x2F; softmmu&#x2F;cpus.c，KVM没有enable，并且启_cpu_thread_fn用了TCG的情况下，tcg_enabled()</p>
-</li>
-<li><p>–&gt;&gt; qemu_tcg_init_vcpu() &#x2F;&#x2F; 启动VCPU线程，线程处理函数为qemu_tcg_cpu_thread_fn</p>
-</li>
-<li><p>–&gt;&gt; qemu_tcg_cpu_thread_fn()</p>
-</li>
-<li><p>–&gt;&gt; tcg_exec_all()</p>
-</li>
-<li><p>–&gt;&gt; tcg_cpu_exec()</p>
-</li>
-<li><p>–&gt;&gt; cpu_exec() &#x2F;&#x2F;cpu-exee.c</p>
-</li>
+<li><p>main() // vl.c</p></li>
+<li><p>--&gt;&gt; main_loop() // vl.c</p></li>
+<li><p>--&gt;&gt; arm_cpu_realizefn() //
+target/arm/cpu.c，实例化虚拟机CPU设备模型 [GUEST]_cpu_realizefn</p></li>
+<li><p>--&gt;&gt; qemu_init_vcpu() //
+softmmu/cpus.c，KVM没有enable，并且启_cpu_thread_fn用了TCG的情况下，tcg_enabled()</p></li>
+<li><p>--&gt;&gt; qemu_tcg_init_vcpu() //
+启动VCPU线程，线程处理函数为qemu_tcg_cpu_thread_fn</p></li>
+<li><p>--&gt;&gt; qemu_tcg_cpu_thread_fn()</p></li>
+<li><p>--&gt;&gt; tcg_exec_all()</p></li>
+<li><p>--&gt;&gt; tcg_cpu_exec()</p></li>
+<li><p>--&gt;&gt; cpu_exec() //cpu-exee.c</p></li>
 <li><p>user mode:</p>
 <ul>
-<li>main (linux-user&#x2F;main.c) -&gt; cpu_create -&gt; tcg_prologue_init (tcg&#x2F;tcg.c) -&gt; cpu_loop (linux-user&#x2F;main.c)</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>这边只介绍tcg_prologue_init (tcg&#x2F;tcg.c) -&gt; cpu_loop (linux-user&#x2F;arm&#x2F;cpu_loop.c) 这一段，因为这一段跟TCG 较为相关。</p>
-</li>
-<li><p>容我先讲cpu_loop (linux-user&#x2F;arm&#x2F;cpu_loop.c)。</p>
-</li>
-<li><p>cpu_loop(CPUARMState *env) (linux-user&#x2F;arm&#x2F;cpu_loop.c) -&gt; cpu_exec (accel&#x2F;tcg&#x2F;cpu-exec.c)。</p>
-</li>
-<li><p>cpu_exec 是主要执行回圈，其结构大致如下:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* prepare setjmp context for exception handling */</span> </span><br><span class="line"><span class="keyword">if</span> (sigsetjmp(cpu-&gt;jmp_env, <span class="number">0</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">while</span> (!cpu_handle_exception(cpu, &amp;ret)) &#123;</span><br><span class="line">    <span class="keyword">while</span> (!cpu_handle_interrupt(cpu, &amp;last_tb)) &#123; </span><br><span class="line">        tb = tb_lookup(cpu, pc, cs_base, flags, cflags); <span class="comment">// 寻找下一个TB</span></span><br><span class="line">        <span class="keyword">if</span> (tb == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            tb = tb_gen_code(cpu, pc, cs_base, flags, cflags);</span><br><span class="line">        &#125;</span><br><span class="line">        cpu_loop_exec_tb(cpu, tb, &amp;last_tb, &amp;tb_exit);<span class="comment">// 跳至code cache 执行。</span></span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br><span class="line">cpu_exec_exit(cpu);</span><br></pre></td></tr></table></figure></li>
-<li><p>tcg_prologue_init (tcg&#x2F;tcg.c) -&gt; tcg_target_qemu_prologue (tcg&#x2F;arm&#x2F;tcg-target.c.inc)。</p>
-</li>
-<li><p>如前所述，QEMU 将跳至code cache (host binary) 执行的过程看成是函式呼叫。</p>
-</li>
-<li><p>不同平台的calling convention 各有不同，tcg_prologue_init 将产生prologue&#x2F;epilogue 的工作转交tcg_target_qemu_prologue。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">tcg_target_qemu_prologue</span><span class="params">(TCGContext *s)</span> &#123; </span><br><span class="line">    <span class="comment">/* Calling convention requires us to save r4-r11 and lr.  */</span></span><br><span class="line">    <span class="comment">/* stmdb sp!, &#123; r4 - r11, lr &#125; */</span></span><br><span class="line">    tcg_out32(s, (COND_AL &lt;&lt; <span class="number">28</span>) | <span class="number">0x092d4ff0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Reserve callee argument and tcg temp space.  */</span></span><br><span class="line">    tcg_out_dat_rI(s, COND_AL, ARITH_SUB, TCG_REG_CALL_STACK,</span><br><span class="line">                   TCG_REG_CALL_STACK, STACK_ADDEND, <span class="number">1</span>);</span><br><span class="line">    tcg_set_frame(s, TCG_REG_CALL_STACK, TCG_STATIC_CALL_ARGS_SIZE,</span><br><span class="line">                  CPU_TEMP_BUF_NLONGS * <span class="keyword">sizeof</span>(<span class="type">long</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* QEMU (cpu_exec) -&gt; 入栈*/</span> </span><br><span class="line">    tcg_out_mov(s, TCG_TYPE_PTR, TCG_AREG0, tcg_target_call_iarg_regs[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// tcg_target_call_iarg_regs 是函式呼叫负责传递参数的暂存器。</span></span><br><span class="line">    <span class="comment">// 跳至code cache 执行。</span></span><br><span class="line">    tcg_out_bx(s, COND_AL, tcg_target_call_iarg_regs[<span class="number">1</span>]);</span><br><span class="line">    <span class="comment">// 此时，s-&gt;code_ptr 指向code_gen_prologue 中prologue 和jmp to code cache 之后的位址。</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Return path for goto_ptr. Set return value to 0, a-la exit_tb,</span></span><br><span class="line"><span class="comment">     * and fall through to the rest of the epilogue.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    tcg_code_gen_epilogue = tcg_splitwx_to_rx(s-&gt;code_ptr);</span><br><span class="line">    tcg_out_movi(s, TCG_TYPE_PTR, TCG_REG_R0, <span class="number">0</span>);</span><br><span class="line">    tcg_out_epilogue(s); <span class="comment">/* 出栈-&gt; 返回QEMU (cpu_exec)，确切的讲是返回tcg_qemu_tb_exec */</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
+<li>main (linux-user/main.c) -&gt; cpu_create -&gt; tcg_prologue_init
+(tcg/tcg.c) -&gt; cpu_loop (linux-user/main.c)</li>
+</ul></li>
+</ul></li>
+<li><p>这边只介绍tcg_prologue_init (tcg/tcg.c) -&gt; cpu_loop
+(linux-user/arm/cpu_loop.c) 这一段，因为这一段跟TCG 较为相关。</p></li>
+<li><p>容我先讲cpu_loop (linux-user/arm/cpu_loop.c)。</p></li>
+<li><p>cpu_loop(CPUARMState *env) (linux-user/arm/cpu_loop.c) -&gt;
+cpu_exec (accel/tcg/cpu-exec.c)。</p></li>
+<li><p>cpu_exec 是主要执行回圈，其结构大致如下: <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* prepare setjmp context for exception handling */</span> </span><br><span class="line"><span class="keyword">if</span> (sigsetjmp(cpu-&gt;jmp_env, <span class="number">0</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">while</span> (!cpu_handle_exception(cpu, &amp;ret)) &#123;</span><br><span class="line">    <span class="keyword">while</span> (!cpu_handle_interrupt(cpu, &amp;last_tb)) &#123; </span><br><span class="line">        tb = tb_lookup(cpu, pc, cs_base, flags, cflags); <span class="comment">// 寻找下一个TB</span></span><br><span class="line">        <span class="keyword">if</span> (tb == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            tb = tb_gen_code(cpu, pc, cs_base, flags, cflags);</span><br><span class="line">        &#125;</span><br><span class="line">        cpu_loop_exec_tb(cpu, tb, &amp;last_tb, &amp;tb_exit);<span class="comment">// 跳至code cache 执行。</span></span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br><span class="line">cpu_exec_exit(cpu);</span><br></pre></td></tr></table></figure></p></li>
+<li><p>tcg_prologue_init (tcg/tcg.c) -&gt; tcg_target_qemu_prologue
+(tcg/arm/tcg-target.c.inc)。</p></li>
+<li><p>如前所述，QEMU 将跳至code cache (host binary)
+执行的过程看成是函式呼叫。</p></li>
+<li><p>不同平台的calling convention 各有不同，tcg_prologue_init
+将产生prologue/epilogue 的工作转交tcg_target_qemu_prologue。
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">tcg_target_qemu_prologue</span><span class="params">(TCGContext *s)</span> &#123; </span><br><span class="line">    <span class="comment">/* Calling convention requires us to save r4-r11 and lr.  */</span></span><br><span class="line">    <span class="comment">/* stmdb sp!, &#123; r4 - r11, lr &#125; */</span></span><br><span class="line">    tcg_out32(s, (COND_AL &lt;&lt; <span class="number">28</span>) | <span class="number">0x092d4ff0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Reserve callee argument and tcg temp space.  */</span></span><br><span class="line">    tcg_out_dat_rI(s, COND_AL, ARITH_SUB, TCG_REG_CALL_STACK,</span><br><span class="line">                   TCG_REG_CALL_STACK, STACK_ADDEND, <span class="number">1</span>);</span><br><span class="line">    tcg_set_frame(s, TCG_REG_CALL_STACK, TCG_STATIC_CALL_ARGS_SIZE,</span><br><span class="line">                  CPU_TEMP_BUF_NLONGS * <span class="keyword">sizeof</span>(<span class="type">long</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* QEMU (cpu_exec) -&gt; 入栈*/</span> </span><br><span class="line">    tcg_out_mov(s, TCG_TYPE_PTR, TCG_AREG0, tcg_target_call_iarg_regs[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// tcg_target_call_iarg_regs 是函式呼叫负责传递参数的暂存器。</span></span><br><span class="line">    <span class="comment">// 跳至code cache 执行。</span></span><br><span class="line">    tcg_out_bx(s, COND_AL, tcg_target_call_iarg_regs[<span class="number">1</span>]);</span><br><span class="line">    <span class="comment">// 此时，s-&gt;code_ptr 指向code_gen_prologue 中prologue 和jmp to code cache 之后的位址。</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Return path for goto_ptr. Set return value to 0, a-la exit_tb,</span></span><br><span class="line"><span class="comment">     * and fall through to the rest of the epilogue.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    tcg_code_gen_epilogue = tcg_splitwx_to_rx(s-&gt;code_ptr);</span><br><span class="line">    tcg_out_movi(s, TCG_TYPE_PTR, TCG_REG_R0, <span class="number">0</span>);</span><br><span class="line">    tcg_out_epilogue(s); <span class="comment">/* 出栈-&gt; 返回QEMU (cpu_exec)，确切的讲是返回tcg_qemu_tb_exec */</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p></li>
 <li><p>这边小结一下。</p>
 <ul>
 <li>QEMU -&gt; prologue -&gt; code cache -&gt; epilogue -&gt; QEMU</li>
-</ul>
-</li>
-<li><p>在介绍cpu_exec 之前，我先介绍几个QEMU 资料结构，请善用SOURCEARCHIVE.com。</p>
-</li>
-<li><p>我们要知道所谓仿真或是虚拟化一个CPU (ISA)，简单来说就是用一个资料结构(struct) 储存该CPU的状态。</p>
-</li>
-<li><p>执行该虚拟CPU，就是从内存中读取该虚拟CPU的资料结构，运算后再存回去。</p>
-</li>
-<li><p>CPUX86State: 保存x86 register，eflags，eip，cs，…。</p>
-</li>
-<li><p>不同ISA 之间通用的资料结构被QEMU #define 成CPU_COMMON。</p>
-</li>
-<li><p>一般称此资料结构为CPUState。下文所提env 即为CPUState。</p>
-</li>
-<li><p>QEMU 运行虚拟CPU 都会利用env 这个变数。</p>
-</li>
-<li><p>TranslationBlock: 之前说过，QEMU 是以一个translation block 为单位进行翻译。</p>
-</li>
-<li><p>其中保存此translation block 对应guest binary 的pc, cs_base, eflags。</p>
-</li>
-<li><p>另外，tc_ptr 指向code cache (host binary)。其它栏位待以后再谈。</p>
-</li>
-<li><p>PageDesc: 主要保存guest page 中的第一个tb (TranslationBlock *)。</p>
-</li>
-<li><p>这跟QEMU 内部运作机制有关。某些情况下，guest page (guest binary) 可能被替换或是被写。</p>
-</li>
-<li><p>这个时候，QEMU 会以guest page (guest binary) 为单位，清空与它相关联的TB (code cache)。</p>
-</li>
-<li><p>这时再回来讲 TranslationBlock。TranslationBlock 有底下两个栏位:</p>
+</ul></li>
+<li><p>在介绍cpu_exec 之前，我先介绍几个QEMU
+资料结构，请善用SOURCEARCHIVE.com。</p></li>
+<li><p>我们要知道所谓仿真或是虚拟化一个CPU
+(ISA)，简单来说就是用一个资料结构(struct) 储存该CPU的状态。</p></li>
+<li><p>执行该虚拟CPU，就是从内存中读取该虚拟CPU的资料结构，运算后再存回去。</p></li>
+<li><p>CPUX86State: 保存x86 register，eflags，eip，cs，…。</p></li>
+<li><p>不同ISA 之间通用的资料结构被QEMU #define 成CPU_COMMON。</p></li>
+<li><p>一般称此资料结构为CPUState。下文所提env 即为CPUState。</p></li>
+<li><p>QEMU 运行虚拟CPU 都会利用env 这个变数。</p></li>
+<li><p>TranslationBlock: 之前说过，QEMU 是以一个translation block
+为单位进行翻译。</p></li>
+<li><p>其中保存此translation block 对应guest binary 的pc, cs_base,
+eflags。</p></li>
+<li><p>另外，tc_ptr 指向code cache (host
+binary)。其它栏位待以后再谈。</p></li>
+<li><p>PageDesc: 主要保存guest page 中的第一个tb (TranslationBlock
+*)。</p></li>
+<li><p>这跟QEMU 内部运作机制有关。某些情况下，guest page (guest binary)
+可能被替换或是被写。</p></li>
+<li><p>这个时候，QEMU 会以guest page (guest binary)
+为单位，清空与它相关联的TB (code cache)。</p></li>
+<li><p>这时再回来讲 TranslationBlock。TranslationBlock
+有底下两个栏位:</p>
 <ul>
-<li>page_addr[2]: 存放TranslationBlock 对应guest binary 所在的guest page。注意! guest binary 有可能跨guest page，故这里有两个栏位。</li>
-<li>page_next[2]: 当透过PageDesc-&gt;first_tb 找到该guest page 的第一个tb，tb-&gt;page_next 就被用来找寻该guest page 的下一个tb。</li>
-</ul>
-</li>
-<li><p>再回来讲PageDesc。QEMU 替PageDesc 维护了一个二级页表l1_map。page_find 这个函式根据输入的address 搜寻l1_map，返回PageDesc。这在以guest page (guest binary) 为单位，清空与它相关联的TB (code cache) 的时候会用到。有一个名字很像的资料结构叫PhysPageDesc，QEMU 也替它维护一个二级页表l1_phys_map。这是在system mode 做地址转换之用，这边不谈。</p>
-</li>
-<li><p>TCGContext: 生成TCG IR 时会用到。</p>
-</li>
-<li><p>DisasContext: 反汇编guest binary 时会用到</p>
-</li>
+<li>page_addr[2]: 存放TranslationBlock 对应guest binary 所在的guest
+page。注意! guest binary 有可能跨guest page，故这里有两个栏位。</li>
+<li>page_next[2]: 当透过PageDesc-&gt;first_tb 找到该guest page
+的第一个tb，tb-&gt;page_next 就被用来找寻该guest page 的下一个tb。</li>
+</ul></li>
+<li><p>再回来讲PageDesc。QEMU 替PageDesc
+维护了一个二级页表l1_map。page_find 这个函式根据输入的address
+搜寻l1_map，返回PageDesc。这在以guest page (guest binary)
+为单位，清空与它相关联的TB (code cache)
+的时候会用到。有一个名字很像的资料结构叫PhysPageDesc，QEMU
+也替它维护一个二级页表l1_phys_map。这是在system mode
+做地址转换之用，这边不谈。</p></li>
+<li><p>TCGContext: 生成TCG IR 时会用到。</p></li>
+<li><p>DisasContext: 反汇编guest binary 时会用到</p></li>
 </ul>
 
     </div>
@@ -454,7 +500,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B%E2%80%93%E4%BB%A5arrch64-%E2%80%93-i386%E4%B8%BA%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">Qemu翻译实例–以arrch64 –&gt;&gt; i386为例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">0.前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-TCG"><span class="nav-number">1.2.</span> <span class="nav-text">1. TCG</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-TCG-IR"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.1 TCG IR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-TCG-Flow"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2 TCG Flow</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B--%E4%BB%A5arrch64----i386%E4%B8%BA%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">Qemu翻译实例--以arrch64
+--&gt;&gt; i386为例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">0.前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tcg"><span class="nav-number">1.2.</span> <span class="nav-text">1. TCG</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#tcg-ir"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.1 TCG IR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcg-flow"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2 TCG Flow</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -515,6 +562,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -534,6 +591,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -551,6 +610,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -563,6 +626,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

@@ -15,18 +15,19 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="标准库  &gt;  STL STL六大组件 allocatorAdapters  con  it  funccontainerIteratorAlogrithmsFunctors pointer rebind的目的是什么在stl的list中有如下代码： 12345678template &lt;class _Tp, class _Alloc&gt;class __list_imp&amp;#123;">
+  <meta name="description" content="标准库 &gt; STL  STL六大组件 allocator Adapters con it func container Iterator Alogrithms Functors pointer rebind的目的是什么 在stl的list中有如下代码： 12345678template &lt;class _Tp, class _Alloc&gt;class __list_imp&amp;#123">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++并发编程">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/06/04/C++%E4%BE%AF%E6%8D%B7STL%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="标准库  &gt;  STL STL六大组件 allocatorAdapters  con  it  funccontainerIteratorAlogrithmsFunctors pointer rebind的目的是什么在stl的list中有如下代码： 12345678template &lt;class _Tp, class _Alloc&gt;class __list_imp&amp;#123;">
+<meta property="og:description" content="标准库 &gt; STL  STL六大组件 allocator Adapters con it func container Iterator Alogrithms Functors pointer rebind的目的是什么 在stl的list中有如下代码： 12345678template &lt;class _Tp, class _Alloc&gt;class __list_imp&amp;#123">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-06-04T03:06:00.000Z">
 <meta property="article:modified_time" content="2023-07-30T10:15:32.017Z">
@@ -48,6 +49,15 @@
 
   <title>C++并发编程 | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -104,6 +114,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -138,11 +149,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -208,7 +246,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -219,33 +271,42 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id=""><a href="#" class="headerlink" title=""></a></h1><p>标准库  &gt;  STL</p>
-<h1 id="-1"><a href="#-1" class="headerlink" title=""></a></h1><p>STL六大组件</p>
-<p>allocator<br>Adapters<br>  con<br>  it<br>  func<br>container<br>Iterator<br>Alogrithms<br>Functors</p>
-<h1 id="pointer-rebind的目的是什么"><a href="#pointer-rebind的目的是什么" class="headerlink" title="pointer rebind的目的是什么"></a>pointer rebind的目的是什么</h1><p>在stl的list中有如下代码：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_Alloc</span>&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">__list_imp</span></span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">    <span class="keyword">typedef</span> __list_node_base&lt;value_type, __void_pointer&gt;            __node_base;</span><br><span class="line">    <span class="keyword">typedef</span> __list_node&lt;value_type, __void_pointer&gt;                 __node;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里为什么要在node的类型参数中增加void pointer？</p>
-<p>并且在实际使用的时候</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_VoidPtr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__list_node_pointer_traits</span> &#123;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __node_pointer;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node_base&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __base_pointer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>将void通过rebind转化成了 __list_node&lt;_Tp, _VoidPtr&gt;的指针类型</p>
+        <h1 id="section"></h1>
+<p>标准库 &gt; STL</p>
+<h1 id="section-1"></h1>
+<p>STL六大组件</p>
+<p>allocator Adapters con it func container Iterator Alogrithms
+Functors</p>
+<h1 id="pointer-rebind的目的是什么">pointer rebind的目的是什么</h1>
+<p>在stl的list中有如下代码： <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_Alloc</span>&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">__list_imp</span></span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">    <span class="keyword">typedef</span> __list_node_base&lt;value_type, __void_pointer&gt;            __node_base;</span><br><span class="line">    <span class="keyword">typedef</span> __list_node&lt;value_type, __void_pointer&gt;                 __node;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这里为什么要在node的类型参数中增加void pointer？</p>
+<p>并且在实际使用的时候 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_VoidPtr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__list_node_pointer_traits</span> &#123;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __node_pointer;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node_base&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __base_pointer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> 将void通过rebind转化成了
+__list_node&lt;_Tp, _VoidPtr&gt;的指针类型</p>
 <p>为何多此一举，不直接使用Nodeptr*呢</p>
-<h2 id="-2"><a href="#-2" class="headerlink" title=""></a></h2><p>The answer to this question comes from allocators, too. Let’s take a look at how _Rebind_pointer_t is defined:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Ptr</span>, <span class="keyword">class</span> <span class="title class_">_Ty</span>&gt;</span><br><span class="line"><span class="keyword">using</span> _Rebind_pointer_t = <span class="keyword">typename</span> pointer_traits&lt;_Ptr&gt;::<span class="keyword">template</span> rebind&lt;_Ty&gt;;</span><br></pre></td></tr></table></figure>
-
+<h2 id="section-2"></h2>
+<p>The answer to this question comes from allocators, too. Let's take a
+look at how _Rebind_pointer_t is defined: <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Ptr</span>, <span class="keyword">class</span> <span class="title class_">_Ty</span>&gt;</span><br><span class="line"><span class="keyword">using</span> _Rebind_pointer_t = <span class="keyword">typename</span> pointer_traits&lt;_Ptr&gt;::<span class="keyword">template</span> rebind&lt;_Ty&gt;;</span><br></pre></td></tr></table></figure></p>
 <p>That is, we have</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Value_type</span>, <span class="keyword">class</span> <span class="title class_">_Voidptr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">_List_node</span> &#123;</span><br><span class="line">    <span class="keyword">using</span> _Nodeptr = <span class="keyword">typename</span> pointer_traits&lt;_Voidptr&gt;::<span class="keyword">template</span> rebind&lt;_List_node&gt;;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>_Voidptr也是不可或缺的，因为不知道_List_node的指针是什么类型，未必是简单的*_List_node可以概括的，所以需要一个基础类型的void指针，以此为基准将_Voidptr转化为_Nodeptr</p>
 <p>相当于使用_Voidptr的特化了指针萃取的行为，是必须的</p>
-<p>Now let’s take a look at how _List_node is used:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> _Node = _List_node&lt;_Ty, <span class="keyword">typename</span> _Alty_traits::void_pointer&gt;;</span><br></pre></td></tr></table></figure>
-<p>Effectively, we rebind allocator’s void_pointer to _List_node pointer.<br>This trick is needed to support allocators that use fancy pointers internally.</p>
-<p>One such example can be found in Boost.Interprocess library. It has boost::interprocess::allocator:</p>
-<p>An STL compatible allocator that uses a segment manager as memory source. The internal pointer type will of the same type (raw, smart) as <code>typename SegmentManager::void_pointer</code> type. This allows placing the allocator in shared memory, memory mapped-files, etc…</p>
-<p>For example, we can write</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> bi = boost::interprocess;</span><br><span class="line"><span class="keyword">using</span> Allocator = bi::allocator&lt;<span class="type">int</span>, bi::managed_shared_memory::segment_manager&gt;;</span><br><span class="line"><span class="function">std::list&lt;<span class="type">int</span>, Allocator&gt; <span class="title">list</span><span class="params">(<span class="comment">/* allocator object */</span>)</span></span>;</span><br></pre></td></tr></table></figure>
-<p>Now <code>std::allocator_traits&lt;decltype(list)::allocator_type&gt;::void_pointer</code> will be not <code>void*</code> as with default allocator, but <code>boost::interprocess::offset_ptr&lt;void, ...&gt;</code>. As a result, <code>_Nodeptr</code> will be not <code>_Nodeptr*</code>, but <code>boost::interprocess::offset_ptr&lt;_Nodeptr, ...&gt;</code>.</p>
-<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/65262899/what-is-the-purpose-of-pointer-rebind">https://stackoverflow.com/questions/65262899/what-is-the-purpose-of-pointer-rebind</a></p>
+<p>Now let's take a look at how _List_node is used: <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> _Node = _List_node&lt;_Ty, <span class="keyword">typename</span> _Alty_traits::void_pointer&gt;;</span><br></pre></td></tr></table></figure>
+Effectively, we rebind allocator's void_pointer to _List_node pointer.
+This trick is needed to support allocators that use fancy pointers
+internally.</p>
+<p>One such example can be found in Boost.Interprocess library. It has
+boost::interprocess::allocator:</p>
+<p>An STL compatible allocator that uses a segment manager as memory
+source. The internal pointer type will of the same type (raw, smart) as
+<code>typename SegmentManager::void_pointer</code> type. This allows
+placing the allocator in shared memory, memory mapped-files, etc...</p>
+<p>For example, we can write <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> bi = boost::interprocess;</span><br><span class="line"><span class="keyword">using</span> Allocator = bi::allocator&lt;<span class="type">int</span>, bi::managed_shared_memory::segment_manager&gt;;</span><br><span class="line"><span class="function">std::list&lt;<span class="type">int</span>, Allocator&gt; <span class="title">list</span><span class="params">(<span class="comment">/* allocator object */</span>)</span></span>;</span><br></pre></td></tr></table></figure> Now
+<code>std::allocator_traits&lt;decltype(list)::allocator_type&gt;::void_pointer</code>
+will be not <code>void*</code> as with default allocator, but
+<code>boost::interprocess::offset_ptr&lt;void, ...&gt;</code>. As a
+result, <code>_Nodeptr</code> will be not <code>_Nodeptr*</code>, but
+<code>boost::interprocess::offset_ptr&lt;_Nodeptr, ...&gt;</code>.</p>
+<p>https://stackoverflow.com/questions/65262899/what-is-the-purpose-of-pointer-rebind</p>
 
     </div>
 
@@ -261,12 +322,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/zyhjy/2023/06/04/A%20Top-Down%20method%20for%20performance%20analysis%20and%20counters%20architecture/" rel="prev" title="Topdown论文--ISPASS2014">
-      <i class="fa fa-chevron-left"></i> Topdown论文--ISPASS2014
+    <a href="/zyhjy/2023/05/19/Qemu%E4%BB%8B%E7%BB%8D/" rel="prev" title="Qemu介绍">
+      <i class="fa fa-chevron-left"></i> Qemu介绍
     </a></div>
       <div class="post-nav-item">
-    <a href="/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="next" title="C++并发编程">
-      C++并发编程 <i class="fa fa-chevron-right"></i>
+    <a href="/zyhjy/2023/06/04/A%20Top-Down%20method%20for%20performance%20analysis%20and%20counters%20architecture/" rel="next" title="Topdown论文--ISPASS2014">
+      Topdown论文--ISPASS2014 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -326,7 +387,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#-1"><span class="nav-number">2.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pointer-rebind%E7%9A%84%E7%9B%AE%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">3.</span> <span class="nav-text">pointer rebind的目的是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#-2"><span class="nav-number">3.1.</span> <span class="nav-text"></span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#section"><span class="nav-number">1.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-1"><span class="nav-number">2.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pointer-rebind%E7%9A%84%E7%9B%AE%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">3.</span> <span class="nav-text">pointer rebind的目的是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#section-2"><span class="nav-number">3.1.</span> <span class="nav-text"></span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -387,6 +448,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -406,6 +477,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -423,6 +496,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -435,6 +512,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

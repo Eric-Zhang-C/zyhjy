@@ -15,18 +15,19 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="线段树复杂度便于维护区间信息，可在$O(logN)$的时间复杂度内完成修改&#x2F;查询。">
+  <meta name="description" content="线段树 复杂度 便于维护区间信息，可在\(O(logN)\)的时间复杂度内完成修改&#x2F;查询。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="线段树">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/07/27/%E7%BA%BF%E6%AE%B5%E6%A0%91/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="线段树复杂度便于维护区间信息，可在$O(logN)$的时间复杂度内完成修改&#x2F;查询。">
+<meta property="og:description" content="线段树 复杂度 便于维护区间信息，可在\(O(logN)\)的时间复杂度内完成修改&#x2F;查询。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-07-27T09:20:37.000Z">
 <meta property="article:modified_time" content="2023-07-31T14:10:45.643Z">
@@ -49,6 +50,15 @@
 
   <title>线段树 | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -105,6 +115,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -139,11 +150,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -213,7 +251,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -224,27 +276,38 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="线段树"><a href="#线段树" class="headerlink" title="线段树"></a>线段树</h2><h3 id="复杂度"><a href="#复杂度" class="headerlink" title="复杂度"></a>复杂度</h3><p>便于维护区间信息，可在$O(logN)$的时间复杂度内完成修改&#x2F;查询。</p>
+        <h2 id="线段树">线段树</h2>
+<h3 id="复杂度">复杂度</h3>
+<p>便于维护区间信息，可在<span
+class="math inline">\(O(logN)\)</span>的时间复杂度内完成修改/查询。</p>
 <span id="more"></span>
-
-<h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><p>线段树的实现是一个扁平数组<code>tree[]</code>，树上每个节点对应原数组<code>arr</code>上的一段区间，规定数组下标<code>1</code>为根节点(数组下标<code>0</code>不使用)，对应整个原数组区间。</p>
+<h3 id="说明">说明</h3>
+<p>线段树的实现是一个扁平数组<code>tree[]</code>，树上每个节点对应原数组<code>arr</code>上的一段区间，规定数组下标<code>1</code>为根节点(数组下标<code>0</code>不使用)，对应整个原数组区间。</p>
 <p>对于树上每个非叶子节点<code>tree[id]</code>,若其对应的区间是<code>[start, end]</code>,存储的值为该区间的特征(根据题目条件确定，一般为区间的和);</p>
-<p>则其左孩子为<code>tree[id * 2]</code>,若其对应的区间是$[start , \frac{start + end}{2}]$;</p>
-<p>则其右孩子为<code>tree[id * 2 + 1]</code>,若其对应的区间是$[\frac{start + end}{2} + 1， end]$.</p>
+<p>则其左孩子为<code>tree[id * 2]</code>,若其对应的区间是<span
+class="math inline">\([start , \frac{start + end}{2}]\)</span>;</p>
+<p>则其右孩子为<code>tree[id * 2 + 1]</code>,若其对应的区间是<span
+class="math inline">\([\frac{start + end}{2} + 1， end]\)</span>.</p>
 <p>对于叶子结点，其对应区间为<code>[s,s]</code>，即原数组上的值<code>arr[s]</code>.</p>
-<p>易知树的深度为$\lceil logN \rceil$，所以数组长度 $&lt; 2^{\lceil logN \rceil + 1} &lt; 4n$。</p>
-<h3 id="懒惰标记"><a href="#懒惰标记" class="headerlink" title="懒惰标记"></a>懒惰标记</h3><p>线段树的最大优势就是处理区间修改&#x2F;查询。</p>
+<p>易知树的深度为<span class="math inline">\(\lceil logN
+\rceil\)</span>，所以数组长度 <span class="math inline">\(&lt; 2^{\lceil
+logN \rceil + 1} &lt; 4n\)</span>。</p>
+<h3 id="懒惰标记">懒惰标记</h3>
+<p>线段树的最大优势就是处理区间修改/查询。</p>
 <p>每次修改都从根节点开始，自顶向下找到要求处理的区间（可能由多个区间上连续的节点组成），更新信息，并打上标记，<strong>标记意味着当前节点的子节点并未更新</strong>；此时不需要处理子区间的情况，即延迟处理，直到需要使用子区间时再对子区间更新（标记下放）。</p>
 <p>查询同理，从根节点开始，自顶向下找到要求处理的区间（可能由多个区间上连续的节点组成），求和，如果遇到标记需要下放，则完成下放操作。</p>
-<p>由此，区间修改&#x2F;查询的时间复杂度为$O(logN)$。</p>
-<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><p>注：标记的类型以及<code>modify</code>函数根据题目条件适当修改。</p>
+<p>由此，区间修改/查询的时间复杂度为<span
+class="math inline">\(O(logN)\)</span>。</p>
+<h3 id="代码示例">代码示例</h3>
+<p>注：标记的类型以及<code>modify</code>函数根据题目条件适当修改。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SegTree</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">   <span class="function"><span class="keyword">explicit</span> <span class="title">SegTree</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; arr)</span> : n_(arr.size()), tree_(n_ * <span class="number">4</span>, <span class="number">0</span>), tag_(n_ * <span class="number">4</span>, false), arr_(arr)</span></span><br><span class="line"><span class="function">   &#123;</span></span><br><span class="line">      <span class="built_in">build</span>(<span class="number">0</span>, n_ - <span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">void</span> <span class="title">modify</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r, <span class="type">bool</span> tag)</span> </span>&#123;</span><br><span class="line">      <span class="built_in">modify</span>(l, r, tag, <span class="number">0</span>, n_ - <span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">long</span> <span class="type">long</span> <span class="title">getsum</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">getsum</span>(l, r, <span class="number">0</span>, n_ - <span class="number">1</span>, <span class="number">1</span>);;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">   <span class="type">int</span> n_;</span><br><span class="line">   vector&lt;<span class="type">int</span>&gt; tree_;</span><br><span class="line">   vector&lt;<span class="type">bool</span>&gt; tag_;</span><br><span class="line">   vector&lt;<span class="type">int</span>&gt;&amp; arr_;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">void</span> <span class="title">build</span><span class="params">(<span class="type">int</span> start, <span class="type">int</span> end, <span class="type">int</span> cur)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (start == end) &#123;</span><br><span class="line">         tree_[cur] = arr_[start];</span><br><span class="line">         <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> mid = start + ((end - start) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">      <span class="built_in">build</span>(start, mid, cur * <span class="number">2</span>);</span><br><span class="line">      <span class="built_in">build</span>(mid + <span class="number">1</span>, end, cur * <span class="number">2</span> + <span class="number">1</span>);</span><br><span class="line">      tree_[cur] = tree_[cur * <span class="number">2</span>] + tree_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">void</span> <span class="title">modify</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r, <span class="type">bool</span> tag, <span class="type">int</span> start, <span class="type">int</span> end, <span class="type">int</span> cur)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= start &amp;&amp; end &lt;= r) &#123;</span><br><span class="line">         tag_[cur] = tag_[cur] ^ tag;</span><br><span class="line">         tree_[cur] = (end - start + <span class="number">1</span>) - tree_[cur];</span><br><span class="line">         <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> mid = start + ((end - start) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">      <span class="keyword">if</span> (tag_[cur]) &#123;</span><br><span class="line">         tree_[cur * <span class="number">2</span>] = (mid - start + <span class="number">1</span>) - tree_[cur * <span class="number">2</span>];</span><br><span class="line">         tree_[cur * <span class="number">2</span> + <span class="number">1</span>] = (end - mid) - tree_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur * <span class="number">2</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span>] ;</span><br><span class="line">         tag_[cur * <span class="number">2</span> + <span class="number">1</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur] = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= mid) &#123;</span><br><span class="line">         <span class="built_in">modify</span>(l, r, tag, start, mid, cur * <span class="number">2</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (r &gt; mid) &#123;</span><br><span class="line">         <span class="built_in">modify</span>(l, r, tag, mid + <span class="number">1</span>, end, cur * <span class="number">2</span> + <span class="number">1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      tree_[cur] = tree_[<span class="number">2</span> * cur] + tree_[<span class="number">2</span> * cur + <span class="number">1</span>];</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">int</span> <span class="title">getsum</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r, <span class="type">int</span> start, <span class="type">int</span> end, <span class="type">int</span> cur)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= start &amp;&amp; end &lt;= r) &#123;</span><br><span class="line">         <span class="keyword">return</span> tree_[cur];</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> mid = start + ((end - start) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">      <span class="keyword">if</span> (tag_[cur]) &#123;</span><br><span class="line">         <span class="comment">// 如果当前节点的懒标记非空,则更新当前节点两个子节点的值和懒标记值</span></span><br><span class="line">         tree_[cur * <span class="number">2</span>] = (mid - start + <span class="number">1</span>) - tree_[cur * <span class="number">2</span>];</span><br><span class="line">         tree_[cur * <span class="number">2</span> + <span class="number">1</span>] = (end - mid) - tree_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur * <span class="number">2</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span>] ;</span><br><span class="line">         tag_[cur * <span class="number">2</span> + <span class="number">1</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur] = <span class="literal">false</span>;                                <span class="comment">// 清空当前节点的标记</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> sum = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= mid) &#123;</span><br><span class="line">         sum += <span class="built_in">getsum</span>(l, r, start, mid, cur * <span class="number">2</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (r &gt; mid) &#123;</span><br><span class="line">         sum += <span class="built_in">getsum</span>(l, r, mid + <span class="number">1</span>, end, cur * <span class="number">2</span> + <span class="number">1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> sum;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-
-<h3 id="相关题目"><a href="#相关题目" class="headerlink" title="相关题目"></a>相关题目</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/handling-sum-queries-after-update/">leetcode[2569]更新数组后处理求和查询</a></li>
+<h3 id="相关题目">相关题目</h3>
+<ul>
+<li><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/handling-sum-queries-after-update/">leetcode[2569]更新数组后处理求和查询</a></li>
 </ul>
-<h3 id="参考文章："><a href="#参考文章：" class="headerlink" title="参考文章："></a>参考文章：</h3><ul>
+<h3 id="参考文章">参考文章：</h3>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://oi-wiki.org/ds/seg/">洛谷</a></li>
 </ul>
 
@@ -330,7 +393,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%AE%B5%E6%A0%91"><span class="nav-number">1.</span> <span class="nav-text">线段树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-number">1.1.</span> <span class="nav-text">复杂度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E"><span class="nav-number">1.2.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%87%92%E6%83%B0%E6%A0%87%E8%AE%B0"><span class="nav-number">1.3.</span> <span class="nav-text">懒惰标记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.4.</span> <span class="nav-text">代码示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E9%A2%98%E7%9B%AE"><span class="nav-number">1.5.</span> <span class="nav-text">相关题目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0%EF%BC%9A"><span class="nav-number">1.6.</span> <span class="nav-text">参考文章：</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%AE%B5%E6%A0%91"><span class="nav-number">1.</span> <span class="nav-text">线段树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-number">1.1.</span> <span class="nav-text">复杂度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E"><span class="nav-number">1.2.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%87%92%E6%83%B0%E6%A0%87%E8%AE%B0"><span class="nav-number">1.3.</span> <span class="nav-text">懒惰标记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.4.</span> <span class="nav-text">代码示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E9%A2%98%E7%9B%AE"><span class="nav-number">1.5.</span> <span class="nav-text">相关题目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.6.</span> <span class="nav-text">参考文章：</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -391,6 +454,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -410,6 +483,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -427,6 +502,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -439,6 +518,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

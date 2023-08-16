@@ -15,18 +15,19 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Ch3 资源管理 资源：使用后要还给系统  13 以对象管理资源 RAII （Resource Acquisition Is Initialization） 把资源放入对象内，可倚赖C++析构函数自动调用机制确保函数被释放 如 auto_ptr， shared_ptr， heap_based    14  在资源管理类中小心copy行为123456789101112void lock(Mutex*">
+  <meta name="description" content="Ch3 资源管理  资源：使用后要还给系统  13 以对象管理资源  RAII （Resource Acquisition Is Initialization） 把资源放入对象内，可倚赖C++析构函数自动调用机制确保函数被释放  如 auto_ptr， shared_ptr， heap_based   14 在资源管理类中小心copy行为 123456789101112void lock(Mute">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Effective C++(3)--资源管理">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2022/07/20/Effective%20C++(3)/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="Ch3 资源管理 资源：使用后要还给系统  13 以对象管理资源 RAII （Resource Acquisition Is Initialization） 把资源放入对象内，可倚赖C++析构函数自动调用机制确保函数被释放 如 auto_ptr， shared_ptr， heap_based    14  在资源管理类中小心copy行为123456789101112void lock(Mutex*">
+<meta property="og:description" content="Ch3 资源管理  资源：使用后要还给系统  13 以对象管理资源  RAII （Resource Acquisition Is Initialization） 把资源放入对象内，可倚赖C++析构函数自动调用机制确保函数被释放  如 auto_ptr， shared_ptr， heap_based   14 在资源管理类中小心copy行为 123456789101112void lock(Mute">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-07-20T08:28:50.000Z">
 <meta property="article:modified_time" content="2023-07-30T10:15:32.008Z">
@@ -48,6 +49,15 @@
 
   <title>Effective C++(3)--资源管理 | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -104,6 +114,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -138,11 +149,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -208,7 +246,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -219,43 +271,52 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Ch3-资源管理"><a href="#Ch3-资源管理" class="headerlink" title="Ch3 资源管理"></a>Ch3 资源管理</h1><ul>
+        <h1 id="ch3-资源管理">Ch3 资源管理</h1>
+<ul>
 <li>资源：使用后要还给系统</li>
 </ul>
-<h2 id="13-以对象管理资源"><a href="#13-以对象管理资源" class="headerlink" title="13 以对象管理资源"></a>13 以对象管理资源</h2><ul>
-<li>RAII （Resource Acquisition Is Initialization）</li>
-<li>把资源放入对象内，可倚赖C++析构函数自动调用机制确保函数被释放<ul>
-<li>如 auto_ptr， shared_ptr， heap_based</li>
-</ul>
-</li>
-</ul>
-<h2 id="14-在资源管理类中小心copy行为"><a href="#14-在资源管理类中小心copy行为" class="headerlink" title="14  在资源管理类中小心copy行为"></a>14  在资源管理类中小心copy行为</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">lock</span><span class="params">(Mutex* pm)</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">unlock</span><span class="params">(Mutex* pm)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Lock</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Lock</span><span class="params">(Mutex* pm)</span></span></span><br><span class="line"><span class="function">        : mutexPtr(pm)</span></span><br><span class="line"><span class="function">    &#123;</span> <span class="built_in">lock</span>(mutexPtr); &#125;</span><br><span class="line">    ~<span class="built_in">Lock</span>() &#123; <span class="built_in">unlock</span>(mutexPtr); &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Mutex* mutexPtr;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="以对象管理资源">13 以对象管理资源</h2>
 <ul>
-<li>当发生复制时，有两种选择：<ol>
-<li>禁止复制  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Lock</span> : <span class="keyword">private</span> Uncopyable &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>对底部资源使用引用计数法<ul>
-<li>用shared_ptr替换Lock中的raw pointer</li>
+<li>RAII （Resource Acquisition Is Initialization）</li>
+<li>把资源放入对象内，可倚赖C++析构函数自动调用机制确保函数被释放
+<ul>
+<li>如 auto_ptr， shared_ptr， heap_based</li>
+</ul></li>
 </ul>
-</li>
+<h2 id="在资源管理类中小心copy行为">14 在资源管理类中小心copy行为</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">lock</span><span class="params">(Mutex* pm)</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">unlock</span><span class="params">(Mutex* pm)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Lock</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Lock</span><span class="params">(Mutex* pm)</span></span></span><br><span class="line"><span class="function">        : mutexPtr(pm)</span></span><br><span class="line"><span class="function">    &#123;</span> <span class="built_in">lock</span>(mutexPtr); &#125;</span><br><span class="line">    ~<span class="built_in">Lock</span>() &#123; <span class="built_in">unlock</span>(mutexPtr); &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Mutex* mutexPtr;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>当发生复制时，有两种选择：
+<ol type="1">
+<li>禁止复制 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Lock</span> : <span class="keyword">private</span> Uncopyable &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>对底部资源使用引用计数法
+<ul>
+<li>用shared_ptr替换Lock中的raw pointer</li>
+</ul></li>
 <li>复制底部资源</li>
 <li>转移底部资源所有权</li>
-</ol>
-</li>
+</ol></li>
 </ul>
-<h2 id="15-在资源管理类中提供对原始资源的访问"><a href="#15-在资源管理类中提供对原始资源的访问" class="headerlink" title="15 在资源管理类中提供对原始资源的访问"></a>15 在资源管理类中提供对原始资源的访问</h2><ul>
-<li>APIs往往有这样的需求<ul>
+<h2 id="在资源管理类中提供对原始资源的访问">15
+在资源管理类中提供对原始资源的访问</h2>
+<ul>
+<li>APIs往往有这样的需求
+<ul>
 <li>智能指针重载了operator-&gt;和operator*</li>
-</ul>
-</li>
+</ul></li>
 <li>显式转换较为安全</li>
-<li>隐式转换对客户比较方便<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">FontHandle <span class="title">getFont</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">releaseFont</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Font</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Font</span><span class="params">(FontHandle fh)</span></span></span><br><span class="line"><span class="function">        : f(fh)</span></span><br><span class="line"><span class="function">    &#123;</span> &#125;</span><br><span class="line">    ~<span class="built_in">Font</span>() &#123; <span class="built_in">releaseFont</span>(f); &#125;</span><br><span class="line">    <span class="function">FontHandle <span class="title">get</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> f; &#125; <span class="comment">/// 显式转换函数</span></span><br><span class="line">    <span class="function"><span class="keyword">operator</span> <span class="title">FontHandle</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> f; &#125; <span class="comment">/// 隐式转换函数</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    FontHandle f;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>隐式转换对客户比较方便 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">FontHandle <span class="title">getFont</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">releaseFont</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Font</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Font</span><span class="params">(FontHandle fh)</span></span></span><br><span class="line"><span class="function">        : f(fh)</span></span><br><span class="line"><span class="function">    &#123;</span> &#125;</span><br><span class="line">    ~<span class="built_in">Font</span>() &#123; <span class="built_in">releaseFont</span>(f); &#125;</span><br><span class="line">    <span class="function">FontHandle <span class="title">get</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> f; &#125; <span class="comment">/// 显式转换函数</span></span><br><span class="line">    <span class="function"><span class="keyword">operator</span> <span class="title">FontHandle</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> f; &#125; <span class="comment">/// 隐式转换函数</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    FontHandle f;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="16-成对使用new和delete时要采用相同的形式"><a href="#16-成对使用new和delete时要采用相同的形式" class="headerlink" title="16 成对使用new和delete时要采用相同的形式"></a>16 成对使用new和delete时要采用相同的形式</h2><ul>
-<li>new – delete</li>
-<li>new [] – delete []</li>
+<h2 id="成对使用new和delete时要采用相同的形式">16
+成对使用new和delete时要采用相同的形式</h2>
+<ul>
+<li>new -- delete</li>
+<li>new [] -- delete []</li>
 <li>不要对数组形式做typedf</li>
 </ul>
-<h2 id="17-以独立语句将newed对象置入智能指针"><a href="#17-以独立语句将newed对象置入智能指针" class="headerlink" title="17 以独立语句将newed对象置入智能指针"></a>17 以独立语句将newed对象置入智能指针</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">priority</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">processWidget</span><span class="params">(std::shared_ptr&lt;Widget&gt; pw, <span class="type">int</span> priority)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">processWidget</span>(<span class="keyword">new</span> Widget, <span class="built_in">priority</span>()); <span class="comment">/// wrong! std::shared_ptr&lt;Widget&gt;的构造函数是explicit的，无法隐式转换</span></span><br><span class="line"><span class="built_in">processWidget</span>(std::<span class="built_in">shared_ptr</span>&lt;Widget&gt;(<span class="keyword">new</span> Widget), <span class="built_in">priority</span>()); <span class="comment">/// maybe resource leak! 假如执行顺序为 new --&gt; priority() --&gt; shared_ptr 并且 priority() 出错</span></span><br><span class="line"></span><br><span class="line"><span class="function">std::shared_ptr&lt;Widget&gt; <span class="title">pw</span><span class="params">(<span class="keyword">new</span> Widget)</span></span>;</span><br><span class="line"><span class="built_in">processWidget</span>(pw, <span class="built_in">priority</span>()); <span class="comment">/// ok, no leak!</span></span><br></pre></td></tr></table></figure>
+<h2 id="以独立语句将newed对象置入智能指针">17
+以独立语句将newed对象置入智能指针</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">priority</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">processWidget</span><span class="params">(std::shared_ptr&lt;Widget&gt; pw, <span class="type">int</span> priority)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">processWidget</span>(<span class="keyword">new</span> Widget, <span class="built_in">priority</span>()); <span class="comment">/// wrong! std::shared_ptr&lt;Widget&gt;的构造函数是explicit的，无法隐式转换</span></span><br><span class="line"><span class="built_in">processWidget</span>(std::<span class="built_in">shared_ptr</span>&lt;Widget&gt;(<span class="keyword">new</span> Widget), <span class="built_in">priority</span>()); <span class="comment">/// maybe resource leak! 假如执行顺序为 new --&gt; priority() --&gt; shared_ptr 并且 priority() 出错</span></span><br><span class="line"></span><br><span class="line"><span class="function">std::shared_ptr&lt;Widget&gt; <span class="title">pw</span><span class="params">(<span class="keyword">new</span> Widget)</span></span>;</span><br><span class="line"><span class="built_in">processWidget</span>(pw, <span class="built_in">priority</span>()); <span class="comment">/// ok, no leak!</span></span><br></pre></td></tr></table></figure>
 <ul>
 <li>编译器只在一条语句内拥有执行顺序的自由度</li>
 </ul>
@@ -339,7 +400,10 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Ch3-%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">Ch3 资源管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#13-%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90"><span class="nav-number">1.1.</span> <span class="nav-text">13 以对象管理资源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#14-%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copy%E8%A1%8C%E4%B8%BA"><span class="nav-number">1.2.</span> <span class="nav-text">14  在资源管理类中小心copy行为</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE"><span class="nav-number">1.3.</span> <span class="nav-text">15 在资源管理类中提供对原始资源的访问</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E7%94%A8%E7%9B%B8%E5%90%8C%E7%9A%84%E5%BD%A2%E5%BC%8F"><span class="nav-number">1.4.</span> <span class="nav-text">16 成对使用new和delete时要采用相同的形式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86newed%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88"><span class="nav-number">1.5.</span> <span class="nav-text">17 以独立语句将newed对象置入智能指针</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ch3-%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">Ch3 资源管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A5%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E8%B5%84%E6%BA%90"><span class="nav-number">1.1.</span> <span class="nav-text">13 以对象管理资源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E5%B0%8F%E5%BF%83copy%E8%A1%8C%E4%B8%BA"><span class="nav-number">1.2.</span> <span class="nav-text">14 在资源管理类中小心copy行为</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E7%B1%BB%E4%B8%AD%E6%8F%90%E4%BE%9B%E5%AF%B9%E5%8E%9F%E5%A7%8B%E8%B5%84%E6%BA%90%E7%9A%84%E8%AE%BF%E9%97%AE"><span class="nav-number">1.3.</span> <span class="nav-text">15
+在资源管理类中提供对原始资源的访问</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%90%E5%AF%B9%E4%BD%BF%E7%94%A8new%E5%92%8Cdelete%E6%97%B6%E8%A6%81%E9%87%87%E7%94%A8%E7%9B%B8%E5%90%8C%E7%9A%84%E5%BD%A2%E5%BC%8F"><span class="nav-number">1.4.</span> <span class="nav-text">16
+成对使用new和delete时要采用相同的形式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A5%E7%8B%AC%E7%AB%8B%E8%AF%AD%E5%8F%A5%E5%B0%86newed%E5%AF%B9%E8%B1%A1%E7%BD%AE%E5%85%A5%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88"><span class="nav-number">1.5.</span> <span class="nav-text">17
+以独立语句将newed对象置入智能指针</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -400,6 +464,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -419,6 +493,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -436,6 +512,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -448,6 +528,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

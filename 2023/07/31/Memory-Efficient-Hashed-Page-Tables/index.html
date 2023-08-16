@@ -15,34 +15,25 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Memory-Efficient Hashed Page Tables该论文工作基于Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism展开。 摘要传统的基数树页表在可扩展性方面存在挑战，因为在TLB（转换后备缓冲器）未命中后，地址转换可能需要多次连续的内存访问。另一种选择是哈希页表（HP">
+  <meta name="description" content="Memory-Efficient Hashed Page Tables 该论文工作基于Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism展开。 摘要 传统的基数树页表在可扩展性方面存在挑战，因为在TLB（转换后备缓冲器）未命中后，地址转换可能需要多次连续的内存访问。另一种选择是哈希页表（">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Memory-Efficient Hashed Page Tables">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/07/31/Memory-Efficient-Hashed-Page-Tables/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="Memory-Efficient Hashed Page Tables该论文工作基于Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism展开。 摘要传统的基数树页表在可扩展性方面存在挑战，因为在TLB（转换后备缓冲器）未命中后，地址转换可能需要多次连续的内存访问。另一种选择是哈希页表（HP">
+<meta property="og:description" content="Memory-Efficient Hashed Page Tables 该论文工作基于Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism展开。 摘要 传统的基数树页表在可扩展性方面存在挑战，因为在TLB（转换后备缓冲器）未命中后，地址转换可能需要多次连续的内存访问。另一种选择是哈希页表（">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731142926230.png">
-<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731150538530.png">
-<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801181109866.png">
-<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801202605397.png">
-<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801203815590.png">
-<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801205831755.png">
-<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802095758236.png">
-<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802133353257.png">
-<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802144500427.png">
 <meta property="article:published_time" content="2023-07-31T05:42:37.000Z">
 <meta property="article:modified_time" content="2023-08-02T08:15:52.883Z">
 <meta property="article:author" content="Yuhang Zhang">
 <meta property="article:tag" content="Paper">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731142926230.png">
 
 <link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/07/31/Memory-Efficient-Hashed-Page-Tables/">
 
@@ -59,6 +50,15 @@
 
   <title>Memory-Efficient Hashed Page Tables | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -115,6 +115,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -149,11 +150,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -231,7 +259,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>27 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -242,123 +284,307 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Memory-Efficient-Hashed-Page-Tables"><a href="#Memory-Efficient-Hashed-Page-Tables" class="headerlink" title="Memory-Efficient Hashed Page Tables"></a>Memory-Efficient Hashed Page Tables</h1><p>该论文工作基于<em>Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism</em>展开。</p>
-<h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>传统的基数树页表在可扩展性方面存在挑战，因为在TLB（转换后备缓冲器）未命中后，地址转换可能需要多次连续的内存访问。另一种选择是哈希页表（HPTs），在这种情况下，概念上地址转换只需要一次内存访问。传统上，由于处理冲突的成本高和其他限制，HPTs一直被回避。尽管最近的进展使得HPTs变得引人注目，HPT设计中的一个主要问题依然是它们对相当连续( substantial <em>contiguous</em>)的物理内存的需求。</p>
-<p>本文解决了这个问题。为了最小化HPTs对连续内存的需求，它引入了<em>逻辑到物理表</em>（<em>Logical to Physical (L2P) Table</em>）和<em>动态变化块大小</em>(<em>Dynamically-Changing Chunk Sizes</em>)的使用。这些技术将HPTs分解成不连续的物理内存块。此外，本文还介绍了两种最小化HPTs总内存需求的技术，间接地降低内存的连续性需求。这些技术是<em>原地页表调整(<em>In-place Page Table Resizing</em>)和逐路调整(<em>Per-way Resizing</em>)。我们称这个完整的设计为</em>内存高效*的HPTs（ME-HPTs）。与最先进的HPTs相比，ME-HPTs: (i) 平均减少了92%的连续内存分配需求，(ii) 平均提高了8.9%的性能。对于两个最要求的工作负载，连续内存需求从64MB减少到1MB。此外，与最先进的基数树页表相比，ME-HPTs 在平均速度上实现了1.23倍的加速（不使用大页面）和1.28倍的加速（使用大页面）。</p>
+        <h1 id="memory-efficient-hashed-page-tables">Memory-Efficient Hashed
+Page Tables</h1>
+<p>该论文工作基于<em>Elastic Cuckoo Page Tables: Rethinking Virtual
+Memory Translation for Parallelism</em>展开。</p>
+<h3 id="摘要">摘要</h3>
+<p>传统的基数树页表在可扩展性方面存在挑战，因为在TLB（转换后备缓冲器）未命中后，地址转换可能需要多次连续的内存访问。另一种选择是哈希页表（HPTs），在这种情况下，概念上地址转换只需要一次内存访问。传统上，由于处理冲突的成本高和其他限制，HPTs一直被回避。尽管最近的进展使得HPTs变得引人注目，HPT设计中的一个主要问题依然是它们对相当连续(
+substantial <em>contiguous</em>)的物理内存的需求。</p>
+<p>本文解决了这个问题。为了最小化HPTs对连续内存的需求，它引入了<em>逻辑到物理表</em>（<em>Logical
+to Physical (L2P)
+Table</em>）和<em>动态变化块大小</em>(<em>Dynamically-Changing Chunk
+Sizes</em>)的使用。这些技术将HPTs分解成不连续的物理内存块。此外，本文还介绍了两种最小化HPTs总内存需求的技术，间接地降低内存的连续性需求。这些技术是<em>原地页表调整(</em>In-place
+Page Table Resizing<em>)和逐路调整(</em>Per-way
+Resizing<em>)。我们称这个完整的设计为</em>内存高效*的HPTs（ME-HPTs）。与最先进的HPTs相比，ME-HPTs:
+(i) 平均减少了92%的连续内存分配需求，(ii)
+平均提高了8.9%的性能。对于两个最要求的工作负载，连续内存需求从64MB减少到1MB。此外，与最先进的基数树页表相比，ME-HPTs
+在平均速度上实现了1.23倍的加速（不使用大页面）和1.28倍的加速（使用大页面）。</p>
 <span id="more"></span>
-
-<hr>
-<h4 id="tips"><a href="#tips" class="headerlink" title="tips:"></a>tips:</h4><p><strong>Radix tree</strong>（基数树），也称为 Patricia tree（前缀树），是一种用于实现动态集合或关联数组的数据结构。它通常用于在计算机科学中高效地存储和查找大量的键-值对。</p>
+<hr />
+<h4 id="tips">tips:</h4>
+<p><strong>Radix tree</strong>（基数树），也称为 Patricia
+tree（前缀树），是一种用于实现动态集合或关联数组的数据结构。它通常用于在计算机科学中高效地存储和查找大量的键-值对。</p>
 <p>基数树的特点在于它将键按照前缀进行分割，并将每个前缀存储在树的节点上。这样做可以大幅减少树的高度，从而提高查找效率。基数树的每个节点可以包含一个或多个字符，而不是像二叉查找树那样每个节点只能包含一个键。</p>
 <p>由于基数树在每个节点上都存储了部分键，所以在查找时，只需要按照键的前缀逐级搜索树，而无需遍历整个树。这使得基数树在某些情况下比传统的平衡树结构（如红黑树）更加高效。</p>
 <p>基数树通常用于处理字符串的搜索和匹配问题，比如在字典中查找单词，路由表中查找IP地址，以及许多其他数据检索的场景。在操作系统中，基数树常用于虚拟内存管理，特别是在页表结构中，用于将虚拟地址映射到物理地址。</p>
-<hr>
-<h2 id="1-INTRODUCTION"><a href="#1-INTRODUCTION" class="headerlink" title="1. INTRODUCTION"></a>1. INTRODUCTION</h2><p>目前最先进的页表使用基数树（radix-tree）组织[5]，[42]。在TLB未命中时，地址转换通过遍历一个页面树来进行，该树逐步将搜索导向包含所需转换的叶子节点。这种方法高效地使用内存，并经过几十年的多重缓存结构优化。然而，它的可扩展性很差。原因在于，为了获得正确的转换，系统可能需要<em>依次</em>执行高达四次内存访问。每次访问都使用前一次访问返回的值作为其地址。这个过程可能很慢，并且无法充分利用现代处理器提供的内存级并行性。此外，随着另一层被添加到转换树中以满足新兴应用程序更大的内存需求[40]，[41]，这个过程变得越来越慢。</p>
-<p>基数树页表的替代方案是哈希页表（hashed page tables，简称HPTs）[18]，[24]，[26]，[33]，[36]，[37]，[39]，[44]，[45]，[77]，[83]，[88]。在这里，转换信息被保存在一个表中。在TLB未命中时，地址转换通过哈希虚拟页号，并使用哈希键索引表来获取物理页号。假设没有哈希冲突，这种方法只需要进行一次内存访问即可完成地址转换。</p>
+<hr />
+<h2 id="introduction">1. INTRODUCTION</h2>
+<p>目前最先进的页表使用基数树（radix-tree）组织[5]，[42]。在TLB未命中时，地址转换通过遍历一个页面树来进行，该树逐步将搜索导向包含所需转换的叶子节点。这种方法高效地使用内存，并经过几十年的多重缓存结构优化。然而，它的可扩展性很差。原因在于，为了获得正确的转换，系统可能需要<em>依次</em>执行高达四次内存访问。每次访问都使用前一次访问返回的值作为其地址。这个过程可能很慢，并且无法充分利用现代处理器提供的内存级并行性。此外，随着另一层被添加到转换树中以满足新兴应用程序更大的内存需求[40]，[41]，这个过程变得越来越慢。</p>
+<p>基数树页表的替代方案是哈希页表（hashed page
+tables，简称HPTs）[18]，[24]，[26]，[33]，[36]，[37]，[39]，[44]，[45]，[77]，[83]，[88]。在这里，转换信息被保存在一个表中。在TLB未命中时，地址转换通过哈希虚拟页号，并使用哈希键索引表来获取物理页号。假设没有哈希冲突，这种方法只需要进行一次内存访问即可完成地址转换。</p>
 <p>传统上，哈希页表（HPTs）由Barr等人[9]指出至少有三个不受欢迎的原因。首先，访问页表缺乏空间局部性。这是因为哈希散布了相邻虚拟页面的转换。其次，需要将哈希标签（即虚拟页号）与每个HPT条目关联，这会消耗空间。最后，处理哈希冲突是昂贵的：要么需要复杂的硬件，要么操作系统需要遍历冲突的条目[9]，[39]，[88]。</p>
 <p>另一个问题是，理论上的一个单一全局HPT来保存机器中所有活动进程的页表条目是行不通的[24]，[83]，[88]。原因在于，为了支持进程之间的页面共享和多种页面大小，需要在转换中添加额外的间接级别。此外，在进程终止时，需要顺序搜索HPT以删除过时的条目和修复冲突。另一种方法是使用每个进程一个HPT，但这种方法很具有挑战性[77]，因为不清楚如何设置每个进程的HPT大小。为每个进程分配大型HPT会导致内存耗尽的风险。</p>
 <p>近期的进展使HPTs变得更加引人注目。例如，为了改善HPT的局部性，Yaniv和Tsafrir[88]将多个连续的页表条目放在一个单独的缓存行中。此外，他们使用未使用的位对每个条目编码哈希标签。另外，Skarlatos等人[77]使用Cuckoo哈希来有效处理哈希冲突。此外，他们通过在创建进程时分配小型HPT，并使用弹性Cuckoo哈希相对廉价地动态增长HPTs来支持每个进程的HPTs。</p>
 <p>然而，HPT设计的一个重要缺点是它们需要相当数量的<em>连续</em>物理内存。这个需求源于明显需要将HPT（或者更精确地说，每个HPT的分支）放在连续的物理内存中。在我们的测量中，一个HPT分支可以达到64MB。在实践中，在繁忙的计算机中分配一个大块连续内存通常是耗时的，并且在某些情况下可能导致程序失败。相比之下，在基数树页表中，找到连续的内存并不是一个问题，因为内存是一次分配一个页面。</p>
 <p>本论文解决了HPT的这个缺陷。为了最小化HPT对连续内存的需求，我们引入了两种技术：<em>逻辑到物理表</em>和<em>动态变化块大小</em>的使用。这些技术将HPT分解成内存高效、不连续的物理内存块。此外，我们还引入了另外两种技术，最小化HPT的总内存需求，并间接地减少了内存的连续性要求。这些技术是<em>原地页表调整</em>和<em>逐路调整</em>。我们将得到的设计称为<em>内存高效</em>的HPTs（ME-HPTs）。</p>
-<p>我们通过全系统模拟运行一组内存密集型工作负载来评估ME-HPTs。与最先进的HPT相比，ME-HPTs：(i) 平均减少了92%的连续内存分配需求，(ii) 平均提高了8.9%的性能。对于两个最要求的工作负载，连续内存需求从64MB减少到1MB。此外，与最先进的基数树页表相比，ME-HPTs 在平均速度上实现了1.23倍的加速（不使用大页面）和1.28倍的加速（使用大页面）。</p>
+<p>我们通过全系统模拟运行一组内存密集型工作负载来评估ME-HPTs。与最先进的HPT相比，ME-HPTs：(i)
+平均减少了92%的连续内存分配需求，(ii)
+平均提高了8.9%的性能。对于两个最要求的工作负载，连续内存需求从64MB减少到1MB。此外，与最先进的基数树页表相比，ME-HPTs
+在平均速度上实现了1.23倍的加速（不使用大页面）和1.28倍的加速（使用大页面）。</p>
 <p>本文的贡献包括：</p>
 <ul>
 <li>内存高效的HPTs（ME-HPTs），引入了四种新技术，直接或间接地最小化了HPT需要的连续物理内存。</li>
 <li>对ME-HPT技术的评估，表明它们解决了HPT的内存连续性限制问题。</li>
 </ul>
-<h2 id="2-BACKGROUND"><a href="#2-BACKGROUND" class="headerlink" title="2. BACKGROUND"></a>2. BACKGROUND</h2><h3 id="A-Limitations-of-Radix-Tree-Page-Tables"><a href="#A-Limitations-of-Radix-Tree-Page-Tables" class="headerlink" title="A. Limitations of Radix-Tree Page Tables"></a><em>A. Limitations of Radix-Tree Page Tables</em></h3><p>当前处理器主要使用基数树（radix-tree）页表，这种页表以树的形式进行组织。在TLB未命中时，硬件按顺序遍历树的每个级别。图1显示了x86-64翻译的过程，它在搜索对应于虚拟地址（VA）的物理地址（PA）时，需要访问四个<em>连续</em>的页表：PGD（Page Global Directory）、PUD（Page Upper Directory）、PMD（Page Middle Directory）和PTE（Page Table Entry）。</p>
-<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731142926230.png" alt="image-20230731142926230"></p>
-<p>现代处理器使用小的Page Walk Caches (PWCs) [2]，[9]，[12]，[13]来缓存中间页表条目，以避免在每一步中访问内存。然而，许多新兴应用程序会溢出这些缓存，导致关键路径上出现多次连续的内存访问。此外，制造商正在增加转换树中的级数。例如，新的英特尔Sunny Cove [40]，[41]在树中添加了第五级。然而，随着非易失性存储器的出现，非常大的内存可能会出现，这种方法几乎没有可扩展性。</p>
-<h3 id="B-Hashed-Page-Tables"><a href="#B-Hashed-Page-Tables" class="headerlink" title="B. Hashed Page Tables"></a><em>B. Hashed Page Tables</em></h3><p>哈希页表（Hashed page tables，简称HPTs）[18]，[24]，[26]，[33]，[36]，[37]，[39]，[44]，[45]，[77]，[79]，[83]，[88]采用了不同的设计。在TLB未命中时，地址转换通过对虚拟页号（VPN）进行哈希，并使用哈希键索引页表来完成。假设没有哈希冲突，地址转换只需要一次内存访问。HPTs已经在IBM PowerPC [38]，HP PA-RISC [37]和Intel Itanium [39]架构中实现。</p>
-<h4 id="Challenges-of-Hashed-Page-Tables"><a href="#Challenges-of-Hashed-Page-Tables" class="headerlink" title="Challenges of Hashed Page Tables."></a>Challenges of Hashed Page Tables.</h4><p>哈希页表（HPTs）存在一些限制，导致业界不太青睐它们[9]。首先，HPT的访问失去了空间局部性。这是由于哈希散布了相邻虚拟页面的HPT条目。此外，需要将哈希标签与每个页表条目关联，这会消耗内存空间。最重要的是，哈希冲突会导致更多的内存访问，因为系统需要遍历冲突链[9]。诸如冲突链(collision chaining)[39]和开放地址法(open addressing)[88]等策略引入了昂贵的内存引用，用于遍历冲突的条目。</p>
-<p>除此之外，无法通过简单的设计实现一个包含机器中所有活动进程的页表条目的单一全局HPT [24]，[88]。原因在于，支持多种页面大小（例如，大页面）或进程之间的页面共享需要额外的复杂性。例如，为了支持这两个特性，IBM PowerPC架构为每个内存引用使用了一个两级的转换过程[38]。此外，当一个进程被终止时，系统需要对整个HPT进行线性扫描，以找到并删除该进程的条目。不幸的是，删除一个条目的成本很高：可能需要长时间的哈希表查找（对于开放地址法）或者遍历冲突链。此外，在开放地址法中删除一个页表条目可能会影响未来查找中的冲突探测。</p>
-<h4 id="Making-Hashed-Page-Tables-Compelling"><a href="#Making-Hashed-Page-Tables-Compelling" class="headerlink" title="Making Hashed Page Tables Compelling."></a>Making Hashed Page Tables Compelling.</h4><p>近期的研究解决了一些HPT的限制。例如，Yaniv和Tsafrir [88]提出了一种HPT设计，使用了页表条目聚集，将多个连续的页表条目放在一个单独的HPT条目中，其大小等于一个缓存行。此外，他们还提出了页表条目压缩(Page Table Entry Compaction)，将多个连续的页表条目的未使用的高位用于存储哈希标签。</p>
+<h2 id="background">2. BACKGROUND</h2>
+<h3 id="a.-limitations-of-radix-tree-page-tables"><em>A. Limitations of
+Radix-Tree Page Tables</em></h3>
+<p>当前处理器主要使用基数树（radix-tree）页表，这种页表以树的形式进行组织。在TLB未命中时，硬件按顺序遍历树的每个级别。图1显示了x86-64翻译的过程，它在搜索对应于虚拟地址（VA）的物理地址（PA）时，需要访问四个<em>连续</em>的页表：PGD（Page
+Global Directory）、PUD（Page Upper Directory）、PMD（Page Middle
+Directory）和PTE（Page Table Entry）。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731142926230.png"
+alt="image-20230731142926230" />
+<figcaption aria-hidden="true">image-20230731142926230</figcaption>
+</figure>
+<p>现代处理器使用小的Page Walk Caches (PWCs)
+[2]，[9]，[12]，[13]来缓存中间页表条目，以避免在每一步中访问内存。然而，许多新兴应用程序会溢出这些缓存，导致关键路径上出现多次连续的内存访问。此外，制造商正在增加转换树中的级数。例如，新的英特尔Sunny
+Cove
+[40]，[41]在树中添加了第五级。然而，随着非易失性存储器的出现，非常大的内存可能会出现，这种方法几乎没有可扩展性。</p>
+<h3 id="b.-hashed-page-tables"><em>B. Hashed Page Tables</em></h3>
+<p>哈希页表（Hashed page
+tables，简称HPTs）[18]，[24]，[26]，[33]，[36]，[37]，[39]，[44]，[45]，[77]，[79]，[83]，[88]采用了不同的设计。在TLB未命中时，地址转换通过对虚拟页号（VPN）进行哈希，并使用哈希键索引页表来完成。假设没有哈希冲突，地址转换只需要一次内存访问。HPTs已经在IBM
+PowerPC [38]，HP PA-RISC [37]和Intel Itanium [39]架构中实现。</p>
+<h4 id="challenges-of-hashed-page-tables.">Challenges of Hashed Page
+Tables.</h4>
+<p>哈希页表（HPTs）存在一些限制，导致业界不太青睐它们[9]。首先，HPT的访问失去了空间局部性。这是由于哈希散布了相邻虚拟页面的HPT条目。此外，需要将哈希标签与每个页表条目关联，这会消耗内存空间。最重要的是，哈希冲突会导致更多的内存访问，因为系统需要遍历冲突链[9]。诸如冲突链(collision
+chaining)[39]和开放地址法(open
+addressing)[88]等策略引入了昂贵的内存引用，用于遍历冲突的条目。</p>
+<p>除此之外，无法通过简单的设计实现一个包含机器中所有活动进程的页表条目的单一全局HPT
+[24]，[88]。原因在于，支持多种页面大小（例如，大页面）或进程之间的页面共享需要额外的复杂性。例如，为了支持这两个特性，IBM
+PowerPC架构为每个内存引用使用了一个两级的转换过程[38]。此外，当一个进程被终止时，系统需要对整个HPT进行线性扫描，以找到并删除该进程的条目。不幸的是，删除一个条目的成本很高：可能需要长时间的哈希表查找（对于开放地址法）或者遍历冲突链。此外，在开放地址法中删除一个页表条目可能会影响未来查找中的冲突探测。</p>
+<h4 id="making-hashed-page-tables-compelling.">Making Hashed Page Tables
+Compelling.</h4>
+<p>近期的研究解决了一些HPT的限制。例如，Yaniv和Tsafrir
+[88]提出了一种HPT设计，使用了页表条目聚集，将多个连续的页表条目放在一个单独的HPT条目中，其大小等于一个缓存行。此外，他们还提出了页表条目压缩(Page
+Table Entry
+Compaction)，将多个连续的页表条目的未使用的高位用于存储哈希标签。</p>
 <p>为了简化冲突处理，Skarlatos等人[77]，[79]提出在HPT中使用了Cuckoo哈希算法[64]。给定页面大小的HPT采用W路组相联的方式，每个路使用不同的哈希函数。要插入一个元素p，选择一条路，并将p插入其哈希位置。如果选定的条目已经被使用，当前占用者q将被挤出，并在另一条路中重新插入，在q的哈希位置上。如果该位置也被使用，就再次挤出占用者，并重复这个过程。该过程可能会多次重复。通过仔细设置允许的最大HPT占用量，可以选择一个合理的最大重插次数，使最终HPT条目被逐出的概率非常小。在Cuckoo哈希中，元素查找需要检查所有W路（并行进行）。</p>
-<p>Skarlatos等人的设计[77]，[79]采用了<em>进程私有</em>的HPT（哈希页表）。与使用可能会在高负载机器上耗尽内存的默认每个进程的HPT大小不同，HPT开始时很小，并且可以<em>动态调整大小</em>。该方案被称为Elastic Cuckoo Page Tables（ECPTs）。当HPT占用量达到高阈值时，会触发一个<em>扩容</em>操作；当HPT占用量达到低阈值时，会触发一个<em>缩容</em>操作。这些扩容&#x2F;缩容操作不会停止程序执行：它们会与程序执行高效地重叠。</p>
-<h4 id="Mechanics-of-an-HPT-Upsize"><a href="#Mechanics-of-an-HPT-Upsize" class="headerlink" title="Mechanics of an HPT Upsize."></a>Mechanics of an HPT Upsize.</h4><p>当一个W路组相联的HPT占用量达到高阈值时，会分配一个新的双倍大小的W路组相联的HPT[77]。从此以后，每当操作系统被调用来将一个元素插入HPT时，操作系统会利用这个机会将一个元素从旧的HPT重新散列（即移动）到新的HPT。为了高效地执行<em>重新散列</em>，每个旧HPT的路i都添加了一个<em>重新散列指针</em>$P_i $。在每个路中，$P_i $最初指向HPT的基址。在从路i重新散列一个元素时，操作系统取$P_i $指向的元素，将其插入到新的HPT的路i中，并将$P_i $递增。在任何时候，$P_i $将旧HPT的路i划分为两个区域：索引小于$P_i $的条目（<em>迁移区域</em>）和索引等于或大于$P_i $的条目（<em>存活区域</em>）。随着逐步重新散列的进行，旧HPT中的路的迁移区域不断增长。最终，当迁移区域完全覆盖所有路时，旧HPT将被释放。</p>
-<p>在调整大小过程中，将元素p插入W路组相联的HPT的过程如下。系统随机选择旧HPT的一条路，并使用其哈希函数对p进行哈希。如果哈希键落在该路的存活区域内，元素将被插入到旧的HPT中；否则，p将使用新HPT的相同路的哈希函数进行哈希，并将元素插入新HPT中。通过这种设计，在调整大小期间查找元素p只需要W次探测(probes, 探测不等于哈希，探测是指根据hash结果去找对应的entry，涉及一次内存访问)。事实上，p是使用旧HPT的所有哈希函数进行哈希的。对于每条路i，如果哈希键落在存活区域，将对旧HPT的路进行探测；否则，p将使用新HPT中相同路的哈希函数进行哈希，并对新HPT的路进行探测。这样，通过利用已有的旧HPT和新HPT的哈希函数，可以高效地实现元素的插入和查找过程。</p>
-<h2 id="3-MOTIVATION-FOR-IMPROVING-HPTS"><a href="#3-MOTIVATION-FOR-IMPROVING-HPTS" class="headerlink" title="3. MOTIVATION FOR IMPROVING HPTS"></a>3. MOTIVATION FOR IMPROVING HPTS</h2><p>虽然前面提到的进展使HPTs具有竞争力，但HPTs仍然有一个重要的限制：它们需要分配相当数量的连续物理内存。这在表I中有所体现，该表列出了我们在本研究中分析的一些应用程序的特性。这些应用程序将在第VI节中进行讨论。</p>
+<p>Skarlatos等人的设计[77]，[79]采用了<em>进程私有</em>的HPT（哈希页表）。与使用可能会在高负载机器上耗尽内存的默认每个进程的HPT大小不同，HPT开始时很小，并且可以<em>动态调整大小</em>。该方案被称为Elastic
+Cuckoo Page
+Tables（ECPTs）。当HPT占用量达到高阈值时，会触发一个<em>扩容</em>操作；当HPT占用量达到低阈值时，会触发一个<em>缩容</em>操作。这些扩容/缩容操作不会停止程序执行：它们会与程序执行高效地重叠。</p>
+<h4 id="mechanics-of-an-hpt-upsize.">Mechanics of an HPT Upsize.</h4>
+<p>当一个W路组相联的HPT占用量达到高阈值时，会分配一个新的双倍大小的W路组相联的HPT[77]。从此以后，每当操作系统被调用来将一个元素插入HPT时，操作系统会利用这个机会将一个元素从旧的HPT重新散列（即移动）到新的HPT。为了高效地执行<em>重新散列</em>，每个旧HPT的路i都添加了一个<em>重新散列指针</em>$P_i
+<span class="math inline">\(。在每个路中，\)</span>P_i <span
+class="math inline">\(最初指向HPT的基址。在从路i重新散列一个元素时，操作系统取\)</span>P_i
+<span
+class="math inline">\(指向的元素，将其插入到新的HPT的路i中，并将\)</span>P_i
+<span class="math inline">\(递增。在任何时候，\)</span>P_i <span
+class="math inline">\(将旧HPT的路i划分为两个区域：索引小于\)</span>P_i
+<span
+class="math inline">\(的条目（*迁移区域*）和索引等于或大于\)</span>P_i
+$的条目（<em>存活区域</em>）。随着逐步重新散列的进行，旧HPT中的路的迁移区域不断增长。最终，当迁移区域完全覆盖所有路时，旧HPT将被释放。</p>
+<p>在调整大小过程中，将元素p插入W路组相联的HPT的过程如下。系统随机选择旧HPT的一条路，并使用其哈希函数对p进行哈希。如果哈希键落在该路的存活区域内，元素将被插入到旧的HPT中；否则，p将使用新HPT的相同路的哈希函数进行哈希，并将元素插入新HPT中。通过这种设计，在调整大小期间查找元素p只需要W次探测(probes,
+探测不等于哈希，探测是指根据hash结果去找对应的entry，涉及一次内存访问)。事实上，p是使用旧HPT的所有哈希函数进行哈希的。对于每条路i，如果哈希键落在存活区域，将对旧HPT的路进行探测；否则，p将使用新HPT中相同路的哈希函数进行哈希，并对新HPT的路进行探测。这样，通过利用已有的旧HPT和新HPT的哈希函数，可以高效地实现元素的插入和查找过程。</p>
+<h2 id="motivation-for-improving-hpts">3. MOTIVATION FOR IMPROVING
+HPTS</h2>
+<p>虽然前面提到的进展使HPTs具有竞争力，但HPTs仍然有一个重要的限制：它们需要分配相当数量的连续物理内存。这在表I中有所体现，该表列出了我们在本研究中分析的一些应用程序的特性。这些应用程序将在第VI节中进行讨论。</p>
 <p>在表I中，可能会看到这些应用程序对于HPT的内存需求较大，并且需要大块的连续物理内存来存储它们的页表数据结构。这可能会导致在繁忙的系统中分配这些大块连续内存成为一个耗时的过程，并且在某些情况下可能会导致程序执行失败。因此，HPT设计中如何减少对连续物理内存的需求仍然是一个重要的挑战，值得进一步研究和解决。</p>
-<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731150538530.png" alt="image-20230731150538530"></p>
-<p>表中的第2列显示了应用程序数据的最大内存消耗。第3列和第4列分别显示了使用基数树和ECPT组织的页表分配的最大<em>连续</em>内存。在基数树组织中，连续内存始终为4KB，这是一个页面的大小。在ECPT组织中，所显示的数字是HPT一路（way）的最大大小。<em>直观地说</em>，一个组相联的HPT的每个路都需要在连续的物理内存块中进行分配。ECPT的这些数字对应于没有用于应用程序数据的<strong>透明大页面</strong>（transparent huge pages ，THP）[85]的环境，这是最不利的情况。从表中可以看出，两个应用程序中的HPT一路使用了64MB的连续内存。</p>
-<p>在繁忙的服务器中分配大块连续内存是昂贵的，尤其是当内存高度碎片化时。我们在一个基于Linux的服务器上进行了实验，使用了一个开源的碎片化工具[1]来测试不同碎片化水平下的性能。我们测得，在2 GHz和0.7碎片化（即较高）的FMFI度量[32]，[49]中，分配和清零4KB、8KB、1MB、8MB和64MB内存块分别需要4K、5K、750K、13M和120M个周期。这些数据与先前的测量结果一致[49]。随着块大小的增加，开销增加得更快。<em>更重要的是</em>，当我们将内存碎片化程度提高到0.7以上时，系统无法分配64MB的连续内存，并返回错误。因此，ECPT的运行无法完成。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230731150538530.png"
+alt="image-20230731150538530" />
+<figcaption aria-hidden="true">image-20230731150538530</figcaption>
+</figure>
+<p>表中的第2列显示了应用程序数据的最大内存消耗。第3列和第4列分别显示了使用基数树和ECPT组织的页表分配的最大<em>连续</em>内存。在基数树组织中，连续内存始终为4KB，这是一个页面的大小。在ECPT组织中，所显示的数字是HPT一路（way）的最大大小。<em>直观地说</em>，一个组相联的HPT的每个路都需要在连续的物理内存块中进行分配。ECPT的这些数字对应于没有用于应用程序数据的<strong>透明大页面</strong>（transparent
+huge pages
+，THP）[85]的环境，这是最不利的情况。从表中可以看出，两个应用程序中的HPT一路使用了64MB的连续内存。</p>
+<p>在繁忙的服务器中分配大块连续内存是昂贵的，尤其是当内存高度碎片化时。我们在一个基于Linux的服务器上进行了实验，使用了一个开源的碎片化工具[1]来测试不同碎片化水平下的性能。我们测得，在2
+GHz和0.7碎片化（即较高）的FMFI度量[32]，[49]中，分配和清零4KB、8KB、1MB、8MB和64MB内存块分别需要4K、5K、750K、13M和120M个周期。这些数据与先前的测量结果一致[49]。随着块大小的增加，开销增加得更快。<em>更重要的是</em>，当我们将内存碎片化程度提高到0.7以上时，系统无法分配64MB的连续内存，并返回错误。因此，ECPT的运行无法完成。</p>
 <p>第5列至第8列显示了使用基数树和ECPT组织的页表在没有和使用THP的情况下的最大内存消耗。可以看出，与没有THP的基数树相比，ECPT的页表内存使用量平均增加了138%；与使用THP的基数树相比，ECPT的页表内存使用量平均增加了128%。与应用程序数据消耗的内存相比，页表消耗的内存更高，但并不显著。然而，正如我们将在后面展示的那样，减少HPT的总内存消耗也有助于减少其对连续内存的需求。</p>
-<hr>
-<h4 id="tips-1"><a href="#tips-1" class="headerlink" title="tips:"></a>tips:</h4><p>透明大页面（<em>Transparent Huge Pages</em>，简称THP）是一种内存管理技术，用于优化大内存页面的使用。在传统的页面管理中，内存被分成固定大小的页面，通常是4KB大小。然而，对于一些内存密集型应用程序或工作负载，使用更大的页面（比如2MB或1GB）可能会提高性能，因为更大的页面可以减少页表的大小，减少内存访问的开销。</p>
+<hr />
+<h4 id="tips-1">tips:</h4>
+<p>透明大页面（<em>Transparent Huge
+Pages</em>，简称THP）是一种内存管理技术，用于优化大内存页面的使用。在传统的页面管理中，内存被分成固定大小的页面，通常是4KB大小。然而，对于一些内存密集型应用程序或工作负载，使用更大的页面（比如2MB或1GB）可能会提高性能，因为更大的页面可以减少页表的大小，减少内存访问的开销。</p>
 <p>THP允许操作系统动态地将多个连续的小页面合并成一个大页面，并将这些大页面透明地提供给应用程序。这样，应用程序无需修改代码，也无需知道大页面的存在，操作系统会自动将小页面合并为大页面，并对应用程序透明地提供更大的内存页面。</p>
 <p>THP的使用可以提高内存访问效率和系统性能，特别是对于那些需要大量内存的应用程序。它是操作系统在内存管理方面的一项优化技术，可以有效地减少页表的大小，并降低内存访问的开销，从而提高系统的整体性能。</p>
-<hr>
-<h2 id="4-DESIGNING-MEMORY-EFFICIENT-HPTS"><a href="#4-DESIGNING-MEMORY-EFFICIENT-HPTS" class="headerlink" title="4. DESIGNING MEMORY-EFFICIENT HPTS"></a>4. DESIGNING MEMORY-EFFICIENT HPTS</h2><p>为了解决HPT（Hashed Page Tables）连续性问题，我们提出了四种新的硬件辅助原语来实现内存高效的HPT。其中两种直接减少HPT需要的连续物理内存：(i) <em>逻辑到物理（L2P）表</em>和(ii) <em>动态更改块大小</em>。另外两种间接减少HPT需要的连续物理内存，通过减少HPT所需的总物理内存：(i) <em>原地页表调整</em>(<em>In-place Page Table Resizing</em>)和(ii) <em>逐路调整</em>(<em>Per-way Resizing</em>)。</p>
-<h3 id="A-Logical-to-Physical-L2P-Table"><a href="#A-Logical-to-Physical-L2P-Table" class="headerlink" title="A. Logical to Physical (L2P) Table"></a><em>A. Logical to Physical (L2P) Table</em></h3><p>如图2a所示，传统的HPT（Hashed Page Table）路需要在一个连续的内存区域中进行分配。这是因为在TLB（Translation Lookaside Buffer）缺失时，虚拟页号（VPN）被进行哈希计算，得到的哈希键与HPT的基地址相加，从而得到对应的物理页号（PPN）的入口。这种设计不允许表中出现不连续性，这与基数页表不同。在我们的实验中，我们发现有些应用的HPT每个路需要高达64MB的内存。找到64MB连续内存通常是耗时的。此外，在内存高度碎片化的机器上，我们发现这会导致程序崩溃。</p>
-<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801181109866.png" alt="image-20230801181109866"></p>
-<hr>
-<h4 id="tips-2"><a href="#tips-2" class="headerlink" title="tips"></a>tips</h4><p>hash算出来的是vpn对应的entry的index。</p>
-<hr>
+<hr />
+<h2 id="designing-memory-efficient-hpts">4. DESIGNING MEMORY-EFFICIENT
+HPTS</h2>
+<p>为了解决HPT（Hashed Page
+Tables）连续性问题，我们提出了四种新的硬件辅助原语来实现内存高效的HPT。其中两种直接减少HPT需要的连续物理内存：(i)
+<em>逻辑到物理（L2P）表</em>和(ii)
+<em>动态更改块大小</em>。另外两种间接减少HPT需要的连续物理内存，通过减少HPT所需的总物理内存：(i)
+<em>原地页表调整</em>(<em>In-place Page Table Resizing</em>)和(ii)
+<em>逐路调整</em>(<em>Per-way Resizing</em>)。</p>
+<h3 id="a.-logical-to-physical-l2p-table"><em>A. Logical to Physical
+(L2P) Table</em></h3>
+<p>如图2a所示，传统的HPT（Hashed Page
+Table）路需要在一个连续的内存区域中进行分配。这是因为在TLB（Translation
+Lookaside
+Buffer）缺失时，虚拟页号（VPN）被进行哈希计算，得到的哈希键与HPT的基地址相加，从而得到对应的物理页号（PPN）的入口。这种设计不允许表中出现不连续性，这与基数页表不同。在我们的实验中，我们发现有些应用的HPT每个路需要高达64MB的内存。找到64MB连续内存通常是耗时的。此外，在内存高度碎片化的机器上，我们发现这会导致程序崩溃。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801181109866.png"
+alt="image-20230801181109866" />
+<figcaption aria-hidden="true">image-20230801181109866</figcaption>
+</figure>
+<hr />
+<h4 id="tips-2">tips</h4>
+<p>hash算出来的是vpn对应的entry的index。</p>
+<hr />
 <p>为了解决这个问题，我们提出了一种设计，将HPT的每个路（way）分成多个固定大小的<em>块</em>（Chunk），这些块不需要连续。然后，在内存管理单元（MMU）中添加一个小的间接表，称为<em>逻辑到物理（L2P）表</em>，用于将访问重定向到这些块。这种机制对软件透明，而且硬件高度局部化。通过合理选择参数，每个块只需要适量的连续内存，而L2P表足够小，具有可接受的访问时间。</p>
 <p>如图2b所示，HPT的路被拆分为大小为<em>ChunkSize</em>（CS）的一组块。在TLB缺失时，VPN的哈希值被除以CS，并添加到L2P表的基地址。该位置的内容（如图2b中的b1）是一个指向包含所需PPN的块的基地址的指针。然后，VPN的哈希值取模CS，并添加到块的基地址，从而得到具有PPN的入口。</p>
 <p>在任何时候，MMU只包含当前正在运行的进程的L2P表。在上下文切换时，操作系统保存和恢复L2P表。此操作的开销较低。原因是，正如我们将在后面看到的那样，L2P表不是很大，我们只需要保存和恢复正在使用的L2P表条目，这些条目平均只占所有条目的一小部分。</p>
-<p>由于CS是2的幂，图2b中的除法和取模操作实际上是<em>位移和掩码</em>操作。因此，我们估计，在硬件中访问时，一个MMU驻留的L2P表将在基线页面遍历（如图2a所示）中增加约几个周期的开销。这种开销是完全可以接受的，至少对于HPT的Elastic Cuckoo Page Table（ECPT）实现来说。这是因为这种开销在大多数情况下可以通过与ECPT的Cuckoo Walk Cache（CWC）访问的重叠来隐藏。我们将在第五节详细讨论细节。</p>
-<h3 id="B-Dynamically-Changing-Chunk-Sizes"><a href="#B-Dynamically-Changing-Chunk-Sizes" class="headerlink" title="B. Dynamically Changing Chunk Sizes"></a><em>B. Dynamically Changing Chunk Sizes</em></h3><p>为了最小化L2P表的访问时间，L2P表必须足够小，最多可以容纳几十个块的指针。因此，我们需要设置CS的值，以便所有这几十个块的组合能够容纳一个HPT路的所有条目。</p>
+<p>由于CS是2的幂，图2b中的除法和取模操作实际上是<em>位移和掩码</em>操作。因此，我们估计，在硬件中访问时，一个MMU驻留的L2P表将在基线页面遍历（如图2a所示）中增加约几个周期的开销。这种开销是完全可以接受的，至少对于HPT的Elastic
+Cuckoo Page
+Table（ECPT）实现来说。这是因为这种开销在大多数情况下可以通过与ECPT的Cuckoo
+Walk Cache（CWC）访问的重叠来隐藏。我们将在第五节详细讨论细节。</p>
+<h3 id="b.-dynamically-changing-chunk-sizes"><em>B. Dynamically Changing
+Chunk Sizes</em></h3>
+<p>为了最小化L2P表的访问时间，L2P表必须足够小，最多可以容纳几十个块的指针。因此，我们需要设置CS的值，以便所有这几十个块的组合能够容纳一个HPT路的所有条目。</p>
 <p>在实践中，应用程序的行为有很大的差异。一方面，大数据应用程序分配大量内存，可能需要每个HPT路几十兆字节或几百兆字节。另一方面，许多系统服务、功能和微服务所需的内存较少，可能每个HPT路只需要几千字节。对于第一类应用程序，要容纳所有的页面映射，需要将每个块设置在兆字节的范围内。然而，对于第二类应用程序，大块会浪费大量内存。需要注意的是，在所有情况下，一个块由一次性分配的一个或多个连续物理页面组成。</p>
 <p>为了解决这个问题，我们提议根据应用程序的行为随时间<em>动态</em>改变分配给应用程序的块大小。我们选择一组从小到大的块大小。当一个应用程序启动时，它使用最小的块大小。随着应用程序增加其HPT路的需求，它可以改变块大小。有了这种支持，小内存和大内存应用程序的HPT都可以<em>高效地</em>使用非连续内存。</p>
 <p>第五节列出了我们使用的L2P表大小和不同块大小，并进行了解释。然而，为了理解操作，我们现在展示一个示例，该示例使用64个条目的L2P表，以及8KB和1MB的块大小。图3a显示了一个应用程序，它一开始只需要4KB的HPT路。在这种情况下，操作系统使用小的块大小（8KB），只分配一个块。只使用L2P表的一个条目，HPT路使用了8KB块的一半。如果应用程序的HPT路翻倍，操作系统简单地填满了块的后半部分，同时仍然只使用L2P表的一个条目（图3b）。</p>
-<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801202605397.png" alt="image-20230801202605397"></p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801202605397.png"
+alt="image-20230801202605397" />
+<figcaption aria-hidden="true">image-20230801202605397</figcaption>
+</figure>
 <p>如果应用程序进一步将其HPT翻倍至16KB，操作系统会分配第二个小块，并在L2P表中使用第二个条目（图3c）。这个过程重复进行，直到L2P表的所有64个条目都被使用，形成一个总共512KB大小的HPT路（图3d）。如果再次翻倍HPT大小，将触发块大小的转换，这涉及分配一个新的1MB块，将旧块中的条目重新哈希到新块中，并释放旧块。在调整大小后，我们使用L2P表的一个条目，指向1MB块（图3e）。进一步的扩大会分配更多的1MB块，因此会使用更多的L2P表条目。一旦L2P表的所有64个条目都指向完整的1MB块，另一个HPT的扩大将需要分配一个更大尺寸的块。总体上，无论是小尺寸的应用程序还是大尺寸的应用程序都可以高效地使用HPT内存。硬件使用MMU中的一些位来记录HPT当前使用的块大小，以及是否需要改变块大小进行扩大。</p>
-<h3 id="C-In-place-Page-Table-Resizing"><a href="#C-In-place-Page-Table-Resizing" class="headerlink" title="C. In-place Page Table Resizing"></a><em>C. In-place Page Table Resizing</em></h3><p>这项技术和接下来的一项技术都能减少HPT（Hashed Page Table）所需的总物理内存；我们稍后会看到，间接地它们也能减少连续物理内存的需求。</p>
-<p>为了理解这项技术，回想一下我们的最先进的基准方案（即ECPT），它在程序运行时动态调整HPT的大小，在调整大小期间，旧的和新的HPT共存于内存中。这种方法可能会占用相当大的内存。例如，我们的一些应用程序需要一个由三个64MB组成的HPT，总共192MB。因此，在调整大小为192MB时，新旧HPT表共占用192 + 96 &#x3D; 288MB的内存。此外，调整大小操作需要时间，而在大多数程序的执行时间内，会有两个HPT（旧+新）共存于内存中；我们测得平均情况下，总执行时间的87.3％是这种情况。在机器上运行多个进程，每个进程都有一个针对不同页面大小的HPT，可能会导致多个HPT同时调整大小，从而消耗大量内存。</p>
+<h3 id="c.-in-place-page-table-resizing"><em>C. In-place Page Table
+Resizing</em></h3>
+<p>这项技术和接下来的一项技术都能减少HPT（Hashed Page
+Table）所需的总物理内存；我们稍后会看到，间接地它们也能减少连续物理内存的需求。</p>
+<p>为了理解这项技术，回想一下我们的最先进的基准方案（即ECPT），它在程序运行时动态调整HPT的大小，在调整大小期间，旧的和新的HPT共存于内存中。这种方法可能会占用相当大的内存。例如，我们的一些应用程序需要一个由三个64MB组成的HPT，总共192MB。因此，在调整大小为192MB时，新旧HPT表共占用192
++ 96 =
+288MB的内存。此外，调整大小操作需要时间，而在大多数程序的执行时间内，会有两个HPT（旧+新）共存于内存中；我们测得平均情况下，总执行时间的87.3％是这种情况。在机器上运行多个进程，每个进程都有一个针对不同页面大小的HPT，可能会导致多个HPT同时调整大小，从而消耗大量内存。</p>
 <p>操作系统需要对所有旧的HPT条目进行重新散列。然而，只有在插入新的HPT条目时，才会重新散列单个条目（或一小组条目）。等到有新的条目插入时才重新散列条目的原因是为了重复使用插入触发的操作系统调用。当然，可以为所有重新散列分配另一个操作系统线程，但这会增加开销。</p>
-<hr>
-<h4 id="tips-3"><a href="#tips-3" class="headerlink" title="tips"></a>tips</h4><p>重新散列的机制是什么？？？</p>
-<hr>
+<hr />
+<h4 id="tips-3">tips</h4>
+<p>重新散列的机制是什么？？？</p>
+<hr />
 <p>为了减少内存使用量，本文提出了<em>就地</em>HPT调整大小。其思想是让新旧HPT共享同一块内存空间。这确保在任何时候，两个HPT使用的内存等于两者中较大的那个，而不是两者的总和。为了形象化说明，图4显示了如何扩展HPT（a）在原地扩展和（b）非原地扩展。为简单起见，图中仅显示了一个HPT的路。此外，图中将HPT路描述为连续的内存。实际上，根据第IV-A和IV-B节，<em>HPT路（旧的和新的）由一组非连续的块组成</em>。</p>
 <p>为了与原始的ECPT论文一致，图4假设地址从图的顶部到底部递增。回忆一下，在进行传统的非原地调整大小的HPT（图4a）时，有三个区域：旧HPT中的Migrated和Live区域以及新HPT。插入操作将条目放入新的HPT或Live区域。重新散列将Migrated区域向下扩展，将Live区域的条目取出并插入到新的HPT中。Migrated区域不放置任何条目。</p>
-<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801203815590.png" alt="image-20230801203815590"></p>
-<p>在我们提出的就地调整大小方案（图4b）中，插入操作和重新散列操作都可能将条目放入Migrated区域，因为它与新的HPT重叠。为了防止这些新条目造成混淆，我们提出了一个简单的技术：新HPT使用与旧HPT相同的散列函数，但是为了索引新的HPT，在散列键的结果中使用了一个额外的位（在上调大小时）或减少了一个位（在下调大小时）。添加的位是散列键的最高有效位（most significant bit, MSB）之后的一位(The bit added is the one beyond the most significant bit (MSB) of the hash key,即更高的一位)；移除的位是散列键的最高有效位（MSB）。此外，我们只将HPT的每个路上调或下调到下一个较高&#x2F;较低的<em>二次幂大小</em>。</p>
-<hr>
-<h4 id="tips-4"><a href="#tips-4" class="headerlink" title="tips"></a>tips</h4><p>散列函数的结果有很多位，比如n bit，旧的HPT只使用m bit，而新的扩容后的HPT使用m + 1 bit.</p>
-<hr>
-<h4 id="Detailed-Rehash-Algorithm"><a href="#Detailed-Rehash-Algorithm" class="headerlink" title="Detailed Rehash Algorithm."></a>Detailed Rehash Algorithm.</h4><p>在HPT调整大小期间，重新散列操作将一个元素从旧HPT的第i个路（Hi）移动到新HPT的相同方式（Hi′）。被移动的元素是位于Hi的Live区域顶部的元素，并由该方式的重新散列指针（Pi）指向（见第二节）。在移动后，Pi被递增。为了描述算法，首先考虑HPT的上调大小，然后再考虑HPT的下调大小。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801203815590.png"
+alt="image-20230801203815590" />
+<figcaption aria-hidden="true">image-20230801203815590</figcaption>
+</figure>
+<p>在我们提出的就地调整大小方案（图4b）中，插入操作和重新散列操作都可能将条目放入Migrated区域，因为它与新的HPT重叠。为了防止这些新条目造成混淆，我们提出了一个简单的技术：新HPT使用与旧HPT相同的散列函数，但是为了索引新的HPT，在散列键的结果中使用了一个额外的位（在上调大小时）或减少了一个位（在下调大小时）。添加的位是散列键的最高有效位（most
+significant bit, MSB）之后的一位(The bit added is the one beyond the
+most significant bit (MSB) of the hash
+key,即更高的一位)；移除的位是散列键的最高有效位（MSB）。此外，我们只将HPT的每个路上调或下调到下一个较高/较低的<em>二次幂大小</em>。</p>
+<hr />
+<h4 id="tips-4">tips</h4>
+<p>散列函数的结果有很多位，比如n bit，旧的HPT只使用m
+bit，而新的扩容后的HPT使用m + 1 bit.</p>
+<hr />
+<h4 id="detailed-rehash-algorithm.">Detailed Rehash Algorithm.</h4>
+<p>在HPT调整大小期间，重新散列操作将一个元素从旧HPT的第i个路（Hi）移动到新HPT的相同方式（Hi′）。被移动的元素是位于Hi的Live区域顶部的元素，并由该方式的重新散列指针（Pi）指向（见第二节）。在移动后，Pi被递增。为了描述算法，首先考虑HPT的上调大小，然后再考虑HPT的下调大小。</p>
 <p>在HPT上调大小中，假设要重新散列的条目是图5a中的<em>OldEntry</em>。我们使用原始的散列函数对其VPN进行散列，但使用结果散列键的一个额外位。在这一点上，有两种可能的结果：如果额外位为零，该条目将保持原位（图5b中的<em>NewEntry</em>）；如果额外位为一，该条目将移动到新HPT的第二半部分，并在新HPT中与旧HPT相同的偏移位置（图5c中的<em>NewEntry</em>）。</p>
-<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801205831755.png" alt="image-20230801205831755"></p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230801205831755.png"
+alt="image-20230801205831755" />
+<figcaption aria-hidden="true">image-20230801205831755</figcaption>
+</figure>
 <p>在HPT下调大小中，相反的情况发生：两个来自旧HPT的条目可能被重新散列到新HPT中的相同位置，因此其中一个条目将会被插入到不同的路中。例如，在图5d和图5e中，旧HPT的两个<em>OldEntry</em>条目将被重新散列到新HPT的相同位置，该位置由图5f中的<em>NewEntry</em>给出。</p>
-<h4 id="Other-Operations"><a href="#Other-Operations" class="headerlink" title="Other Operations."></a>Other Operations.</h4><p>在HPT调整大小期间执行的其他操作使用与弹性布谷哈希（Elastic Cuckoo Hashing）[77]中描述的相同算法。以下我们假设正在进行HPT上调大小。在查找操作中，对于每个路i，使用旧函数创建的哈希键与Rehashing Pointer（Pi）进行比较。如果哈希键大于或等于Pi，则使用旧哈希键来索引HPT；否则，使用新哈希键来索引HPT。新的哈希键与旧的哈希键相同，只是包含了最高位（MSB）之外的那一位。每个HPT路只需要单个访问。</p>
+<h4 id="other-operations.">Other Operations.</h4>
+<p>在HPT调整大小期间执行的其他操作使用与弹性布谷哈希（Elastic Cuckoo
+Hashing）[77]中描述的相同算法。以下我们假设正在进行HPT上调大小。在查找操作中，对于每个路i，使用旧函数创建的哈希键与Rehashing
+Pointer（Pi）进行比较。如果哈希键大于或等于Pi，则使用旧哈希键来索引HPT；否则，使用新哈希键来索引HPT。新的哈希键与旧的哈希键相同，只是包含了最高位（MSB）之外的那一位。每个HPT路只需要单个访问。</p>
 <p>删除操作遵循查找过程，并在找到元素时清除该条目。最后，插入操作涉及随机选择一个路i，使用旧函数创建一个哈希键，并将哈希键与Pi进行比较。如果哈希键大于或等于Pi，则将元素插入由旧哈希键指向的条目；否则，将元素插入由新哈希键指向的条目。如果出现冲突，则将现有条目替换到另一个方式中。</p>
-<h4 id="Interaction-between-Resizing-and-Changing-Chunk-Sizes"><a href="#Interaction-between-Resizing-and-Changing-Chunk-Sizes" class="headerlink" title="Interaction between Resizing and Changing Chunk Sizes."></a>Interaction between Resizing and Changing Chunk Sizes.</h4><p>所有不涉及更改块大小的上调和下调HPT操作都执行原地HPT调整大小。所有需要更改块大小的上调和下调HPT操作，根据设计要求，都需要进行非原地HPT调整大小。</p>
-<h4 id="D-Per-way-Resizing"><a href="#D-Per-way-Resizing" class="headerlink" title="D. Per-way Resizing"></a><em>D. Per-way Resizing</em></h4><p>在现有的方案中，HPT以集合关联方式组织，以减少冲突，并且在调整大小时，所有W个路由、都进行上调或下调。然而，这种方法在内存使用上可能是不高效的：HPT每次都是倍增&#x2F;减少大小，而实际上可能只需要稍微多一些&#x2F;少一些空间。</p>
-<p>为了减少HPT内存消耗的浪费，我们提出了<em>逐路调整（Per-Way Resizing）</em>的方法。该方法的思想是一次只对一个路进行上调或下调。通过这种方法，在上调时，只需分配新HPT中原本需要添加的内存的1&#x2F;W部分。与前一节一样，这种方法应用于由多个非连续块组成的HPT路。</p>
+<h4
+id="interaction-between-resizing-and-changing-chunk-sizes.">Interaction
+between Resizing and Changing Chunk Sizes.</h4>
+<p>所有不涉及更改块大小的上调和下调HPT操作都执行原地HPT调整大小。所有需要更改块大小的上调和下调HPT操作，根据设计要求，都需要进行非原地HPT调整大小。</p>
+<h4 id="d.-per-way-resizing"><em>D. Per-way Resizing</em></h4>
+<p>在现有的方案中，HPT以集合关联方式组织，以减少冲突，并且在调整大小时，所有W个路由、都进行上调或下调。然而，这种方法在内存使用上可能是不高效的：HPT每次都是倍增/减少大小，而实际上可能只需要稍微多一些/少一些空间。</p>
+<p>为了减少HPT内存消耗的浪费，我们提出了<em>逐路调整（Per-Way
+Resizing）</em>的方法。该方法的思想是一次只对一个路进行上调或下调。通过这种方法，在上调时，只需分配新HPT中原本需要添加的内存的1/W部分。与前一节一样，这种方法应用于由多个非连续块组成的HPT路。</p>
 <p>虽然这种改进节省了内存，但它引入了两个新问题。具体来说，我们需要确定选择哪个路进行上调或下调，同时避免路的不平衡。我们还需要确定在HPT中插入项的算法。接下来我们将讨论这些问题。</p>
-<h4 id="Deciding-Which-Way-to-Upsize-or-Downsize"><a href="#Deciding-Which-Way-to-Upsize-or-Downsize" class="headerlink" title="Deciding Which Way to Upsize or Downsize."></a>Deciding Which Way to Upsize or Downsize.</h4><p>在传统的全路调整大小中，操作系统保持一个包含整个HPT占用率的计数器；当计数器达到阈值时，HPT将被调整大小。而在每路调整大小中，操作系统使用每路计数器来跟踪每个单独路的占用率。当其中一个计数器达到阈值时，对应的路将被调整大小。</p>
+<h4 id="deciding-which-way-to-upsize-or-downsize.">Deciding Which Way to
+Upsize or Downsize.</h4>
+<p>在传统的全路调整大小中，操作系统保持一个包含整个HPT占用率的计数器；当计数器达到阈值时，HPT将被调整大小。而在每路调整大小中，操作系统使用每路计数器来跟踪每个单独路的占用率。当其中一个计数器达到阈值时，对应的路将被调整大小。</p>
 <p>需要避免以牺牲其他路为代价，反复对同一路进行上调（或下调）。为了保持不同路的平衡，我们在允许调整某一路之前添加一个额外的条件。具体来说，候选路的大小不能比另一路更大（在上调时），或者比另一路更小（在下调时）。通过这个约束，一条路永远不会比另一条路的大小大两倍（或小于一半）。</p>
-<h4 id="Deciding-Where-to-Insert-an-Element"><a href="#Deciding-Where-to-Insert-an-Element" class="headerlink" title="Deciding Where to Insert an Element."></a>Deciding Where to Insert an Element.</h4><p>在传统的设计中，所有的路都是等大小的，可以在插入时随机选择一条路，并自然地保持路的平衡占用率。然而，在每路调整大小的情况下，随机插入不再合适：调整大小后的路可能无法充分利用其全部容量，而其他路仍然会保持高占用率。这将导致频繁的冲突和重新插入。</p>
-<p>为了避免这个问题，我们提出了一种<em>加权</em>随机插入算法。具体来说，由于操作系统知道每个路的占用率和大小，它也知道每个路有多少空闲槽位。因此，我们的算法将将元素插入路i的概率设置为路i中空闲槽位数与所有路空闲槽位数之比。换句话说，我们在0到1之间生成一个随机数，并为每个路i赋予权重$FREE_i&#x2F;FREE_{sum}$。此外，如果某条路比其他路更大，并且其占用率已经达到了预定义的上限，我们将其权重设为零，从效果上阻止在该路中插入。</p>
+<h4 id="deciding-where-to-insert-an-element.">Deciding Where to Insert
+an Element.</h4>
+<p>在传统的设计中，所有的路都是等大小的，可以在插入时随机选择一条路，并自然地保持路的平衡占用率。然而，在每路调整大小的情况下，随机插入不再合适：调整大小后的路可能无法充分利用其全部容量，而其他路仍然会保持高占用率。这将导致频繁的冲突和重新插入。</p>
+<p>为了避免这个问题，我们提出了一种<em>加权</em>随机插入算法。具体来说，由于操作系统知道每个路的占用率和大小，它也知道每个路有多少空闲槽位。因此，我们的算法将将元素插入路i的概率设置为路i中空闲槽位数与所有路空闲槽位数之比。换句话说，我们在0到1之间生成一个随机数，并为每个路i赋予权重<span
+class="math inline">\(FREE_i/FREE_{sum}\)</span>。此外，如果某条路比其他路更大，并且其占用率已经达到了预定义的上限，我们将其权重设为零，从效果上阻止在该路中插入。</p>
 <p>采用这种算法后，我们可以得到期望的结果。首先，在某条路调整大小后，大多数插入操作会选择该路，从而推迟其他路的调整大小。其次，一旦一条较大的路的占用率达到了阈值，插入操作不会在调整较小的路之前选择该路。</p>
-<h3 id="E-Reducing-HPT-Size-Reduces-Memory-Contiguity"><a href="#E-Reducing-HPT-Size-Reduces-Memory-Contiguity" class="headerlink" title="E. Reducing HPT Size Reduces Memory Contiguity"></a><em>E. Reducing HPT Size Reduces Memory Contiguity</em></h3><p>最后两种技术是用于减小HPT尺寸的软件策略。然而，它们也可以间接地降低HPT的内存连续性要求。原因在于较小的HPT可能可以使用较小尺寸的内存块，而不需要较大HPT那样的块。例如，我们将在评估部分看到，多亏这些技术，我们的两个应用程序能够使用1MB内存块来构建它们的HPT，而不需要更大尺寸的块。</p>
-<h2 id="V-ME-HPT-IMPLEMENTATION-ASPECTS"><a href="#V-ME-HPT-IMPLEMENTATION-ASPECTS" class="headerlink" title="V. ME-HPT IMPLEMENTATION ASPECTS"></a>V. ME-HPT IMPLEMENTATION ASPECTS</h2><p>在这一节中，我们将讨论ME-HPT（Memory-Efficient Hashed Page Tables）的几个方面：L2P表项的“抢占”、选定的块大小、L2P表的可扩展性以及隐藏对L2P表的访问。</p>
-<h3 id="A-L2P-Table-Entry-Stealing"><a href="#A-L2P-Table-Entry-Stealing" class="headerlink" title="A. L2P Table Entry Stealing"></a><em>A. L2P Table Entry Stealing</em></h3><p>为了最小化访问时间，我们将每个应用程序的L2P表大小设置为每种页面大小和HPT路的32个条目。回想一下，我们支持三种页面大小（即4KB、2MB和1GB）。假设我们有三个HPT路，则对于一个应用程序，我们将有九个子表格在L2P表中。现在考虑第i个路的三个子表格，分别用于4KB、2MB和1GB的页面大小。很不可能这三个子表格都会被高度利用。最有可能的情况是其中一个或多个子表格的条目较少。因此，如果需要，我们允许某个页面大小的子表格从其他页面大小的子表格中“抢占”条目。这样可以更好地利用L2P表的条目。</p>
-<hr>
-<h4 id="tips-5"><a href="#tips-5" class="headerlink" title="tips"></a>tips</h4><p>假设有三种Page Size(4KB，2MB，1GB),则L2P表共3 * 32共96个缓存行，每个缓存行有每一路的entry（多路组相连），下图为3路的情况。</p>
-<hr>
+<h3 id="e.-reducing-hpt-size-reduces-memory-contiguity"><em>E. Reducing
+HPT Size Reduces Memory Contiguity</em></h3>
+<p>最后两种技术是用于减小HPT尺寸的软件策略。然而，它们也可以间接地降低HPT的内存连续性要求。原因在于较小的HPT可能可以使用较小尺寸的内存块，而不需要较大HPT那样的块。例如，我们将在评估部分看到，多亏这些技术，我们的两个应用程序能够使用1MB内存块来构建它们的HPT，而不需要更大尺寸的块。</p>
+<h2 id="v.-me-hpt-implementation-aspects">V. ME-HPT IMPLEMENTATION
+ASPECTS</h2>
+<p>在这一节中，我们将讨论ME-HPT（Memory-Efficient Hashed Page
+Tables）的几个方面：L2P表项的“抢占”、选定的块大小、L2P表的可扩展性以及隐藏对L2P表的访问。</p>
+<h3 id="a.-l2p-table-entry-stealing"><em>A. L2P Table Entry
+Stealing</em></h3>
+<p>为了最小化访问时间，我们将每个应用程序的L2P表大小设置为每种页面大小和HPT路的32个条目。回想一下，我们支持三种页面大小（即4KB、2MB和1GB）。假设我们有三个HPT路，则对于一个应用程序，我们将有九个子表格在L2P表中。现在考虑第i个路的三个子表格，分别用于4KB、2MB和1GB的页面大小。很不可能这三个子表格都会被高度利用。最有可能的情况是其中一个或多个子表格的条目较少。因此，如果需要，我们允许某个页面大小的子表格从其他页面大小的子表格中“抢占”条目。这样可以更好地利用L2P表的条目。</p>
+<hr />
+<h4 id="tips-5">tips</h4>
+<p>假设有三种Page Size(4KB，2MB，1GB),则L2P表共3 *
+32共96个缓存行，每个缓存行有每一路的entry（多路组相连），下图为3路的情况。</p>
+<hr />
 <p>图6a展示了我们提出的设计。在MMU中，我们将同一路i的三个子表格连续放置。1GB的子表格放在中间，因为它最不可能被使用。4KB和2MB的L2P子表格在相反方向增长。图6a展示了4KB和2MB子表格各使用两个条目的情况。</p>
-<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802095758236.png" alt="image-20230802095758236"></p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802095758236.png"
+alt="image-20230802095758236" />
+<figcaption aria-hidden="true">image-20230802095758236</figcaption>
+</figure>
 <p>现在假设4KB子表格使用了全部32个条目并且需要进行扩容。如果1GB子表格中没有任何条目在使用中，我们允许4KB子表格从1GB子表格中获取所有条目，并扩容到64个条目（图6b）。这时候，内存块大小保持不变。如果之后，4KB子表格想再次进行扩容，它只能通过分配一个更大的内存块并将所有条目重新散列到新内存块中来完成。</p>
 <p>如果在4KB子表格从1GB子表格中获取所有条目后，1GB子表格需要一个条目，系统会使用2MB子表格中最重要的一个条目（图6c）。</p>
-<h3 id="B-Chosen-Chunk-Sizes"><a href="#B-Chosen-Chunk-Sizes" class="headerlink" title="B. Chosen Chunk Sizes"></a><em>B. Chosen Chunk Sizes</em></h3><p>通过这种支持，我们选择内存块的大小从小到大依次为8KB、1MB、8MB和64MB。尽管对于我们的应用程序，我们只需要8KB和1MB的内存块。具体来说，让我们从最小的8KB内存块大小开始。当使用8KB内存块的子表格达到64个条目（图3d）时，它的HPT way将扩展到8KB×64 &#x3D; 512KB。如果HPT way现在需要扩容，操作系统将内存块大小更改为1MB，分配一个单独的内存块，并在L2P表中使用一个条目（图3e）。</p>
-<p>如果应用程序使用1MB内存块填充了所有64个条目，每个way将使用64MB。如果HPT way现在需要扩容到128MB，操作系统将使用下一个内存块大小。由于这种情况很少发生，并且我们不想分配大的连续内存块，我们将下一个内存块大小设置为8MB。在这种情况下，操作系统分配16个内存块，并在L2P表中使用16个条目。如果应用程序填充了所有64个条目并且HPT way需要扩容，下一个内存块大小（很少使用）将为64MB。</p>
-<p>一个应用程序的L2P表的大小是适度的。考虑使用8KB内存块的最坏情况。对于一个46位的物理地址，8KB内存块的基地址为33位，后面跟着13个零。我们只需要存储这33位。因此，L2P表的总大小为32个条目× 3个way × 3个页面大小 × 33位 &#x3D; 1.16KB。</p>
-<p>请注意，内存块的大小不需要局限于上面列出的大小。相反，操作系统可以根据每个进程和每个系统状态做出决策。为了确定下一个内存块的大小，操作系统可以基于当前的内存碎片化水平和预期的最终HPT way大小动态使用启发式方法。我们将这个主题视为未来的工作。</p>
-<h3 id="C-Scalability-of-L2P-Tables-with-Changing-Chunks"><a href="#C-Scalability-of-L2P-Tables-with-Changing-Chunks" class="headerlink" title="C. Scalability of L2P Tables with Changing Chunks"></a><em>C. Scalability of L2P Tables with Changing Chunks</em></h3><p>ME-HPT提供了一种可扩展的HPT解决方案，通过L2P表和动态改变chunk大小实现。正如前面所述，MMU仅包含正在运行进程的L2P表。对于一个进程，L2P表包括所有页面大小和way，共有288个条目，使用1.16KB的内存。在进行上下文切换时，操作系统只保存和恢复L2P表中的有效条目，这些条目通常聚集在表的两端。应用程序通常只使用L2P表的几个条目。在第VII-E4节中，我们将展示平均来看，它们只使用53个条目。因此，保存和恢复L2P表的开销是适度的。此外，在虚拟化系统中，开销会更小，有两个原因。首先，由于客户机HPT不是连续的，它们分布在主机页面中，因此没有客户机L2P表。其次，在客户机上下文切换时，不会保存或恢复主机L2P表。</p>
-<p>对于HPT，最大连续内存需求是一个chunk的大小（在我们的应用程序中为8KB或1MB）。表II显示了不同chunk大小的HPT way的最大大小，以及生成的总HPT（即所有三个way）在使用4KB页面和大页（2MB）页面时可以映射的最大物理内存空间。我们可以看到，对于8KB的chunks，ME-HPT可以构建一个64x8KB&#x3D;512KB的HPT way。如果HPT用于4KB页面，生成的3-way HPT可以映射768MB的应用程序数据；如果HPT用于2MB页面，则生成的3-way HPT可以映射384GB的应用程序数据。</p>
-<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802133353257.png" alt="image-20230802133353257"></p>
-<p>使用1MB的chunk，ME-HPT可以构建一个64x1MB&#x3D;64MB的HPT way。与之前一样，如果HPT用于4KB页面，则3-way HPT可以映射96GB的应用程序数据；如果HPT用于大页，则3-way HPT可以映射48TB的数据。</p>
-<p>使用8MB的chunk，ME-HPT可以构建一个64x8MB&#x3D;512MB的HPT way。如果HPT用于4KB页面，则3-way HPT可以映射768GB的应用程序数据；如果HPT用于大页，则生成的HPT可以映射384TB的应用程序数据。</p>
-<p>如果应用程序更大，我们可以切换到64MB的chunk。在这种情况下，ME-HPT可以构建一个64x64MB&#x3D;4GB的HPT way。如果HPT用于4KB页面，则3-way HPT可以映射6TB的应用程序数据；如果HPT用于大页，则生成的HPT可以映射3PB的应用程序数据。</p>
-<p>当操作系统对HPT way进行升级时，它会分配一个或多个额外的chunk。这些chunk<em>既不与彼此连续，也不与当前HPT的chunk连续</em>。一个HPT way始终是由多个非连续的chunk组成的。虽然对于我们的应用程序，chunk大小为8KB或1MB，但更大的应用程序可能需要更大的chunk。为了在高度碎片化的机器上为大chunk找到空间，操作系统可能会执行内存压缩或交换页面，就像通常分配大页一样。升级操作不会失败，除非请求的chunk大小太大，以至于操作系统无法提供如此大的连续内存。</p>
-<h3 id="D-Hiding-the-Access-to-the-L2P-Table"><a href="#D-Hiding-the-Access-to-the-L2P-Table" class="headerlink" title="D. Hiding the Access to the L2P Table"></a><em>D. Hiding the Access to the L2P Table</em></h3><p>ECPT设计中访问L2P表（第IV-A节）增加的额外延迟并不会明显减慢页面遍历的速度。原因在于这种额外延迟可以与ECPT设计中的Cuckoo Walk Cache（CWC）硬件结构的访问重叠。</p>
-<hr>
-<h4 id="tips-6"><a href="#tips-6" class="headerlink" title="tips"></a>tips</h4><p>CWC的工作原理？？</p>
-<hr>
+<h3 id="b.-chosen-chunk-sizes"><em>B. Chosen Chunk Sizes</em></h3>
+<p>通过这种支持，我们选择内存块的大小从小到大依次为8KB、1MB、8MB和64MB。尽管对于我们的应用程序，我们只需要8KB和1MB的内存块。具体来说，让我们从最小的8KB内存块大小开始。当使用8KB内存块的子表格达到64个条目（图3d）时，它的HPT
+way将扩展到8KB×64 = 512KB。如果HPT
+way现在需要扩容，操作系统将内存块大小更改为1MB，分配一个单独的内存块，并在L2P表中使用一个条目（图3e）。</p>
+<p>如果应用程序使用1MB内存块填充了所有64个条目，每个way将使用64MB。如果HPT
+way现在需要扩容到128MB，操作系统将使用下一个内存块大小。由于这种情况很少发生，并且我们不想分配大的连续内存块，我们将下一个内存块大小设置为8MB。在这种情况下，操作系统分配16个内存块，并在L2P表中使用16个条目。如果应用程序填充了所有64个条目并且HPT
+way需要扩容，下一个内存块大小（很少使用）将为64MB。</p>
+<p>一个应用程序的L2P表的大小是适度的。考虑使用8KB内存块的最坏情况。对于一个46位的物理地址，8KB内存块的基地址为33位，后面跟着13个零。我们只需要存储这33位。因此，L2P表的总大小为32个条目×
+3个way × 3个页面大小 × 33位 = 1.16KB。</p>
+<p>请注意，内存块的大小不需要局限于上面列出的大小。相反，操作系统可以根据每个进程和每个系统状态做出决策。为了确定下一个内存块的大小，操作系统可以基于当前的内存碎片化水平和预期的最终HPT
+way大小动态使用启发式方法。我们将这个主题视为未来的工作。</p>
+<h3 id="c.-scalability-of-l2p-tables-with-changing-chunks"><em>C.
+Scalability of L2P Tables with Changing Chunks</em></h3>
+<p>ME-HPT提供了一种可扩展的HPT解决方案，通过L2P表和动态改变chunk大小实现。正如前面所述，MMU仅包含正在运行进程的L2P表。对于一个进程，L2P表包括所有页面大小和way，共有288个条目，使用1.16KB的内存。在进行上下文切换时，操作系统只保存和恢复L2P表中的有效条目，这些条目通常聚集在表的两端。应用程序通常只使用L2P表的几个条目。在第VII-E4节中，我们将展示平均来看，它们只使用53个条目。因此，保存和恢复L2P表的开销是适度的。此外，在虚拟化系统中，开销会更小，有两个原因。首先，由于客户机HPT不是连续的，它们分布在主机页面中，因此没有客户机L2P表。其次，在客户机上下文切换时，不会保存或恢复主机L2P表。</p>
+<p>对于HPT，最大连续内存需求是一个chunk的大小（在我们的应用程序中为8KB或1MB）。表II显示了不同chunk大小的HPT
+way的最大大小，以及生成的总HPT（即所有三个way）在使用4KB页面和大页（2MB）页面时可以映射的最大物理内存空间。我们可以看到，对于8KB的chunks，ME-HPT可以构建一个64x8KB=512KB的HPT
+way。如果HPT用于4KB页面，生成的3-way
+HPT可以映射768MB的应用程序数据；如果HPT用于2MB页面，则生成的3-way
+HPT可以映射384GB的应用程序数据。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802133353257.png"
+alt="image-20230802133353257" />
+<figcaption aria-hidden="true">image-20230802133353257</figcaption>
+</figure>
+<p>使用1MB的chunk，ME-HPT可以构建一个64x1MB=64MB的HPT
+way。与之前一样，如果HPT用于4KB页面，则3-way
+HPT可以映射96GB的应用程序数据；如果HPT用于大页，则3-way
+HPT可以映射48TB的数据。</p>
+<p>使用8MB的chunk，ME-HPT可以构建一个64x8MB=512MB的HPT
+way。如果HPT用于4KB页面，则3-way
+HPT可以映射768GB的应用程序数据；如果HPT用于大页，则生成的HPT可以映射384TB的应用程序数据。</p>
+<p>如果应用程序更大，我们可以切换到64MB的chunk。在这种情况下，ME-HPT可以构建一个64x64MB=4GB的HPT
+way。如果HPT用于4KB页面，则3-way
+HPT可以映射6TB的应用程序数据；如果HPT用于大页，则生成的HPT可以映射3PB的应用程序数据。</p>
+<p>当操作系统对HPT
+way进行升级时，它会分配一个或多个额外的chunk。这些chunk<em>既不与彼此连续，也不与当前HPT的chunk连续</em>。一个HPT
+way始终是由多个非连续的chunk组成的。虽然对于我们的应用程序，chunk大小为8KB或1MB，但更大的应用程序可能需要更大的chunk。为了在高度碎片化的机器上为大chunk找到空间，操作系统可能会执行内存压缩或交换页面，就像通常分配大页一样。升级操作不会失败，除非请求的chunk大小太大，以至于操作系统无法提供如此大的连续内存。</p>
+<h3 id="d.-hiding-the-access-to-the-l2p-table"><em>D. Hiding the Access
+to the L2P Table</em></h3>
+<p>ECPT设计中访问L2P表（第IV-A节）增加的额外延迟并不会明显减慢页面遍历的速度。原因在于这种额外延迟可以与ECPT设计中的Cuckoo
+Walk Cache（CWC）硬件结构的访问重叠。</p>
+<hr />
+<h4 id="tips-6">tips</h4>
+<p>CWC的工作原理？？</p>
+<hr />
 <p>图7显示了设计。在TLB（转换后备缓冲）未命中时，缺失虚拟地址的转换可以存在于任何页面大小的HPT（哈希页表）的任何路中。为了减少需要检查的内存位置数量，ECPT硬件首先访问CWC硬件缓存。根据访问结果确定应该访问哪个页面大小的HPT的哪个路。同时，如果正在进行调整大小操作，则会检查重新哈希指针，以决定是访问旧的HPT还是新的HPT。</p>
-<p><img src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802144500427.png" alt="image-20230802144500427"></p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230802144500427.png"
+alt="image-20230802144500427" />
+<figcaption aria-hidden="true">image-20230802144500427</figcaption>
+</figure>
 <p>同时，我们提出硬件在内存管理单元（MMU）中访问进程的L2P表，并生成潜在的内存地址进行访问。在CWC和重新哈希指针检查完成后，它们选择要执行的内存访问操作。因此，L2P表访问的延迟被隐藏了。</p>
 <p>唯一不隐藏L2P表访问延迟的情况是由于HPT冲突而进行的Cuckoo重新插入。在这种情况下，不访问CWC，L2P表访问的延迟位于关键路径上。幸运的是，在这种情况下，几个周期的访问延迟是可以忽略的。原因在于元素插入或Cuckoo重新哈希是由操作系统执行而不是由硬件执行的，而调用操作系统具有更高的开销。</p>
 
@@ -444,7 +670,24 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Memory-Efficient-Hashed-Page-Tables"><span class="nav-number">1.</span> <span class="nav-text">Memory-Efficient Hashed Page Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.0.1.</span> <span class="nav-text">摘要</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">tips:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-INTRODUCTION"><span class="nav-number">1.1.</span> <span class="nav-text">1. INTRODUCTION</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-BACKGROUND"><span class="nav-number">1.2.</span> <span class="nav-text">2. BACKGROUND</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-Limitations-of-Radix-Tree-Page-Tables"><span class="nav-number">1.2.1.</span> <span class="nav-text">A. Limitations of Radix-Tree Page Tables</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-Hashed-Page-Tables"><span class="nav-number">1.2.2.</span> <span class="nav-text">B. Hashed Page Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Challenges-of-Hashed-Page-Tables"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">Challenges of Hashed Page Tables.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Making-Hashed-Page-Tables-Compelling"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">Making Hashed Page Tables Compelling.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mechanics-of-an-HPT-Upsize"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">Mechanics of an HPT Upsize.</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-MOTIVATION-FOR-IMPROVING-HPTS"><span class="nav-number">1.3.</span> <span class="nav-text">3. MOTIVATION FOR IMPROVING HPTS</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-1"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">tips:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-DESIGNING-MEMORY-EFFICIENT-HPTS"><span class="nav-number">1.4.</span> <span class="nav-text">4. DESIGNING MEMORY-EFFICIENT HPTS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-Logical-to-Physical-L2P-Table"><span class="nav-number">1.4.1.</span> <span class="nav-text">A. Logical to Physical (L2P) Table</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-2"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">tips</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-Dynamically-Changing-Chunk-Sizes"><span class="nav-number">1.4.2.</span> <span class="nav-text">B. Dynamically Changing Chunk Sizes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-In-place-Page-Table-Resizing"><span class="nav-number">1.4.3.</span> <span class="nav-text">C. In-place Page Table Resizing</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-3"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">tips</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-4"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">tips</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Detailed-Rehash-Algorithm"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">Detailed Rehash Algorithm.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Other-Operations"><span class="nav-number">1.4.3.4.</span> <span class="nav-text">Other Operations.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Interaction-between-Resizing-and-Changing-Chunk-Sizes"><span class="nav-number">1.4.3.5.</span> <span class="nav-text">Interaction between Resizing and Changing Chunk Sizes.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#D-Per-way-Resizing"><span class="nav-number">1.4.3.6.</span> <span class="nav-text">D. Per-way Resizing</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Deciding-Which-Way-to-Upsize-or-Downsize"><span class="nav-number">1.4.3.7.</span> <span class="nav-text">Deciding Which Way to Upsize or Downsize.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Deciding-Where-to-Insert-an-Element"><span class="nav-number">1.4.3.8.</span> <span class="nav-text">Deciding Where to Insert an Element.</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#E-Reducing-HPT-Size-Reduces-Memory-Contiguity"><span class="nav-number">1.4.4.</span> <span class="nav-text">E. Reducing HPT Size Reduces Memory Contiguity</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#V-ME-HPT-IMPLEMENTATION-ASPECTS"><span class="nav-number">1.5.</span> <span class="nav-text">V. ME-HPT IMPLEMENTATION ASPECTS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-L2P-Table-Entry-Stealing"><span class="nav-number">1.5.1.</span> <span class="nav-text">A. L2P Table Entry Stealing</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-5"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">tips</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-Chosen-Chunk-Sizes"><span class="nav-number">1.5.2.</span> <span class="nav-text">B. Chosen Chunk Sizes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-Scalability-of-L2P-Tables-with-Changing-Chunks"><span class="nav-number">1.5.3.</span> <span class="nav-text">C. Scalability of L2P Tables with Changing Chunks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#D-Hiding-the-Access-to-the-L2P-Table"><span class="nav-number">1.5.4.</span> <span class="nav-text">D. Hiding the Access to the L2P Table</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-6"><span class="nav-number">1.5.4.1.</span> <span class="nav-text">tips</span></a></li></ol></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#memory-efficient-hashed-page-tables"><span class="nav-number">1.</span> <span class="nav-text">Memory-Efficient Hashed
+Page Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.0.1.</span> <span class="nav-text">摘要</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">tips:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">1.1.</span> <span class="nav-text">1. INTRODUCTION</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#background"><span class="nav-number">1.2.</span> <span class="nav-text">2. BACKGROUND</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a.-limitations-of-radix-tree-page-tables"><span class="nav-number">1.2.1.</span> <span class="nav-text">A. Limitations of
+Radix-Tree Page Tables</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b.-hashed-page-tables"><span class="nav-number">1.2.2.</span> <span class="nav-text">B. Hashed Page Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#challenges-of-hashed-page-tables."><span class="nav-number">1.2.2.1.</span> <span class="nav-text">Challenges of Hashed Page
+Tables.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#making-hashed-page-tables-compelling."><span class="nav-number">1.2.2.2.</span> <span class="nav-text">Making Hashed Page Tables
+Compelling.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mechanics-of-an-hpt-upsize."><span class="nav-number">1.2.2.3.</span> <span class="nav-text">Mechanics of an HPT Upsize.</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motivation-for-improving-hpts"><span class="nav-number">1.3.</span> <span class="nav-text">3. MOTIVATION FOR IMPROVING
+HPTS</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-1"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">tips:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#designing-memory-efficient-hpts"><span class="nav-number">1.4.</span> <span class="nav-text">4. DESIGNING MEMORY-EFFICIENT
+HPTS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a.-logical-to-physical-l2p-table"><span class="nav-number">1.4.1.</span> <span class="nav-text">A. Logical to Physical
+(L2P) Table</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-2"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">tips</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b.-dynamically-changing-chunk-sizes"><span class="nav-number">1.4.2.</span> <span class="nav-text">B. Dynamically Changing
+Chunk Sizes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#c.-in-place-page-table-resizing"><span class="nav-number">1.4.3.</span> <span class="nav-text">C. In-place Page Table
+Resizing</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-3"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">tips</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-4"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">tips</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#detailed-rehash-algorithm."><span class="nav-number">1.4.3.3.</span> <span class="nav-text">Detailed Rehash Algorithm.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#other-operations."><span class="nav-number">1.4.3.4.</span> <span class="nav-text">Other Operations.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#interaction-between-resizing-and-changing-chunk-sizes."><span class="nav-number">1.4.3.5.</span> <span class="nav-text">Interaction
+between Resizing and Changing Chunk Sizes.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#d.-per-way-resizing"><span class="nav-number">1.4.3.6.</span> <span class="nav-text">D. Per-way Resizing</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#deciding-which-way-to-upsize-or-downsize."><span class="nav-number">1.4.3.7.</span> <span class="nav-text">Deciding Which Way to
+Upsize or Downsize.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#deciding-where-to-insert-an-element."><span class="nav-number">1.4.3.8.</span> <span class="nav-text">Deciding Where to Insert
+an Element.</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#e.-reducing-hpt-size-reduces-memory-contiguity"><span class="nav-number">1.4.4.</span> <span class="nav-text">E. Reducing
+HPT Size Reduces Memory Contiguity</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#v.-me-hpt-implementation-aspects"><span class="nav-number">1.5.</span> <span class="nav-text">V. ME-HPT IMPLEMENTATION
+ASPECTS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a.-l2p-table-entry-stealing"><span class="nav-number">1.5.1.</span> <span class="nav-text">A. L2P Table Entry
+Stealing</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-5"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">tips</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b.-chosen-chunk-sizes"><span class="nav-number">1.5.2.</span> <span class="nav-text">B. Chosen Chunk Sizes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#c.-scalability-of-l2p-tables-with-changing-chunks"><span class="nav-number">1.5.3.</span> <span class="nav-text">C.
+Scalability of L2P Tables with Changing Chunks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#d.-hiding-the-access-to-the-l2p-table"><span class="nav-number">1.5.4.</span> <span class="nav-text">D. Hiding the Access
+to the L2P Table</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-6"><span class="nav-number">1.5.4.1.</span> <span class="nav-text">tips</span></a></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -505,6 +748,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -524,6 +777,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -541,6 +796,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -553,6 +812,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

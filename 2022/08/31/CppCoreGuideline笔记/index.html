@@ -15,18 +15,19 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="P: 理念P.1: 在代码中直接表达你的想法 用恰当设计的程序库来表达设计意图(不要重复造轮子) 坚持一贯地使用 const（检查成员函数是否会修改对象；检查函数是否会修改以指针或引用形式传递的实参） 将强制转换标示出来（强制转换阉割了类型系统）  P.3: 表达你的设计意图12for_each(v, [](int x) &amp;#123; &#x2F;* 用 x 的值做一些事 *&#x2F; &amp;#125;);for_ea">
+  <meta name="description" content="P: 理念 P.1: 在代码中直接表达你的想法  用恰当设计的程序库来表达设计意图(不要重复造轮子) 坚持一贯地使用 const（检查成员函数是否会修改对象；检查函数是否会修改以指针或引用形式传递的实参） 将强制转换标示出来（强制转换阉割了类型系统） ## P.3: 表达你的设计意图 12for_each(v, [](int x) &amp;#123; &#x2F;* 用 x 的值做一些事 *&#x2F; &amp;#125;);f">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CppCoreGuideline笔记">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2022/08/31/CppCoreGuideline%E7%AC%94%E8%AE%B0/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="P: 理念P.1: 在代码中直接表达你的想法 用恰当设计的程序库来表达设计意图(不要重复造轮子) 坚持一贯地使用 const（检查成员函数是否会修改对象；检查函数是否会修改以指针或引用形式传递的实参） 将强制转换标示出来（强制转换阉割了类型系统）  P.3: 表达你的设计意图12for_each(v, [](int x) &amp;#123; &#x2F;* 用 x 的值做一些事 *&#x2F; &amp;#125;);for_ea">
+<meta property="og:description" content="P: 理念 P.1: 在代码中直接表达你的想法  用恰当设计的程序库来表达设计意图(不要重复造轮子) 坚持一贯地使用 const（检查成员函数是否会修改对象；检查函数是否会修改以指针或引用形式传递的实参） 将强制转换标示出来（强制转换阉割了类型系统） ## P.3: 表达你的设计意图 12for_each(v, [](int x) &amp;#123; &#x2F;* 用 x 的值做一些事 *&#x2F; &amp;#125;);f">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-08-31T14:10:50.000Z">
 <meta property="article:modified_time" content="2023-07-30T10:15:32.006Z">
@@ -48,6 +49,15 @@
 
   <title>CppCoreGuideline笔记 | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -104,6 +114,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -138,11 +149,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -208,7 +246,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -219,106 +271,167 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="P-理念"><a href="#P-理念" class="headerlink" title="P: 理念"></a>P: 理念</h1><h2 id="P-1-在代码中直接表达你的想法"><a href="#P-1-在代码中直接表达你的想法" class="headerlink" title="P.1: 在代码中直接表达你的想法"></a>P.1: 在代码中直接表达你的想法</h2><ul>
-<li>用恰当设计的程序库来表达设计意图(不要重复造轮子)</li>
-<li>坚持一贯地使用 const（检查成员函数是否会修改对象；检查函数是否会修改以指针或引用形式传递的实参）</li>
-<li>将强制转换标示出来（强制转换阉割了类型系统）</li>
-</ul>
-<h2 id="P-3-表达你的设计意图"><a href="#P-3-表达你的设计意图" class="headerlink" title="P.3: 表达你的设计意图"></a>P.3: 表达你的设计意图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">for_each(v, [](int x) &#123; /* 用 x 的值做一些事 */ &#125;);</span><br><span class="line">for_each(par, v, [](int x) &#123; /* 用 x 的值做一些事 */ &#125;);</span><br></pre></td></tr></table></figure>
+        <h1 id="p-理念">P: 理念</h1>
+<h2 id="p.1-在代码中直接表达你的想法">P.1: 在代码中直接表达你的想法</h2>
 <ul>
-<li>查找具有更加替代方案的一般模式：<ul>
+<li>用恰当设计的程序库来表达设计意图(不要重复造轮子)</li>
+<li>坚持一贯地使用
+const（检查成员函数是否会修改对象；检查函数是否会修改以指针或引用形式传递的实参）</li>
+<li>将强制转换标示出来（强制转换阉割了类型系统） ## P.3:
+表达你的设计意图 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">for_each(v, [](int x) &#123; /* 用 x 的值做一些事 */ &#125;);</span><br><span class="line">for_each(par, v, [](int x) &#123; /* 用 x 的值做一些事 */ &#125;);</span><br></pre></td></tr></table></figure></li>
+<li>查找具有更加替代方案的一般模式：
+<ul>
 <li>范围式 for 循环(for_each) 替代简单 for 循环</li>
 <li>f(span<T>) 接口替代f(T*, int) 接口</li>
 <li>循环变量出现在过大的范围中</li>
 <li>裸的 new 和 delete</li>
 <li>带有大量内建类型的形参的函数</li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<h2 id="P-4-理想情况下，程序应当是静态类型安全的"><a href="#P-4-理想情况下，程序应当是静态类型安全的" class="headerlink" title="P.4: 理想情况下，程序应当是静态类型安全的"></a>P.4: 理想情况下，程序应当是静态类型安全的</h2><ul>
+<h2 id="p.4-理想情况下程序应当是静态类型安全的">P.4:
+理想情况下，程序应当是静态类型安全的</h2>
+<ul>
 <li>union - 使用 variant（C++17 提供）</li>
 <li>强制转换 - 尽可能减少其使用；使用模板有助于这点 void* -&gt; <T></li>
 <li>数组退化 - 使用 span（来自 GSL）</li>
 <li>范围错误 - 使用 span</li>
-<li>窄化转换 - 尽可能减少其使用，必须使用时则使用 narrow 或者 narrow_cast（来自 GSL）</li>
+<li>窄化转换 - 尽可能减少其使用，必须使用时则使用 narrow 或者
+narrow_cast（来自 GSL）</li>
 </ul>
-<h1 id="P-5-优先使用编译器检查而非运行期检查"><a href="#P-5-优先使用编译器检查而非运行期检查" class="headerlink" title="P.5: 优先使用编译器检查而非运行期检查"></a>P.5: 优先使用编译器检查而非运行期检查</h1><ul>
-<li>检查int的位数  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Int is an alias used for integers</span></span><br><span class="line"><span class="built_in">static_assert</span>(<span class="built_in">sizeof</span>(Int) &gt;= <span class="number">4</span>);    <span class="comment">// do: compile-time check</span></span><br></pre></td></tr></table></figure>
+<h1 id="p.5-优先使用编译器检查而非运行期检查">P.5:
+优先使用编译器检查而非运行期检查</h1>
+<ul>
+<li>检查int的位数 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Int is an alias used for integers</span></span><br><span class="line"><span class="built_in">static_assert</span>(<span class="built_in">sizeof</span>(Int) &gt;= <span class="number">4</span>);    <span class="comment">// do: compile-time check</span></span><br></pre></td></tr></table></figure>
 <ul>
 <li>use the type system and replace Int with int32_t.</li>
-</ul>
-</li>
+</ul></li>
 <li>注意指针和数组范围</li>
 </ul>
-<h2 id="P-7-Catch-run-time-errors-early"><a href="#P-7-Catch-run-time-errors-early" class="headerlink" title="P.7: Catch run-time errors early"></a>P.7: Catch run-time errors early</h2><ul>
-<li>Avoid “mysterious” crashes. </li>
+<h2 id="p.7-catch-run-time-errors-early">P.7: Catch run-time errors
+early</h2>
+<ul>
+<li>Avoid “mysterious” crashes.</li>
 <li>注意数组越界、指针窄化、结构体不要转成string、非法输入</li>
 </ul>
-<h2 id="P-8-Don’t-leak-any-resources"><a href="#P-8-Don’t-leak-any-resources" class="headerlink" title="P.8: Don’t leak any resources"></a>P.8: Don’t leak any resources</h2><ul>
+<h2 id="p.8-dont-leak-any-resources">P.8: Don’t leak any resources</h2>
+<ul>
 <li>使用RAII</li>
 </ul>
-<h2 id="P-9-Don’t-waste-time-or-space"><a href="#P-9-Don’t-waste-time-or-space" class="headerlink" title="P.9: Don’t waste time or space"></a>P.9: Don’t waste time or space</h2><ul>
+<h2 id="p.9-dont-waste-time-or-space">P.9: Don’t waste time or
+space</h2>
+<ul>
 <li><code>--</code>比<code>++</code>更高效</li>
 </ul>
-<h2 id="P-10-Prefer-immutable-data-to-mutable-data"><a href="#P-10-Prefer-immutable-data-to-mutable-data" class="headerlink" title="P.10: Prefer immutable data to mutable data"></a>P.10: Prefer immutable data to mutable data</h2><h2 id="P-11-Encapsulate-messy-constructs-rather-than-spreading-through-the-code"><a href="#P-11-Encapsulate-messy-constructs-rather-than-spreading-through-the-code" class="headerlink" title="P.11: Encapsulate messy constructs, rather than spreading through the code"></a>P.11: Encapsulate messy constructs, rather than spreading through the code</h2><h2 id="P-12-Use-supporting-tools-as-appropriate-77-P-13-Use-support-libraries-as-appropriate"><a href="#P-12-Use-supporting-tools-as-appropriate-77-P-13-Use-support-libraries-as-appropriate" class="headerlink" title="P.12: Use supporting tools as appropriate 77 P.13: Use support libraries as appropriate"></a>P.12: Use supporting tools as appropriate 77 P.13: Use support libraries as appropriate</h2><ul>
+<h2 id="p.10-prefer-immutable-data-to-mutable-data">P.10: Prefer
+immutable data to mutable data</h2>
+<h2
+id="p.11-encapsulate-messy-constructs-rather-than-spreading-through-the-code">P.11:
+Encapsulate messy constructs, rather than spreading through the
+code</h2>
+<h2
+id="p.12-use-supporting-tools-as-appropriate-77-p.13-use-support-libraries-as-appropriate">P.12:
+Use supporting tools as appropriate 77 P.13: Use support libraries as
+appropriate</h2>
+<ul>
 <li>不要造轮子</li>
 </ul>
-<h1 id="I-interface"><a href="#I-interface" class="headerlink" title="I : interface"></a>I : interface</h1><ul>
+<h1 id="i-interface">I : interface</h1>
+<ul>
 <li>易于理解 高效 没有错误诱导 支持测试</li>
 </ul>
-<h2 id="I-1-使接口明确"><a href="#I-1-使接口明确" class="headerlink" title="I.1: 使接口明确"></a>I.1: 使接口明确</h2><ul>
-<li>【简单】 函数不能基于声明于命名空间作用域的变量来作出影响控制流的决定。</li>
+<h2 id="i.1-使接口明确">I.1: 使接口明确</h2>
+<ul>
+<li>【简单】
+函数不能基于声明于命名空间作用域的变量来作出影响控制流的决定。</li>
 <li>【简单】 函数不能对声明于命名空间作用域的变量进行写入操作。</li>
-<li>通过非局部变量（比如 errno）进行的报告经常被忽略。<ul>
+<li>通过非局部变量（比如 errno）进行的报告经常被忽略。
+<ul>
 <li>替代方案: 抛出异常。异常是无法被忽略的。</li>
-<li>其他形式: 避免通过非局部或者隐含的状态来跨越接口传递信息。 注意，非 const 的成员函数会通过对象的状态来向其他成员函数传递信息。</li>
-<li>其他形式: 接口应当是函数或者一组函数集合。 函数可以是函数模板，而函数集合可以是类或者类模板。</li>
+<li>其他形式: 避免通过非局部或者隐含的状态来跨越接口传递信息。 注意，非
+const 的成员函数会通过对象的状态来向其他成员函数传递信息。</li>
+<li>其他形式: 接口应当是函数或者一组函数集合。
+函数可以是函数模板，而函数集合可以是类或者类模板。</li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<h2 id="I-2-避免非-const-全局变量"><a href="#I-2-避免非-const-全局变量" class="headerlink" title="I.2: 避免非 const 全局变量"></a>I.2: 避免非 const 全局变量</h2><ul>
-<li>非 const 全局变量能够隐藏依赖关系，并使这些依赖项可能出现无法预测的变动。</li>
-<li>警告: 全局对象的初始化并不是完全有序的。 <ul>
-<li>当使用全局对象时，应当用常量为之初始化。 </li>
+<h2 id="i.2-避免非-const-全局变量">I.2: 避免非 const 全局变量</h2>
+<ul>
+<li>非 const
+全局变量能够隐藏依赖关系，并使这些依赖项可能出现无法预测的变动。</li>
+<li>警告: 全局对象的初始化并不是完全有序的。
+<ul>
+<li>当使用全局对象时，应当用常量为之初始化。</li>
 <li>即便对于 const 对象，也可能发生未定义的初始化顺序。</li>
-</ul>
-</li>
+</ul></li>
 <li>全局对象通常优于单例。</li>
 <li>全局常量是有益的。</li>
 <li>针对全局变量的规则同样适用于命名空间作用域的变量。</li>
 <li>一种方案是把数据定义为某个对象的状态，而把操作定义为其成员函数。</li>
 <li>当然是有（罕见）例外的，比如 cin、cout 和 cerr。</li>
 </ul>
-<h2 id="I-3-避免使用单例"><a href="#I-3-避免使用单例" class="headerlink" title="I.3: 避免使用单例"></a>I.3: 避免使用单例</h2><ul>
+<h2 id="i.3-避免使用单例">I.3: 避免使用单例</h2>
+<ul>
 <li>单例基本上就是经过伪装的更复杂的全局对象。</li>
-<li>static 对象初始化并不会蕴含竞争条件。<ul>
+<li>static 对象初始化并不会蕴含竞争条件。
+<ul>
 <li>不过，如果 X 的销毁中涉及了需要进行同步的操作的话,需要谨慎处理</li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<h2 id="I-4-使接口严格和强类型化"><a href="#I-4-使接口严格和强类型化" class="headerlink" title="I.4: 使接口严格和强类型化"></a>I.4: 使接口严格和强类型化</h2><p>理由<br>类型是最简单和最好的文档，它们有定义明确的含义并因而提高了易读性，并且是在编译期进行检查的。 而且，严格类型化的代码通常也能更好地进行优化。</p>
-<p>示例，请勿这样做<br>考虑：</p>
-<p>void pass(void* data);    &#x2F;&#x2F; 使用弱的并且缺乏明确性的类型 void* 是有问题的<br>调用者无法确定它允许使用哪些类型，而且因为它并没有指定 const， 也不确定其数据是否会被改动。注意，任何指针类型都可以隐式转换为 void*， 因此调用者很容易提供这样的值给它。</p>
-<p>被调用方必须以 static_cast 将数据强制转换为某个无验证的类型以使用它。 这样做易于犯错，而且啰嗦。</p>
-<p>应当仅在设计中无法以 C++ 来予以描述的数据的传递时才使用 const void*。请考虑使用 variant 或指向基类的指针来代替它。</p>
-<p>替代方案: 通常，利用模板形参可以把 void* 排除而改为 T* 或者 T&amp;。 对于泛型代码，这些个 T 可以是一般模板参数或者是概念约束的模板参数。</p>
-<p>示例，不好<br>考虑：</p>
-<p>draw_rect(100, 200, 100, 500); &#x2F;&#x2F; 这些数值什么意思？</p>
-<p>draw_rect(p.x, p.y, 10, 20); &#x2F;&#x2F; 10 和 20 的单位是什么？<br>很明显调用者在描述一个矩形，不明确的是它们都和其哪些部分相关。而且 int 可以表示任何形式的信息，包括各种不同单位的值，因此我们必须得猜测这四个 int 的含义。前两个很可能代表坐标对偶 x 和 y，但后两个是什么呢？</p>
+<h2 id="i.4-使接口严格和强类型化">I.4: 使接口严格和强类型化</h2>
+<p>理由
+类型是最简单和最好的文档，它们有定义明确的含义并因而提高了易读性，并且是在编译期进行检查的。
+而且，严格类型化的代码通常也能更好地进行优化。</p>
+<p>示例，请勿这样做 考虑：</p>
+<p>void pass(void* data); // 使用弱的并且缺乏明确性的类型 void*
+是有问题的 调用者无法确定它允许使用哪些类型，而且因为它并没有指定
+const， 也不确定其数据是否会被改动。注意，任何指针类型都可以隐式转换为
+void*， 因此调用者很容易提供这样的值给它。</p>
+<p>被调用方必须以 static_cast 将数据强制转换为某个无验证的类型以使用它。
+这样做易于犯错，而且啰嗦。</p>
+<p>应当仅在设计中无法以 C++ 来予以描述的数据的传递时才使用 const
+void*。请考虑使用 variant 或指向基类的指针来代替它。</p>
+<p>替代方案: 通常，利用模板形参可以把 void* 排除而改为 T* 或者 T&amp;。
+对于泛型代码，这些个 T 可以是一般模板参数或者是概念约束的模板参数。</p>
+<p>示例，不好 考虑：</p>
+<p>draw_rect(100, 200, 100, 500); // 这些数值什么意思？</p>
+<p>draw_rect(p.x, p.y, 10, 20); // 10 和 20 的单位是什么？
+很明显调用者在描述一个矩形，不明确的是它们都和其哪些部分相关。而且 int
+可以表示任何形式的信息，包括各种不同单位的值，因此我们必须得猜测这四个
+int 的含义。前两个很可能代表坐标对偶 x 和 y，但后两个是什么呢？</p>
 <p>注释和参数的名字可以有所帮助，但我们可以直截了当：</p>
-<p>void draw_rectangle(Point top_left, Point bottom_right);<br>void draw_rectangle(Point top_left, Size height_width);</p>
-<p>draw_rectangle(p, Point{10, 20});  &#x2F;&#x2F; 两个角点<br>draw_rectangle(p, Size{10, 20});   &#x2F;&#x2F; 一个角和一对 (height, width)<br>显然，我们是无法利用静态类型系统识别所有的错误的， 例如，假定第一个参数是左上角这一点就依赖于约定（命名或者注释）。</p>
-<p>示例，不好<br>考虑：</p>
-<p>set_settings(true, false, 42); &#x2F;&#x2F; 这些数值什么意思？<br>各参数类型及其值并不能表明其所指定的设置项是什么以及它们的值所代表的含义。</p>
+<p>void draw_rectangle(Point top_left, Point bottom_right); void
+draw_rectangle(Point top_left, Size height_width);</p>
+<p>draw_rectangle(p, Point{10, 20}); // 两个角点 draw_rectangle(p,
+Size{10, 20}); // 一个角和一对 (height, width)
+显然，我们是无法利用静态类型系统识别所有的错误的，
+例如，假定第一个参数是左上角这一点就依赖于约定（命名或者注释）。</p>
+<p>示例，不好 考虑：</p>
+<p>set_settings(true, false, 42); // 这些数值什么意思？
+各参数类型及其值并不能表明其所指定的设置项是什么以及它们的值所代表的含义。</p>
 <p>下面的设计则更加明确，安全且易读：</p>
-<p>alarm_settings s{};<br>s.enabled &#x3D; true;<br>s.displayMode &#x3D; alarm_settings::mode::spinning_light;<br>s.frequency &#x3D; alarm_settings::every_10_seconds;<br>set_settings(s);<br>对于一组布尔值的情况，可以考虑使用某种标记 enum；这是一种用于表示一组布尔值的模式。</p>
-<p>enable_lamp_options(lamp_option::on | lamp_option::animate_state_transitions);<br>示例，不好<br>下例中，接口中并未明确给出 time_to_blink 的含义：按秒还是按毫秒算？</p>
-<p>void blink_led(int time_to_blink) &#x2F;&#x2F; 不好 – 在单位上含糊<br>{<br>    &#x2F;&#x2F; …<br>    &#x2F;&#x2F; 对 time_to_blink 做一些事<br>    &#x2F;&#x2F; …<br>}</p>
-<p>void use()<br>{<br>    blink_led(2);<br>}<br>示例，好<br>std::chrono::duration 类型可以让时间段的单位明确下来。</p>
-<p>void blink_led(milliseconds time_to_blink) &#x2F;&#x2F; 好 – 单位明确<br>{<br>    &#x2F;&#x2F; …<br>    &#x2F;&#x2F; 对 time_to_blink 做一些事<br>    &#x2F;&#x2F; …<br>}</p>
-<p>void use()<br>{<br>    blink_led(1500ms);<br>}<br>这个函数还可以写成使其接受任何时间段单位的形式。</p>
-<p>template&lt;class rep, class period&gt;<br>void blink_led(duration&lt;rep, period&gt; time_to_blink) &#x2F;&#x2F; 好 – 接受任何单位<br>{<br>    &#x2F;&#x2F; 假设最小的有意义单位是毫秒<br>    auto milliseconds_to_blink &#x3D; duration_cast<milliseconds>(time_to_blink);<br>    &#x2F;&#x2F; …<br>    &#x2F;&#x2F; 对 milliseconds_to_blink 做一些事<br>    &#x2F;&#x2F; …<br>}</p>
-<p>void use()<br>{<br>    blink_led(2s);<br>    blink_led(1500ms);<br>}<br>强制实施<br>【简单】 报告将 void* 用作参数或返回类型的情况<br>【简单】 报告使用了多个 bool 参数的情况<br>【难于做好】 查找使用了过多基础类型的参数的函数。</p>
+<p>alarm_settings s{}; s.enabled = true; s.displayMode =
+alarm_settings::mode::spinning_light; s.frequency =
+alarm_settings::every_10_seconds; set_settings(s);
+对于一组布尔值的情况，可以考虑使用某种标记
+enum；这是一种用于表示一组布尔值的模式。</p>
+<p>enable_lamp_options(lamp_option::on |
+lamp_option::animate_state_transitions); 示例，不好
+下例中，接口中并未明确给出 time_to_blink 的含义：按秒还是按毫秒算？</p>
+<p>void blink_led(int time_to_blink) // 不好 -- 在单位上含糊 { // ... //
+对 time_to_blink 做一些事 // ... }</p>
+<p>void use() { blink_led(2); } 示例，好 std::chrono::duration
+类型可以让时间段的单位明确下来。</p>
+<p>void blink_led(milliseconds time_to_blink) // 好 -- 单位明确 { // ...
+// 对 time_to_blink 做一些事 // ... }</p>
+<p>void use() { blink_led(1500ms); }
+这个函数还可以写成使其接受任何时间段单位的形式。</p>
+<p>template&lt;class rep, class period&gt; void
+blink_led(duration&lt;rep, period&gt; time_to_blink) // 好 --
+接受任何单位 { // 假设最小的有意义单位是毫秒 auto milliseconds_to_blink
+= duration_cast<milliseconds>(time_to_blink); // ... // 对
+milliseconds_to_blink 做一些事 // ... }</p>
+<p>void use() { blink_led(2s); blink_led(1500ms); } 强制实施 【简单】
+报告将 void* 用作参数或返回类型的情况 【简单】 报告使用了多个 bool
+参数的情况 【难于做好】 查找使用了过多基础类型的参数的函数。</p>
 
     </div>
 
@@ -399,7 +512,16 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#P-%E7%90%86%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">P: 理念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#P-1-%E5%9C%A8%E4%BB%A3%E7%A0%81%E4%B8%AD%E7%9B%B4%E6%8E%A5%E8%A1%A8%E8%BE%BE%E4%BD%A0%E7%9A%84%E6%83%B3%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">P.1: 在代码中直接表达你的想法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#P-3-%E8%A1%A8%E8%BE%BE%E4%BD%A0%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%84%8F%E5%9B%BE"><span class="nav-number">1.2.</span> <span class="nav-text">P.3: 表达你的设计意图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#P-4-%E7%90%86%E6%83%B3%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%8C%E7%A8%8B%E5%BA%8F%E5%BA%94%E5%BD%93%E6%98%AF%E9%9D%99%E6%80%81%E7%B1%BB%E5%9E%8B%E5%AE%89%E5%85%A8%E7%9A%84"><span class="nav-number">1.3.</span> <span class="nav-text">P.4: 理想情况下，程序应当是静态类型安全的</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#P-5-%E4%BC%98%E5%85%88%E4%BD%BF%E7%94%A8%E7%BC%96%E8%AF%91%E5%99%A8%E6%A3%80%E6%9F%A5%E8%80%8C%E9%9D%9E%E8%BF%90%E8%A1%8C%E6%9C%9F%E6%A3%80%E6%9F%A5"><span class="nav-number">2.</span> <span class="nav-text">P.5: 优先使用编译器检查而非运行期检查</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#P-7-Catch-run-time-errors-early"><span class="nav-number">2.1.</span> <span class="nav-text">P.7: Catch run-time errors early</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#P-8-Don%E2%80%99t-leak-any-resources"><span class="nav-number">2.2.</span> <span class="nav-text">P.8: Don’t leak any resources</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#P-9-Don%E2%80%99t-waste-time-or-space"><span class="nav-number">2.3.</span> <span class="nav-text">P.9: Don’t waste time or space</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#P-10-Prefer-immutable-data-to-mutable-data"><span class="nav-number">2.4.</span> <span class="nav-text">P.10: Prefer immutable data to mutable data</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#P-11-Encapsulate-messy-constructs-rather-than-spreading-through-the-code"><span class="nav-number">2.5.</span> <span class="nav-text">P.11: Encapsulate messy constructs, rather than spreading through the code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#P-12-Use-supporting-tools-as-appropriate-77-P-13-Use-support-libraries-as-appropriate"><span class="nav-number">2.6.</span> <span class="nav-text">P.12: Use supporting tools as appropriate 77 P.13: Use support libraries as appropriate</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#I-interface"><span class="nav-number">3.</span> <span class="nav-text">I : interface</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#I-1-%E4%BD%BF%E6%8E%A5%E5%8F%A3%E6%98%8E%E7%A1%AE"><span class="nav-number">3.1.</span> <span class="nav-text">I.1: 使接口明确</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I-2-%E9%81%BF%E5%85%8D%E9%9D%9E-const-%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="nav-number">3.2.</span> <span class="nav-text">I.2: 避免非 const 全局变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I-3-%E9%81%BF%E5%85%8D%E4%BD%BF%E7%94%A8%E5%8D%95%E4%BE%8B"><span class="nav-number">3.3.</span> <span class="nav-text">I.3: 避免使用单例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I-4-%E4%BD%BF%E6%8E%A5%E5%8F%A3%E4%B8%A5%E6%A0%BC%E5%92%8C%E5%BC%BA%E7%B1%BB%E5%9E%8B%E5%8C%96"><span class="nav-number">3.4.</span> <span class="nav-text">I.4: 使接口严格和强类型化</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#p-%E7%90%86%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">P: 理念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#p.1-%E5%9C%A8%E4%BB%A3%E7%A0%81%E4%B8%AD%E7%9B%B4%E6%8E%A5%E8%A1%A8%E8%BE%BE%E4%BD%A0%E7%9A%84%E6%83%B3%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">P.1: 在代码中直接表达你的想法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#p.4-%E7%90%86%E6%83%B3%E6%83%85%E5%86%B5%E4%B8%8B%E7%A8%8B%E5%BA%8F%E5%BA%94%E5%BD%93%E6%98%AF%E9%9D%99%E6%80%81%E7%B1%BB%E5%9E%8B%E5%AE%89%E5%85%A8%E7%9A%84"><span class="nav-number">1.2.</span> <span class="nav-text">P.4:
+理想情况下，程序应当是静态类型安全的</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#p.5-%E4%BC%98%E5%85%88%E4%BD%BF%E7%94%A8%E7%BC%96%E8%AF%91%E5%99%A8%E6%A3%80%E6%9F%A5%E8%80%8C%E9%9D%9E%E8%BF%90%E8%A1%8C%E6%9C%9F%E6%A3%80%E6%9F%A5"><span class="nav-number">2.</span> <span class="nav-text">P.5:
+优先使用编译器检查而非运行期检查</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#p.7-catch-run-time-errors-early"><span class="nav-number">2.1.</span> <span class="nav-text">P.7: Catch run-time errors
+early</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#p.8-dont-leak-any-resources"><span class="nav-number">2.2.</span> <span class="nav-text">P.8: Don’t leak any resources</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#p.9-dont-waste-time-or-space"><span class="nav-number">2.3.</span> <span class="nav-text">P.9: Don’t waste time or
+space</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#p.10-prefer-immutable-data-to-mutable-data"><span class="nav-number">2.4.</span> <span class="nav-text">P.10: Prefer
+immutable data to mutable data</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#p.11-encapsulate-messy-constructs-rather-than-spreading-through-the-code"><span class="nav-number">2.5.</span> <span class="nav-text">P.11:
+Encapsulate messy constructs, rather than spreading through the
+code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#p.12-use-supporting-tools-as-appropriate-77-p.13-use-support-libraries-as-appropriate"><span class="nav-number">2.6.</span> <span class="nav-text">P.12:
+Use supporting tools as appropriate 77 P.13: Use support libraries as
+appropriate</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#i-interface"><span class="nav-number">3.</span> <span class="nav-text">I : interface</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#i.1-%E4%BD%BF%E6%8E%A5%E5%8F%A3%E6%98%8E%E7%A1%AE"><span class="nav-number">3.1.</span> <span class="nav-text">I.1: 使接口明确</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#i.2-%E9%81%BF%E5%85%8D%E9%9D%9E-const-%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="nav-number">3.2.</span> <span class="nav-text">I.2: 避免非 const 全局变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#i.3-%E9%81%BF%E5%85%8D%E4%BD%BF%E7%94%A8%E5%8D%95%E4%BE%8B"><span class="nav-number">3.3.</span> <span class="nav-text">I.3: 避免使用单例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#i.4-%E4%BD%BF%E6%8E%A5%E5%8F%A3%E4%B8%A5%E6%A0%BC%E5%92%8C%E5%BC%BA%E7%B1%BB%E5%9E%8B%E5%8C%96"><span class="nav-number">3.4.</span> <span class="nav-text">I.4: 使接口严格和强类型化</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -460,6 +582,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -479,6 +611,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -496,6 +630,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -508,6 +646,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

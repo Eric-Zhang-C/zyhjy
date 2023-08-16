@@ -15,25 +15,26 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="操作系统:macOS Catalina version 10.15.3 shell环境:zsh  主题原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow Night，所以尝试一下。  下载Tomorrow Night git需要的.terminal文件。 导入Terminal:  shell &gt;&gt; 导入…    终端 &gt;&gt; 偏好设置">
+  <meta name="description" content="操作系统: macOS Catalina version 10.15.3 shell环境: zsh  主题 原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow Night，所以尝试一下。 1. 下载Tomorrow Night git需要的.terminal文件。 2. 导入Terminal: 1. shell &gt;&gt; 导入...  2. 终端 &amp;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="macOS teminal主题设置">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2022/05/26/mac-terminal/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="操作系统:macOS Catalina version 10.15.3 shell环境:zsh  主题原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow Night，所以尝试一下。  下载Tomorrow Night git需要的.terminal文件。 导入Terminal:  shell &gt;&gt; 导入…    终端 &gt;&gt; 偏好设置">
+<meta property="og:description" content="操作系统: macOS Catalina version 10.15.3 shell环境: zsh  主题 原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow Night，所以尝试一下。 1. 下载Tomorrow Night git需要的.terminal文件。 2. 导入Terminal: 1. shell &gt;&gt; 导入...  2. 终端 &amp;">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://zyh-eric.gitee.io/zyhjy/pics/2022-05-27-terminal.png">
+<meta property="og:image" content="https://zyh-eric.gitee.io/pics/2022-05-27-terminal.png">
 <meta property="article:published_time" content="2022-05-26T11:30:50.000Z">
 <meta property="article:modified_time" content="2023-07-30T10:15:18.554Z">
 <meta property="article:author" content="Yuhang Zhang">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://zyh-eric.gitee.io/zyhjy/pics/2022-05-27-terminal.png">
+<meta name="twitter:image" content="https://zyh-eric.gitee.io/pics/2022-05-27-terminal.png">
 
 <link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2022/05/26/mac-terminal/">
 
@@ -50,6 +51,15 @@
 
   <title>macOS teminal主题设置 | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -106,6 +116,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -140,11 +151,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -210,7 +248,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -222,34 +274,59 @@
 
       
         <ul>
-<li>操作系统:<br><code>macOS Catalina version 10.15.3</code></li>
-<li>shell环境:<br><code>zsh</code></li>
+<li>操作系统: <code>macOS Catalina version 10.15.3</code></li>
+<li>shell环境: <code>zsh</code></li>
 </ul>
-<h2 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h2><p>原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow Night，所以尝试一下。<br></p>
-<ol>
-<li>下载<a target="_blank" rel="noopener" href="https://github.com/chriskempson/tomorrow-theme/tree/master/OS%20X%20Terminal">Tomorrow Night git</a>需要的.terminal文件。</li>
-<li>导入<code>Terminal</code>: <ol>
-<li>shell &gt;&gt; 导入…<br>   <img src="/zyhjy/pics/2022-05-27-terminal.png" alt="import" title="Import"></li>
-<li>终端 &gt;&gt; 偏好设置 &gt;&gt; 描述文件, 在左侧选择相应的theme。</li>
-</ol>
-</li>
-</ol>
-<h2 id="oh-my-zsh"><a href="#oh-my-zsh" class="headerlink" title="oh my zsh"></a>oh my zsh</h2><h3 id="1-为什么要用-Zsh"><a href="#1-为什么要用-Zsh" class="headerlink" title="1. 为什么要用 Zsh"></a>1. 为什么要用 Zsh</h3><p>相比于默认的 Bash，Zsh 有更多的自定义选项，并支持扩展。因此 Zsh 可以实现更强大的命令补全，命令高亮等一系列酷炫功能.<br><br>不过代价就是启动速度稍微有点慢（1秒左右，不过相比Bash还是慢了点），而且据说语法和标准 Shell 有点区别（至少我是在使用中完全没有碰到兼容性问题）。因此现在几乎所有的 Linux &#x2F; Unix 版本的默认 Shell 仍然是 Bash。<br></p>
-<h3 id="2-oh-my-zsh"><a href="#2-oh-my-zsh" class="headerlink" title="2. oh my zsh"></a>2. oh my zsh</h3><p>默认的 Zsh 配置有点麻烦。因此一个叫 robbyrussel 的用户在 GitHub 上制作了一个配置文件 oh-my-zsh，这是目前为止最流行的 Zsh 配置：<a target="_blank" rel="noopener" href="https://ohmyz.sh/">oh my zsh官网</a><br></p>
-<h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><ol>
-<li>官网给出了两种安装方法：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">$ sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br></pre></td></tr></table></figure>
-但是在mac上均会出错，试了网上各种方法均无效，原因未知：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to raw.github.com:443 </span><br><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br><span class="line">--2022-05-27 16:15:36--  https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh</span><br><span class="line">正在解析主机 raw.github.com (raw.github.com)... 185.199.111.133, 185.199.110.133, 185.199.109.133, ...</span><br><span class="line">正在连接 raw.github.com (raw.github.com)|185.199.111.133|:443... 已连接。</span><br><span class="line">无法建立 SSL 连接</span><br></pre></td></tr></table></figure>
-  其实我们仔细观察上面那个命令，只是去拿了一个.sh脚本然后执行，如果我们手动把它下载下来或者创建一份然后执行呢？</li>
-<li>复制install.sh安装脚本内容<br><br>  <a target="_blank" rel="noopener" href="https://gitee.com/mirrors/oh-my-zsh/blob/master/tools/install.sh">oh my zsh on gitee</a>是oh my zsh这个项目在码云Gitee里的镜像仓库中具体安装脚本install.sh的位置，打开这个URL点击一键复制按钮将内容复制下来</li>
-<li>新建脚本文件粘贴脚本内容<br><br>  在本地新建 install.sh 文件，并将刚刚复制的内容粘贴进去</li>
-<li>添加执行权限并安装<br>  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % chmod +x install.sh </span><br><span class="line">zyh@zyhs-MBP tools % sh -c ./install.sh</span><br><span class="line">Cloning Oh My Zsh...</span><br><span class="line">remote: Enumerating objects: 1295, done.</span><br><span class="line">remote: Counting objects: 100% (1295/1295), done.</span><br><span class="line">remote: Compressing objects: 100% (1249/1249), done.</span><br><span class="line">remote: Total 1295 (delta 26), reused 1253 (delta 26), pack-reused 0</span><br><span class="line">Receiving objects: 100% (1295/1295), 1.06 MiB | 4.90 MiB/s, done.</span><br><span class="line">Resolving deltas: 100% (26/26), done.</span><br><span class="line">From https://github.com/ohmyzsh/ohmyzsh</span><br><span class="line">...</span><br><span class="line">➜  tools </span><br></pre></td></tr></table></figure>
-  注意到提示符变化了，安装成功。</li>
-<li>删除无用的安装脚本<br><br>  <code>$ rm install.sh</code></li>
-</ol>
-<h4 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h4><p>你可能会觉得现在的主题已经超棒了，但是记得吗，我说过Zsh支持很多个性化配置和插件。现在，编辑<code>~/.zshrc</code>文件（比如用<code>Vim</code>或者<code>VSCode</code>），我们来尝试一下各种主题：<br><br>你会看到有一行<code>ZSH_THEME=&quot;robbyrussell&quot;</code>，把它替换成<code>ZSH_THEME=&quot;agnoster&quot;</code>。<br><br>然后回到终端，输入<code>source ~/.zshrc</code>，你会发现你的Zsh主题变了<br><br>现在你的主题名称是Agnoster，如果你觉得不太好看，你可以改。<br><br>前往 oh-my-zsh 的 Wiki 就可以看到大多数 oh-my-zsh 的内置主题以及它们的截图。如果你看中的其中的一款，可以重复上面的步骤，编辑<code>~/.zshrc</code>，并更改<code>ZSH_THEME=&quot;xxx&quot;</code>。<br><br>比如你看中了 ys 主题（我的最爱），你可以把 ZSH_THEME 改成 “ys”，然后回到终端，执行 <code>source ~/.zshrc</code> 命令。<br><br>P.S. 这些主题都保存在 <code>~/.oh-my-zsh/themes</code> 目录中<br></p>
-<h4 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h4><p>oh-my-zsh 的自带插件都储存在 <code>~/.oh-my-zsh/plugins</code> 目录中，如果你希望安装一个插件，可以在 <code>~/.zshrc</code> 的 <code>plugins=(xxx, xxx, ...)</code> 这一行里加入插件名称<br><br>如果你需要安装第三方插件和主题，你可以在 <code>~/.zshrc</code> 的某一行（比如末尾）加入 <code>source /path/to/plugin</code><br><br>比如你希望添加一个 <code>zsh-syntax-highlighting</code> 插件<br></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh</span><br><span class="line"># 这里要根据你自己的输入目录，而不是抄我的，否则然并卵</span><br></pre></td></tr></table></figure>
-
+<h2 id="主题">主题</h2>
+<p>原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow
+Night，所以尝试一下。<br> 1. 下载<a
+target="_blank" rel="noopener" href="https://github.com/chriskempson/tomorrow-theme/tree/master/OS%20X%20Terminal">Tomorrow
+Night git</a>需要的.terminal文件。 2. 导入<code>Terminal</code>: 1.
+shell &gt;&gt; 导入... <img src="/pics/2022-05-27-terminal.png"
+title="Import" alt="import" /> 2. 终端 &gt;&gt; 偏好设置 &gt;&gt;
+描述文件, 在左侧选择相应的theme。</p>
+<h2 id="oh-my-zsh">oh my zsh</h2>
+<h3 id="为什么要用-zsh">1. 为什么要用 Zsh</h3>
+<p>相比于默认的 Bash，Zsh 有更多的自定义选项，并支持扩展。因此 Zsh
+可以实现更强大的命令补全，命令高亮等一系列酷炫功能.<br>
+不过代价就是启动速度稍微有点慢（1秒左右，不过相比Bash还是慢了点），而且据说语法和标准
+Shell
+有点区别（至少我是在使用中完全没有碰到兼容性问题）。因此现在几乎所有的
+Linux / Unix 版本的默认 Shell 仍然是 Bash。<br></p>
+<h3 id="oh-my-zsh-1">2. oh my zsh</h3>
+<p>默认的 Zsh 配置有点麻烦。因此一个叫 robbyrussel 的用户在 GitHub
+上制作了一个配置文件 oh-my-zsh，这是目前为止最流行的 Zsh 配置：<a
+target="_blank" rel="noopener" href="https://ohmyz.sh">oh my zsh官网</a><br> #### 安装 1.
+官网给出了两种安装方法：<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">$ sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br></pre></td></tr></table></figure>
+但是在mac上均会出错，试了网上各种方法均无效，原因未知：<br>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to raw.github.com:443 </span><br><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br><span class="line">--2022-05-27 16:15:36--  https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh</span><br><span class="line">正在解析主机 raw.github.com (raw.github.com)... 185.199.111.133, 185.199.110.133, 185.199.109.133, ...</span><br><span class="line">正在连接 raw.github.com (raw.github.com)|185.199.111.133|:443... 已连接。</span><br><span class="line">无法建立 SSL 连接</span><br></pre></td></tr></table></figure>
+其实我们仔细观察上面那个命令，只是去拿了一个.sh脚本然后执行，如果我们手动把它下载下来或者创建一份然后执行呢？
+2. 复制install.sh安装脚本内容<br> <a
+target="_blank" rel="noopener" href="https://gitee.com/mirrors/oh-my-zsh/blob/master/tools/install.sh">oh
+my zsh on gitee</a>是oh my
+zsh这个项目在码云Gitee里的镜像仓库中具体安装脚本install.sh的位置，打开这个URL点击一键复制按钮将内容复制下来
+3. 新建脚本文件粘贴脚本内容<br> 在本地新建 install.sh
+文件，并将刚刚复制的内容粘贴进去 4. 添加执行权限并安装<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % chmod +x install.sh </span><br><span class="line">zyh@zyhs-MBP tools % sh -c ./install.sh</span><br><span class="line">Cloning Oh My Zsh...</span><br><span class="line">remote: Enumerating objects: 1295, done.</span><br><span class="line">remote: Counting objects: 100% (1295/1295), done.</span><br><span class="line">remote: Compressing objects: 100% (1249/1249), done.</span><br><span class="line">remote: Total 1295 (delta 26), reused 1253 (delta 26), pack-reused 0</span><br><span class="line">Receiving objects: 100% (1295/1295), 1.06 MiB | 4.90 MiB/s, done.</span><br><span class="line">Resolving deltas: 100% (26/26), done.</span><br><span class="line">From https://github.com/ohmyzsh/ohmyzsh</span><br><span class="line">...</span><br><span class="line">➜  tools </span><br></pre></td></tr></table></figure>
+注意到提示符变化了，安装成功。 5. 删除无用的安装脚本<br>
+<code>$ rm install.sh</code></p>
+<h4 id="主题配置">主题配置</h4>
+<p>你可能会觉得现在的主题已经超棒了，但是记得吗，我说过Zsh支持很多个性化配置和插件。现在，编辑<code>~/.zshrc</code>文件（比如用<code>Vim</code>或者<code>VSCode</code>），我们来尝试一下各种主题：<br>
+你会看到有一行<code>ZSH_THEME="robbyrussell"</code>，把它替换成<code>ZSH_THEME="agnoster"</code>。<br>
+然后回到终端，输入<code>source ~/.zshrc</code>，你会发现你的Zsh主题变了<br>
+现在你的主题名称是Agnoster，如果你觉得不太好看，你可以改。<br> 前往
+oh-my-zsh 的 Wiki 就可以看到大多数 oh-my-zsh
+的内置主题以及它们的截图。如果你看中的其中的一款，可以重复上面的步骤，编辑<code>~/.zshrc</code>，并更改<code>ZSH_THEME="xxx"</code>。<br>
+比如你看中了 ys 主题（我的最爱），你可以把 ZSH_THEME 改成
+"ys"，然后回到终端，执行 <code>source ~/.zshrc</code> 命令。<br> P.S.
+这些主题都保存在 <code>~/.oh-my-zsh/themes</code> 目录中<br></p>
+<h4 id="插件">插件</h4>
+<p>oh-my-zsh 的自带插件都储存在 <code>~/.oh-my-zsh/plugins</code>
+目录中，如果你希望安装一个插件，可以在 <code>~/.zshrc</code> 的
+<code>plugins=(xxx, xxx, ...)</code> 这一行里加入插件名称<br>
+如果你需要安装第三方插件和主题，你可以在 <code>~/.zshrc</code>
+的某一行（比如末尾）加入 <code>source /path/to/plugin</code><br>
+比如你希望添加一个 <code>zsh-syntax-highlighting</code> 插件<br>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh</span><br><span class="line"># 这里要根据你自己的输入目录，而不是抄我的，否则然并卵</span><br></pre></td></tr></table></figure></p>
 
     </div>
 
@@ -330,7 +407,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">主题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#oh-my-zsh"><span class="nav-number">2.</span> <span class="nav-text">oh my zsh</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8-Zsh"><span class="nav-number">2.1.</span> <span class="nav-text">1. 为什么要用 Zsh</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-oh-my-zsh"><span class="nav-number">2.2.</span> <span class="nav-text">2. oh my zsh</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">2.2.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE"><span class="nav-number">2.2.2.</span> <span class="nav-text">主题配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%92%E4%BB%B6"><span class="nav-number">2.2.3.</span> <span class="nav-text">插件</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">主题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#oh-my-zsh"><span class="nav-number">2.</span> <span class="nav-text">oh my zsh</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8-zsh"><span class="nav-number">2.1.</span> <span class="nav-text">1. 为什么要用 Zsh</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#oh-my-zsh-1"><span class="nav-number">2.2.</span> <span class="nav-text">2. oh my zsh</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE"><span class="nav-number">2.2.1.</span> <span class="nav-text">主题配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%92%E4%BB%B6"><span class="nav-number">2.2.2.</span> <span class="nav-text">插件</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -391,6 +468,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -410,6 +497,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -427,6 +516,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -439,6 +532,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

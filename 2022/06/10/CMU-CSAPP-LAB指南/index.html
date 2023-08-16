@@ -15,18 +15,19 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="背景 记录在做LAB时遇到的问题。 OS: Mac  archlab0. 背景知识（来源于CSAPP中文版第4章） Architecture:(also ISA: instruction set architecture)  assembly(text representation)&#x2F;machine(byte-level) code   Microarchitecture: implem">
+  <meta name="description" content="背景  记录在做LAB时遇到的问题。 OS: Mac  archlab 0. 背景知识（来源于CSAPP中文版第4章）  Architecture:(also ISA: instruction set architecture)  assembly(text representation)&#x2F;machine(byte-level) code  Microarchitecture: implement">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CMU CSAPP LAB指南">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2022/06/10/CMU-CSAPP-LAB%E6%8C%87%E5%8D%97/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="背景 记录在做LAB时遇到的问题。 OS: Mac  archlab0. 背景知识（来源于CSAPP中文版第4章） Architecture:(also ISA: instruction set architecture)  assembly(text representation)&#x2F;machine(byte-level) code   Microarchitecture: implem">
+<meta property="og:description" content="背景  记录在做LAB时遇到的问题。 OS: Mac  archlab 0. 背景知识（来源于CSAPP中文版第4章）  Architecture:(also ISA: instruction set architecture)  assembly(text representation)&#x2F;machine(byte-level) code  Microarchitecture: implement">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-06-10T14:56:50.000Z">
 <meta property="article:modified_time" content="2023-07-30T10:15:18.561Z">
@@ -48,6 +49,15 @@
 
   <title>CMU CSAPP LAB指南 | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -104,6 +114,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -138,11 +149,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -208,7 +246,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>10 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -219,125 +271,175 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><ul>
+        <h1 id="背景">背景</h1>
+<ul>
 <li>记录在做LAB时遇到的问题。</li>
 <li>OS: Mac</li>
 </ul>
-<h1 id="archlab"><a href="#archlab" class="headerlink" title="archlab"></a>archlab</h1><h2 id="0-背景知识（来源于CSAPP中文版第4章）"><a href="#0-背景知识（来源于CSAPP中文版第4章）" class="headerlink" title="0. 背景知识（来源于CSAPP中文版第4章）"></a>0. 背景知识（来源于CSAPP中文版第4章）</h2><ul>
+<h1 id="archlab">archlab</h1>
+<h2 id="背景知识来源于csapp中文版第4章">0.
+背景知识（来源于CSAPP中文版第4章）</h2>
+<ul>
 <li><p>Architecture:(also ISA: instruction set architecture)</p>
 <ul>
-<li>assembly(text representation)&#x2F;machine(byte-level) code</li>
-</ul>
-</li>
+<li>assembly(text representation)/machine(byte-level) code</li>
+</ul></li>
 <li><p>Microarchitecture: implement of Architecture</p>
 <ul>
 <li>cache sizes, core freq</li>
-</ul>
-</li>
-<li><p>{.c, .h} -&gt; .i -&gt; .s -&gt; .o</p>
-</li>
-<li><p>需阅读内容4.1</p>
-</li>
+</ul></li>
+<li><p>{.c, .h} -&gt; .i -&gt; .s -&gt; .o</p></li>
+<li><p>需阅读内容4.1</p></li>
 <li><p>Y86-64的程序员可见状态:</p>
 <ul>
-<li>15 registers:<ul>
+<li>15 registers:
+<ul>
 <li>%rax, %rcx, %rdx, %rbx, %rsp(栈指针), %rbp, %rsi, %rdi</li>
-<li>%r8, … %r14</li>
-</ul>
-</li>
-<li>条件码:<ul>
+<li>%r8, ... %r14</li>
+</ul></li>
+<li>条件码:
+<ul>
 <li>ZF, SF, OF</li>
-</ul>
-</li>
+</ul></li>
 <li>PC</li>
 <li>内存</li>
-<li>Stat<ul>
+<li>Stat
+<ul>
 <li>AOK, HLT, ADR, INS</li>
-</ul>
-</li>
-</ul>
-</li>
+</ul></li>
+</ul></li>
 <li><p>Y86-64的指令:</p>
 <ul>
 <li>见P246图4-2</li>
-</ul>
-</li>
+</ul></li>
 <li><p>汇编器伪指令(assembler directives):</p>
 <ul>
 <li>.quad (4字(word),8字节)</li>
-<li>“.rodata”：只读数据段。const全局变量。比如printf语句中的格式串和开关（switch）语句的跳转表。</li>
-<li>“.data”：数据段。已初始化的非零全局变量和静态变量。它会在main函数之前被处理。</li>
-<li>“.bss”：未初始化（或初值为0）的全局变量。它在目标文件中不占实际的空间（不保存在bin文件中），是一个占位符。目标文件格式区分初始化和未初始化变量是为了提高空间效率。启动代码完成两方面：①未初始化变量的清0。②设置已初始化变量的初值。保存了BSS段和COMMON段（存放注释）的内容。<ul>
-<li>注释：为了让启动代码简单，编译链接器会把已初始化的变量放.data段，这个段的映像（包含了各个变量的初值）保存在“只读数据段”。启动代码复制这个映像到 .data 段，初始化所有变量。初始化为0的变量保存在bss段，未初始化变量保存在common段，链接时再将其放入bss段。启动代码调用 memset 把所有未初始化变量清0。</li>
+<li>".rodata"：只读数据段。const全局变量。比如printf语句中的格式串和开关（switch）语句的跳转表。</li>
+<li>".data"：数据段。已初始化的非零全局变量和静态变量。它会在main函数之前被处理。</li>
+<li>".bss"：未初始化（或初值为0）的全局变量。它在目标文件中不占实际的空间（不保存在bin文件中），是一个占位符。目标文件格式区分初始化和未初始化变量是为了提高空间效率。启动代码完成两方面：①未初始化变量的清0。②设置已初始化变量的初值。保存了BSS段和COMMON段（存放注释）的内容。
+<ul>
+<li>注释：为了让启动代码简单，编译链接器会把已初始化的变量放.data段，这个段的映像（包含了各个变量的初值）保存在“只读数据段”。启动代码复制这个映像到
+.data
+段，初始化所有变量。初始化为0的变量保存在bss段，未初始化变量保存在common段，链接时再将其放入bss段。启动代码调用
+memset 把所有未初始化变量清0。</li>
+</ul></li>
+<li>".symtab"：符号表。存放被定义和引用的函数及全局变量。每个可重定位目标文件在.symtab中都有一张符号表。与编译器中的符号表不同，.symtab不包含局部变量的表目。不一定要通过-g编译程序，得到符号表信息。</li>
 </ul>
-</li>
-<li>“.symtab”：符号表。存放被定义和引用的函数及全局变量。每个可重定位目标文件在.symtab中都有一张符号表。与编译器中的符号表不同，.symtab不包含局部变量的表目。不一定要通过-g编译程序，得到符号表信息。</li>
-</ul>
-<p>  <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/7ec425403779">https://www.jianshu.com/p/7ec425403779</a></p>
-</li>
+<p>https://www.jianshu.com/p/7ec425403779</p></li>
 <li><p>x86-64:</p>
 <ul>
 <li>push: 压入原始%rsp值再-8</li>
 <li>pop: 将%rsp置为取出的值</li>
-<li>寄存器传参顺序 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/27339191">https://zhuanlan.zhihu.com/p/27339191</a></li>
-</ul>
-</li>
+<li>寄存器传参顺序 https://zhuanlan.zhihu.com/p/27339191</li>
+</ul></li>
 <li><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/tk.h:86:11: fatal error: &#x27;X11/Xlib.h&#x27; file not found</span><br></pre></td></tr></table></figure>
-<p>安装X11<br>Makefile -I&#x2F;private&#x2F;var&#x2F;select&#x2F;X11&#x2F;include</p>
-</li>
-<li><p>valP : 计算后的PC的值</p>
-</li>
-<li><p>valA, valB: 译码阶段从rA(srcA) rB(srcB)取出的值</p>
-</li>
-<li><p>CC:3个</p>
-</li>
-<li><p>Cnd:ZF SF OF</p>
-</li>
-<li><p>valE : ALU计算出的, 写入dstE</p>
-</li>
-<li><p>valM: 内存中取出的，写出dstM</p>
-</li>
+<p>安装X11 Makefile -I/private/var/select/X11/include</p></li>
+<li><p>valP : 计算后的PC的值</p></li>
+<li><p>valA, valB: 译码阶段从rA(srcA) rB(srcB)取出的值</p></li>
+<li><p>CC:3个</p></li>
+<li><p>Cnd:ZF SF OF</p></li>
+<li><p>valE : ALU计算出的, 写入dstE</p></li>
+<li><p>valM: 内存中取出的，写出dstM</p></li>
 </ul>
-<h2 id="1-flex编译出错"><a href="#1-flex编译出错" class="headerlink" title="1. flex编译出错"></a>1. flex编译出错</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">flex yas-grammar.lex</span><br><span class="line">mv lex.yy.c yas-grammar.c</span><br><span class="line">gcc -O1 -c yas-grammar.c</span><br><span class="line">gcc -Wall -O1 -g yas-grammar.o yas.o isa.o -lfl -o yas</span><br><span class="line">ld: library not found for -lfl</span><br></pre></td></tr></table></figure>
+<h2 id="flex编译出错">1. flex编译出错</h2>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">flex yas-grammar.lex</span><br><span class="line">mv lex.yy.c yas-grammar.c</span><br><span class="line">gcc -O1 -c yas-grammar.c</span><br><span class="line">gcc -Wall -O1 -g yas-grammar.o yas.o isa.o -lfl -o yas</span><br><span class="line">ld: library not found for -lfl</span><br></pre></td></tr></table></figure>
 <ul>
-<li>原因: trying to use flex on OS&#x2F;X</li>
-<li>解决方案: <ul>
+<li>原因: trying to use flex on OS/X</li>
+<li>解决方案:
+<ul>
 <li>Try <code>-ll</code> instead of <code>-lfl</code></li>
-<li>for more information look at <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/21298097/library-not-found-for-lfl">this</a></li>
+<li>for more information look at <a
+target="_blank" rel="noopener" href="https://stackoverflow.com/questions/21298097/library-not-found-for-lfl">this</a></li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<p>Task #1 - Extendible Hash Table<br>unordered buckets<br>insert&#x2F;delete key&#x2F;value entries without specifying the max size of the table<br> not need shrink<br> support checking </p>
-<p>哈希表的原理如下 <a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/extendible-hashing-dynamic-approach-to-dbms/">https://www.geeksforgeeks.org/extendible-hashing-dynamic-approach-to-dbms/</a></p>
-<p>[Task #2] - LRU-K Replacement Policy<br><a target="_blank" rel="noopener" href="https://www.cs.cmu.edu/~natassa/courses/15-721/papers/p297-o_neil.pdf">https://www.cs.cmu.edu/~natassa/courses/15-721/papers/p297-o_neil.pdf</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/AntiO2/article/details/128439155">https://blog.csdn.net/AntiO2/article/details/128439155</a></p>
-<p>[Task #3] - Buffer Pool Manager Instance<br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/593982056">https://zhuanlan.zhihu.com/p/593982056</a><br>the same Page object may contain a different physical page throughout the life of the system</p>
-<p>B+树是一种M路搜索树（其中M表示节点的最大子节点数），具有以下特性：<br>• 它是完全平衡的（即每个叶节点都在同一深度）。<br>• 除根节点外的每个内部节点至少半满（M&#x2F;2-1 &lt;&#x3D; 键数 &lt;&#x3D; M-1）。<br>• 具有k个键的每个内部节点都有k+1个非空子节点。<br>B+树中的每个节点都包含一个键&#x2F;值对数组。这些对中的键是从索引所基于的属性派生出来的。值将根据节点是内部节点还是叶节点而异。对于内部节点，值数组将包含指向其他节点的指针。叶节点值有两种方法：记录ID和元组数据。记录ID是指向元组位置的指针。具有元组数据的叶节点在每个节点中存储元组的实际内容。<br>虽然按照B+树的定义并不需要，但几乎每个节点上的数组都按键排序。<br>从概念上讲，内部节点上的键可以被认为是指南针。它们引导树遍历，但不代表叶子节点上的键（因此也不代表它们的值）。这意味着您可能在内部节点（作为指南针）中拥有一个在叶子节点上找不到的键。尽管必须注意到，传统上内部节点只拥有在叶子节点中存在的键。</p>
+<p>Task #1 - Extendible Hash Table unordered buckets insert/delete
+key/value entries without specifying the max size of the table not need
+shrink support checking</p>
+<p>哈希表的原理如下
+https://www.geeksforgeeks.org/extendible-hashing-dynamic-approach-to-dbms/</p>
+<p>[Task #2] - LRU-K Replacement Policy
+https://www.cs.cmu.edu/~natassa/courses/15-721/papers/p297-o_neil.pdf
+https://blog.csdn.net/AntiO2/article/details/128439155</p>
+<p>[Task #3] - Buffer Pool Manager Instance
+https://zhuanlan.zhihu.com/p/593982056 the same Page object may contain
+a different physical page throughout the life of the system</p>
+<p>B+树是一种M路搜索树（其中M表示节点的最大子节点数），具有以下特性： •
+它是完全平衡的（即每个叶节点都在同一深度）。 •
+除根节点外的每个内部节点至少半满（M/2-1 &lt;= 键数 &lt;= M-1）。 •
+具有k个键的每个内部节点都有k+1个非空子节点。
+B+树中的每个节点都包含一个键/值对数组。这些对中的键是从索引所基于的属性派生出来的。值将根据节点是内部节点还是叶节点而异。对于内部节点，值数组将包含指向其他节点的指针。叶节点值有两种方法：记录ID和元组数据。记录ID是指向元组位置的指针。具有元组数据的叶节点在每个节点中存储元组的实际内容。
+虽然按照B+树的定义并不需要，但几乎每个节点上的数组都按键排序。
+从概念上讲，内部节点上的键可以被认为是指南针。它们引导树遍历，但不代表叶子节点上的键（因此也不代表它们的值）。这意味着您可能在内部节点（作为指南针）中拥有一个在叶子节点上找不到的键。尽管必须注意到，传统上内部节点只拥有在叶子节点中存在的键。</p>
 <p>B+Tree插入和删除操作如下：</p>
 <p>B+Tree 插入新条目的步骤如下：</p>
-<p>找到正确的叶子节点 L。<br>按排序顺序将新条目添加到 L 中：<br>    • 如果 L 有足够的空间，则操作完成。<br>    • 否则将 L 拆分为两个节点 L 和 L2。平均重新分配条目并复制中间键。将指向 L2 的索引条目插入 L 的父项中。<br>要拆分内部节点，请平均重新分配条目，但将中间键向上推。<br>const KeyType &amp;key<br>删除：<br>当插入操作使得树变得过满时，我们有时需要拆分叶子节点，但如果删除操作导致树的大小小于一半，则必须合并以重新平衡树。<br>找到正确的叶子节点L。<br>删除条目：<br>• 如果L至少半满，则操作完成。<br>• 否则，您可以尝试重新分配，从兄弟节点借用。<br>• 如果重新分配失败，则合并L和兄弟节点。<br>如果发生合并，则必须删除指向L的父项中的条目。</p>
-<ol>
+<p>找到正确的叶子节点 L。 按排序顺序将新条目添加到 L 中： • 如果 L
+有足够的空间，则操作完成。 • 否则将 L 拆分为两个节点 L 和
+L2。平均重新分配条目并复制中间键。将指向 L2 的索引条目插入 L 的父项中。
+要拆分内部节点，请平均重新分配条目，但将中间键向上推。 const KeyType
+&amp;key 删除：
+当插入操作使得树变得过满时，我们有时需要拆分叶子节点，但如果删除操作导致树的大小小于一半，则必须合并以重新平衡树。
+找到正确的叶子节点L。 删除条目： • 如果L至少半满，则操作完成。 •
+否则，您可以尝试重新分配，从兄弟节点借用。 •
+如果重新分配失败，则合并L和兄弟节点。
+如果发生合并，则必须删除指向L的父项中的条目。</p>
+<ol type="1">
 <li>从右边借</li>
 <li>借不到的话从右边拿所有</li>
 <li>没有右边的话 从左边借</li>
 <li>左边借不到的话，被左边吃</li>
 </ol>
-<p>B+Tree叶子页存储有序的m个键值对，其中键和值的数量相同。在实现中，值应该只是用于定位实际元组的64位记录ID，参见src&#x2F;include&#x2F;common&#x2F;rid.h中定义的RID类。叶子页与内部页具有相同的键&#x2F;值对数限制，并且应遵循合并、重新分配和拆分的相同操作。</p>
-<p>您必须在指定的文件中实现B+Tree内部页。您只允许修改头文件(src&#x2F;include&#x2F;storage&#x2F;page&#x2F;b_plus_tree_leaf_page.h)及其相应的源文件(src&#x2F;storage&#x2F;page&#x2F;b_plus_tree_leaf_page.cpp)。</p>
+<p>B+Tree叶子页存储有序的m个键值对，其中键和值的数量相同。在实现中，值应该只是用于定位实际元组的64位记录ID，参见src/include/common/rid.h中定义的RID类。叶子页与内部页具有相同的键/值对数限制，并且应遵循合并、重新分配和拆分的相同操作。</p>
+<p>您必须在指定的文件中实现B+Tree内部页。您只允许修改头文件(src/include/storage/page/b_plus_tree_leaf_page.h)及其相应的源文件(src/storage/page/b_plus_tree_leaf_page.cpp)。</p>
 <p>重要提示：即使叶子页和内部页包含相同类型的键，它们可能具有不同类型的值，因此叶子和内部页的max_size可能不同。</p>
-<p>每个B+Tree叶子&#x2F;内部页对应于由缓冲池获取的内存页(即数据部分)。因此，每次尝试读取或写入叶子&#x2F;内部页时，您都需要使用其唯一的page_id从缓冲池中获取页面，然后重新解释为叶子或内部页，并在任何写入或读取操作后取消固定页面。</p>
-<p>Task #2 - B+Tree Data Structure<br>B+树索引应仅支持唯一键。也就是说，当您尝试将具有重复键的键值对插入索引时，它不应执行插入并返回false。如果删除导致某个页面低于占用阈值，则您的B+树索引还必须正确执行合并或重新分配（在教科书中称为“合并”）。</p>
-<p>在第一检查点中，您的B+树索引仅需要支持插入（Insert（）），点搜索（GetValue（））和删除（Delete（））。如果插入触发拆分条件（插入后键&#x2F;值对数等于叶节点的max_size，插入前子节点的数量等于内部节点的max_size），则应正确执行拆分。由于任何写操作都可能导致B+树索引中的root_page_id更改，因此您有责任在头部页面（src&#x2F;include&#x2F;storage&#x2F;page&#x2F;header_page.h）中更新root_page_id。这是为了确保索引在磁盘上是持久的。在BPlusTree类中，我们已经为您实现了一个名为UpdateRootPageId的函数；只需在B+Tree索引的root_page_id更改时调用此函数即可。</p>
-<p>在这部分中，您需要更新您原来的单线程 B+Tree 索引，使其能够支持并发操作。 我们将使用课堂和教科书中描述的闩锁抓取技术。 遍历索引的线程将获取然后释放 B+Tree 页面上的闩锁。 如果子页面被认为是“安全的”，则线程只能释放父页面上的闩锁。 请注意，“安全”的定义可能会根据线程正在执行的操作类型而有所不同：</p>
-<p>搜索：从根页面开始，抓取子页面上的读取 (R) 闩锁，然后在您到达子页面后立即释放父页面上的闩锁。<br>插入：从根页开始，抓取子页上的写 (W) 闩锁。 一旦孩子被锁上，检查它是否安全，在这种情况下，不是满的。 如果孩子是安全的，解除对祖先的所有锁定。<br>删除：从根页开始，抓取子页上的写 (W) 闩锁。 一旦孩子被锁上，检查它是否安全，在这种情况下，至少要半满。 （注意：对于根页面，我们需要检查不同的标准）如果孩子是安全的，释放对祖先的所有锁。<br>重要提示：本文仅描述闩锁抓取背后的基本概念，在开始实施之前，请参阅讲座和教科书第 15.10 章。</p>
-<p>这段文字是关于在数据库系统中实现索引的第二个编程项目的说明。该项目要求实现一个索引，以便快速检索数据，而无需在数据库表中搜索每一行，从而为随机查找和有序记录的高效访问提供基础。在实现B+树动态索引结构之前，您需要实现B+树父页面、B+树内部页面和B+树叶页面。由于树结构动态增长和收缩，因此您需要处理拆分和合并的逻辑。此项目由以下任务组成，并且有两个检查点。在开始此项目之前，请确保已从公共BusTub repo拉取了最新代码。您可以使用以下命令执行此操作：<code>git pull public master</code>。</p>
-<p>在实现过程中，有一些限制和建议。例如，不允许使用全局作用域闩来保护数据结构。换句话说，在操作完成后，您不能锁定整个索引并仅在操作完成时解锁闩。我们将语法和手动检查以确保您正在正确进行闩抓取。我们已经提供了读写闩的实现（src&#x2F;include&#x2F;common&#x2F;rwlatch.h），并已在页面头文件下添加了帮助程序函数以获取和释放闩（src&#x2F;include&#x2F;storage&#x2F;page&#x2F;page.h）。我们不会在B+Tree索引中添加任何强制性接口。只要保持所有原始公共接口不变以进行测试目的，就可以在您的实现中添加任何函数。</p>
-<p>此外，不要使用malloc&#x2F;new来分配大块内存以用于树。如果需要为树创建新节点或需要缓冲区进行某些操作，则应使用缓冲池。<br>对于此任务，您必须使用名为transaction（src&#x2F;include&#x2F;concurrency&#x2F;transaction.h）的传递指针参数。它提供了存储在遍历B+树时获取闩的页面以及存储在Remove操作期间删除的页面的方法。我们建议您仔细查看B+树中的FindLeafPage方法，您可能需要修改先前的实现（请注意，您可能需要更改此方法的返回值），然后在此特定方法中添加闩抓取逻辑。</p>
-<p>请注意，在缓冲池管理器中FetchPage()的返回值是指向Page实例（src&#x2F;include&#x2F;storage&#x2F;page&#x2F;page.h）的指针。您可以在Page上抓取闩，但不能在B+Tree节点上抓取闩（内部节点或叶节点均不可）。</p>
-<p>常见的陷阱<br>您未在该项目中测试线程安全扫描（不会测试并发迭代器操作）。 然而，正确的实现将要求叶页在无法获取其兄弟上的闩锁时抛出 std::exception 以避免潜在的死锁。<br>仔细考虑缓冲池管理器类的 UnpinPage(page_id, is_dirty) 方法和页面类的 UnLock() 方法之间的顺序和关系。 在从缓冲池中取消固定同一页之前，您必须释放该页上的闩锁。<br>如果你正确地实现并发 B+tree 索引，那么每个线程总是会从根到底部获取 latch。 释放闩锁时，请确保遵循相同的顺序（也就是从根部到底部）。<br>一种极端情况是插入和删除时，成员变量root_page_id (src&#x2F;include&#x2F;storage&#x2F;index&#x2F;b_plus_tree.h)也会被更新。 你有责任防止这个共享变量的并发更新（提示：在 B+ 树索引中添加一个抽象层，你可以使用 std::mutex 来保护这个变量）</p>
-<p>竞争基准<br>为确保您正确实施锁抓取，我们将使用竞争基准从您的实施中收集一些启发式，并根据启发式手动检查您的代码。 Contention ratio是B+树在多线程环境下使用时与单线程环境相比的减速。 通常，Gradescope 上的竞争比应在 [2.5, 3.5] 范围内。 争用率 &lt; 2.5 通常意味着你的锁抓取是不正确的（例如，可能持有一些全局锁，持有一些锁不必要的长时间），TA 将手动审查你的代码并应用正确性扣除。 争用率 &gt; 3.5 意味着您的实施中的锁争用太高，建议您调查正在发生的事情。</p>
-<ol>
+<p>每个B+Tree叶子/内部页对应于由缓冲池获取的内存页(即数据部分)。因此，每次尝试读取或写入叶子/内部页时，您都需要使用其唯一的page_id从缓冲池中获取页面，然后重新解释为叶子或内部页，并在任何写入或读取操作后取消固定页面。</p>
+<p>Task #2 - B+Tree Data Structure
+B+树索引应仅支持唯一键。也就是说，当您尝试将具有重复键的键值对插入索引时，它不应执行插入并返回false。如果删除导致某个页面低于占用阈值，则您的B+树索引还必须正确执行合并或重新分配（在教科书中称为“合并”）。</p>
+<p>在第一检查点中，您的B+树索引仅需要支持插入（Insert（）），点搜索（GetValue（））和删除（Delete（））。如果插入触发拆分条件（插入后键/值对数等于叶节点的max_size，插入前子节点的数量等于内部节点的max_size），则应正确执行拆分。由于任何写操作都可能导致B+树索引中的root_page_id更改，因此您有责任在头部页面（src/include/storage/page/header_page.h）中更新root_page_id。这是为了确保索引在磁盘上是持久的。在BPlusTree类中，我们已经为您实现了一个名为UpdateRootPageId的函数；只需在B+Tree索引的root_page_id更改时调用此函数即可。</p>
+<p>在这部分中，您需要更新您原来的单线程 B+Tree
+索引，使其能够支持并发操作。
+我们将使用课堂和教科书中描述的闩锁抓取技术。
+遍历索引的线程将获取然后释放 B+Tree 页面上的闩锁。
+如果子页面被认为是“安全的”，则线程只能释放父页面上的闩锁。
+请注意，“安全”的定义可能会根据线程正在执行的操作类型而有所不同：</p>
+<p>搜索：从根页面开始，抓取子页面上的读取 (R)
+闩锁，然后在您到达子页面后立即释放父页面上的闩锁。
+插入：从根页开始，抓取子页上的写 (W) 闩锁。
+一旦孩子被锁上，检查它是否安全，在这种情况下，不是满的。
+如果孩子是安全的，解除对祖先的所有锁定。
+删除：从根页开始，抓取子页上的写 (W) 闩锁。
+一旦孩子被锁上，检查它是否安全，在这种情况下，至少要半满。
+（注意：对于根页面，我们需要检查不同的标准）如果孩子是安全的，释放对祖先的所有锁。
+重要提示：本文仅描述闩锁抓取背后的基本概念，在开始实施之前，请参阅讲座和教科书第
+15.10 章。</p>
+<p>这段文字是关于在数据库系统中实现索引的第二个编程项目的说明。该项目要求实现一个索引，以便快速检索数据，而无需在数据库表中搜索每一行，从而为随机查找和有序记录的高效访问提供基础。在实现B+树动态索引结构之前，您需要实现B+树父页面、B+树内部页面和B+树叶页面。由于树结构动态增长和收缩，因此您需要处理拆分和合并的逻辑。此项目由以下任务组成，并且有两个检查点。在开始此项目之前，请确保已从公共BusTub
+repo拉取了最新代码。您可以使用以下命令执行此操作：<code>git pull public master</code>。</p>
+<p>在实现过程中，有一些限制和建议。例如，不允许使用全局作用域闩来保护数据结构。换句话说，在操作完成后，您不能锁定整个索引并仅在操作完成时解锁闩。我们将语法和手动检查以确保您正在正确进行闩抓取。我们已经提供了读写闩的实现（src/include/common/rwlatch.h），并已在页面头文件下添加了帮助程序函数以获取和释放闩（src/include/storage/page/page.h）。我们不会在B+Tree索引中添加任何强制性接口。只要保持所有原始公共接口不变以进行测试目的，就可以在您的实现中添加任何函数。</p>
+<p>此外，不要使用malloc/new来分配大块内存以用于树。如果需要为树创建新节点或需要缓冲区进行某些操作，则应使用缓冲池。
+对于此任务，您必须使用名为transaction（src/include/concurrency/transaction.h）的传递指针参数。它提供了存储在遍历B+树时获取闩的页面以及存储在Remove操作期间删除的页面的方法。我们建议您仔细查看B+树中的FindLeafPage方法，您可能需要修改先前的实现（请注意，您可能需要更改此方法的返回值），然后在此特定方法中添加闩抓取逻辑。</p>
+<p>请注意，在缓冲池管理器中FetchPage()的返回值是指向Page实例（src/include/storage/page/page.h）的指针。您可以在Page上抓取闩，但不能在B+Tree节点上抓取闩（内部节点或叶节点均不可）。</p>
+<p>常见的陷阱 您未在该项目中测试线程安全扫描（不会测试并发迭代器操作）。
+然而，正确的实现将要求叶页在无法获取其兄弟上的闩锁时抛出 std::exception
+以避免潜在的死锁。 仔细考虑缓冲池管理器类的 UnpinPage(page_id, is_dirty)
+方法和页面类的 UnLock() 方法之间的顺序和关系。
+在从缓冲池中取消固定同一页之前，您必须释放该页上的闩锁。
+如果你正确地实现并发 B+tree 索引，那么每个线程总是会从根到底部获取
+latch。 释放闩锁时，请确保遵循相同的顺序（也就是从根部到底部）。
+一种极端情况是插入和删除时，成员变量root_page_id
+(src/include/storage/index/b_plus_tree.h)也会被更新。
+你有责任防止这个共享变量的并发更新（提示：在 B+
+树索引中添加一个抽象层，你可以使用 std::mutex 来保护这个变量）</p>
+<p>竞争基准
+为确保您正确实施锁抓取，我们将使用竞争基准从您的实施中收集一些启发式，并根据启发式手动检查您的代码。
+Contention ratio是B+树在多线程环境下使用时与单线程环境相比的减速。
+通常，Gradescope 上的竞争比应在 [2.5, 3.5] 范围内。 争用率 &lt; 2.5
+通常意味着你的锁抓取是不正确的（例如，可能持有一些全局锁，持有一些锁不必要的长时间），TA
+将手动审查你的代码并应用正确性扣除。 争用率 &gt; 3.5
+意味着您的实施中的锁争用太高，建议您调查正在发生的事情。</p>
+<ol type="1">
 <li>检查所有的unpin与页删除</li>
-<li>加锁，从根节点到某一确定的叶子节点；<br> 根节点有单独的锁<br> 如果发生合并，需要将另外一个叶子结点及其路径加锁</li>
+<li>加锁，从根节点到某一确定的叶子节点； 根节点有单独的锁
+如果发生合并，需要将另外一个叶子结点及其路径加锁</li>
 </ol>
 
     </div>
@@ -419,7 +521,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#archlab"><span class="nav-number">2.</span> <span class="nav-text">archlab</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86%EF%BC%88%E6%9D%A5%E6%BA%90%E4%BA%8ECSAPP%E4%B8%AD%E6%96%87%E7%89%88%E7%AC%AC4%E7%AB%A0%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">0. 背景知识（来源于CSAPP中文版第4章）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-flex%E7%BC%96%E8%AF%91%E5%87%BA%E9%94%99"><span class="nav-number">2.2.</span> <span class="nav-text">1. flex编译出错</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#archlab"><span class="nav-number">2.</span> <span class="nav-text">archlab</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86%E6%9D%A5%E6%BA%90%E4%BA%8Ecsapp%E4%B8%AD%E6%96%87%E7%89%88%E7%AC%AC4%E7%AB%A0"><span class="nav-number">2.1.</span> <span class="nav-text">0.
+背景知识（来源于CSAPP中文版第4章）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#flex%E7%BC%96%E8%AF%91%E5%87%BA%E9%94%99"><span class="nav-number">2.2.</span> <span class="nav-text">1. flex编译出错</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -480,6 +583,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -499,6 +612,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -516,6 +631,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -528,6 +647,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

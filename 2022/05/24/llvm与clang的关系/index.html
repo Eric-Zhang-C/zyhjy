@@ -15,26 +15,26 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="LLVM最初是底层虚拟机（Low Level Virtual Machine）的缩写，指架构编译器的框架系统，用C++编写而成。我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。 LLVM的子项目： LLVM CoreLLVM Core libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行CPU（">
+  <meta name="description" content="LLVM最初是底层虚拟机（Low Level Virtual Machine）的缩写，指架构编译器的框架系统，用C++编写而成。 我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。 LLVM的子项目：  LLVM Core LLVM Core libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行C">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LLVM与clang的关系">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2022/05/24/llvm%E4%B8%8Eclang%E7%9A%84%E5%85%B3%E7%B3%BB/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="LLVM最初是底层虚拟机（Low Level Virtual Machine）的缩写，指架构编译器的框架系统，用C++编写而成。我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。 LLVM的子项目： LLVM CoreLLVM Core libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行CPU（">
+<meta property="og:description" content="LLVM最初是底层虚拟机（Low Level Virtual Machine）的缩写，指架构编译器的框架系统，用C++编写而成。 我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。 LLVM的子项目：  LLVM Core LLVM Core libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行C">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://zyh-eric.gitee.io/zyhjy/pics/20160718211639694.png">
-<meta property="og:image" content="https://zyh-eric.gitee.io/zyhjy/pics/223786_M9G9ETTWNHNZP65.png">
+<meta property="og:image" content="https://zyh-eric.gitee.io/pics/20160718211639694.png">
 <meta property="article:published_time" content="2022-05-24T15:22:50.000Z">
 <meta property="article:modified_time" content="2023-07-30T10:15:18.554Z">
 <meta property="article:author" content="Yuhang Zhang">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://zyh-eric.gitee.io/zyhjy/pics/20160718211639694.png">
+<meta name="twitter:image" content="https://zyh-eric.gitee.io/pics/20160718211639694.png">
 
 <link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2022/05/24/llvm%E4%B8%8Eclang%E7%9A%84%E5%85%B3%E7%B3%BB/">
 
@@ -51,6 +51,15 @@
 
   <title>LLVM与clang的关系 | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -107,6 +116,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -141,11 +151,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -211,7 +248,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -222,23 +273,46 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><strong>LLVM</strong>最初是底层虚拟机（<strong>L</strong>ow <strong>L</strong>evel <strong>V</strong>irtual <strong>M</strong>achine）的缩写，指<strong>架构编译器</strong>的框架系统，用C++编写而成。<br><br>我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。<br></p>
-<h3 id="LLVM的子项目："><a href="#LLVM的子项目：" class="headerlink" title="LLVM的子项目："></a>LLVM的子项目：</h3><ol>
-<li>LLVM Core<br><br><strong>LLVM Core</strong> libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行CPU（以及一些不太常见的CPU）的架构后端生成支持。这些库是围绕一个称为LLVM中间码（LLVM intermediate representation, “LLVM IR”）的的工具来构建的。LLVM核心库的文档特别详细，所以用LLVM作为优化器和代码生成器来形成自己的语言（或移植现有编译器）是非常容易的。</li>
-<li><strong>Clang</strong><br><br>   Clang是一个LLVM“原配”的C&#x2F;C ++&#x2F;Objective-C编译器，旨在提供高效快速的编译效率（例如，在debug模式下编译Objective-C代码时比GCC快3倍），风格良好的warning和error信息，以及作为开源库来构建第三方语言的编译器。<br>   <img src="/zyhjy/pics/20160718211639694.png" alt="clangAndLLVM" title="clangAndLLVM"><br>   Clang Static Analyzer是一个静态的自动查找代码中的错误的工具，是使用Clang前端作为依赖库来解析C&#x2F;C++代码的工具类型的一个很好的例子。</li>
-<li>LLDB<br><br>   LLDB项目以LLVM和Clang提供的库为基础，提供了一个出色的native级别调试器。它使用Clang AST和表达式解析器、LLVM JIT、LLVM反汇编器等元生组件，所以跟它们配合的很好。在加载调试符号时，它也比GDB快多了而且能够更好的节约内存。</li>
-<li>libc++ and libc++ ABI<br><br>libc++和libc++ ABI项目提供了符合C++标准库的高性能实现，而且还包括对C++11和C++14的完整支持。</li>
-<li>compiler-rt<br><br>compiler-rt项目为动态测试工具（如AddressSanitizer，ThreadSanitizer，MemorySanitizer和DataFlowSanitizer）提供了运行时库的实现。它还为像“__fixunsdfdi”这样的低级代码生成器支持进程提供高层面的调整实现，也提供当目标没有用于实现核心IR操作的短序列本机指令时生成的其他调用。</li>
+        <p><strong>LLVM</strong>最初是底层虚拟机（<strong>L</strong>ow
+<strong>L</strong>evel <strong>V</strong>irtual
+<strong>M</strong>achine）的缩写，指<strong>架构编译器</strong>的框架系统，用C++编写而成。<br>
+我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。<br></p>
+<h3 id="llvm的子项目">LLVM的子项目：</h3>
+<ol type="1">
+<li>LLVM Core<br> <strong>LLVM Core</strong>
+libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行CPU（以及一些不太常见的CPU）的架构后端生成支持。这些库是围绕一个称为LLVM中间码（LLVM
+intermediate representation, "LLVM
+IR"）的的工具来构建的。LLVM核心库的文档特别详细，所以用LLVM作为优化器和代码生成器来形成自己的语言（或移植现有编译器）是非常容易的。</li>
+<li><strong>Clang</strong><br> Clang是一个LLVM“原配”的C/C
+++/Objective-C编译器，旨在提供高效快速的编译效率（例如，在debug模式下编译Objective-C代码时比GCC快3倍），风格良好的warning和error信息，以及作为开源库来构建第三方语言的编译器。
+<img src="/pics/20160718211639694.png" title="clangAndLLVM"
+alt="clangAndLLVM" /> Clang Static
+Analyzer是一个静态的自动查找代码中的错误的工具，是使用Clang前端作为依赖库来解析C/C++代码的工具类型的一个很好的例子。</li>
+<li>LLDB<br>
+LLDB项目以LLVM和Clang提供的库为基础，提供了一个出色的native级别调试器。它使用Clang
+AST和表达式解析器、LLVM
+JIT、LLVM反汇编器等元生组件，所以跟它们配合的很好。在加载调试符号时，它也比GDB快多了而且能够更好的节约内存。</li>
+<li>libc++ and libc++ ABI<br> libc++和libc++
+ABI项目提供了符合C++标准库的高性能实现，而且还包括对C++11和C++14的完整支持。</li>
+<li>compiler-rt<br>
+compiler-rt项目为动态测试工具（如AddressSanitizer，ThreadSanitizer，MemorySanitizer和DataFlowSanitizer）提供了运行时库的实现。它还为像“__fixunsdfdi”这样的低级代码生成器支持进程提供高层面的调整实现，也提供当目标没有用于实现核心IR操作的短序列本机指令时生成的其他调用。</li>
 <li>OpenMP项目提供了一个OpenMP运行时，用于Clang中的OpenMP实现。</li>
 <li>polly项目使用多面体模型实现一组缓存局部优化以及自动并行和矢量化。</li>
 <li>libclc项目旨在实现OpenCL标准库。</li>
-<li>klee项目实现了一个“符号虚拟机”，它使用一个定理证明器来尝试评估程序中的所有动态路径，以发现错误并证明函数的属性。 klee的一个主要特性是它可以在检测到错误时生成测试用例。</li>
-<li>SAFECode项目是用于C &#x2F; C ++程序的内存安全编译器。 它通过运行时检查来检测代码，以便在运行时检测内存安全错误（例如，缓冲区溢出）。 它可用于保护软件免受安全攻击，也可用作Valgrind等内存安全错误调试工具。</li>
-<li>LLD项目是一个新的链接器。 可以作为系统链接器的直接替代品，有更快的运行速度。</li>
+<li>klee项目实现了一个“符号虚拟机”，它使用一个定理证明器来尝试评估程序中的所有动态路径，以发现错误并证明函数的属性。
+klee的一个主要特性是它可以在检测到错误时生成测试用例。</li>
+<li>SAFECode项目是用于C / C ++程序的内存安全编译器。
+它通过运行时检查来检测代码，以便在运行时检测内存安全错误（例如，缓冲区溢出）。
+它可用于保护软件免受安全攻击，也可用作Valgrind等内存安全错误调试工具。</li>
+<li>LLD项目是一个新的链接器。
+可以作为系统链接器的直接替代品，有更快的运行速度。</li>
 </ol>
-<h3 id="LLVM的功能介绍"><a href="#LLVM的功能介绍" class="headerlink" title="LLVM的功能介绍"></a>LLVM的功能介绍</h3><ul>
-<li>以C&#x2F;C++为例，LLVM编译系统包括以下内容：<ul>
-<li>一个良好的前端；GCC 4.2解析器能解析的语言，比如C，C ++，Objective-C，Fortran等，它都能提供同能能力的支持；另外它还能支持一些GCC的扩展插件。</li>
+<h3 id="llvm的功能介绍">LLVM的功能介绍</h3>
+<ul>
+<li>以C/C++为例，LLVM编译系统包括以下内容：
+<ul>
+<li>一个良好的前端；GCC 4.2解析器能解析的语言，比如C，C
+++，Objective-C，Fortran等，它都能提供同能能力的支持；另外它还能支持一些GCC的扩展插件。</li>
 <li>LLVM指令集的稳定实现；不管代码处于何种状态，都可以在汇编（ASCII）和字节码（二进制）之间自由转换。</li>
 <li>一个功能强大的<strong>Pass</strong>管理系统，它根据它们的依赖性自动对<strong>Pass</strong>（包括分析，转换和代码生成Pass）进行排序，并将它们管道化以提高效率。</li>
 <li>广泛的全局标量优化。</li>
@@ -249,11 +323,12 @@
 <li>用于测试和生成除上面列出的目标之外的目标的本机代码的C后端。</li>
 <li>与gprof类似的分析系统。</li>
 <li>具有许多基准代码和应用程​​序的测试框架。</li>
-<li>API和调试工具，以简化LLVM组件的快速开发。<br><img src="/zyhjy/pics/223786_M9G9ETTWNHNZP65.png" alt="LLVM"></li>
+<li>API和调试工具，以简化LLVM组件的快速开发。 <img
+src="/pics/223786_M9G9ETTWNHNZP65.png" alt="LLVM" /></li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<p>Check out the <a target="_blank" rel="noopener" href="https://llvm.org/">LLVM docs</a> for more info on how to get the most out of LLVM. </p>
+<p>Check out the <a target="_blank" rel="noopener" href="https://llvm.org">LLVM docs</a> for more info
+on how to get the most out of LLVM.</p>
 
     </div>
 
@@ -334,7 +409,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#LLVM%E7%9A%84%E5%AD%90%E9%A1%B9%E7%9B%AE%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">LLVM的子项目：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LLVM%E7%9A%84%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">LLVM的功能介绍</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#llvm%E7%9A%84%E5%AD%90%E9%A1%B9%E7%9B%AE"><span class="nav-number">1.</span> <span class="nav-text">LLVM的子项目：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#llvm%E7%9A%84%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">LLVM的功能介绍</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -395,6 +470,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -414,6 +499,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -431,6 +518,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -443,6 +534,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

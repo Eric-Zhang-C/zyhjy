@@ -15,18 +15,19 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="0. Basic Inline. The format of basic inline assembly is very much straight forward. Its basic form is  基本形式:1asm(&quot;assembly code&quot;);  Example.1asm(&quot;movl %ecx %eax&quot;); &#x2F;* moves the con">
+  <meta name="description" content="0. Basic Inline.  The format of basic inline assembly is very much straight forward. Its basic form is ## 基本形式: 1asm(&quot;assembly code&quot;); ## Example. 1asm(&quot;movl %ecx %eax&quot;); &#x2F;* moves">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C语言内联汇编">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/02/07/C%E8%AF%AD%E8%A8%80%E5%86%85%E8%81%94%E6%B1%87%E7%BC%96/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="0. Basic Inline. The format of basic inline assembly is very much straight forward. Its basic form is  基本形式:1asm(&quot;assembly code&quot;);  Example.1asm(&quot;movl %ecx %eax&quot;); &#x2F;* moves the con">
+<meta property="og:description" content="0. Basic Inline.  The format of basic inline assembly is very much straight forward. Its basic form is ## 基本形式: 1asm(&quot;assembly code&quot;); ## Example. 1asm(&quot;movl %ecx %eax&quot;); &#x2F;* moves">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-02-07T09:28:50.000Z">
 <meta property="article:modified_time" content="2023-07-30T10:15:18.573Z">
@@ -48,6 +49,15 @@
 
   <title>C语言内联汇编 | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -104,6 +114,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -138,11 +149,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -208,7 +246,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>877</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -219,39 +271,43 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="0-Basic-Inline"><a href="#0-Basic-Inline" class="headerlink" title="0. Basic Inline."></a>0. Basic Inline.</h1><ul>
-<li>The format of basic inline assembly is very much straight forward. Its basic form is</li>
+        <h1 id="basic-inline.">0. Basic Inline.</h1>
+<ul>
+<li>The format of basic inline assembly is very much straight forward.
+Its basic form is ## 基本形式: <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">asm</span>(<span class="string">&quot;assembly code&quot;</span>);</span><br></pre></td></tr></table></figure> ## Example. <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">asm</span>(<span class="string">&quot;movl %ecx %eax&quot;</span>); <span class="comment">/* moves the contents of ecx to eax */</span></span><br></pre></td></tr></table></figure>
+## 说明:</li>
 </ul>
-<h2 id="基本形式"><a href="#基本形式" class="headerlink" title="基本形式:"></a>基本形式:</h2><pre><code><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">asm</span>(<span class="string">&quot;assembly code&quot;</span>);</span><br></pre></td></tr></table></figure>
-</code></pre>
-<h2 id="Example"><a href="#Example" class="headerlink" title="Example."></a>Example.</h2><pre><code><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">asm</span>(<span class="string">&quot;movl %ecx %eax&quot;</span>); <span class="comment">/* moves the contents of ecx to eax */</span></span><br></pre></td></tr></table></figure>
-</code></pre>
-<h2 id="说明"><a href="#说明" class="headerlink" title="说明:"></a>说明:</h2><ol>
-<li>asm的语法规定mov的方向是从左到右，即<code>mov %src %dst</code></li>
+<ol type="1">
+<li>asm的语法规定mov的方向是从左到右，即<code>mov %src %dst</code> # 1.
+extended assembly</li>
 </ol>
-<h1 id="1-extended-assembly"><a href="#1-extended-assembly" class="headerlink" title="1. extended assembly"></a>1. extended assembly</h1><ul>
-<li>可指定输入、输出,与asm外部的C程序交互</li>
+<ul>
+<li>可指定输入、输出,与asm外部的C程序交互 ## 基本形式: <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">asm</span> ( assembler template </span><br><span class="line">    : output operands                  <span class="comment">/* optional */</span></span><br><span class="line">    : input operands                   <span class="comment">/* optional */</span></span><br><span class="line">    : <span class="built_in">list</span> of clobbered registers      <span class="comment">/* optional */</span></span><br><span class="line">    );</span><br></pre></td></tr></table></figure> ##
+说明:</li>
 </ul>
-<h2 id="基本形式-1"><a href="#基本形式-1" class="headerlink" title="基本形式:"></a>基本形式:</h2><pre><code><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">asm</span> ( assembler template </span><br><span class="line">    : output operands                  <span class="comment">/* optional */</span></span><br><span class="line">    : input operands                   <span class="comment">/* optional */</span></span><br><span class="line">    : <span class="built_in">list</span> of clobbered registers      <span class="comment">/* optional */</span></span><br><span class="line">    );</span><br></pre></td></tr></table></figure>
-</code></pre>
-<h2 id="说明-1"><a href="#说明-1" class="headerlink" title="说明:"></a>说明:</h2><ol>
-<li>output operands代表输出值，即该值可在执行中从asm寄存器获取到外部C程序中</li>
-<li>input operands代表输入值，即该值可从外部C程序传递给asm中的寄存器</li>
-<li>list of clobbered registers代表这段内联汇编执行后，哪些寄存器的值被破坏，来告知编译器做好备份和恢复工作</li>
+<ol type="1">
+<li>output
+operands代表输出值，即该值可在执行中从asm寄存器获取到外部C程序中</li>
+<li>input
+operands代表输入值，即该值可从外部C程序传递给asm中的寄存器</li>
+<li>list of clobbered
+registers代表这段内联汇编执行后，哪些寄存器的值被破坏，来告知编译器做好备份和恢复工作
+## Example</li>
 </ol>
-<h2 id="Example-1"><a href="#Example-1" class="headerlink" title="Example"></a>Example</h2><ul>
-<li>Example1:  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a=<span class="number">10</span>, b;</span><br><span class="line"><span class="keyword">asm</span> (<span class="string">&quot;movl %1, %%eax; </span></span><br><span class="line"><span class="string">      movl %%eax, %0;&quot;</span></span><br><span class="line">     :<span class="string">&quot;=r&quot;</span>(b)        <span class="comment">/* output */</span></span><br><span class="line">     :<span class="string">&quot;r&quot;</span>(a)         <span class="comment">/* input */</span></span><br><span class="line">     :<span class="string">&quot;%eax&quot;</span>         <span class="comment">/* clobbered register */</span></span><br><span class="line">     );  </span><br></pre></td></tr></table></figure>
+<ul>
+<li>Example1: <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a=<span class="number">10</span>, b;</span><br><span class="line"><span class="keyword">asm</span> (<span class="string">&quot;movl %1, %%eax; </span></span><br><span class="line"><span class="string">      movl %%eax, %0;&quot;</span></span><br><span class="line">     :<span class="string">&quot;=r&quot;</span>(b)        <span class="comment">/* output */</span></span><br><span class="line">     :<span class="string">&quot;r&quot;</span>(a)         <span class="comment">/* input */</span></span><br><span class="line">     :<span class="string">&quot;%eax&quot;</span>         <span class="comment">/* clobbered register */</span></span><br><span class="line">     );  </span><br></pre></td></tr></table></figure>
 <ul>
 <li>第一行将a的内容写入<code>%eax</code></li>
 <li>第二行将<code>%eax</code>的内容输出到b</li>
-<li><code>%1</code>,<code>%0</code>是占位符，会根据顺序和位置在下面的output、input匹配对应的的变量<ul>
+<li><code>%1</code>,<code>%0</code>是占位符，会根据顺序和位置在下面的output、input匹配对应的的变量
+<ul>
 <li><code>%src</code>匹配input ；<code>%dst</code>匹配output</li>
+</ul></li>
+</ul></li>
 </ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>Check out the <a target="_blank" rel="noopener" href="https://www.ibiblio.org/gferg/ldp/GCC-Inline-Assembly-HOWTO.html">GCC Inline Assembly</a> for more info on how to get the most out of ASM.</p>
+<p>Check out the <a
+target="_blank" rel="noopener" href="https://www.ibiblio.org/gferg/ldp/GCC-Inline-Assembly-HOWTO.html">GCC
+Inline Assembly</a> for more info on how to get the most out of ASM.</p>
 
     </div>
 
@@ -332,7 +388,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0-Basic-Inline"><span class="nav-number">1.</span> <span class="nav-text">0. Basic Inline.</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%BD%A2%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">基本形式:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Example"><span class="nav-number">1.2.</span> <span class="nav-text">Example.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E"><span class="nav-number">1.3.</span> <span class="nav-text">说明:</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-extended-assembly"><span class="nav-number">2.</span> <span class="nav-text">1. extended assembly</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%BD%A2%E5%BC%8F-1"><span class="nav-number">2.1.</span> <span class="nav-text">基本形式:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E-1"><span class="nav-number">2.2.</span> <span class="nav-text">说明:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Example-1"><span class="nav-number">2.3.</span> <span class="nav-text">Example</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#basic-inline."><span class="nav-number">1.</span> <span class="nav-text">0. Basic Inline.</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -393,6 +449,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -412,6 +478,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -429,6 +497,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -441,6 +513,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

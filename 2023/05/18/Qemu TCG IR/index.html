@@ -15,18 +15,19 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="TCG Intermediate Representation &#x2F; TCG（Tiny Code Generator）中间表示Introduction &#x2F; 介绍 TCG（Tiny Code Generator）最初是作为一个C编译器的通用后端而开始的。它经过简化后用于QEMU。 它还源于由Paul Brook编写的QOP代码生成器。  Definitions &#x2F; 定义">
+  <meta name="description" content="TCG Intermediate Representation &#x2F; TCG（Tiny Code Generator）中间表示 Introduction &#x2F; 介绍  TCG（Tiny Code Generator）最初是作为一个C编译器的通用后端而开始的。它经过简化后用于QEMU。 它还源于由Paul Brook编写的QOP代码生成器。  Definitions &#x2F; 定义  TCG的目标是我们生成代">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Qemu TCG IR">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/05/18/Qemu%20TCG%20IR/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="TCG Intermediate Representation &#x2F; TCG（Tiny Code Generator）中间表示Introduction &#x2F; 介绍 TCG（Tiny Code Generator）最初是作为一个C编译器的通用后端而开始的。它经过简化后用于QEMU。 它还源于由Paul Brook编写的QOP代码生成器。  Definitions &#x2F; 定义">
+<meta property="og:description" content="TCG Intermediate Representation &#x2F; TCG（Tiny Code Generator）中间表示 Introduction &#x2F; 介绍  TCG（Tiny Code Generator）最初是作为一个C编译器的通用后端而开始的。它经过简化后用于QEMU。 它还源于由Paul Brook编写的QOP代码生成器。  Definitions &#x2F; 定义  TCG的目标是我们生成代">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-05-18T12:46:50.000Z">
 <meta property="article:modified_time" content="2023-07-30T10:15:50.922Z">
@@ -48,6 +49,15 @@
 
   <title>Qemu TCG IR | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -104,6 +114,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -138,11 +149,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -208,7 +246,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>26 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -219,857 +271,883 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="TCG-Intermediate-Representation-TCG（Tiny-Code-Generator）中间表示"><a href="#TCG-Intermediate-Representation-TCG（Tiny-Code-Generator）中间表示" class="headerlink" title="TCG Intermediate Representation &#x2F; TCG（Tiny Code Generator）中间表示"></a>TCG Intermediate Representation &#x2F; TCG（Tiny Code Generator）中间表示</h1><h2 id="Introduction-介绍"><a href="#Introduction-介绍" class="headerlink" title="Introduction &#x2F; 介绍"></a>Introduction &#x2F; 介绍</h2><ul>
-<li>TCG（Tiny Code Generator）最初是作为一个C编译器的通用后端而开始的。它经过简化后用于QEMU。</li>
+        <h1
+id="tcg-intermediate-representation-tcgtiny-code-generator中间表示">TCG
+Intermediate Representation / TCG（Tiny Code Generator）中间表示</h1>
+<h2 id="introduction-介绍">Introduction / 介绍</h2>
+<ul>
+<li>TCG（Tiny Code
+Generator）最初是作为一个C编译器的通用后端而开始的。它经过简化后用于QEMU。</li>
 <li>它还源于由Paul Brook编写的QOP代码生成器。</li>
 </ul>
-<h2 id="Definitions-定义"><a href="#Definitions-定义" class="headerlink" title="Definitions &#x2F; 定义"></a>Definitions &#x2F; 定义</h2><ul>
-<li><p>TCG的<em>目标</em>是我们生成代码的架构。</p>
-</li>
-<li><p>它当然不同于QEMU的”目标”，QEMU的目标是被模拟的架构。</p>
-</li>
-<li><p>当TCG作为一个用于交叉编译的通用C后端开始时，假设TCG的目标可能与主机不同，尽管对于QEMU来说永远不会是这种情况。</p>
-</li>
-<li><p>在这个文档中，我们使用<em>guest</em>来指定我们正在模拟的架构；<em>target</em>始终指的是TCG的目标，也就是我们运行QEMU的机器。</p>
-</li>
-<li><p>具有<em>未定义行为</em>的操作可能导致崩溃。</p>
-</li>
-<li><p>具有<em>未指定行为</em>的操作不会崩溃。然而，结果可能是多种可能性之一，因此可能被视为<em>未定义的结果</em>。</p>
-</li>
+<h2 id="definitions-定义">Definitions / 定义</h2>
+<ul>
+<li><p>TCG的<em>目标</em>是我们生成代码的架构。</p></li>
+<li><p>它当然不同于QEMU的"目标"，QEMU的目标是被模拟的架构。</p></li>
+<li><p>当TCG作为一个用于交叉编译的通用C后端开始时，假设TCG的目标可能与主机不同，尽管对于QEMU来说永远不会是这种情况。</p></li>
+<li><p>在这个文档中，我们使用<em>guest</em>来指定我们正在模拟的架构；<em>target</em>始终指的是TCG的目标，也就是我们运行QEMU的机器。</p></li>
+<li><p>具有<em>未定义行为</em>的操作可能导致崩溃。</p></li>
+<li><p>具有<em>未指定行为</em>的操作不会崩溃。然而，结果可能是多种可能性之一，因此可能被视为<em>未定义的结果</em>。</p></li>
 </ul>
-<h2 id="Basic-Blocks-基本块"><a href="#Basic-Blocks-基本块" class="headerlink" title="Basic Blocks &#x2F; 基本块"></a>Basic Blocks &#x2F; 基本块</h2><ul>
-<li><p>TCG的<em>基本块</em>是一个单入口、多出口的区域，对应于一系列指令，并以标签或任何跳转指令结尾。</p>
-</li>
-<li><p>TCG的<em>扩展基本块</em>是一个单入口、多出口的区域，对应于一系列指令，并以标签或无条件跳转指令结尾。</p>
-</li>
-<li><p>具体来说，扩展基本块是由零个或多个条件跳转指令的顺序连接起来的一系列基本块。</p>
-</li>
+<h2 id="basic-blocks-基本块">Basic Blocks / 基本块</h2>
+<ul>
+<li><p>TCG的<em>基本块</em>是一个单入口、多出口的区域，对应于一系列指令，并以标签或任何跳转指令结尾。</p></li>
+<li><p>TCG的<em>扩展基本块</em>是一个单入口、多出口的区域，对应于一系列指令，并以标签或无条件跳转指令结尾。</p></li>
+<li><p>具体来说，扩展基本块是由零个或多个条件跳转指令的顺序连接起来的一系列基本块。</p></li>
 </ul>
-<h2 id="Operations-操作"><a href="#Operations-操作" class="headerlink" title="Operations &#x2F; 操作"></a>Operations &#x2F; 操作</h2><ul>
-<li><p>在TCG中，TCG指令或操作（ops）作用于TCG变量，它们都具有强类型。</p>
-</li>
-<li><p>每个指令都有固定数量的输出变量操作数、输入变量操作数和常量操作数。</p>
-</li>
-<li><p>向量指令具有指定向量中元素大小的字段。需要注意的例外是调用指令，它具有可变数量的输出和输入。</p>
-</li>
-<li><p>在文本形式中，输出操作数通常首先出现，然后是输入操作数，最后是常量操作数。</p>
-</li>
-<li><p>指令名称中包含输出类型。</p>
-</li>
-<li><p>常量以’$’前缀表示。</p>
-</li>
-<li><p>例如：</p>
-</li>
+<h2 id="operations-操作">Operations / 操作</h2>
+<ul>
+<li><p>在TCG中，TCG指令或操作（ops）作用于TCG变量，它们都具有强类型。</p></li>
+<li><p>每个指令都有固定数量的输出变量操作数、输入变量操作数和常量操作数。</p></li>
+<li><p>向量指令具有指定向量中元素大小的字段。需要注意的例外是调用指令，它具有可变数量的输出和输入。</p></li>
+<li><p>在文本形式中，输出操作数通常首先出现，然后是输入操作数，最后是常量操作数。</p></li>
+<li><p>指令名称中包含输出类型。</p></li>
+<li><p>常量以'$'前缀表示。</p></li>
+<li><p>例如：</p></li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_i32 t0, t1, t2    /* (t0 &lt;- t1 + t2) */</span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>上述示例中，<code>add_i32</code>表示整数相加的指令，<code>t0</code>是输出变量，<code>t1</code>和<code>t2</code>是输入变量。指令执行后，<code>t0</code>的值将等于<code>t1</code>和<code>t2</code>的和。</li>
 </ul>
-<h1 id="Variables"><a href="#Variables" class="headerlink" title="Variables"></a>Variables</h1><ul>
+<h1 id="variables">Variables</h1>
+<ul>
 <li><p><code>TEMP_FIXED</code></p>
-<p>There is one TCG <em>fixed global</em> variable, <code>cpu_env</code>, which is<br>live in all translation blocks, and holds a pointer to <code>CPUArchState</code>.<br>This variable is held in a host cpu register at all times in all<br>translation blocks.</p>
-</li>
+<p>There is one TCG <em>fixed global</em> variable,
+<code>cpu_env</code>, which is live in all translation blocks, and holds
+a pointer to <code>CPUArchState</code>. This variable is held in a host
+cpu register at all times in all translation blocks.</p></li>
 <li><p><code>TEMP_GLOBAL</code></p>
-<p>A TCG <em>global</em> is a variable which is live in all translation blocks,<br>and corresponds to memory location that is within <code>CPUArchState</code>.<br>These may be specified as an offset from <code>cpu_env</code>, in which case<br>they are called <em>direct globals</em>, or may be specified as an offset<br>from a direct global, in which case they are called <em>indirect globals</em>.<br>Even indirect globals should still reference memory within<br><code>CPUArchState</code>.  All TCG globals are defined during<br><code>TCGCPUOps.initialize</code>, before any translation blocks are generated.</p>
-</li>
+<p>A TCG <em>global</em> is a variable which is live in all translation
+blocks, and corresponds to memory location that is within
+<code>CPUArchState</code>. These may be specified as an offset from
+<code>cpu_env</code>, in which case they are called <em>direct
+globals</em>, or may be specified as an offset from a direct global, in
+which case they are called <em>indirect globals</em>. Even indirect
+globals should still reference memory within <code>CPUArchState</code>.
+All TCG globals are defined during <code>TCGCPUOps.initialize</code>,
+before any translation blocks are generated.</p></li>
 <li><p><code>TEMP_CONST</code></p>
-<p>A TCG <em>constant</em> is a variable which is live throughout the entire<br>translation block, and contains a constant value.  These variables<br>are allocated on demand during translation and are hashed so that<br>there is exactly one variable holding a given value.</p>
-</li>
+<p>A TCG <em>constant</em> is a variable which is live throughout the
+entire translation block, and contains a constant value. These variables
+are allocated on demand during translation and are hashed so that there
+is exactly one variable holding a given value.</p></li>
 <li><p><code>TEMP_TB</code></p>
-<p>A TCG <em>translation block temporary</em> is a variable which is live<br>throughout the entire translation block, but dies on any exit.<br>These temporaries are allocated explicitly during translation.</p>
-</li>
+<p>A TCG <em>translation block temporary</em> is a variable which is
+live throughout the entire translation block, but dies on any exit.
+These temporaries are allocated explicitly during translation.</p></li>
 <li><p><code>TEMP_EBB</code></p>
-<p>A TCG <em>extended basic block temporary</em> is a variable which is live<br>throughout an extended basic block, but dies on any exit.<br>These temporaries are allocated explicitly during translation.</p>
-</li>
+<p>A TCG <em>extended basic block temporary</em> is a variable which is
+live throughout an extended basic block, but dies on any exit. These
+temporaries are allocated explicitly during translation.</p></li>
 </ul>
-<h1 id="Types"><a href="#Types" class="headerlink" title="Types"></a>Types</h1><ul>
+<h1 id="types">Types</h1>
+<ul>
 <li><p><code>TCG_TYPE_I32</code></p>
-<p>A 32-bit integer.</p>
-</li>
+<p>A 32-bit integer.</p></li>
 <li><p><code>TCG_TYPE_I64</code></p>
-<p>A 64-bit integer.  For 32-bit hosts, such variables are split into a pair<br>of variables with <code>type=TCG_TYPE_I32</code> and <code>base_type=TCG_TYPE_I64</code>.<br>The <code>temp_subindex</code> for each indicates where it falls within the<br>host-endian representation.</p>
-</li>
+<p>A 64-bit integer. For 32-bit hosts, such variables are split into a
+pair of variables with <code>type=TCG_TYPE_I32</code> and
+<code>base_type=TCG_TYPE_I64</code>. The <code>temp_subindex</code> for
+each indicates where it falls within the host-endian
+representation.</p></li>
 <li><p><code>TCG_TYPE_PTR</code></p>
-<p>An alias for <code>TCG_TYPE_I32</code> or <code>TCG_TYPE_I64</code>, depending on the size<br>of a pointer for the host.</p>
-</li>
+<p>An alias for <code>TCG_TYPE_I32</code> or <code>TCG_TYPE_I64</code>,
+depending on the size of a pointer for the host.</p></li>
 <li><p><code>TCG_TYPE_REG</code></p>
-<p>An alias for <code>TCG_TYPE_I32</code> or <code>TCG_TYPE_I64</code>, depending on the size<br>of the integer registers for the host.  This may be larger<br>than <code>TCG_TYPE_PTR</code> depending on the host ABI.</p>
-</li>
+<p>An alias for <code>TCG_TYPE_I32</code> or <code>TCG_TYPE_I64</code>,
+depending on the size of the integer registers for the host. This may be
+larger than <code>TCG_TYPE_PTR</code> depending on the host
+ABI.</p></li>
 <li><p><code>TCG_TYPE_I128</code></p>
-<p>A 128-bit integer.  For all hosts, such variables are split into a number<br>of variables with <code>type=TCG_TYPE_REG</code> and <code>base_type=TCG_TYPE_I128</code>.<br>The <code>temp_subindex</code> for each indicates where it falls within the<br>host-endian representation.</p>
-</li>
+<p>A 128-bit integer. For all hosts, such variables are split into a
+number of variables with <code>type=TCG_TYPE_REG</code> and
+<code>base_type=TCG_TYPE_I128</code>. The <code>temp_subindex</code> for
+each indicates where it falls within the host-endian
+representation.</p></li>
 <li><p><code>TCG_TYPE_V64</code></p>
-<p>A 64-bit vector.  This type is valid only if the TCG target<br>sets <code>TCG_TARGET_HAS_v64</code>.</p>
-</li>
+<p>A 64-bit vector. This type is valid only if the TCG target sets
+<code>TCG_TARGET_HAS_v64</code>.</p></li>
 <li><p><code>TCG_TYPE_V128</code></p>
-<p>A 128-bit vector.  This type is valid only if the TCG target<br>sets <code>TCG_TARGET_HAS_v128</code>.</p>
-</li>
+<p>A 128-bit vector. This type is valid only if the TCG target sets
+<code>TCG_TARGET_HAS_v128</code>.</p></li>
 <li><p><code>TCG_TYPE_V256</code></p>
-<p>A 256-bit vector.  This type is valid only if the TCG target<br>sets <code>TCG_TARGET_HAS_v256</code>.</p>
-</li>
+<p>A 256-bit vector. This type is valid only if the TCG target sets
+<code>TCG_TARGET_HAS_v256</code>.</p></li>
 </ul>
-<h2 id="Helpers-辅助函数"><a href="#Helpers-辅助函数" class="headerlink" title="Helpers &#x2F; 辅助函数"></a>Helpers &#x2F; 辅助函数</h2><ul>
-<li><p>在TCG中，辅助函数（helpers）通过在特定于客户机的<code>helper.h</code>中注册，并处理生成<code>tcg_gen_helper_*</code>函数。</p>
-</li>
-<li><p>借助这些函数，可以调用接受i32、i64、i128或指针类型的函数。</p>
-</li>
-<li><p>默认情况下，在调用辅助函数之前，所有全局变量都会存储在其规范位置上。</p>
-</li>
-<li><p>默认情况下，辅助函数允许修改CPU状态（包括由tcg全局变量表示的状态）或引发异常。</p>
-</li>
+<h2 id="helpers-辅助函数">Helpers / 辅助函数</h2>
+<ul>
+<li><p>在TCG中，辅助函数（helpers）通过在特定于客户机的<code>helper.h</code>中注册，并处理生成<code>tcg_gen_helper_*</code>函数。</p></li>
+<li><p>借助这些函数，可以调用接受i32、i64、i128或指针类型的函数。</p></li>
+<li><p>默认情况下，在调用辅助函数之前，所有全局变量都会存储在其规范位置上。</p></li>
+<li><p>默认情况下，辅助函数允许修改CPU状态（包括由tcg全局变量表示的状态）或引发异常。</p></li>
 <li><p>可以使用以下函数修饰符来覆盖默认行为：</p>
 <ul>
-<li><p><code>TCG_CALL_NO_WRITE_GLOBALS</code></p>
+<li><code>TCG_CALL_NO_WRITE_GLOBALS</code>
 <ul>
 <li>辅助函数不会修改任何全局变量，但可能会读取它们。</li>
 <li>在调用辅助函数之前，全局变量将保存在其规范位置，但在调用后不需要重新加载。</li>
-</ul>
-</li>
-<li><p><code>TCG_CALL_NO_READ_GLOBALS</code></p>
+</ul></li>
+<li><code>TCG_CALL_NO_READ_GLOBALS</code>
 <ul>
 <li>辅助函数不会直接或通过异常读取全局变量。</li>
 <li>在调用辅助函数之前，它们将不会保存到其规范位置。</li>
 <li>这意味着它隐含了<code>TCG_CALL_NO_WRITE_GLOBALS</code>。</li>
-</ul>
-</li>
-<li><p><code>TCG_CALL_NO_SIDE_EFFECTS</code></p>
+</ul></li>
+<li><code>TCG_CALL_NO_SIDE_EFFECTS</code>
 <ul>
 <li>如果没有使用返回值，则可以删除对辅助函数的调用。这意味着它不能修改任何CPU状态，也不能引发异常。</li>
+</ul></li>
+</ul></li>
 </ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="Code-Optimizations"><a href="#Code-Optimizations" class="headerlink" title="Code Optimizations"></a>Code Optimizations</h2><ul>
+<h2 id="code-optimizations">Code Optimizations</h2>
+<ul>
 <li><p>在生成指令时，可以依赖至少以下优化：</p>
 <ul>
-<li>单个指令会进行简化，例如：  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and_i32 t0, t0, $0xffffffff</span><br></pre></td></tr></table></figure>
-  会被抑制。</li>
-</ul>
-</li>
-<li><p>在基本块级别进行寄存器活跃性分析。</p>
-</li>
-<li><p>这些信息用于消除从一个无用变量到另一个无用变量的移动操作。</p>
-</li>
-<li><p>还可以用于删除计算无用结果的指令。</p>
-</li>
+<li>单个指令会进行简化，例如： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and_i32 t0, t0, $0xffffffff</span><br></pre></td></tr></table></figure> 会被抑制。</li>
+</ul></li>
+<li><p>在基本块级别进行寄存器活跃性分析。</p></li>
+<li><p>这些信息用于消除从一个无用变量到另一个无用变量的移动操作。</p></li>
+<li><p>还可以用于删除计算无用结果的指令。</p></li>
 <li><p>这对于QEMU中的条件代码优化特别有用。</p>
 <ul>
-<li>在下面的示例中：  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">add_i32 t0, t1, t2</span><br><span class="line">add_i32 t0, t0, $1</span><br><span class="line">mov_i32 t0, $1</span><br></pre></td></tr></table></figure>
-  只会保留最后一条指令。</li>
-</ul>
-</li>
-</ul>
-<h2 id="Instruction-Reference"><a href="#Instruction-Reference" class="headerlink" title="Instruction Reference"></a>Instruction Reference</h2><h3 id="Function-call"><a href="#Function-call" class="headerlink" title="Function call"></a>Function call</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>call <em><ret></em> <em><params></em> ptr</p>
-</li>
-<li><p>|  call function ‘ptr’ (pointer type)<br>|<br>|  <em><ret></em> optional 32 bit or 64 bit return value<br>|  <em><params></em> optional 32 bit or 64 bit parameters</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="Jumps-Labels"><a href="#Jumps-Labels" class="headerlink" title="Jumps&#x2F;Labels"></a>Jumps&#x2F;Labels</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>set_label $label</p>
-</li>
-<li><p>| Define label ‘label’ at the current program point.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>br $label</p>
-</li>
-<li><p>| Jump to label.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>brcond_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>cond</em>, <em>label</em></p>
-</li>
-<li><p>| Conditional jump if <em>t0</em> <em>cond</em> <em>t1</em> is true. <em>cond</em> can be:<br>|<br>|   <code>TCG_COND_EQ</code><br>|   <code>TCG_COND_NE</code><br>|   <code>TCG_COND_LT /* signed */</code><br>|   <code>TCG_COND_GE /* signed */</code><br>|   <code>TCG_COND_LE /* signed */</code><br>|   <code>TCG_COND_GT /* signed */</code><br>|   <code>TCG_COND_LTU /* unsigned */</code><br>|   <code>TCG_COND_GEU /* unsigned */</code><br>|   <code>TCG_COND_LEU /* unsigned */</code><br>|   <code>TCG_COND_GTU /* unsigned */</code></p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="Arithmetic"><a href="#Arithmetic" class="headerlink" title="Arithmetic"></a>Arithmetic</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>add_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> + <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>sub_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> - <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>neg_i32&#x2F;i64 <em>t0</em>, <em>t1</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; -<em>t1</em> (two’s complement)</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>mul_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> * <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>div_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> &#x2F; <em>t2</em> (signed)<br>| Undefined behavior if division by zero or overflow.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>divu_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> &#x2F; <em>t2</em> (unsigned)<br>| Undefined behavior if division by zero.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>rem_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> % <em>t2</em> (signed)<br>| Undefined behavior if division by zero or overflow.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>remu_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> % <em>t2</em> (unsigned)<br>| Undefined behavior if division by zero.</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="Logical"><a href="#Logical" class="headerlink" title="Logical"></a>Logical</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>and_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> &amp; <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>or_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> | <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>xor_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> ^ <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>not_i32&#x2F;i64 <em>t0</em>, <em>t1</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; ~\ <em>t1</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>andc_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> &amp; ~\ <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>eqv_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; ~(<em>t1</em> ^ <em>t2</em>), or equivalently, <em>t0</em> &#x3D; <em>t1</em> ^ ~\ <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>nand_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; ~(<em>t1</em> &amp; <em>t2</em>)</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>nor_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; ~(<em>t1</em> | <em>t2</em>)</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>orc_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> | ~\ <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>clz_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> ? clz(<em>t1</em>) : <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>ctz_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> ? ctz(<em>t1</em>) : <em>t2</em></p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>ctpop_i32&#x2F;i64 <em>t0</em>, <em>t1</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; number of bits set in <em>t1</em><br>|<br>| With <em>ctpop</em> short for “count population”, matching<br>| the function name used in <code>include/qemu/host-utils.h</code>.</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="Shifts-Rotates"><a href="#Shifts-Rotates" class="headerlink" title="Shifts&#x2F;Rotates"></a>Shifts&#x2F;Rotates</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>shl_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> &lt;&lt; *t2*<br>| Unspecified behavior if *t2* &lt; 0 or *t2* &gt;&#x3D; 32 (resp 64)</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>shr_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> &gt;&gt; <em>t2</em> (unsigned)<br>| Unspecified behavior if <em>t2</em> &lt; 0 or *t2* &gt;&#x3D; 32 (resp 64)</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>sar_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em> &gt;&gt; <em>t2</em> (signed)<br>| Unspecified behavior if <em>t2</em> &lt; 0 or *t2* &gt;&#x3D; 32 (resp 64)</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>rotl_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| Rotation of <em>t2</em> bits to the left<br>| Unspecified behavior if <em>t2</em> &lt; 0 or *t2* &gt;&#x3D; 32 (resp 64)</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>rotr_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| Rotation of <em>t2</em> bits to the right.<br>| Unspecified behavior if <em>t2</em> &lt; 0 or *t2* &gt;&#x3D; 32 (resp 64)</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>mov_i32&#x2F;i64 <em>t0</em>, <em>t1</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; <em>t1</em><br>| Move <em>t1</em> to <em>t0</em> (both operands must have the same type).</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>ext8s_i32&#x2F;i64 <em>t0</em>, <em>t1</em></p>
-<p>ext8u_i32&#x2F;i64 <em>t0</em>, <em>t1</em></p>
-<p>ext16s_i32&#x2F;i64 <em>t0</em>, <em>t1</em></p>
-<p>ext16u_i32&#x2F;i64 <em>t0</em>, <em>t1</em></p>
-<p>ext32s_i64 <em>t0</em>, <em>t1</em></p>
-<p>ext32u_i64 <em>t0</em>, <em>t1</em></p>
-</li>
-<li><p>| 8, 16 or 32 bit sign&#x2F;zero extension (both operands must have the same type)</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>bswap16_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p>
-</li>
-<li><p>| 16 bit byte swap on the low bits of a 32&#x2F;64 bit input.<br>|<br>| If <em>flags</em> &amp; <code>TCG_BSWAP_IZ</code>, then <em>t1</em> is known to be zero-extended from bit 15.<br>| If <em>flags</em> &amp; <code>TCG_BSWAP_OZ</code>, then <em>t0</em> will be zero-extended from bit 15.<br>| If <em>flags</em> &amp; <code>TCG_BSWAP_OS</code>, then <em>t0</em> will be sign-extended from bit 15.<br>|<br>| If neither <code>TCG_BSWAP_OZ</code> nor <code>TCG_BSWAP_OS</code> are set, then the bits of <em>t0</em> above bit 15 may contain any value.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>bswap32_i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p>
-</li>
-<li><p>| 32 bit byte swap on a 64-bit value.  The flags are the same as for bswap16,<br>  except they apply from bit 31 instead of bit 15.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>bswap32_i32 <em>t0</em>, <em>t1</em>, <em>flags</em></p>
-<p>bswap64_i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p>
-</li>
-<li><p>| 32&#x2F;64 bit byte swap. The flags are ignored, but still present<br>  for consistency with the other bswap opcodes.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>discard_i32&#x2F;i64 <em>t0</em></p>
-</li>
-<li><p>| Indicate that the value of <em>t0</em> won’t be used later. It is useful to<br>  force dead code elimination.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>deposit_i32&#x2F;i64 <em>dest</em>, <em>t1</em>, <em>t2</em>, <em>pos</em>, <em>len</em></p>
-</li>
-<li><p>| Deposit <em>t2</em> as a bitfield into <em>t1</em>, placing the result in <em>dest</em>.<br>|<br>| The bitfield is described by <em>pos</em>&#x2F;<em>len</em>, which are immediate values:<br>|<br>|     <em>len</em> - the length of the bitfield<br>|     <em>pos</em> - the position of the first bit, counting from the LSB<br>|<br>| For example, “deposit_i32 dest, t1, t2, 8, 4” indicates a 4-bit field<br>  at bit 8. This operation would be equivalent to<br>|<br>|     <em>dest</em> &#x3D; (<em>t1</em> &amp; ~0x0f00) | ((<em>t2</em> &lt;&lt; 8) &amp; 0x0f00)</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>extract_i32&#x2F;i64 <em>dest</em>, <em>t1</em>, <em>pos</em>, <em>len</em></p>
-<p>sextract_i32&#x2F;i64 <em>dest</em>, <em>t1</em>, <em>pos</em>, <em>len</em></p>
-</li>
-<li><p>| Extract a bitfield from <em>t1</em>, placing the result in <em>dest</em>.<br>|<br>| The bitfield is described by <em>pos</em>&#x2F;<em>len</em>, which are immediate values,<br>  as above for deposit.  For extract_*, the result will be extended<br>  to the left with zeros; for sextract_*, the result will be extended<br>  to the left with copies of the bitfield sign bit at <em>pos</em> + <em>len</em> - 1.<br>|<br>| For example, “sextract_i32 dest, t1, 8, 4” indicates a 4-bit field<br>  at bit 8. This operation would be equivalent to<br>|<br>|    <em>dest</em> &#x3D; (<em>t1</em> &lt;&lt; 20) &gt;&gt; 28<br>|<br>| (using an arithmetic right shift).</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>extract2_i32&#x2F;i64 <em>dest</em>, <em>t1</em>, <em>t2</em>, <em>pos</em></p>
-</li>
-<li><p>| For N &#x3D; {32,64}, extract an N-bit quantity from the concatenation<br>  of <em>t2</em>:<em>t1</em>, beginning at <em>pos</em>. The tcg_gen_extract2_{i32,i64} expander<br>  accepts 0 &lt;&#x3D; <em>pos</em> &lt;&#x3D; N as inputs. The backend code generator will<br>  not see either 0 or N as inputs for these opcodes.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>extrl_i64_i32 <em>t0</em>, <em>t1</em></p>
-</li>
-<li><p>| For 64-bit hosts only, extract the low 32-bits of input <em>t1</em> and place it<br>  into 32-bit output <em>t0</em>.  Depending on the host, this may be a simple move,<br>  or may require additional canonicalization.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>extrh_i64_i32 <em>t0</em>, <em>t1</em></p>
-</li>
-<li><p>| For 64-bit hosts only, extract the high 32-bits of input <em>t1</em> and place it<br>  into 32-bit output <em>t0</em>.  Depending on the host, this may be a simple shift,<br>  or may require additional canonicalization.</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="Conditional-moves"><a href="#Conditional-moves" class="headerlink" title="Conditional moves"></a>Conditional moves</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>setcond_i32&#x2F;i64 <em>dest</em>, <em>t1</em>, <em>t2</em>, <em>cond</em></p>
-</li>
-<li><p>| <em>dest</em> &#x3D; (<em>t1</em> <em>cond</em> <em>t2</em>)<br>|<br>| Set <em>dest</em> to 1 if (<em>t1</em> <em>cond</em> <em>t2</em>) is true, otherwise set to 0.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>movcond_i32&#x2F;i64 <em>dest</em>, <em>c1</em>, <em>c2</em>, <em>v1</em>, <em>v2</em>, <em>cond</em></p>
-</li>
-<li><p>| <em>dest</em> &#x3D; (<em>c1</em> <em>cond</em> <em>c2</em> ? <em>v1</em> : <em>v2</em>)<br>|<br>| Set <em>dest</em> to <em>v1</em> if (<em>c1</em> <em>cond</em> <em>c2</em>) is true, otherwise set to <em>v2</em>.</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="Type-conversions"><a href="#Type-conversions" class="headerlink" title="Type conversions"></a>Type conversions</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>ext_i32_i64 <em>t0</em>, <em>t1</em></p>
-</li>
-<li><p>| Convert <em>t1</em> (32 bit) to <em>t0</em> (64 bit) and does sign extension</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>extu_i32_i64 <em>t0</em>, <em>t1</em></p>
-</li>
-<li><p>| Convert <em>t1</em> (32 bit) to <em>t0</em> (64 bit) and does zero extension</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>trunc_i64_i32 <em>t0</em>, <em>t1</em></p>
-</li>
-<li><p>| Truncate <em>t1</em> (64 bit) to <em>t0</em> (32 bit)</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>concat_i32_i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| Construct <em>t0</em> (64-bit) taking the low half from <em>t1</em> (32 bit) and the high half<br>  from <em>t2</em> (32 bit).</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>concat32_i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| Construct <em>t0</em> (64-bit) taking the low half from <em>t1</em> (64 bit) and the high half<br>  from <em>t2</em> (64 bit).</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="Load-Store"><a href="#Load-Store" class="headerlink" title="Load&#x2F;Store"></a>Load&#x2F;Store</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>ld_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>ld8s_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>ld8u_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>ld16s_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>ld16u_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>ld32s_i64 t0, <em>t1</em>, <em>offset</em></p>
-<p>ld32u_i64 t0, <em>t1</em>, <em>offset</em></p>
-</li>
-<li><p>| <em>t0</em> &#x3D; read(<em>t1</em> + <em>offset</em>)<br>|<br>| Load 8, 16, 32 or 64 bits with or without sign extension from host memory.<br>  <em>offset</em> must be a constant.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>st_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>st8_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>st16_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>st32_i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-</li>
-<li><p>| write(<em>t0</em>, <em>t1</em> + <em>offset</em>)<br>|<br>| Write 8, 16, 32 or 64 bits to host memory.</p>
-</li>
-</ul>
-</li>
-</ul>
-<p>All this opcodes assume that the pointed host memory doesn’t correspond<br>to a global. In the latter case the behaviour is unpredictable.</p>
-<h3 id="Multiword-arithmetic-support"><a href="#Multiword-arithmetic-support" class="headerlink" title="Multiword arithmetic support"></a>Multiword arithmetic support</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>add2_i32&#x2F;i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>, <em>t1_high</em>, <em>t2_low</em>, <em>t2_high</em></p>
-<p>sub2_i32&#x2F;i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>, <em>t1_high</em>, <em>t2_low</em>, <em>t2_high</em></p>
-</li>
-<li><p>| Similar to add&#x2F;sub, except that the double-word inputs <em>t1</em> and <em>t2</em> are<br>  formed from two single-word arguments, and the double-word output <em>t0</em><br>  is returned in two single-word outputs.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>mulu2_i32&#x2F;i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| Similar to mul, except two unsigned inputs <em>t1</em> and <em>t2</em> yielding the full<br>  double-word product <em>t0</em>. The latter is returned in two single-word outputs.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>muls2_i32&#x2F;i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| Similar to mulu2, except the two inputs <em>t1</em> and <em>t2</em> are signed.</p>
-</li>
-</ul>
-</li>
-<li><ul>
-<li><p>mulsh_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-<p>muluh_i32&#x2F;i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-</li>
-<li><p>| Provide the high part of a signed or unsigned multiply, respectively.<br>|<br>| If mulu2&#x2F;muls2 are not provided by the backend, the tcg-op generator<br>  can obtain the same results by emitting a pair of opcodes, mul + muluh&#x2F;mulsh.</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="Memory-Barrier-support"><a href="#Memory-Barrier-support" class="headerlink" title="Memory Barrier support"></a>Memory Barrier support</h3><p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>mb <em>&lt;$arg&gt;</em></p>
-</li>
-<li><p>| Generate a target memory barrier instruction to ensure memory ordering<br>  as being  enforced by a corresponding guest memory barrier instruction.<br>|<br>| The ordering enforced by the backend may be stricter than the ordering<br>  required by the guest. It cannot be weaker. This opcode takes a constant<br>  argument which is required to generate the appropriate barrier<br>  instruction. The backend should take care to emit the target barrier<br>  instruction only when necessary i.e., for SMP guests and when MTTCG is<br>  enabled.<br>|<br>| The guest translators should generate this opcode for all guest instructions<br>  which have ordering side effects.<br>|<br>| Please see :ref:<code>atomics-ref</code> for more information on memory barriers.</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="64-bit-guest-on-32-bit-host-support"><a href="#64-bit-guest-on-32-bit-host-support" class="headerlink" title="64-bit guest on 32-bit host support"></a>64-bit guest on 32-bit host support</h3><p>The following opcodes are internal to TCG.  Thus they are to be implemented by<br>32-bit host code generators, but are not to be emitted by guest translators.<br>They are emitted as needed by inline functions within <code>tcg-op.h</code>.</p>
+<li>在下面的示例中： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">add_i32 t0, t1, t2</span><br><span class="line">add_i32 t0, t0, $1</span><br><span class="line">mov_i32 t0, $1</span><br></pre></td></tr></table></figure> 只会保留最后一条指令。</li>
+</ul></li>
+</ul>
+<h2 id="instruction-reference">Instruction Reference</h2>
+<h3 id="function-call">Function call</h3>
 <p>.. list-table::</p>
 <ul>
 <li><ul>
-<li><p>brcond2_i32 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>, <em>t1_high</em>, <em>cond</em>, <em>label</em></p>
-</li>
-<li><p>| Similar to brcond, except that the 64-bit values <em>t0</em> and <em>t1</em><br>  are formed from two 32-bit arguments.</p>
-</li>
+<li><p>call <em><ret></em> <em><params></em> ptr</p></li>
+<li><div class="line-block"> call function 'ptr' (pointer type)<br />
+<br />
+ <em><ret></em> optional 32 bit or 64 bit return value<br />
+ <em><params></em> optional 32 bit or 64 bit parameters</div></li>
+</ul></li>
 </ul>
-</li>
+<h3 id="jumpslabels">Jumps/Labels</h3>
+<p>.. list-table::</p>
+<ul>
 <li><ul>
-<li><p>setcond2_i32 <em>dest</em>, <em>t1_low</em>, <em>t1_high</em>, <em>t2_low</em>, <em>t2_high</em>, <em>cond</em></p>
-</li>
-<li><p>| Similar to setcond, except that the 64-bit values <em>t1</em> and <em>t2</em> are<br>  formed from two 32-bit arguments. The result is a 32-bit value.</p>
-</li>
+<li><p>set_label $label</p></li>
+<li><div class="line-block">Define label 'label' at the current program
+point.</div></li>
+</ul></li>
+<li><ul>
+<li><p>br $label</p></li>
+<li><div class="line-block">Jump to label.</div></li>
+</ul></li>
+<li><ul>
+<li><p>brcond_i32/i64 <em>t0</em>, <em>t1</em>, <em>cond</em>,
+<em>label</em></p></li>
+<li><div class="line-block">Conditional jump if <em>t0</em>
+<em>cond</em> <em>t1</em> is true. <em>cond</em> can be:<br />
+<br />
+  <code>TCG_COND_EQ</code><br />
+  <code>TCG_COND_NE</code><br />
+  <code>TCG_COND_LT /* signed */</code><br />
+  <code>TCG_COND_GE /* signed */</code><br />
+  <code>TCG_COND_LE /* signed */</code><br />
+  <code>TCG_COND_GT /* signed */</code><br />
+  <code>TCG_COND_LTU /* unsigned */</code><br />
+  <code>TCG_COND_GEU /* unsigned */</code><br />
+  <code>TCG_COND_LEU /* unsigned */</code><br />
+  <code>TCG_COND_GTU /* unsigned */</code></div></li>
+</ul></li>
 </ul>
-</li>
+<h3 id="arithmetic">Arithmetic</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>add_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> +
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>sub_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> -
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>neg_i32/i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block"><em>t0</em> = -<em>t1</em> (two's
+complement)</div></li>
+</ul></li>
+<li><ul>
+<li><p>mul_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> *
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>div_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> / <em>t2</em>
+(signed)<br />
+Undefined behavior if division by zero or overflow.</div></li>
+</ul></li>
+<li><ul>
+<li><p>divu_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> / <em>t2</em>
+(unsigned)<br />
+Undefined behavior if division by zero.</div></li>
+</ul></li>
+<li><ul>
+<li><p>rem_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> % <em>t2</em>
+(signed)<br />
+Undefined behavior if division by zero or overflow.</div></li>
+</ul></li>
+<li><ul>
+<li><p>remu_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> % <em>t2</em>
+(unsigned)<br />
+Undefined behavior if division by zero.</div></li>
+</ul></li>
 </ul>
-<h3 id="QEMU-specific-operations"><a href="#QEMU-specific-operations" class="headerlink" title="QEMU specific operations"></a>QEMU specific operations</h3><table>
+<h3 id="logical">Logical</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>and_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> &amp;
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>or_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> |
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>xor_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> ^
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>not_i32/i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block"><em>t0</em> = ~ <em>t1</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>andc_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> &amp;
+~ <em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>eqv_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = ~(<em>t1</em> ^ <em>t2</em>),
+or equivalently, <em>t0</em> = <em>t1</em> ^ ~ <em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>nand_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = ~(<em>t1</em> &amp;
+<em>t2</em>)</div></li>
+</ul></li>
+<li><ul>
+<li><p>nor_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = ~(<em>t1</em> |
+<em>t2</em>)</div></li>
+</ul></li>
+<li><ul>
+<li><p>orc_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> |
+~ <em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>clz_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> ? clz(<em>t1</em>)
+: <em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>ctz_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> ? ctz(<em>t1</em>)
+: <em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>ctpop_i32/i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block"><em>t0</em> = number of bits set in
+<em>t1</em><br />
+<br />
+With <em>ctpop</em> short for "count population", matching<br />
+the function name used in
+<code>include/qemu/host-utils.h</code>.</div></li>
+</ul></li>
+</ul>
+<h3 id="shiftsrotates">Shifts/Rotates</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>shl_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> &lt;&lt;
+<em>t2</em><br />
+Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
+64)</div></li>
+</ul></li>
+<li><ul>
+<li><p>shr_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> &gt;&gt;
+<em>t2</em> (unsigned)<br />
+Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
+64)</div></li>
+</ul></li>
+<li><ul>
+<li><p>sar_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> &gt;&gt;
+<em>t2</em> (signed)<br />
+Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
+64)</div></li>
+</ul></li>
+<li><ul>
+<li><p>rotl_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block">Rotation of <em>t2</em> bits to the
+left<br />
+Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
+64)</div></li>
+</ul></li>
+<li><ul>
+<li><p>rotr_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block">Rotation of <em>t2</em> bits to the
+right.<br />
+Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
+64)</div></li>
+</ul></li>
+</ul>
+<h3 id="misc">Misc</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>mov_i32/i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em><br />
+Move <em>t1</em> to <em>t0</em> (both operands must have the same
+type).</div></li>
+</ul></li>
+<li><ul>
+<li><p>ext8s_i32/i64 <em>t0</em>, <em>t1</em></p>
+<p>ext8u_i32/i64 <em>t0</em>, <em>t1</em></p>
+<p>ext16s_i32/i64 <em>t0</em>, <em>t1</em></p>
+<p>ext16u_i32/i64 <em>t0</em>, <em>t1</em></p>
+<p>ext32s_i64 <em>t0</em>, <em>t1</em></p>
+<p>ext32u_i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">8, 16 or 32 bit sign/zero extension (both
+operands must have the same type)</div></li>
+</ul></li>
+<li><ul>
+<li><p>bswap16_i32/i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p></li>
+<li><div class="line-block">16 bit byte swap on the low bits of a 32/64
+bit input.<br />
+<br />
+If <em>flags</em> &amp; <code>TCG_BSWAP_IZ</code>, then <em>t1</em> is
+known to be zero-extended from bit 15.<br />
+If <em>flags</em> &amp; <code>TCG_BSWAP_OZ</code>, then <em>t0</em> will
+be zero-extended from bit 15.<br />
+If <em>flags</em> &amp; <code>TCG_BSWAP_OS</code>, then <em>t0</em> will
+be sign-extended from bit 15.<br />
+<br />
+If neither <code>TCG_BSWAP_OZ</code> nor <code>TCG_BSWAP_OS</code> are
+set, then the bits of <em>t0</em> above bit 15 may contain any
+value.</div></li>
+</ul></li>
+<li><ul>
+<li><p>bswap32_i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p></li>
+<li><div class="line-block">32 bit byte swap on a 64-bit value. The
+flags are the same as for bswap16, except they apply from bit 31 instead
+of bit 15.</div></li>
+</ul></li>
+<li><ul>
+<li><p>bswap32_i32 <em>t0</em>, <em>t1</em>, <em>flags</em></p>
+<p>bswap64_i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p></li>
+<li><div class="line-block">32/64 bit byte swap. The flags are ignored,
+but still present for consistency with the other bswap
+opcodes.</div></li>
+</ul></li>
+<li><ul>
+<li><p>discard_i32/i64 <em>t0</em></p></li>
+<li><div class="line-block">Indicate that the value of <em>t0</em> won't
+be used later. It is useful to force dead code elimination.</div></li>
+</ul></li>
+<li><ul>
+<li><p>deposit_i32/i64 <em>dest</em>, <em>t1</em>, <em>t2</em>,
+<em>pos</em>, <em>len</em></p></li>
+<li><div class="line-block">Deposit <em>t2</em> as a bitfield into
+<em>t1</em>, placing the result in <em>dest</em>.<br />
+<br />
+The bitfield is described by <em>pos</em>/<em>len</em>, which are
+immediate values:<br />
+<br />
+    <em>len</em> - the length of the bitfield<br />
+    <em>pos</em> - the position of the first bit, counting from the
+LSB<br />
+<br />
+For example, "deposit_i32 dest, t1, t2, 8, 4" indicates a 4-bit field at
+bit 8. This operation would be equivalent to<br />
+<br />
+    <em>dest</em> = (<em>t1</em> &amp; ~0x0f00) | ((<em>t2</em> &lt;&lt;
+8) &amp; 0x0f00)</div></li>
+</ul></li>
+<li><ul>
+<li><p>extract_i32/i64 <em>dest</em>, <em>t1</em>, <em>pos</em>,
+<em>len</em></p>
+<p>sextract_i32/i64 <em>dest</em>, <em>t1</em>, <em>pos</em>,
+<em>len</em></p></li>
+<li><div class="line-block">Extract a bitfield from <em>t1</em>, placing
+the result in <em>dest</em>.<br />
+<br />
+The bitfield is described by <em>pos</em>/<em>len</em>, which are
+immediate values, as above for deposit. For extract_<em>, the result
+will be extended to the left with zeros; for sextract_</em>, the result
+will be extended to the left with copies of the bitfield sign bit at
+<em>pos</em> + <em>len</em> - 1.<br />
+<br />
+For example, "sextract_i32 dest, t1, 8, 4" indicates a 4-bit field at
+bit 8. This operation would be equivalent to<br />
+<br />
+   <em>dest</em> = (<em>t1</em> &lt;&lt; 20) &gt;&gt; 28<br />
+<br />
+(using an arithmetic right shift).</div></li>
+</ul></li>
+<li><ul>
+<li><p>extract2_i32/i64 <em>dest</em>, <em>t1</em>, <em>t2</em>,
+<em>pos</em></p></li>
+<li><div class="line-block">For N = {32,64}, extract an N-bit quantity
+from the concatenation of <em>t2</em>:<em>t1</em>, beginning at
+<em>pos</em>. The tcg_gen_extract2_{i32,i64} expander accepts 0 &lt;=
+<em>pos</em> &lt;= N as inputs. The backend code generator will not see
+either 0 or N as inputs for these opcodes.</div></li>
+</ul></li>
+<li><ul>
+<li><p>extrl_i64_i32 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">For 64-bit hosts only, extract the low
+32-bits of input <em>t1</em> and place it into 32-bit output
+<em>t0</em>. Depending on the host, this may be a simple move, or may
+require additional canonicalization.</div></li>
+</ul></li>
+<li><ul>
+<li><p>extrh_i64_i32 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">For 64-bit hosts only, extract the high
+32-bits of input <em>t1</em> and place it into 32-bit output
+<em>t0</em>. Depending on the host, this may be a simple shift, or may
+require additional canonicalization.</div></li>
+</ul></li>
+</ul>
+<h3 id="conditional-moves">Conditional moves</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>setcond_i32/i64 <em>dest</em>, <em>t1</em>, <em>t2</em>,
+<em>cond</em></p></li>
+<li><div class="line-block"><em>dest</em> = (<em>t1</em> <em>cond</em>
+<em>t2</em>)<br />
+<br />
+Set <em>dest</em> to 1 if (<em>t1</em> <em>cond</em> <em>t2</em>) is
+true, otherwise set to 0.</div></li>
+</ul></li>
+<li><ul>
+<li><p>movcond_i32/i64 <em>dest</em>, <em>c1</em>, <em>c2</em>,
+<em>v1</em>, <em>v2</em>, <em>cond</em></p></li>
+<li><div class="line-block"><em>dest</em> = (<em>c1</em> <em>cond</em>
+<em>c2</em> ? <em>v1</em> : <em>v2</em>)<br />
+<br />
+Set <em>dest</em> to <em>v1</em> if (<em>c1</em> <em>cond</em>
+<em>c2</em>) is true, otherwise set to <em>v2</em>.</div></li>
+</ul></li>
+</ul>
+<h3 id="type-conversions">Type conversions</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>ext_i32_i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">Convert <em>t1</em> (32 bit) to <em>t0</em>
+(64 bit) and does sign extension</div></li>
+</ul></li>
+<li><ul>
+<li><p>extu_i32_i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">Convert <em>t1</em> (32 bit) to <em>t0</em>
+(64 bit) and does zero extension</div></li>
+</ul></li>
+<li><ul>
+<li><p>trunc_i64_i32 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">Truncate <em>t1</em> (64 bit) to <em>t0</em>
+(32 bit)</div></li>
+</ul></li>
+<li><ul>
+<li><p>concat_i32_i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block">Construct <em>t0</em> (64-bit) taking the
+low half from <em>t1</em> (32 bit) and the high half from <em>t2</em>
+(32 bit).</div></li>
+</ul></li>
+<li><ul>
+<li><p>concat32_i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block">Construct <em>t0</em> (64-bit) taking the
+low half from <em>t1</em> (64 bit) and the high half from <em>t2</em>
+(64 bit).</div></li>
+</ul></li>
+</ul>
+<h3 id="loadstore">Load/Store</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>ld_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>ld8s_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>ld8u_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>ld16s_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>ld16u_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>ld32s_i64 t0, <em>t1</em>, <em>offset</em></p>
+<p>ld32u_i64 t0, <em>t1</em>, <em>offset</em></p></li>
+<li><div class="line-block"><em>t0</em> = read(<em>t1</em> +
+<em>offset</em>)<br />
+<br />
+Load 8, 16, 32 or 64 bits with or without sign extension from host
+memory. <em>offset</em> must be a constant.</div></li>
+</ul></li>
+<li><ul>
+<li><p>st_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>st8_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>st16_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>st32_i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p></li>
+<li><div class="line-block">write(<em>t0</em>, <em>t1</em> +
+<em>offset</em>)<br />
+<br />
+Write 8, 16, 32 or 64 bits to host memory.</div></li>
+</ul></li>
+</ul>
+<p>All this opcodes assume that the pointed host memory doesn't
+correspond to a global. In the latter case the behaviour is
+unpredictable.</p>
+<h3 id="multiword-arithmetic-support">Multiword arithmetic support</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>add2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>,
+<em>t1_high</em>, <em>t2_low</em>, <em>t2_high</em></p>
+<p>sub2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>,
+<em>t1_high</em>, <em>t2_low</em>, <em>t2_high</em></p></li>
+<li><div class="line-block">Similar to add/sub, except that the
+double-word inputs <em>t1</em> and <em>t2</em> are formed from two
+single-word arguments, and the double-word output <em>t0</em> is
+returned in two single-word outputs.</div></li>
+</ul></li>
+<li><ul>
+<li><p>mulu2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1</em>,
+<em>t2</em></p></li>
+<li><div class="line-block">Similar to mul, except two unsigned inputs
+<em>t1</em> and <em>t2</em> yielding the full double-word product
+<em>t0</em>. The latter is returned in two single-word
+outputs.</div></li>
+</ul></li>
+<li><ul>
+<li><p>muls2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1</em>,
+<em>t2</em></p></li>
+<li><div class="line-block">Similar to mulu2, except the two inputs
+<em>t1</em> and <em>t2</em> are signed.</div></li>
+</ul></li>
+<li><ul>
+<li><p>mulsh_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
+<p>muluh_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block">Provide the high part of a signed or
+unsigned multiply, respectively.<br />
+<br />
+If mulu2/muls2 are not provided by the backend, the tcg-op generator can
+obtain the same results by emitting a pair of opcodes, mul +
+muluh/mulsh.</div></li>
+</ul></li>
+</ul>
+<h3 id="memory-barrier-support">Memory Barrier support</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>mb <em>&lt;$arg&gt;</em></p></li>
+<li><div class="line-block">Generate a target memory barrier instruction
+to ensure memory ordering as being enforced by a corresponding guest
+memory barrier instruction.<br />
+<br />
+The ordering enforced by the backend may be stricter than the ordering
+required by the guest. It cannot be weaker. This opcode takes a constant
+argument which is required to generate the appropriate barrier
+instruction. The backend should take care to emit the target barrier
+instruction only when necessary i.e., for SMP guests and when MTTCG is
+enabled.<br />
+<br />
+The guest translators should generate this opcode for all guest
+instructions which have ordering side effects.<br />
+<br />
+Please see :ref:<code>atomics-ref</code> for more information on memory
+barriers.</div></li>
+</ul></li>
+</ul>
+<h3 id="bit-guest-on-32-bit-host-support">64-bit guest on 32-bit host
+support</h3>
+<p>The following opcodes are internal to TCG. Thus they are to be
+implemented by 32-bit host code generators, but are not to be emitted by
+guest translators. They are emitted as needed by inline functions within
+<code>tcg-op.h</code>.</p>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>brcond2_i32 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>,
+<em>t1_high</em>, <em>cond</em>, <em>label</em></p></li>
+<li><div class="line-block">Similar to brcond, except that the 64-bit
+values <em>t0</em> and <em>t1</em> are formed from two 32-bit
+arguments.</div></li>
+</ul></li>
+<li><ul>
+<li><p>setcond2_i32 <em>dest</em>, <em>t1_low</em>, <em>t1_high</em>,
+<em>t2_low</em>, <em>t2_high</em>, <em>cond</em></p></li>
+<li><div class="line-block">Similar to setcond, except that the 64-bit
+values <em>t1</em> and <em>t2</em> are formed from two 32-bit arguments.
+The result is a 32-bit value.</div></li>
+</ul></li>
+</ul>
+<h3 id="qemu-specific-operations">QEMU specific operations</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>operations</th>
 <th>description</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr class="odd">
 <td>exit_tb <em>t0</em></td>
-<td>退出当前的翻译块（Translation Block）并返回变量<em>t0</em>的值（字类型）</td>
+<td>退出当前的翻译块（Translation
+Block）并返回变量<em>t0</em>的值（字类型）</td>
 </tr>
-<tr>
+<tr class="even">
 <td>goto_tb <em>index</em></td>
-<td>退出当前的翻译块（Translation Block）并根据条件跳转到索引为 index 的翻译块，如果当前的翻译块与目标翻译块相连。否则，继续执行下一条指令。只有索引为 0 和 1 是有效的，每个翻译块最多可以使用一次 tcg_gen_goto_tb 指令来跳转到每个索引。 tcg_gen_goto_tb may be issued at most once with each slot index per TB.</td>
+<td>退出当前的翻译块（Translation Block）并根据条件跳转到索引为 index
+的翻译块，如果当前的翻译块与目标翻译块相连。否则，继续执行下一条指令。只有索引为
+0 和 1 是有效的，每个翻译块最多可以使用一次 tcg_gen_goto_tb
+指令来跳转到每个索引。 tcg_gen_goto_tb may be issued at most once with
+each slot index per TB.</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>lookup_and_goto_ptr <em>tb_addr</em></td>
 <td>查找一个翻译块的地址<em>tb_addr</em>，并根据其有效性进行跳转。如果翻译块地址有效，则跳转到该地址；如果无效，则跳转到TCG的收尾部分以返回执行循环。</td>
 </tr>
-<tr>
-<td>qemu_ld_i32&#x2F;i64&#x2F;i128 <em>t0</em>, <em>t1</em>, <em>flags</em>, <em>memidx</em><br>qemu_st_i32&#x2F;i64&#x2F;i128 <em>t0</em>, <em>t1</em>, <em>flags</em>, <em>memidx</em><br>qemu_st8_i32 <em>t0</em>, <em>t1</em>, <em>flags</em>, <em>memidx</em></td>
-<td>加载位于虚拟地址 t1 处的数据到 t0，或者将 t0 中的数据存储到虚拟地址 t1 处。_i32&#x2F;_i64&#x2F;_i128 大小适用于输入&#x2F;输出寄存器 t0 的大小。地址 t1 总是根据虚拟机的大小进行定位，而内存操作的宽度由 flags 控制。<br>在处理 64 位数据（在 32 位主机上）或 128 位数据（在 64 位主机上）时，t0 和 t1 可能会被拆分为按小端顺序排列的寄存器对。<br>memidx 用于选择要使用的 QEMU TLB 索引（例如，用户或内核访问）。flags 是 MemOp 位，用于选择内存访问的符号、宽度和字节顺序。<br>对于 32 位主机，保证仅在 flags 中指定了 64 位内存访问时才使用 qemu_ld&#x2F;st_i64。<br>对于 qemu_ld&#x2F;st_i128，仅在 64 位主机上支持。<br>对于 i386，qemu_st8_i32 与 qemu_st_i32 完全相同，只是内存操作的大小已知为 8 位。这允许后端提供不同的寄存器约束。</td>
+<tr class="even">
+<td>qemu_ld_i32/i64/i128 <em>t0</em>, <em>t1</em>, <em>flags</em>,
+<em>memidx</em><br>qemu_st_i32/i64/i128 <em>t0</em>, <em>t1</em>,
+<em>flags</em>, <em>memidx</em><br>qemu_st8_i32 <em>t0</em>,
+<em>t1</em>, <em>flags</em>, <em>memidx</em></td>
+<td>加载位于虚拟地址 t1 处的数据到 t0，或者将 t0 中的数据存储到虚拟地址
+t1 处。_i32/_i64/_i128 大小适用于输入/输出寄存器 t0 的大小。地址 t1
+总是根据虚拟机的大小进行定位，而内存操作的宽度由 flags 控制。<br>在处理
+64 位数据（在 32 位主机上）或 128 位数据（在 64 位主机上）时，t0 和 t1
+可能会被拆分为按小端顺序排列的寄存器对。<br>memidx 用于选择要使用的 QEMU
+TLB 索引（例如，用户或内核访问）。flags 是 MemOp
+位，用于选择内存访问的符号、宽度和字节顺序。<br>对于 32 位主机，保证仅在
+flags 中指定了 64 位内存访问时才使用 qemu_ld/st_i64。<br>对于
+qemu_ld/st_i128，仅在 64 位主机上支持。<br>对于 i386，qemu_st8_i32 与
+qemu_st_i32 完全相同，只是内存操作的大小已知为 8
+位。这允许后端提供不同的寄存器约束。</td>
 </tr>
-</tbody></table>
-<h2 id="Host-vector-operations"><a href="#Host-vector-operations" class="headerlink" title="Host vector operations"></a>Host vector operations</h2><p>All of the vector ops have two parameters, <code>TCGOP_VECL</code> &amp; <code>TCGOP_VECE</code>.<br>The former specifies the length of the vector in log2 64-bit units; the<br>latter specifies the length of the element (if applicable) in log2 8-bit units.<br>E.g. VECL &#x3D; 1 -&gt; 64 &lt;&lt; 1 -&gt; v128, and VECE &#x3D; 2 -&gt; 1 &lt;&lt; 2 -&gt; i32.</p>
+</tbody>
+</table>
+<h2 id="host-vector-operations">Host vector operations</h2>
+<p>All of the vector ops have two parameters, <code>TCGOP_VECL</code>
+&amp; <code>TCGOP_VECE</code>. The former specifies the length of the
+vector in log2 64-bit units; the latter specifies the length of the
+element (if applicable) in log2 8-bit units. E.g. VECL = 1 -&gt; 64
+&lt;&lt; 1 -&gt; v128, and VECE = 2 -&gt; 1 &lt;&lt; 2 -&gt; i32.</p>
 <p>.. list-table::</p>
 <ul>
 <li><ul>
-<li><p>mov_vec <em>v0</em>, <em>v1</em><br>ld_vec <em>v0</em>, <em>t1</em><br>st_vec <em>v0</em>, <em>t1</em></p>
-</li>
-<li><p>| Move, load and store.</p>
-</li>
-</ul>
-</li>
+<li><p>mov_vec <em>v0</em>, <em>v1</em> ld_vec <em>v0</em>, <em>t1</em>
+st_vec <em>v0</em>, <em>t1</em></p></li>
+<li><div class="line-block">Move, load and store.</div></li>
+</ul></li>
 <li><ul>
-<li><p>dup_vec <em>v0</em>, <em>r1</em></p>
-</li>
-<li><p>| Duplicate the low N bits of <em>r1</em> into VECL&#x2F;VECE copies across <em>v0</em>.</p>
-</li>
-</ul>
-</li>
+<li><p>dup_vec <em>v0</em>, <em>r1</em></p></li>
+<li><div class="line-block">Duplicate the low N bits of <em>r1</em> into
+VECL/VECE copies across <em>v0</em>.</div></li>
+</ul></li>
 <li><ul>
-<li><p>dupi_vec <em>v0</em>, <em>c</em></p>
-</li>
-<li><p>| Similarly, for a constant.<br>| Smaller values will be replicated to host register size by the expanders.</p>
-</li>
-</ul>
-</li>
+<li><p>dupi_vec <em>v0</em>, <em>c</em></p></li>
+<li><div class="line-block">Similarly, for a constant.<br />
+Smaller values will be replicated to host register size by the
+expanders.</div></li>
+</ul></li>
 <li><ul>
-<li><p>dup2_vec <em>v0</em>, <em>r1</em>, <em>r2</em></p>
-</li>
-<li><p>| Duplicate <em>r2</em>:<em>r1</em> into VECL&#x2F;64 copies across <em>v0</em>. This opcode is<br>  only present for 32-bit hosts.</p>
-</li>
-</ul>
-</li>
+<li><p>dup2_vec <em>v0</em>, <em>r1</em>, <em>r2</em></p></li>
+<li><div class="line-block">Duplicate <em>r2</em>:<em>r1</em> into
+VECL/64 copies across <em>v0</em>. This opcode is only present for
+32-bit hosts.</div></li>
+</ul></li>
 <li><ul>
-<li><p>add_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-</li>
-<li><p>| <em>v0</em> &#x3D; <em>v1</em> + <em>v2</em>, in elements across the vector.</p>
-</li>
-</ul>
-</li>
+<li><p>add_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block"><em>v0</em> = <em>v1</em> + <em>v2</em>, in
+elements across the vector.</div></li>
+</ul></li>
 <li><ul>
-<li><p>sub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-</li>
-<li><p>| Similarly, <em>v0</em> &#x3D; <em>v1</em> - <em>v2</em>.</p>
-</li>
-</ul>
-</li>
+<li><p>sub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> = <em>v1</em> -
+<em>v2</em>.</div></li>
+</ul></li>
 <li><ul>
-<li><p>mul_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-</li>
-<li><p>| Similarly, <em>v0</em> &#x3D; <em>v1</em> * <em>v2</em>.</p>
-</li>
-</ul>
-</li>
+<li><p>mul_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> = <em>v1</em> *
+<em>v2</em>.</div></li>
+</ul></li>
 <li><ul>
-<li><p>neg_vec <em>v0</em>, <em>v1</em></p>
-</li>
-<li><p>| Similarly, <em>v0</em> &#x3D; -<em>v1</em>.</p>
-</li>
-</ul>
-</li>
+<li><p>neg_vec <em>v0</em>, <em>v1</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> =
+-<em>v1</em>.</div></li>
+</ul></li>
 <li><ul>
-<li><p>abs_vec <em>v0</em>, <em>v1</em></p>
-</li>
-<li><p>| Similarly, <em>v0</em> &#x3D; <em>v1</em> &lt; 0 ? -<em>v1</em> : <em>v1</em>, in elements across the vector.</p>
-</li>
-</ul>
-</li>
+<li><p>abs_vec <em>v0</em>, <em>v1</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> = <em>v1</em> &lt; 0
+? -<em>v1</em> : <em>v1</em>, in elements across the vector.</div></li>
+</ul></li>
 <li><ul>
 <li><p>smin_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>umin_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-</li>
-<li><p>| Similarly, <em>v0</em> &#x3D; MIN(<em>v1</em>, <em>v2</em>), for signed and unsigned element types.</p>
-</li>
-</ul>
-</li>
+<p>umin_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> = MIN(<em>v1</em>,
+<em>v2</em>), for signed and unsigned element types.</div></li>
+</ul></li>
 <li><ul>
 <li><p>smax_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>umax_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-</li>
-<li><p>| Similarly, <em>v0</em> &#x3D; MAX(<em>v1</em>, <em>v2</em>), for signed and unsigned element types.</p>
-</li>
-</ul>
-</li>
+<p>umax_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> = MAX(<em>v1</em>,
+<em>v2</em>), for signed and unsigned element types.</div></li>
+</ul></li>
 <li><ul>
 <li><p>ssadd_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
 <p>sssub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
 <p>usadd_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>ussub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-</li>
-<li><p>| Signed and unsigned saturating addition and subtraction.<br>|<br>| If the true result is not representable within the element type, the<br>  element is set to the minimum or maximum value for the type.</p>
-</li>
-</ul>
-</li>
+<p>ussub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Signed and unsigned saturating addition and
+subtraction.<br />
+<br />
+If the true result is not representable within the element type, the
+element is set to the minimum or maximum value for the type.</div></li>
+</ul></li>
 <li><ul>
 <li><p>and_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
 <p>or_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
 <p>xor_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
 <p>andc_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
 <p>orc_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>not_vec <em>v0</em>, <em>v1</em></p>
-</li>
-<li><p>| Similarly, logical operations with and without complement.<br>|<br>| Note that VECE is unused.</p>
-</li>
-</ul>
-</li>
+<p>not_vec <em>v0</em>, <em>v1</em></p></li>
+<li><div class="line-block">Similarly, logical operations with and
+without complement.<br />
+<br />
+Note that VECE is unused.</div></li>
+</ul></li>
 <li><ul>
 <li><p>shli_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
-<p>shls_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p>
-</li>
-<li><p>| Shift all elements from v1 by a scalar <em>i2</em>&#x2F;<em>s2</em>. I.e.</p>
+<p>shls_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p></li>
+<li><div class="line-block">Shift all elements from v1 by a scalar
+<em>i2</em>/<em>s2</em>. I.e.</div>
 <p>.. code-block:: c</p>
-<p>   for (i &#x3D; 0; i &lt; VECL&#x2F;VECE; ++i) {<br>   v0[i] &#x3D; v1[i] &lt;&lt; s2;<br>   }</p>
-</li>
-</ul>
-</li>
+<p>for (i = 0; i &lt; VECL/VECE; ++i) { v0[i] = v1[i] &lt;&lt; s2;
+}</p></li>
+</ul></li>
 <li><ul>
 <li><p>shri_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
 <p>sari_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
 <p>rotli_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
 <p>shrs_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p>
-<p>sars_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p>
-</li>
-<li><p>| Similarly for logical and arithmetic right shift, and left rotate.</p>
-</li>
-</ul>
-</li>
+<p>sars_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p></li>
+<li><div class="line-block">Similarly for logical and arithmetic right
+shift, and left rotate.</div></li>
+</ul></li>
 <li><ul>
-<li><p>shlv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-</li>
-<li><p>| Shift elements from <em>v1</em> by elements from <em>v2</em>. I.e.</p>
+<li><p>shlv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Shift elements from <em>v1</em> by elements
+from <em>v2</em>. I.e.</div>
 <p>.. code-block:: c</p>
-<p>   for (i &#x3D; 0; i &lt; VECL&#x2F;VECE; ++i) {<br>   v0[i] &#x3D; v1[i] &lt;&lt; v2[i];<br>   }</p>
-</li>
-</ul>
-</li>
+<p>for (i = 0; i &lt; VECL/VECE; ++i) { v0[i] = v1[i] &lt;&lt; v2[i];
+}</p></li>
+</ul></li>
 <li><ul>
 <li><p>shrv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
 <p>sarv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
 <p>rotlv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>rotrv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-</li>
-<li><p>| Similarly for logical and arithmetic right shift, and rotates.</p>
-</li>
-</ul>
-</li>
+<p>rotrv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Similarly for logical and arithmetic right
+shift, and rotates.</div></li>
+</ul></li>
 <li><ul>
-<li><p>cmp_vec <em>v0</em>, <em>v1</em>, <em>v2</em>, <em>cond</em></p>
-</li>
-<li><p>| Compare vectors by element, storing -1 for true and 0 for false.</p>
-</li>
-</ul>
-</li>
+<li><p>cmp_vec <em>v0</em>, <em>v1</em>, <em>v2</em>,
+<em>cond</em></p></li>
+<li><div class="line-block">Compare vectors by element, storing -1 for
+true and 0 for false.</div></li>
+</ul></li>
 <li><ul>
-<li><p>bitsel_vec <em>v0</em>, <em>v1</em>, <em>v2</em>, <em>v3</em></p>
-</li>
-<li><p>| Bitwise select, <em>v0</em> &#x3D; (<em>v2</em> &amp; <em>v1</em>) | (<em>v3</em> &amp; ~\ <em>v1</em>), across the entire vector.</p>
-</li>
-</ul>
-</li>
+<li><p>bitsel_vec <em>v0</em>, <em>v1</em>, <em>v2</em>,
+<em>v3</em></p></li>
+<li><div class="line-block">Bitwise select, <em>v0</em> = (<em>v2</em>
+&amp; <em>v1</em>) | (<em>v3</em> &amp; ~ <em>v1</em>), across the
+entire vector.</div></li>
+</ul></li>
 <li><ul>
-<li><p>cmpsel_vec <em>v0</em>, <em>c1</em>, <em>c2</em>, <em>v3</em>, <em>v4</em>, <em>cond</em></p>
-</li>
-<li><p>| Select elements based on comparison results:</p>
+<li><p>cmpsel_vec <em>v0</em>, <em>c1</em>, <em>c2</em>, <em>v3</em>,
+<em>v4</em>, <em>cond</em></p></li>
+<li><div class="line-block">Select elements based on comparison
+results:</div>
 <p>.. code-block:: c</p>
-<p>   for (i &#x3D; 0; i &lt; n; ++i) {<br>   v0[i] &#x3D; (c1[i] cond c2[i]) ? v3[i] : v4[i].<br>   }</p>
-</li>
+<p>for (i = 0; i &lt; n; ++i) { v0[i] = (c1[i] cond c2[i]) ? v3[i] :
+v4[i]. }</p></li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<p><strong>Note 1</strong>: Some shortcuts are defined when the last operand is known to be<br>a constant (e.g. addi for add, movi for mov).</p>
-<p><strong>Note 2</strong>: When using TCG, the opcodes must never be generated directly<br>as some of them may not be available as “real” opcodes. Always use the<br>function tcg_gen_xxx(args).</p>
-<h2 id="Backend-后端"><a href="#Backend-后端" class="headerlink" title="Backend &#x2F; 后端"></a>Backend &#x2F; 后端</h2><ul>
+<p><strong>Note 1</strong>: Some shortcuts are defined when the last
+operand is known to be a constant (e.g. addi for add, movi for mov).</p>
+<p><strong>Note 2</strong>: When using TCG, the opcodes must never be
+generated directly as some of them may not be available as "real"
+opcodes. Always use the function tcg_gen_xxx(args).</p>
+<h2 id="backend-后端">Backend / 后端</h2>
+<ul>
 <li><code>tcg-target.h</code> 是包含目标特定定义的文件。</li>
-<li><code>tcg-target.c.inc</code> 是目标特定代码的文件，它通过 <code>#include</code> 被 <code>tcg/tcg.c</code> 包含，而不是作为一个独立的 C 文件存在。</li>
+<li><code>tcg-target.c.inc</code> 是目标特定代码的文件，它通过
+<code>#include</code> 被 <code>tcg/tcg.c</code>
+包含，而不是作为一个独立的 C 文件存在。</li>
 </ul>
-<h3 id="Assumptions-假设"><a href="#Assumptions-假设" class="headerlink" title="Assumptions &#x2F; 假设"></a>Assumptions &#x2F; 假设</h3><ul>
-<li><p>目标字长（<code>TCG_TARGET_REG_BITS</code>）预期为32位或64位。</p>
-</li>
-<li><p>假设指针的大小与字长相同。</p>
-</li>
-<li><p>在32位目标上，所有64位操作都会转换为32位。</p>
-</li>
-<li><p>需要实现一些特定的操作来支持这一点（参见<code>add2_i32</code>，<code>sub2_i32</code>，<code>brcond2_i32</code>）。</p>
-</li>
+<h3 id="assumptions-假设">Assumptions / 假设</h3>
+<ul>
+<li><p>目标字长（<code>TCG_TARGET_REG_BITS</code>）预期为32位或64位。</p></li>
+<li><p>假设指针的大小与字长相同。</p></li>
+<li><p>在32位目标上，所有64位操作都会转换为32位。</p></li>
+<li><p>需要实现一些特定的操作来支持这一点（参见<code>add2_i32</code>，<code>sub2_i32</code>，<code>brcond2_i32</code>）。</p></li>
 <li><p>在64位目标上，通过以下操作在32位和64位寄存器之间传输值：</p>
 <ul>
 <li><code>trunc_shr_i64_i32</code></li>
 <li><code>ext_i32_i64</code></li>
 <li><code>extu_i32_i64</code></li>
-</ul>
-</li>
-<li><p>它们确保在从32位寄存器移动到64位寄存器或反之时，值被正确截断或扩展。请注意，<code>trunc_shr_i64_i32</code>是一个可选的操作。</p>
-</li>
+</ul></li>
+<li><p>它们确保在从32位寄存器移动到64位寄存器或反之时，值被正确截断或扩展。请注意，<code>trunc_shr_i64_i32</code>是一个可选的操作。</p></li>
 <li><p>如果满足以下所有条件，则不需要实现它：</p>
 <ul>
 <li>64位寄存器可以容纳32位值</li>
 <li>64位寄存器中的32位值不需要保持零扩展或符号扩展</li>
 <li>所有32位TCG操作忽略64位寄存器的高位部分</li>
+</ul></li>
+<li><p>此版本不支持浮点操作。代码生成器的先前版本对其有全面支持，但最好先集中精力处理整数操作。</p></li>
 </ul>
-</li>
-<li><p>此版本不支持浮点操作。代码生成器的先前版本对其有全面支持，但最好先集中精力处理整数操作。</p>
-</li>
+<h3 id="constraints-限制">Constraints / 限制</h3>
+<ul>
+<li><p>这个版本使用类似GCC的约束来定义每个指令的限制条件。</p></li>
+<li><p>不支持内存约束。</p></li>
+<li><p>别名可以像GCC一样在输入操作数中指定。</p></li>
+<li><p>即使没有明确指定别名，同一个寄存器可以用作输入和输出。</p></li>
+<li><p>如果一个操作扩展为多个目标指令，需要注意避免破坏输入值。</p></li>
+<li><p>支持GCC风格的"早期占用"输出，使用'<code>&amp;</code>'符号。</p></li>
+<li><p>目标可以定义特定的寄存器或常量约束。</p></li>
+<li><p>如果一个操作使用不允许所有常量的常量输入约束，为了有备用选项，必须同时接受寄存器。
+（If an operation uses a constant input constraint which does not allow
+all constants, it must also accept registers in order to have a
+fallback.）</p></li>
+<li><p>约束'<code>i</code>'是通用定义的，接受任何常量。</p></li>
+<li><p>约束'<code>r</code>'没有通用定义，但每个后端一致使用它来表示所有寄存器。</p></li>
+<li><p>movi_i32和movi_i64操作必须接受任何常量。</p></li>
+<li><p>mov_i32和mov_i64操作必须接受相同类型的任何寄存器。</p></li>
+<li><p>ld/st/sti指令必须接受带符号的32位常量偏移量。</p></li>
+<li><p>如果偏移量太大，可以通过保留一个特定的寄存器来计算地址。</p></li>
+<li><p>ld/st指令必须接受任何目标寄存器（ld）或源寄存器（st）。</p></li>
+<li><p>sti指令可能会因无法存储给定的常量而失败。</p></li>
 </ul>
-<h3 id="Constraints-限制"><a href="#Constraints-限制" class="headerlink" title="Constraints &#x2F; 限制"></a>Constraints &#x2F; 限制</h3><ul>
-<li><p>这个版本使用类似GCC的约束来定义每个指令的限制条件。</p>
-</li>
-<li><p>不支持内存约束。</p>
-</li>
-<li><p>别名可以像GCC一样在输入操作数中指定。</p>
-</li>
-<li><p>即使没有明确指定别名，同一个寄存器可以用作输入和输出。</p>
-</li>
-<li><p>如果一个操作扩展为多个目标指令，需要注意避免破坏输入值。</p>
-</li>
-<li><p>支持GCC风格的”早期占用”输出，使用’<code>&amp;</code>‘符号。</p>
-</li>
-<li><p>目标可以定义特定的寄存器或常量约束。</p>
-</li>
-<li><p>如果一个操作使用不允许所有常量的常量输入约束，为了有备用选项，必须同时接受寄存器。 （If an operation uses a constant input constraint which does not allow all constants, it must also accept registers in order to have a fallback.）</p>
-</li>
-<li><p>约束’<code>i</code>‘是通用定义的，接受任何常量。</p>
-</li>
-<li><p>约束’<code>r</code>‘没有通用定义，但每个后端一致使用它来表示所有寄存器。</p>
-</li>
-<li><p>movi_i32和movi_i64操作必须接受任何常量。</p>
-</li>
-<li><p>mov_i32和mov_i64操作必须接受相同类型的任何寄存器。</p>
-</li>
-<li><p>ld&#x2F;st&#x2F;sti指令必须接受带符号的32位常量偏移量。</p>
-</li>
-<li><p>如果偏移量太大，可以通过保留一个特定的寄存器来计算地址。</p>
-</li>
-<li><p>ld&#x2F;st指令必须接受任何目标寄存器（ld）或源寄存器（st）。</p>
-</li>
-<li><p>sti指令可能会因无法存储给定的常量而失败。</p>
-</li>
-</ul>
-<h3 id="Function-call-assumptions-函数调用的假设"><a href="#Function-call-assumptions-函数调用的假设" class="headerlink" title="Function call assumptions &#x2F; 函数调用的假设"></a>Function call assumptions &#x2F; 函数调用的假设</h3><ul>
+<h3 id="function-call-assumptions-函数调用的假设">Function call
+assumptions / 函数调用的假设</h3>
+<ul>
 <li>参数和返回值的支持类型仅限于32位和64位整数以及指针。</li>
 <li>栈向下增长。</li>
 <li>前N个参数通过寄存器传递。</li>
@@ -1077,21 +1155,17 @@
 <li>在调用期间，一些寄存器的值可能会被覆盖。</li>
 <li>函数可以在寄存器中返回0或1个值。在32位目标平台上，函数必须能够以寄存器返回2个值，用于64位返回类型。</li>
 </ul>
-<h2 id="Recommended-coding-rules-for-best-performance"><a href="#Recommended-coding-rules-for-best-performance" class="headerlink" title="Recommended coding rules for best performance"></a>Recommended coding rules for best performance</h2><ul>
-<li><p>使用全局变量来表示经常被修改的QEMU CPU状态的部分，例如整数寄存器和条件码。</p>
-</li>
-<li><p>TCG将能够使用主机寄存器来存储它们。</p>
-</li>
-<li><p>对于复杂或不常用的客户指令，不要犹豫使用辅助函数。</p>
-</li>
-<li><p>在使用TCG实现的客户指令中，使用超过约二十条TCG指令的性能优势很小。</p>
-</li>
-<li><p>需要注意的是，这个经验法则更适用于执行复杂逻辑或算术运算的辅助函数，因为C编译器可以进行有效的优化；在大部分是加载和存储操作的指令中，这个规则的适用性较小，并且在这些情况下，内联TCG仍然可能比较长的序列更快。</p>
-</li>
-<li><p>如果你知道TCG无法证明在给定程序点上某个全局变量是”无用”的，可以使用”discard”指令。</p>
-</li>
-<li><p>x86客户机使用它来改进条件码的优化。</p>
-</li>
+<h2 id="recommended-coding-rules-for-best-performance">Recommended
+coding rules for best performance</h2>
+<ul>
+<li><p>使用全局变量来表示经常被修改的QEMU
+CPU状态的部分，例如整数寄存器和条件码。</p></li>
+<li><p>TCG将能够使用主机寄存器来存储它们。</p></li>
+<li><p>对于复杂或不常用的客户指令，不要犹豫使用辅助函数。</p></li>
+<li><p>在使用TCG实现的客户指令中，使用超过约二十条TCG指令的性能优势很小。</p></li>
+<li><p>需要注意的是，这个经验法则更适用于执行复杂逻辑或算术运算的辅助函数，因为C编译器可以进行有效的优化；在大部分是加载和存储操作的指令中，这个规则的适用性较小，并且在这些情况下，内联TCG仍然可能比较长的序列更快。</p></li>
+<li><p>如果你知道TCG无法证明在给定程序点上某个全局变量是"无用"的，可以使用"discard"指令。</p></li>
+<li><p>x86客户机使用它来改进条件码的优化。</p></li>
 </ul>
 
     </div>
@@ -1173,7 +1247,11 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#TCG-Intermediate-Representation-TCG%EF%BC%88Tiny-Code-Generator%EF%BC%89%E4%B8%AD%E9%97%B4%E8%A1%A8%E7%A4%BA"><span class="nav-number">1.</span> <span class="nav-text">TCG Intermediate Representation &#x2F; TCG（Tiny Code Generator）中间表示</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction-%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">Introduction &#x2F; 介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Definitions-%E5%AE%9A%E4%B9%89"><span class="nav-number">1.2.</span> <span class="nav-text">Definitions &#x2F; 定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Basic-Blocks-%E5%9F%BA%E6%9C%AC%E5%9D%97"><span class="nav-number">1.3.</span> <span class="nav-text">Basic Blocks &#x2F; 基本块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Operations-%E6%93%8D%E4%BD%9C"><span class="nav-number">1.4.</span> <span class="nav-text">Operations &#x2F; 操作</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Variables"><span class="nav-number">2.</span> <span class="nav-text">Variables</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Types"><span class="nav-number">3.</span> <span class="nav-text">Types</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Helpers-%E8%BE%85%E5%8A%A9%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.</span> <span class="nav-text">Helpers &#x2F; 辅助函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Code-Optimizations"><span class="nav-number">3.2.</span> <span class="nav-text">Code Optimizations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Instruction-Reference"><span class="nav-number">3.3.</span> <span class="nav-text">Instruction Reference</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Function-call"><span class="nav-number">3.3.1.</span> <span class="nav-text">Function call</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Jumps-Labels"><span class="nav-number">3.3.2.</span> <span class="nav-text">Jumps&#x2F;Labels</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Arithmetic"><span class="nav-number">3.3.3.</span> <span class="nav-text">Arithmetic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Logical"><span class="nav-number">3.3.4.</span> <span class="nav-text">Logical</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Shifts-Rotates"><span class="nav-number">3.3.5.</span> <span class="nav-text">Shifts&#x2F;Rotates</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Misc"><span class="nav-number">3.3.6.</span> <span class="nav-text">Misc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Conditional-moves"><span class="nav-number">3.3.7.</span> <span class="nav-text">Conditional moves</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Type-conversions"><span class="nav-number">3.3.8.</span> <span class="nav-text">Type conversions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Load-Store"><span class="nav-number">3.3.9.</span> <span class="nav-text">Load&#x2F;Store</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Multiword-arithmetic-support"><span class="nav-number">3.3.10.</span> <span class="nav-text">Multiword arithmetic support</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Memory-Barrier-support"><span class="nav-number">3.3.11.</span> <span class="nav-text">Memory Barrier support</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#64-bit-guest-on-32-bit-host-support"><span class="nav-number">3.3.12.</span> <span class="nav-text">64-bit guest on 32-bit host support</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QEMU-specific-operations"><span class="nav-number">3.3.13.</span> <span class="nav-text">QEMU specific operations</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Host-vector-operations"><span class="nav-number">3.4.</span> <span class="nav-text">Host vector operations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Backend-%E5%90%8E%E7%AB%AF"><span class="nav-number">3.5.</span> <span class="nav-text">Backend &#x2F; 后端</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Assumptions-%E5%81%87%E8%AE%BE"><span class="nav-number">3.5.1.</span> <span class="nav-text">Assumptions &#x2F; 假设</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Constraints-%E9%99%90%E5%88%B6"><span class="nav-number">3.5.2.</span> <span class="nav-text">Constraints &#x2F; 限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Function-call-assumptions-%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%9A%84%E5%81%87%E8%AE%BE"><span class="nav-number">3.5.3.</span> <span class="nav-text">Function call assumptions &#x2F; 函数调用的假设</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Recommended-coding-rules-for-best-performance"><span class="nav-number">3.6.</span> <span class="nav-text">Recommended coding rules for best performance</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#tcg-intermediate-representation-tcgtiny-code-generator%E4%B8%AD%E9%97%B4%E8%A1%A8%E7%A4%BA"><span class="nav-number">1.</span> <span class="nav-text">TCG
+Intermediate Representation &#x2F; TCG（Tiny Code Generator）中间表示</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction-%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">Introduction &#x2F; 介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#definitions-%E5%AE%9A%E4%B9%89"><span class="nav-number">1.2.</span> <span class="nav-text">Definitions &#x2F; 定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#basic-blocks-%E5%9F%BA%E6%9C%AC%E5%9D%97"><span class="nav-number">1.3.</span> <span class="nav-text">Basic Blocks &#x2F; 基本块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#operations-%E6%93%8D%E4%BD%9C"><span class="nav-number">1.4.</span> <span class="nav-text">Operations &#x2F; 操作</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#variables"><span class="nav-number">2.</span> <span class="nav-text">Variables</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#types"><span class="nav-number">3.</span> <span class="nav-text">Types</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#helpers-%E8%BE%85%E5%8A%A9%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.</span> <span class="nav-text">Helpers &#x2F; 辅助函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#code-optimizations"><span class="nav-number">3.2.</span> <span class="nav-text">Code Optimizations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#instruction-reference"><span class="nav-number">3.3.</span> <span class="nav-text">Instruction Reference</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#function-call"><span class="nav-number">3.3.1.</span> <span class="nav-text">Function call</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jumpslabels"><span class="nav-number">3.3.2.</span> <span class="nav-text">Jumps&#x2F;Labels</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#arithmetic"><span class="nav-number">3.3.3.</span> <span class="nav-text">Arithmetic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#logical"><span class="nav-number">3.3.4.</span> <span class="nav-text">Logical</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shiftsrotates"><span class="nav-number">3.3.5.</span> <span class="nav-text">Shifts&#x2F;Rotates</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#misc"><span class="nav-number">3.3.6.</span> <span class="nav-text">Misc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#conditional-moves"><span class="nav-number">3.3.7.</span> <span class="nav-text">Conditional moves</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#type-conversions"><span class="nav-number">3.3.8.</span> <span class="nav-text">Type conversions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#loadstore"><span class="nav-number">3.3.9.</span> <span class="nav-text">Load&#x2F;Store</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#multiword-arithmetic-support"><span class="nav-number">3.3.10.</span> <span class="nav-text">Multiword arithmetic support</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memory-barrier-support"><span class="nav-number">3.3.11.</span> <span class="nav-text">Memory Barrier support</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bit-guest-on-32-bit-host-support"><span class="nav-number">3.3.12.</span> <span class="nav-text">64-bit guest on 32-bit host
+support</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#qemu-specific-operations"><span class="nav-number">3.3.13.</span> <span class="nav-text">QEMU specific operations</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#host-vector-operations"><span class="nav-number">3.4.</span> <span class="nav-text">Host vector operations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#backend-%E5%90%8E%E7%AB%AF"><span class="nav-number">3.5.</span> <span class="nav-text">Backend &#x2F; 后端</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#assumptions-%E5%81%87%E8%AE%BE"><span class="nav-number">3.5.1.</span> <span class="nav-text">Assumptions &#x2F; 假设</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#constraints-%E9%99%90%E5%88%B6"><span class="nav-number">3.5.2.</span> <span class="nav-text">Constraints &#x2F; 限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#function-call-assumptions-%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%9A%84%E5%81%87%E8%AE%BE"><span class="nav-number">3.5.3.</span> <span class="nav-text">Function call
+assumptions &#x2F; 函数调用的假设</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#recommended-coding-rules-for-best-performance"><span class="nav-number">3.6.</span> <span class="nav-text">Recommended
+coding rules for best performance</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -1234,6 +1312,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -1253,6 +1341,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -1270,6 +1360,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -1282,6 +1376,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

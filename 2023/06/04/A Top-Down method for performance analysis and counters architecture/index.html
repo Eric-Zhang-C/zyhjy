@@ -15,18 +15,19 @@
 
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Abstract针对给定的微体系结构优化应用程序的性能变得非常困难。 日益增加的微架构复杂性、工作负载多样性以及性能工具产生的难以管理的数据量增加了优化挑战。 同时，随着最近出现的细分市场的出现，资源和时间限制变得更加严格。 这进一步需要准确和及时的分析方法。在本文中，开发了一种自上而下的分析——一种快速识别乱序处理器中真正瓶颈的实用方法。 开发的方法在结构化的分层方法中使用指定的性能计数器来快速">
+  <meta name="description" content="Abstract 针对给定的微体系结构优化应用程序的性能变得非常困难。 日益增加的微架构复杂性、工作负载多样性以及性能工具产生的难以管理的数据量增加了优化挑战。 同时，随着最近出现的细分市场的出现，资源和时间限制变得更加严格。 这进一步需要准确和及时的分析方法。 在本文中，开发了一种自上而下的分析——一种快速识别乱序处理器中真正瓶颈的实用方法。 开发的方法在结构化的分层方法中使用指定的性能计数器来">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Topdown论文--ISPASS2014">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/06/04/A%20Top-Down%20method%20for%20performance%20analysis%20and%20counters%20architecture/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="Abstract针对给定的微体系结构优化应用程序的性能变得非常困难。 日益增加的微架构复杂性、工作负载多样性以及性能工具产生的难以管理的数据量增加了优化挑战。 同时，随着最近出现的细分市场的出现，资源和时间限制变得更加严格。 这进一步需要准确和及时的分析方法。在本文中，开发了一种自上而下的分析——一种快速识别乱序处理器中真正瓶颈的实用方法。 开发的方法在结构化的分层方法中使用指定的性能计数器来快速">
+<meta property="og:description" content="Abstract 针对给定的微体系结构优化应用程序的性能变得非常困难。 日益增加的微架构复杂性、工作负载多样性以及性能工具产生的难以管理的数据量增加了优化挑战。 同时，随着最近出现的细分市场的出现，资源和时间限制变得更加严格。 这进一步需要准确和及时的分析方法。 在本文中，开发了一种自上而下的分析——一种快速识别乱序处理器中真正瓶颈的实用方法。 开发的方法在结构化的分层方法中使用指定的性能计数器来">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-06-04T03:06:00.000Z">
 <meta property="article:modified_time" content="2023-07-31T14:10:24.767Z">
@@ -50,6 +51,15 @@
 
   <title>Topdown论文--ISPASS2014 | ZYHJY</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
 
 
 
@@ -106,6 +116,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -140,11 +151,38 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -214,7 +252,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>22k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>36 分钟</span>
+            </span>
 
         </div>
       </header>
@@ -225,138 +277,307 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>针对给定的微体系结构优化应用程序的性能变得非常困难。 日益增加的微架构复杂性、工作负载多样性以及性能工具产生的难以管理的数据量增加了优化挑战。 同时，随着最近出现的细分市场的出现，资源和时间限制变得更加严格。 这进一步需要准确和及时的分析方法。<br>在本文中，开发了一种自上而下的分析——一种快速识别乱序处理器中真正瓶颈的实用方法。 开发的方法在结构化的分层方法中使用指定的性能计数器来快速，更重要的是，正确识别主要性能瓶颈。 开发的方法被包括 VTune 在内的多种生产工具所采用。 来自 VTune 普通用户的反馈表明，由于简化的层次结构避免了与微体系结构细节相关的高学习曲线，分析变得更加容易。 针对 SPEC CPU2006 基准测试和关键企业工作负载报告了此方法的表征结果。 除了针对最新一代英特尔酷睿™ 产品的架构探索研究外，还包括该方法指导软件优化的现场案例研究。<br>这种方法的见解指导了一种新颖的性能计数器架构的提议，该架构可以确定通用乱序处理器的真正瓶颈。 与其他方法不同，我们的分析方法成本低，并且已经在生产系统中得到应用——它只需要将八个简单的新性能事件添加到传统 PMU 中。 它是全面的——对预定义的性能问题集没有限制。 它解决了超标量核心中的粒度瓶颈，这是早期方法遗漏的。</p>
+        <h1 id="abstract">Abstract</h1>
+<p>针对给定的微体系结构优化应用程序的性能变得非常困难。
+日益增加的微架构复杂性、工作负载多样性以及性能工具产生的难以管理的数据量增加了优化挑战。
+同时，随着最近出现的细分市场的出现，资源和时间限制变得更加严格。
+这进一步需要准确和及时的分析方法。
+在本文中，开发了一种自上而下的分析——一种快速识别乱序处理器中真正瓶颈的实用方法。
+开发的方法在结构化的分层方法中使用指定的性能计数器来快速，更重要的是，正确识别主要性能瓶颈。
+开发的方法被包括 VTune 在内的多种生产工具所采用。 来自 VTune
+普通用户的反馈表明，由于简化的层次结构避免了与微体系结构细节相关的高学习曲线，分析变得更加容易。
+针对 SPEC CPU2006 基准测试和关键企业工作负载报告了此方法的表征结果。
+除了针对最新一代英特尔酷睿™
+产品的架构探索研究外，还包括该方法指导软件优化的现场案例研究。
+这种方法的见解指导了一种新颖的性能计数器架构的提议，该架构可以确定通用乱序处理器的真正瓶颈。
+与其他方法不同，我们的分析方法成本低，并且已经在生产系统中得到应用——它只需要将八个简单的新性能事件添加到传统
+PMU 中。 它是全面的——对预定义的性能问题集没有限制。
+它解决了超标量核心中的粒度瓶颈，这是早期方法遗漏的。</p>
 <span id="more"></span>
-
-<h1 id="S1"><a href="#S1" class="headerlink" title="S1"></a>S1</h1><p>性能监控单元 (PMU) 的主要目标是帮助软件开发人员优化其工作负载，以在给定系统上实现最佳性能。现代处理器有数百个性能事件，但可能很难确定哪些事件与特定工作负载的瓶颈有关。这是因为这些表演活动历来是以广告自下而上的方式定义的，PMU设计师试图通过 “专门的失误活动” 来报道关键问题。但是，这种方法可能无法解释设计时未明确预见的性能问题。</p>
-<p>为了应对这一挑战，研究人员提出了一种新的性能计数器架构，该架构可以确定一般失序处理器的真正瓶颈。与其他方法不同，他们的分析方法低成本，并且已经在生产系统中使用。只需要向传统 PMU 添加八个简单的新性能事件。它很全面，对预定义的一组性能问题没有限制。它解释了超标量内核中的细粒度瓶颈，而早期方法可能忽略了这些瓶颈。</p>
-<p>识别瓶颈有许多用途。计算机架构师可以更好地了解新兴工作负载的资源需求。工作负载特征通常使用原始事件计数数据，但此类未处理的数据不一定指向架构师应解决的正确瓶颈。编译器编写者可以更有效地确定哪种配置文件引导优化 (PGO) 适合工作负载，开销更少。虚拟系统的监视器可以提高资源利用率并最大限度地减少能耗。</p>
-<p>突出显示的文本描述了一种名为自上而下分析的方法，该方法是识别失序 CPU 中的关键瓶颈的快速可行方法。该方法涉及以分层方式进行结构化深入分析，将权重分配给树中的节点，以指导用户将分析工作重点放在重要问题上，而忽略微不足道的问题。例如，如果某个应用程序受到指令提取问题的严重影响，则该方法会在树的最上层将其归类为 Frontend Bound，并且用户只能向下钻取层次结构的 Frontend 子树。向下钻取以递归方式执行，直到到达树叶为止，树叶可以指向工作负载的特定停顿状态，也可以表示可能限制应用程序性能的常见微架构症状的一部分问题。</p>
-<p>代号为Ivy Bridge的英特尔第三代酷睿™ 采用了该方法，并且使用了一小部分自上而下的定向计数器来克服瓶颈识别挑战。多种工具都采用了这种方法，包括VTune和标准Linux性能实用程序的附加包。使用该方法的现场经验揭示了一些以前被传统方法低估的性能问题。该方法的见解用于提出一种新的性能计数器架构，该架构可以通过自上而下的方法确定一般乱序架构的真正瓶颈。</p>
-<p>性能监控单元 (PMU) 的主要目标是使软件开发人员能够有效地调整其工作负载，以在给定系统上实现最佳性能。所提出的方法成本低廉，已在生产系统中使用，只需要在传统的PMU中添加八个简单的新性能事件。它很全面，对预定义的一组性能问题没有限制，并且解释了早期方法所遗漏的超标量内核中的细粒度瓶颈。</p>
-<p>本文的其余部分组织如下：第 2 节提供了背景信息，并讨论了在失序 CPU 中识别瓶颈所面临的挑战。第 3 节介绍了自上而下的分析方法及其抽象指标。在第 4 节中，提出了一种新的低成本计数器架构来获得这些指标。第 5 节介绍了常见工作负载的结果以及示例用例。第6节讨论了相关工作，最后，第7节总结并概述了未来的工作。</p>
-<h1 id="Section2-Background"><a href="#Section2-Background" class="headerlink" title="Section2 Background"></a>Section2 Background</h1><p>现代高性能CPU通过采用诸如大窗口乱序执行、预测性猜测和硬件预取等技术，竭尽全力保持其执行流水线的繁忙状态。在广泛的传统工作负载范围内，这些高性能架构在以每个周期指令数（IPC）的高速率执行任意代码方面取得了很大成功。然而，由于这些复杂的超标量乱序机器试图在“边缘”操作，即使是小的性能故障也可能限制工作负载远低于其潜力。不幸的是，在这些CPU中，从众多可以容忍的不重要问题中识别出真正的性能限制因素仍然是一个未解决的问题。</p>
-<p>从鸟瞰角度来看，现代乱序CPU的流水线主要由前端和后端两个部分组成。前端负责从内存中获取指令并将其转换为微操作（uops）。这些uops被送到后端部分进行调度、执行和提交（retire），按照原始程序的顺序。为了保持机器的平衡，已经准备好供后端使用的uops通常会被缓存在某个“ready-uops-queue”中。图1显示了Ivy Bridge微架构的示例块图，包括底层的功能单元。</p>
-<p>传统方法[4][5]对停顿进行简单估计。例如，某些缓存的缺失次数乘以预定义的延迟时间：</p>
+<h1 id="s1">S1</h1>
+<p>性能监控单元 (PMU)
+的主要目标是帮助软件开发人员优化其工作负载，以在给定系统上实现最佳性能。现代处理器有数百个性能事件，但可能很难确定哪些事件与特定工作负载的瓶颈有关。这是因为这些表演活动历来是以广告自下而上的方式定义的，PMU设计师试图通过
+“专门的失误活动”
+来报道关键问题。但是，这种方法可能无法解释设计时未明确预见的性能问题。</p>
+<p>为了应对这一挑战，研究人员提出了一种新的性能计数器架构，该架构可以确定一般失序处理器的真正瓶颈。与其他方法不同，他们的分析方法低成本，并且已经在生产系统中使用。只需要向传统
+PMU
+添加八个简单的新性能事件。它很全面，对预定义的一组性能问题没有限制。它解释了超标量内核中的细粒度瓶颈，而早期方法可能忽略了这些瓶颈。</p>
+<p>识别瓶颈有许多用途。计算机架构师可以更好地了解新兴工作负载的资源需求。工作负载特征通常使用原始事件计数数据，但此类未处理的数据不一定指向架构师应解决的正确瓶颈。编译器编写者可以更有效地确定哪种配置文件引导优化
+(PGO)
+适合工作负载，开销更少。虚拟系统的监视器可以提高资源利用率并最大限度地减少能耗。</p>
+<p>突出显示的文本描述了一种名为自上而下分析的方法，该方法是识别失序 CPU
+中的关键瓶颈的快速可行方法。该方法涉及以分层方式进行结构化深入分析，将权重分配给树中的节点，以指导用户将分析工作重点放在重要问题上，而忽略微不足道的问题。例如，如果某个应用程序受到指令提取问题的严重影响，则该方法会在树的最上层将其归类为
+Frontend Bound，并且用户只能向下钻取层次结构的 Frontend
+子树。向下钻取以递归方式执行，直到到达树叶为止，树叶可以指向工作负载的特定停顿状态，也可以表示可能限制应用程序性能的常见微架构症状的一部分问题。</p>
+<p>代号为Ivy Bridge的英特尔第三代酷睿™
+采用了该方法，并且使用了一小部分自上而下的定向计数器来克服瓶颈识别挑战。多种工具都采用了这种方法，包括VTune和标准Linux性能实用程序的附加包。使用该方法的现场经验揭示了一些以前被传统方法低估的性能问题。该方法的见解用于提出一种新的性能计数器架构，该架构可以通过自上而下的方法确定一般乱序架构的真正瓶颈。</p>
+<p>性能监控单元 (PMU)
+的主要目标是使软件开发人员能够有效地调整其工作负载，以在给定系统上实现最佳性能。所提出的方法成本低廉，已在生产系统中使用，只需要在传统的PMU中添加八个简单的新性能事件。它很全面，对预定义的一组性能问题没有限制，并且解释了早期方法所遗漏的超标量内核中的细粒度瓶颈。</p>
+<p>本文的其余部分组织如下：第 2 节提供了背景信息，并讨论了在失序 CPU
+中识别瓶颈所面临的挑战。第 3
+节介绍了自上而下的分析方法及其抽象指标。在第 4
+节中，提出了一种新的低成本计数器架构来获得这些指标。第 5
+节介绍了常见工作负载的结果以及示例用例。第6节讨论了相关工作，最后，第7节总结并概述了未来的工作。</p>
+<h1 id="section2-background">Section2 Background</h1>
+<p>现代高性能CPU通过采用诸如大窗口乱序执行、预测性猜测和硬件预取等技术，竭尽全力保持其执行流水线的繁忙状态。在广泛的传统工作负载范围内，这些高性能架构在以每个周期指令数（IPC）的高速率执行任意代码方面取得了很大成功。然而，由于这些复杂的超标量乱序机器试图在“边缘”操作，即使是小的性能故障也可能限制工作负载远低于其潜力。不幸的是，在这些CPU中，从众多可以容忍的不重要问题中识别出真正的性能限制因素仍然是一个未解决的问题。</p>
+<p>从鸟瞰角度来看，现代乱序CPU的流水线主要由前端和后端两个部分组成。前端负责从内存中获取指令并将其转换为微操作（uops）。这些uops被送到后端部分进行调度、执行和提交（retire），按照原始程序的顺序。为了保持机器的平衡，已经准备好供后端使用的uops通常会被缓存在某个“ready-uops-queue”中。图1显示了Ivy
+Bridge微架构的示例块图，包括底层的功能单元。</p>
+<p>传统方法<a
+href="#section-3">4</a>对停顿进行简单估计。例如，某些缓存的缺失次数乘以预定义的延迟时间：</p>
 <p>确实，这种“天真方法”可能适用于按顺序执行的CPU，但对于现代乱序CPU来说，由于多种原因，它显然不太合适：</p>
-<ol>
-<li><p>停顿重叠：许多单元可以并行工作。例如，当数据缓存缺失时，可以处理一些未来指令缺失指令缓存的情况。</p>
-</li>
-<li><p>预测执行：当CPU按照错误的控制路径执行时，来自错误路径的事件比来自正确路径的事件更不重要。</p>
-</li>
-<li><p>惩罚因素与工作负载相关：而天真方法假设所有工作负载的惩罚都是固定的。例如，分支之间的距离可能增加错误预测的成本。</p>
-</li>
-<li><p>限制于预定义的缺失事件集合：这些复杂的微架构存在许多可能的故障，而只有最常见的子集由专用事件涵盖。</p>
-</li>
-<li><p>超标量不准确性：CPU可以在一个周期内发射、执行和退役多个操作。一些（例如客户端）应用程序由于流水线的带宽限制而受到限制，因为通过越来越多的技术来减轻延迟。</p>
-</li>
+<ol type="1">
+<li><p>停顿重叠：许多单元可以并行工作。例如，当数据缓存缺失时，可以处理一些未来指令缺失指令缓存的情况。</p></li>
+<li><p>预测执行：当CPU按照错误的控制路径执行时，来自错误路径的事件比来自正确路径的事件更不重要。</p></li>
+<li><p>惩罚因素与工作负载相关：而天真方法假设所有工作负载的惩罚都是固定的。例如，分支之间的距离可能增加错误预测的成本。</p></li>
+<li><p>限制于预定义的缺失事件集合：这些复杂的微架构存在许多可能的故障，而只有最常见的子集由专用事件涵盖。</p></li>
+<li><p>超标量不准确性：CPU可以在一个周期内发射、执行和退役多个操作。一些（例如客户端）应用程序由于流水线的带宽限制而受到限制，因为通过越来越多的技术来减轻延迟。</p></li>
 </ol>
 <p>因此，简单地依靠基于缓存缺失和预定义延迟的简单估计，可能无法准确评估现代乱序CPU中的性能限制。需要使用更先进的分析和性能分析技术，以识别和解决这些架构中真正的性能限制因素。</p>
-<p>我们通过以下方法解决了这些问题。我们将一个名为“Bad Speculation”（稍后定义）的主要类别放置在层次结构的顶部。它涵盖了由于错误预测而引起的停顿，以及由于执行错误路径而浪费的资源。这不仅将问题首先引起用户的注意，而且还简化了层次结构中其他地方使用的硬件计数器的要求。我们引入了一打真正的“自上而下”指定的计数器，以便处理其他问题。我们发现，在解决问题（1）和（3）时，确定要查看的流水线阶段和“计数的时机很重要。例如，我们不仅仅检查总内存访问持续时间，而是仅检查由于待定内存访问而导致执行单元利用率不足的子持续时间。通过调用与“专用缺失事件”无关的通用事件，我们可以处理问题（4）。其中一些是占用事件，用于处理问题（5）。</p>
-<h1 id="SECTION-3-Top-Down-Analysis"><a href="#SECTION-3-Top-Down-Analysis" class="headerlink" title="SECTION 3.Top-Down Analysis"></a>SECTION 3.Top-Down Analysis</h1><p>自上而下分析方法的目标是准确且快速地确定性能瓶颈。它引导用户在性能优化阶段关注真正重要的问题。这个阶段通常在整个应用程序开发过程中受到时间和资源的限制，因此迅速确定瓶颈变得更加重要。</p>
+<p>我们通过以下方法解决了这些问题。我们将一个名为“Bad
+Speculation”（稍后定义）的主要类别放置在层次结构的顶部。它涵盖了由于错误预测而引起的停顿，以及由于执行错误路径而浪费的资源。这不仅将问题首先引起用户的注意，而且还简化了层次结构中其他地方使用的硬件计数器的要求。我们引入了一打真正的“自上而下”指定的计数器，以便处理其他问题。我们发现，在解决问题（1）和（3）时，确定要查看的流水线阶段和“计数的时机很重要。例如，我们不仅仅检查总内存访问持续时间，而是仅检查由于待定内存访问而导致执行单元利用率不足的子持续时间。通过调用与“专用缺失事件”无关的通用事件，我们可以处理问题（4）。其中一些是占用事件，用于处理问题（5）。</p>
+<h1 id="section-3.top-down-analysis">SECTION 3.Top-Down Analysis</h1>
+<p>自上而下分析方法的目标是准确且快速地确定性能瓶颈。它引导用户在性能优化阶段关注真正重要的问题。这个阶段通常在整个应用程序开发过程中受到时间和资源的限制，因此迅速确定瓶颈变得更加重要。</p>
 <p>这种方法本身很简单：首先对CPU执行时间进行高层次的分类。这一步会标记（报告高分数）一些可能需要调查的领域。接下来，用户可以深入研究这些被标记的领域，并可以安全地忽略所有未被标记的领域。该过程以分层方式重复进行，直到确定特定的性能问题，或者至少确定了一小部分候选问题，可以进行进一步调查。</p>
 <p>在本节中，我们首先概述层次结构，然后介绍层次结构上层背后的启发式方法。</p>
 <p>该层次结构如图2所示。首先，我们假设用户对分析有预定义的标准。例如，用户可以选择查看至少占总执行时间20%的热点。另一个例子是分析为什么给定的热点在不同硬件代际之间没有显示出预期的加速效果。热点可以是软件模块、函数、循环或基本块之间的一系列指令。</p>
-<p>Top-Down分解方法应用于有趣的热点，其中可用的流水线槽被分为四个基本类别：退役（Retiring）、坏预测（Bad Speculation）、前端受限（Frontend Bound）和后端受限（Backend Bound）。这些术语在以下子部分中进行了定义。最好通过一个例子来说明这种方法。以一个受数据缓存性能限制的工作负载为例。该方法标记了后端受限（Backend Bound），而前端受限（Frontend Bound）不会被标记。这意味着用户需要下一步深入研究后端受限（Backend Bound）类别，而忽略所有与前端相关的问题。在深入研究后端受限（Backend Bound）时，如果应用程序被认为对缓存敏感，那么会标记内存受限（Memory Bound）类别。类似地，在这一点上，用户可以跳过非内存相关的问题。接下来，进行内存受限（Memory Bound）的深入研究。L1、L2和L3-Bound自然地细分了内存受限（Memory Bound）类别。每个类别表示工作负载受到该缓存级别限制的部分。L1受限（L1 Bound）应该在那里被标记。最后，由于与先前存储的重叠或缓存行分割加载，加载操作可能成为L1受限（L1 Bound）下面的特定性能问题。该方法最终会建议用户将注意力集中在这个领域上。</p>
-<p>请注意，层次结构在查看计数器值时提供了一种自然的安全保障。除非从根节点到特定节点的路径上的所有节点都被标记，否则应该忽略内部节点的值。例如，一个简单的代码在一个内存缓冲区上执行一些除法操作，可能会显示图2中Ext. Memory Bound和Divider节点的高值。尽管Divider节点本身可能具有高的分数值，但假设工作负载真正受内存限制，应该忽略它。这是因为Backend.CoreBound不会被标记。我们将此称为层次安全属性（hierarchical-safety property）。还请注意，只有兄弟节点的权重可以进行比较。这是因为它们在同一流水线阶段计算。不建议比较非兄弟节点的分数值。</p>
-<h2 id="3-2-Top-Level-Breakdown"><a href="#3-2-Top-Level-Breakdown" class="headerlink" title="3.2. Top Level Breakdown"></a>3.2. Top Level Breakdown</h2><p>在高度复杂的微架构中，首先需要对流水线活动进行一级分类。第一个有趣的问题是如何以及在哪里进行第一级分解？我们选择问题点（在图1中用星号标记）作为自然的边界，将机器的前端和后端部分分割开来。这样可以实现高度准确的最高级别分类。</p>
-<p>在问题点上，我们将每个流水线槽分类为四个基本类别：前端受限（Frontend Bound）、后端受限（Backend Bound）、坏预测（Bad Speculation）和退役（Retiring），如图3所示。如果在给定的周期内发出了一个微操作（uop），它最终将被退役或取消。因此，它可以分别归属于退役或坏预测类别。</p>
+<p>Top-Down分解方法应用于有趣的热点，其中可用的流水线槽被分为四个基本类别：退役（Retiring）、坏预测（Bad
+Speculation）、前端受限（Frontend Bound）和后端受限（Backend
+Bound）。这些术语在以下子部分中进行了定义。最好通过一个例子来说明这种方法。以一个受数据缓存性能限制的工作负载为例。该方法标记了后端受限（Backend
+Bound），而前端受限（Frontend
+Bound）不会被标记。这意味着用户需要下一步深入研究后端受限（Backend
+Bound）类别，而忽略所有与前端相关的问题。在深入研究后端受限（Backend
+Bound）时，如果应用程序被认为对缓存敏感，那么会标记内存受限（Memory
+Bound）类别。类似地，在这一点上，用户可以跳过非内存相关的问题。接下来，进行内存受限（Memory
+Bound）的深入研究。L1、L2和L3-Bound自然地细分了内存受限（Memory
+Bound）类别。每个类别表示工作负载受到该缓存级别限制的部分。L1受限（L1
+Bound）应该在那里被标记。最后，由于与先前存储的重叠或缓存行分割加载，加载操作可能成为L1受限（L1
+Bound）下面的特定性能问题。该方法最终会建议用户将注意力集中在这个领域上。</p>
+<p>请注意，层次结构在查看计数器值时提供了一种自然的安全保障。除非从根节点到特定节点的路径上的所有节点都被标记，否则应该忽略内部节点的值。例如，一个简单的代码在一个内存缓冲区上执行一些除法操作，可能会显示图2中Ext.
+Memory
+Bound和Divider节点的高值。尽管Divider节点本身可能具有高的分数值，但假设工作负载真正受内存限制，应该忽略它。这是因为Backend.CoreBound不会被标记。我们将此称为层次安全属性（hierarchical-safety
+property）。还请注意，只有兄弟节点的权重可以进行比较。这是因为它们在同一流水线阶段计算。不建议比较非兄弟节点的分数值。</p>
+<h2 id="top-level-breakdown">3.2. Top Level Breakdown</h2>
+<p>在高度复杂的微架构中，首先需要对流水线活动进行一级分类。第一个有趣的问题是如何以及在哪里进行第一级分解？我们选择问题点（在图1中用星号标记）作为自然的边界，将机器的前端和后端部分分割开来。这样可以实现高度准确的最高级别分类。</p>
+<p>在问题点上，我们将每个流水线槽分类为四个基本类别：前端受限（Frontend
+Bound）、后端受限（Backend Bound）、坏预测（Bad
+Speculation）和退役（Retiring），如图3所示。如果在给定的周期内发出了一个微操作（uop），它最终将被退役或取消。因此，它可以分别归属于退役或坏预测类别。</p>
 <p>否则，流水线槽可以被分为是否存在后端停顿。后端停顿是后端在资源不可用（例如缺少加载缓冲区条目）时施加的反压机制。在这种情况下，我们将停顿归因于后端，因为即使前端准备好了更多的微操作，它也无法将它们传递到流水线中。如果没有后端停顿，这意味着前端在后端准备接收微操作时应该已经传递了一些微操作；因此，我们将其标记为前端受限。</p>
 <p>这种后端停顿的条件是关键的，正如我们在下一节中的FetchBubbles定义中所概述的。</p>
-<p>实际上，分类是以流水线槽的粒度进行的，因为超标量CPU能够每个周期发出多个微操作。这使得分解非常准确和稳健，这在层次结构的最高级别上是必要的。这种准确的分类将我们的方法与之前的方法[1] [5] [6]区分开来。</p>
-<h2 id="3-3-Frontend-Bound-Category"><a href="#3-3-Frontend-Bound-Category" class="headerlink" title="3.3. Frontend Bound Category"></a>3.3. Frontend Bound Category</h2><p>回想一下，前端表示流水线的第一部分，其中分支预测器预测下一个要获取的地址，缓存行被获取并解析为指令，然后解码为后端稍后可以执行的微操作。前端受限表示当CPU的前端供应不足时，即后端本来愿意接受微操作。</p>
-<p>处理前端问题有一些棘手，因为它们发生在长而缓冲的流水线的最开始部分。这意味着在许多情况下，短暂的问题不会主导实际性能。因此，在仅在最高级别标记为前端受限时才深入研究这个领域非常重要。话虽如此，我们观察到在许多情况下，前端供应带宽可以主导性能，特别是当高IPC适用时。这导致添加了专用单元来隐藏获取流水线的延迟并保持所需的带宽。循环流检测器（Loop Stream Detector）以及解码指令缓存（即DSB，Sandy Bridge引入的解码微操作流缓冲区）是英特尔Core系列中的一些例子[7]。</p>
+<p>实际上，分类是以流水线槽的粒度进行的，因为超标量CPU能够每个周期发出多个微操作。这使得分解非常准确和稳健，这在层次结构的最高级别上是必要的。这种准确的分类将我们的方法与之前的方法[1]
+<a href="#section-3">5</a> [6]区分开来。</p>
+<h2 id="frontend-bound-category">3.3. Frontend Bound Category</h2>
+<p>回想一下，前端表示流水线的第一部分，其中分支预测器预测下一个要获取的地址，缓存行被获取并解析为指令，然后解码为后端稍后可以执行的微操作。前端受限表示当CPU的前端供应不足时，即后端本来愿意接受微操作。</p>
+<p>处理前端问题有一些棘手，因为它们发生在长而缓冲的流水线的最开始部分。这意味着在许多情况下，短暂的问题不会主导实际性能。因此，在仅在最高级别标记为前端受限时才深入研究这个领域非常重要。话虽如此，我们观察到在许多情况下，前端供应带宽可以主导性能，特别是当高IPC适用时。这导致添加了专用单元来隐藏获取流水线的延迟并保持所需的带宽。循环流检测器（Loop
+Stream Detector）以及解码指令缓存（即DSB，Sandy
+Bridge引入的解码微操作流缓冲区）是英特尔Core系列中的一些例子<a
+href="#section-4">7</a>。</p>
 <p>Top-Down方法进一步区分延迟和带宽阻塞。指令缓存缺失将被归类为前端延迟受限，而指令解码器的低效将被归类为前端带宽受限。最终，我们希望这些指标只在流水线的其余部分可能受到影响时才计算，正如之前讨论的那样。</p>
-<p>请注意，这些度量标准是在Top-Down方法中定义的；前端延迟包括导致无法提供uop的获取饥饿情况（即没有uop传递的症状），无论是由什么原因引起的。熟悉的指令缓存和指令转换后备缓冲（i-TLB）缺失都属于此类。例如，[4]已将指令长度解码标记为获取瓶颈。它是特定于CPU的，因此在图2中未显示。分支重建则考虑了由于分支错误预测而导致的流水线刷新延迟等情况。它与错误预测成本密切相关（我们在错误预测成本方面有详细说明）。</p>
-<p>该方法还根据将uop插入到uops-ready队列的获取单元对带宽问题进行分类。指令解码器通常用于将主流指令转换为其他部分可以理解的uop - 这将是一个获取单元。而复杂的指令（如CPUID）通常具有专用单元来提供长的uop流 - 这将是第二个获取单元，依此类推。</p>
-<h2 id="3-4-Bad-Speculation-Category"><a href="#3-4-Bad-Speculation-Category" class="headerlink" title="3.4. Bad Speculation Category"></a>3.4. Bad Speculation Category</h2><p>“错误推测”是指处理器流水线中由于错误的推测而导致资源浪费的概念。它包括两个主要方面：</p>
-<ol>
-<li>用于发出未最终执行的微操作（uops）的时钟周期。这些是被猜测的指令，但实际上没有在正确的程序路径上执行。</li>
-<li>由于先前错误的推测而导致发射流水线阻塞的时钟周期。这包括由于错误的预测（例如错误的分支预测）而导致流水线停顿或刷新的情况。</li>
-</ol>
-<p>在顶层分析中包含”错误推测”类别是至关重要的，因为它确定了被分析工作负载中受到错误执行路径影响的部分。这对于准确评估其他类别中的观察结果至关重要。此外，它允许较低层级的节点使用传统计数器，因为大多数乱序处理器中的计数器都会对错误推测进行计数。”错误推测”类别的高值将作为一个”红旗”，在查看其他类别之前需要进行调查。减少错误推测不仅提高资源利用率，还增强了层次结构中报告的指标的可信度。</p>
-<p>该方法将”错误推测”时钟周期分为”分支错误预测”和”流水线清除”两个子类别。尽管前者比较常见，但后者会导致类似的情况，其中流水线被刷新。例如，错误的数据推测可能会引发”内存序重排”（Memory Ordering Nukes）——这是”流水线清除”的一种子集。我们区分这两种情况是因为对它们进行进一步分析的下一步可能完全不同。前者处理如何使程序的控制流对分支预测器更友好，而后者通常指向意外情况。</p>
-<h2 id="3-5-Retiring-Category"><a href="#3-5-Retiring-Category" class="headerlink" title="3.5. Retiring Category"></a>3.5. Retiring Category</h2><p>这个类别反映了被”好的uops”利用的时钟周期——即最终被执行和退役的uops。理想情况下，我们希望将所有时钟周期归属于”退役”类别；也就是说，100%的退役对应于达到给定微架构每个周期最大可退役的uops数。例如，假设一个指令解码成一个uop，50%的退役意味着在一个四路发射机器上实现了IPC为2。因此，最大化退役可以提高IPC。</p>
-<p>然而，高退役值并不一定意味着没有提升性能的空间。诸如浮点（FP）辅助之类的微码序列通常会降低性能，可以避免使用[7]。它们在微序列度量下被隔离，以引起用户的注意。</p>
-<p>对于非矢量化代码，高退役值可能是用户矢量化代码的一个好的提示。这样做实际上使得更多的操作可以由单个指令&#x2F;uop完成，从而提高性能。有关更多详细信息，请参见第5节中的矩阵乘法用例。由于FP性能在HPC领域具有特殊重要性，我们进一步将基本的退役类别细分为具有标量和矢量操作区别的FP算术。请注意，这是一种信息性的、源自字段的扩展。其他关于已退役操作分布的细分方式也可能适用。</p>
-<h2 id="3-6-Backend-Bound-Category"><a href="#3-6-Backend-Bound-Category" class="headerlink" title="3.6. Backend Bound Category"></a>3.6. Backend Bound Category</h2><p>Backend Bound（后端受限）反映了由于后端缺乏所需资源而导致无法将uops传送到发射流水线的时钟周期。此类问题的例子包括数据缓存未命中或因除法器过载而导致的停顿。</p>
-<p>Backend Bound又被细分为Memory Bound（内存受限）和Core Bound（核心受限）。这是通过根据执行单元在每个时钟周期中的占用情况来分解后端停顿来实现的。自然地，为了保持最大IPC，必须使执行单元保持忙碌状态。例如，在一个四路发射的机器上，如果在某段代码的稳态下只执行三个或更少的uops，那么它将无法实现最优IPC为4。这些次优的时钟周期被称为Execution Stalls（执行停顿）。</p>
-<p>Memory Bound对应于与内存子系统相关的执行停顿。这些停顿通常表现为在短时间内执行单元饥饿，例如在加载指令未命中所有缓存的情况下。</p>
-<p>而Core Bound则稍微复杂一些。它的停顿可以表现为短暂的执行饥饿周期，或者是执行端口利用率不佳：长延迟的除法操作可能会导致执行序列化，而对特定类型uops的执行端口的压力可能表现为一个周期中使用的端口数量较少。实际的度量计算在第4节中进行了描述。</p>
-<p>通过更好的代码生成通常可以缓解Core Bound问题。例如，一系列相关的算术操作会被归类为Core Bound。编译器可以通过更好的指令调度来缓解这个问题。矢量化也可以缓解Core Bound问题，如第5.5节所示。</p>
-<h2 id="3-7-Memory-Bound-Breakdown-within-backend"><a href="#3-7-Memory-Bound-Breakdown-within-backend" class="headerlink" title="3.7. Memory Bound Breakdown (within backend)"></a>3.7. Memory Bound Breakdown (within backend)</h2><p>现代CPU实现了三级缓存层次结构，以隐藏外部内存的延迟。在英特尔Core处理器中，第一级是数据缓存（L1D）。L2是第二级共享指令和数据缓存，每个核心都有私有的L2缓存。L3是最后一级的缓存，由兄弟核心共享。在这里，我们假设存在一个三级缓存层次结构和统一的外部内存；尽管度量标准足够通用，可以适应其他的缓存和内存组织方式，包括NUMA。</p>
-<p>为了处理重叠效应，我们引入了一种新的启发式方法来确定内存访问的实际惩罚。<strong>一个好的乱序调度器应该能够通过使执行单元保持忙碌来隐藏一些内存访问的停顿</strong>，这些执行单元执行的是不依赖于未完成的内存访问的有用uops。因此，内存访问的真正惩罚是当调度器没有准备好的uops可供执行单元使用时发生的。进一步的uops可能正在等待未完成的内存访问，或者依赖于其他尚未准备好的uops。当没有缺失某个缓存层级的需求加载时，如果存在显著的Execution Stalls，则提示执行很可能受限于该层级本身。图4还说明了如何根据缓存层级来划分Execution Stalls。</p>
-<p>例如，L1D缓存通常具有与ALU停顿相当的短延迟。然而，在某些情况下，比如加载被阻塞以从早期存储器中的重叠地址转发数据，加载操作可能会遭受较高的延迟，尽管最终会由L1D满足。在这种情况下，正在进行中的加载操作将持续很长时间而不会错过L1D。因此，根据图4中的流程图，它被标记为L1 Bound。由于4K别名（4K Aliasing）而导致的加载阻塞是另一种具有相同症状的场景。某些方法[1] [5]无法处理L1命中和近层缓存未命中的这类情况。</p>
-<p>请注意，性能中断（如上述的L1 Bound场景）会出现在图2中的叶节点中。由于范围限制，我们没有列出它们。</p>
-<p>到目前为止，内存子系统的加载操作已经得到了处理。由于x86体系结构的内存顺序要求，存储操作在乱序CPU中被缓冲并在退休后（完成后）执行。在很大程度上，它们对性能影响较小（如结果部分所示）；但是不能完全忽略。Top-Down定义了Stores Bound（存储受限）指标，用于表示执行端口利用率较低且缓冲的存储操作数量较多的周期的比例。如果同时存在加载和存储问题，我们将优先处理加载节点，根据前面提到的洞察力进行处理。</p>
-<p>数据TLB未命中可以归类为Memory Bound的子节点。例如，如果TLB翻译由L1D缓存满足，那么它将被标记为L1 Bound。</p>
-<p>最后，我们使用了一个简单的启发式方法来区分Ext. Memory Bound下的MEM Bandwidth（内存带宽）和MEM Latency（内存延迟）。我们测量了从内存控制器返回的数据待处理请求的占用情况。每当占用度超过一定阈值，例如内存控制器可以同时服务的请求的最大数量的70%，我们将其标记为可能受到内存带宽限制。剩余的部分将归因于内存延迟。</p>
-<h1 id="SECTION-4-Counters-Architecture"><a href="#SECTION-4-Counters-Architecture" class="headerlink" title="SECTION 4.Counters Architecture"></a>SECTION 4.Counters Architecture</h1><p>本节描述了实现所述Top-Down分析所需的硬件支持。我们假设在现代CPU中具备基线PMU（例如x86或ARM），该PMU提供了一小组通用计数器，能够计算性能事件。几乎十几个事件就足以涵盖层次结构的关键节点。事实上，只需要八个指定的新事件即可。其余的事件已经可以在现有的PMU中找到，这些在表1中标有星号。例如，TotalSlots事件可以通过基本的Clockticks事件计算得出。通过层次安全性特性，可以使用其他PMU传统事件来进一步扩展层次结构，这在第3节中进行了描述。</p>
-<p>值得注意的是，需要低成本的硬件支持。这八个新事件易于实现。它们依赖于本地设计信号，可能通过延迟指示进行屏蔽。与IBM POWERS [6]中所需的退休标记不同，也不需要像Accurate CPI Stacks提案[1] [8] [9]中那样复杂的具有延迟计数器的结构。</p>
-<h2 id="4-1-Top-Down-Events"><a href="#4-1-Top-Down-Events" class="headerlink" title="4.1. Top-Down Events"></a>4.1. Top-Down Events</h2><p>The basic Top-Down generic events are summarized in Table 1. Please refer to Appendix 1 for the Intel implementation of these events. Notice there, an implementation can provide simpler events and yet get fairly good results.</p>
-<h2 id="4-2-Top-Down-Metrics"><a href="#4-2-Top-Down-Metrics" class="headerlink" title="4.2. Top-Down Metrics"></a>4.2. Top-Down Metrics</h2><p>The events in Table 1 can be directly used to calculate the metrics using formulas shown in Table 2. In certain cases, a flavor of the baseline hardware event is used3. Italic #-prefixed metric denotes an auxiliary expression.</p>
-<p>请注意，ExecutionStall表示在其中没有或很少执行uop的次优周期。在这种情况下，工作负载不太可能达到最大IPC。虽然这些阈值是特定于实现的，但我们的数据表明，在类似Sandy Bridge核心的情况下，执行0、1或2个uop的周期很好地代表了核心限制的场景。</p>
-<h1 id="SECTION-5-Results"><a href="#SECTION-5-Results" class="headerlink" title="SECTION 5.Results"></a>SECTION 5.Results</h1><p>在本节中，我们展示了SPEC CPU2006基准测试在单线程（1C）和多副本（4C）模式下的Top-Down分析结果，其设置如表3所述。然后，通过对多个CPU进行研究，展示了架构探索的使用案例。由于在CPU2006中，前端限制往往不是瓶颈，因此我们还包括了关键服务器工作负载的结果。最后，我们分享了一些使用Top-Down分析来调优性能问题的案例。</p>
-<h2 id="5-1-SPEC-CPU2006-1C"><a href="#5-1-SPEC-CPU2006-1C" class="headerlink" title="5.1. SPEC CPU2006 1C"></a>5.1. SPEC CPU2006 1C</h2><p>在顶层（Top Level），图5a显示了基准测试应用程序的多样化分布。从性能角度来看，Retiring类别接近50%，与相同一组运行的聚合IPC约为1.7相符。请记住，100%的Retiring意味着每个周期有四个已退休的uop，而对于SPEC CPU2006，平均而言，一个指令被解码成略多于一个uop。请注意，Retiring与IPC的相关性良好，这是为了与已建立的指标进行交叉验证。</p>
-<p>整体上，Backend Bound占主导地位。因此，我们在图5中的下一个图表中进行了详细分析。Backend Level图表指导用户接下来查看核心(Core)或内存(Memory)问题。例如，456.hmmer被标记为Backend Core Bound。通过使用VTune查看顶级热点，确实可以看到具有紧密数据相关算术指令的循环。</p>
-<p>整数型应用程序对前端限制（Frontend Bound）和错误预测（Bad Speculation）更为敏感，而浮点型应用程序则相对较不敏感。这与使用专有的逐周期模拟器进行的模拟数据以及Jaleel的先前分析一致。例如，Jaleel的分析报告称gcc、perlbench、xalancbmk、gobmk和sjeng的代码占用空间超过32KB，它们被归类为前端限制最严重的工作负载。请注意，通过这种分类方式，可以更容易地评估多个瓶颈的相对重要性。</p>
-<h2 id="5-2-SPEC-CPU2006-4C"><a href="#5-2-SPEC-CPU2006-4C" class="headerlink" title="5.2. SPEC CPU2006 4C"></a>5.2. SPEC CPU2006 4C</h2><p>在运行4个副本的情况下，这些应用程序的结果如图6所示。顶层显示与单个副本相似，但仔细观察，某些应用程序确实表现出更大的Backend Bound。根据图6b中更大的Memory Bound比例，这些是内存敏感型应用程序。这是可以预期的，因为L3缓存在核心之间是“共享”的。由于每个物理核心中都运行着相同的线程，并且给定CPU2006几乎没有i-cache缺失，因此4个副本中的前端限制（Frontend Bound）和错误预测（Bad Speculation）与单个副本几乎没有变化。</p>
-<p>对于不太可扩展的应用程序，将Figure 6c与Figure 5c 4进行比较可以看出，Memory Bound的细分指向了核外争用。主要差异出现在两类应用程序中，一类是对可用内存带宽敏感的应用程序，另一类是受到线程之间共享缓存竞争影响的应用程序。其中一个例子是470.lbm，它以其高内存带宽需求而闻名[12]。在1个和4个副本之间，其大型的MEM Bound是主要的差异。</p>
-<p>另一个重要的例子是482.sphinx3。仔细观察Memory Bound的细分可以发现，4个副本的L3 Bound减少，而MEM Bound大幅增加；共享L3缓存中的线程之间的容量竞争导致更多的L3缺失。这个结论可以通过查看此工作负载的工作集进行验证[11]：单个副本在1个副本中需求8MB（与LLC容量相同），而4个副本运行时每个核心的LLC共享为2MB有效。</p>
-<p>图7显示了一些FP应用程序中离芯资源的利用情况，分别以1个副本和4个副本并排显示。柱状图的高度表示内存控制器为某些请求提供服务的运行时间的比例。 “MEM Bandwidth”是许多请求同时被服务的相对部分。注意，我们可以以其本地单位绘制这些指标，这要归功于层次安全属性。不过，我们应该仔细考虑它们。</p>
-<p>可用的25GB&#x2F;s带宽明显满足1份数据的需求。在4份数据中，情况有所不同。435.gromacs、447.dealII、454.calculix和465.tonto由于每千条指令L3缺失次数的增加而花费更多的内存周期，增加了1.3至3.6倍，这是通过一组不同的性能计数器测量得出的结果。然而，需要注意的是，根据图6b显示，它们在内存和核心停顿分数方面与1份数据时相当，这可能是因为乱序执行可以减轻大部分这些内存周期。这与4份数据时测得的IPC在1.7至2.3之间的范围内相吻合。相比之下，410.bwaves、433.milc、437.leslie3d和470.lbm在4份数据中变得更加受内存限制，根据图6c的描述。根据图7所示，这是由于1份数据中的内存延迟转变为4份数据中的内存带宽（4倍的数据需求）。Top-Down正确地将470.lbm分类为受内存带宽限制的应用程序[12]。</p>
-<h2 id="5-3-Microarchitectures-Comparison"><a href="#5-3-Microarchitectures-Comparison" class="headerlink" title="5.3. Microarchitectures Comparison"></a>5.3. Microarchitectures Comparison</h2><p>到目前为止，我们已经展示了相同系统的结果。本节将展示Top-Down如何辅助硬件架构师。图8展示了Intel Core第三代和第四代CPU的顶层视图，以并列方式显示了一部分CPU2006整数基准测试。较新的Intel Core具有改进的前端，支持具有更好时序的推测性iTLB和i-cache访问，以提高预取的效益[7]。这在受益的基准测试中可以明显注意到Frontend Bound的减少。这个验证结果增加了对早两代发明的基础启发式方法的信心。</p>
-<h2 id="5-4-Server-Workloads"><a href="#5-4-Server-Workloads" class="headerlink" title="5.4. Server Workloads"></a>5.4. Server Workloads</h2><p>图9显示了在Sandy Bridge EP上的关键服务器工作负载的结果。相较于SPEC工作负载，退休指令较少，这符合较低IPC范围（测得为0.4至1之间）。由于足迹更大，后端和前端限制更为显著。</p>
-<p>有趣的是，DBMS工作负载的特征与之前的研究[4]一致，该研究报告称这些工作负载主要受限于最后一级数据缓存缺失和一级指令缓存缺失。</p>
+<p>请注意，这些度量标准是在Top-Down方法中定义的；前端延迟包括导致无法提供uop的获取饥饿情况（即没有uop传递的症状），无论是由什么原因引起的。熟悉的指令缓存和指令转换后备缓冲（i-TLB）缺失都属于此类。例如，<a
+href="#section-2">4</a>已将指令长度解码标记为获取瓶颈。它是特定于CPU的，因此在图2中未显示。分支重建则考虑了由于分支错误预测而导致的流水线刷新延迟等情况。它与错误预测成本密切相关（我们在错误预测成本方面有详细说明）。</p>
+<p>该方法还根据将uop插入到uops-ready队列的获取单元对带宽问题进行分类。指令解码器通常用于将主流指令转换为其他部分可以理解的uop
+-
+这将是一个获取单元。而复杂的指令（如CPUID）通常具有专用单元来提供长的uop流
+- 这将是第二个获取单元，依此类推。</p>
+<h2 id="bad-speculation-category">3.4. Bad Speculation Category</h2>
+<p>"错误推测"是指处理器流水线中由于错误的推测而导致资源浪费的概念。它包括两个主要方面：
+1.
+用于发出未最终执行的微操作（uops）的时钟周期。这些是被猜测的指令，但实际上没有在正确的程序路径上执行。
+2.
+由于先前错误的推测而导致发射流水线阻塞的时钟周期。这包括由于错误的预测（例如错误的分支预测）而导致流水线停顿或刷新的情况。</p>
+<p>在顶层分析中包含"错误推测"类别是至关重要的，因为它确定了被分析工作负载中受到错误执行路径影响的部分。这对于准确评估其他类别中的观察结果至关重要。此外，它允许较低层级的节点使用传统计数器，因为大多数乱序处理器中的计数器都会对错误推测进行计数。"错误推测"类别的高值将作为一个"红旗"，在查看其他类别之前需要进行调查。减少错误推测不仅提高资源利用率，还增强了层次结构中报告的指标的可信度。</p>
+<p>该方法将"错误推测"时钟周期分为"分支错误预测"和"流水线清除"两个子类别。尽管前者比较常见，但后者会导致类似的情况，其中流水线被刷新。例如，错误的数据推测可能会引发"内存序重排"（Memory
+Ordering
+Nukes）——这是"流水线清除"的一种子集。我们区分这两种情况是因为对它们进行进一步分析的下一步可能完全不同。前者处理如何使程序的控制流对分支预测器更友好，而后者通常指向意外情况。</p>
+<h2 id="retiring-category">3.5. Retiring Category</h2>
+<p>这个类别反映了被"好的uops"利用的时钟周期——即最终被执行和退役的uops。理想情况下，我们希望将所有时钟周期归属于"退役"类别；也就是说，100%的退役对应于达到给定微架构每个周期最大可退役的uops数。例如，假设一个指令解码成一个uop，50%的退役意味着在一个四路发射机器上实现了IPC为2。因此，最大化退役可以提高IPC。</p>
+<p>然而，高退役值并不一定意味着没有提升性能的空间。诸如浮点（FP）辅助之类的微码序列通常会降低性能，可以避免使用<a
+href="#section-4">7</a>。它们在微序列度量下被隔离，以引起用户的注意。</p>
+<p>对于非矢量化代码，高退役值可能是用户矢量化代码的一个好的提示。这样做实际上使得更多的操作可以由单个指令/uop完成，从而提高性能。有关更多详细信息，请参见第5节中的矩阵乘法用例。由于FP性能在HPC领域具有特殊重要性，我们进一步将基本的退役类别细分为具有标量和矢量操作区别的FP算术。请注意，这是一种信息性的、源自字段的扩展。其他关于已退役操作分布的细分方式也可能适用。</p>
+<h2 id="backend-bound-category">3.6. Backend Bound Category</h2>
+<p>Backend
+Bound（后端受限）反映了由于后端缺乏所需资源而导致无法将uops传送到发射流水线的时钟周期。此类问题的例子包括数据缓存未命中或因除法器过载而导致的停顿。</p>
+<p>Backend Bound又被细分为Memory Bound（内存受限）和Core
+Bound（核心受限）。这是通过根据执行单元在每个时钟周期中的占用情况来分解后端停顿来实现的。自然地，为了保持最大IPC，必须使执行单元保持忙碌状态。例如，在一个四路发射的机器上，如果在某段代码的稳态下只执行三个或更少的uops，那么它将无法实现最优IPC为4。这些次优的时钟周期被称为Execution
+Stalls（执行停顿）。</p>
+<p>Memory
+Bound对应于与内存子系统相关的执行停顿。这些停顿通常表现为在短时间内执行单元饥饿，例如在加载指令未命中所有缓存的情况下。</p>
+<p>而Core
+Bound则稍微复杂一些。它的停顿可以表现为短暂的执行饥饿周期，或者是执行端口利用率不佳：长延迟的除法操作可能会导致执行序列化，而对特定类型uops的执行端口的压力可能表现为一个周期中使用的端口数量较少。实际的度量计算在第4节中进行了描述。</p>
+<p>通过更好的代码生成通常可以缓解Core
+Bound问题。例如，一系列相关的算术操作会被归类为Core
+Bound。编译器可以通过更好的指令调度来缓解这个问题。矢量化也可以缓解Core
+Bound问题，如第5.5节所示。</p>
+<h2 id="memory-bound-breakdown-within-backend">3.7. Memory Bound
+Breakdown (within backend)</h2>
+<p>现代CPU实现了三级缓存层次结构，以隐藏外部内存的延迟。在英特尔Core处理器中，第一级是数据缓存（L1D）。L2是第二级共享指令和数据缓存，每个核心都有私有的L2缓存。L3是最后一级的缓存，由兄弟核心共享。在这里，我们假设存在一个三级缓存层次结构和统一的外部内存；尽管度量标准足够通用，可以适应其他的缓存和内存组织方式，包括NUMA。</p>
+<p>为了处理重叠效应，我们引入了一种新的启发式方法来确定内存访问的实际惩罚。<strong>一个好的乱序调度器应该能够通过使执行单元保持忙碌来隐藏一些内存访问的停顿</strong>，这些执行单元执行的是不依赖于未完成的内存访问的有用uops。因此，内存访问的真正惩罚是当调度器没有准备好的uops可供执行单元使用时发生的。进一步的uops可能正在等待未完成的内存访问，或者依赖于其他尚未准备好的uops。当没有缺失某个缓存层级的需求加载时，如果存在显著的Execution
+Stalls，则提示执行很可能受限于该层级本身。图4还说明了如何根据缓存层级来划分Execution
+Stalls。</p>
+<p>例如，L1D缓存通常具有与ALU停顿相当的短延迟。然而，在某些情况下，比如加载被阻塞以从早期存储器中的重叠地址转发数据，加载操作可能会遭受较高的延迟，尽管最终会由L1D满足。在这种情况下，正在进行中的加载操作将持续很长时间而不会错过L1D。因此，根据图4中的流程图，它被标记为L1
+Bound。由于4K别名（4K
+Aliasing）而导致的加载阻塞是另一种具有相同症状的场景。某些方法[1] <a
+href="#section-3">5</a>无法处理L1命中和近层缓存未命中的这类情况。</p>
+<p>请注意，性能中断（如上述的L1
+Bound场景）会出现在图2中的叶节点中。由于范围限制，我们没有列出它们。</p>
+<p>到目前为止，内存子系统的加载操作已经得到了处理。由于x86体系结构的内存顺序要求，存储操作在乱序CPU中被缓冲并在退休后（完成后）执行。在很大程度上，它们对性能影响较小（如结果部分所示）；但是不能完全忽略。Top-Down定义了Stores
+Bound（存储受限）指标，用于表示执行端口利用率较低且缓冲的存储操作数量较多的周期的比例。如果同时存在加载和存储问题，我们将优先处理加载节点，根据前面提到的洞察力进行处理。</p>
+<p>数据TLB未命中可以归类为Memory
+Bound的子节点。例如，如果TLB翻译由L1D缓存满足，那么它将被标记为L1
+Bound。</p>
+<p>最后，我们使用了一个简单的启发式方法来区分Ext. Memory Bound下的MEM
+Bandwidth（内存带宽）和MEM
+Latency（内存延迟）。我们测量了从内存控制器返回的数据待处理请求的占用情况。每当占用度超过一定阈值，例如内存控制器可以同时服务的请求的最大数量的70%，我们将其标记为可能受到内存带宽限制。剩余的部分将归因于内存延迟。</p>
+<h1 id="section-4.counters-architecture">SECTION 4.Counters
+Architecture</h1>
+<p>本节描述了实现所述Top-Down分析所需的硬件支持。我们假设在现代CPU中具备基线PMU（例如x86或ARM），该PMU提供了一小组通用计数器，能够计算性能事件。几乎十几个事件就足以涵盖层次结构的关键节点。事实上，只需要八个指定的新事件即可。其余的事件已经可以在现有的PMU中找到，这些在表1中标有星号。例如，TotalSlots事件可以通过基本的Clockticks事件计算得出。通过层次安全性特性，可以使用其他PMU传统事件来进一步扩展层次结构，这在第3节中进行了描述。</p>
+<p>值得注意的是，需要低成本的硬件支持。这八个新事件易于实现。它们依赖于本地设计信号，可能通过延迟指示进行屏蔽。与IBM
+POWERS [6]中所需的退休标记不同，也不需要像Accurate CPI Stacks提案[1] <a
+href="#section-5">8</a> <a
+href="#section-6">9</a>中那样复杂的具有延迟计数器的结构。</p>
+<h2 id="top-down-events">4.1. Top-Down Events</h2>
+<p>The basic Top-Down generic events are summarized in Table 1. Please
+refer to Appendix 1 for the Intel implementation of these events. Notice
+there, an implementation can provide simpler events and yet get fairly
+good results.</p>
+<h2 id="top-down-metrics">4.2. Top-Down Metrics</h2>
+<p>The events in Table 1 can be directly used to calculate the metrics
+using formulas shown in Table 2. In certain cases, a flavor of the
+baseline hardware event is used3. Italic #-prefixed metric denotes an
+auxiliary expression.</p>
+<p>请注意，ExecutionStall表示在其中没有或很少执行uop的次优周期。在这种情况下，工作负载不太可能达到最大IPC。虽然这些阈值是特定于实现的，但我们的数据表明，在类似Sandy
+Bridge核心的情况下，执行0、1或2个uop的周期很好地代表了核心限制的场景。</p>
+<h1 id="section-5.results">SECTION 5.Results</h1>
+<p>在本节中，我们展示了SPEC
+CPU2006基准测试在单线程（1C）和多副本（4C）模式下的Top-Down分析结果，其设置如表3所述。然后，通过对多个CPU进行研究，展示了架构探索的使用案例。由于在CPU2006中，前端限制往往不是瓶颈，因此我们还包括了关键服务器工作负载的结果。最后，我们分享了一些使用Top-Down分析来调优性能问题的案例。</p>
+<h2 id="spec-cpu2006-1c">5.1. SPEC CPU2006 1C</h2>
+<p>在顶层（Top
+Level），图5a显示了基准测试应用程序的多样化分布。从性能角度来看，Retiring类别接近50%，与相同一组运行的聚合IPC约为1.7相符。请记住，100%的Retiring意味着每个周期有四个已退休的uop，而对于SPEC
+CPU2006，平均而言，一个指令被解码成略多于一个uop。请注意，Retiring与IPC的相关性良好，这是为了与已建立的指标进行交叉验证。</p>
+<p>整体上，Backend
+Bound占主导地位。因此，我们在图5中的下一个图表中进行了详细分析。Backend
+Level图表指导用户接下来查看核心(Core)或内存(Memory)问题。例如，456.hmmer被标记为Backend
+Core
+Bound。通过使用VTune查看顶级热点，确实可以看到具有紧密数据相关算术指令的循环。</p>
+<p>整数型应用程序对前端限制（Frontend Bound）和错误预测（Bad
+Speculation）更为敏感，而浮点型应用程序则相对较不敏感。这与使用专有的逐周期模拟器进行的模拟数据以及Jaleel的先前分析一致。例如，Jaleel的分析报告称gcc、perlbench、xalancbmk、gobmk和sjeng的代码占用空间超过32KB，它们被归类为前端限制最严重的工作负载。请注意，通过这种分类方式，可以更容易地评估多个瓶颈的相对重要性。</p>
+<h2 id="spec-cpu2006-4c">5.2. SPEC CPU2006 4C</h2>
+<p>在运行4个副本的情况下，这些应用程序的结果如图6所示。顶层显示与单个副本相似，但仔细观察，某些应用程序确实表现出更大的Backend
+Bound。根据图6b中更大的Memory
+Bound比例，这些是内存敏感型应用程序。这是可以预期的，因为L3缓存在核心之间是“共享”的。由于每个物理核心中都运行着相同的线程，并且给定CPU2006几乎没有i-cache缺失，因此4个副本中的前端限制（Frontend
+Bound）和错误预测（Bad Speculation）与单个副本几乎没有变化。</p>
+<p>对于不太可扩展的应用程序，将Figure 6c与Figure 5c
+4进行比较可以看出，Memory
+Bound的细分指向了核外争用。主要差异出现在两类应用程序中，一类是对可用内存带宽敏感的应用程序，另一类是受到线程之间共享缓存竞争影响的应用程序。其中一个例子是470.lbm，它以其高内存带宽需求而闻名<a
+href="#section-7">12</a>。在1个和4个副本之间，其大型的MEM
+Bound是主要的差异。</p>
+<p>另一个重要的例子是482.sphinx3。仔细观察Memory
+Bound的细分可以发现，4个副本的L3 Bound减少，而MEM
+Bound大幅增加；共享L3缓存中的线程之间的容量竞争导致更多的L3缺失。这个结论可以通过查看此工作负载的工作集进行验证[11]：单个副本在1个副本中需求8MB（与LLC容量相同），而4个副本运行时每个核心的LLC共享为2MB有效。</p>
+<p>图7显示了一些FP应用程序中离芯资源的利用情况，分别以1个副本和4个副本并排显示。柱状图的高度表示内存控制器为某些请求提供服务的运行时间的比例。
+"MEM
+Bandwidth"是许多请求同时被服务的相对部分。注意，我们可以以其本地单位绘制这些指标，这要归功于层次安全属性。不过，我们应该仔细考虑它们。</p>
+<p>可用的25GB/s带宽明显满足1份数据的需求。在4份数据中，情况有所不同。435.gromacs、447.dealII、454.calculix和465.tonto由于每千条指令L3缺失次数的增加而花费更多的内存周期，增加了1.3至3.6倍，这是通过一组不同的性能计数器测量得出的结果。然而，需要注意的是，根据图6b显示，它们在内存和核心停顿分数方面与1份数据时相当，这可能是因为乱序执行可以减轻大部分这些内存周期。这与4份数据时测得的IPC在1.7至2.3之间的范围内相吻合。相比之下，410.bwaves、433.milc、437.leslie3d和470.lbm在4份数据中变得更加受内存限制，根据图6c的描述。根据图7所示，这是由于1份数据中的内存延迟转变为4份数据中的内存带宽（4倍的数据需求）。Top-Down正确地将470.lbm分类为受内存带宽限制的应用程序<a
+href="#section-7">12</a>。</p>
+<h2 id="microarchitectures-comparison">5.3. Microarchitectures
+Comparison</h2>
+<p>到目前为止，我们已经展示了相同系统的结果。本节将展示Top-Down如何辅助硬件架构师。图8展示了Intel
+Core第三代和第四代CPU的顶层视图，以并列方式显示了一部分CPU2006整数基准测试。较新的Intel
+Core具有改进的前端，支持具有更好时序的推测性iTLB和i-cache访问，以提高预取的效益<a
+href="#section-4">7</a>。这在受益的基准测试中可以明显注意到Frontend
+Bound的减少。这个验证结果增加了对早两代发明的基础启发式方法的信心。</p>
+<h2 id="server-workloads">5.4. Server Workloads</h2>
+<p>图9显示了在Sandy Bridge
+EP上的关键服务器工作负载的结果。相较于SPEC工作负载，退休指令较少，这符合较低IPC范围（测得为0.4至1之间）。由于足迹更大，后端和前端限制更为显著。</p>
+<p>有趣的是，DBMS工作负载的特征与之前的研究<a
+href="#section-2">4</a>一致，该研究报告称这些工作负载主要受限于最后一级数据缓存缺失和一级指令缓存缺失。</p>
 <p>在前端方面，延迟问题在所有服务器工作负载中占主导地位。这是由于预期的更多i-cache和i-TLB缺失，与客户端工作负载相比，其前端限制几乎均匀分布在延迟和带宽问题之间（由于论文范围限制，未显示）。</p>
-<h2 id="5-5-Case-Study-1-Matrix-Multiply"><a href="#5-5-Case-Study-1-Matrix-Multiply" class="headerlink" title="5.5. Case Study 1: Matrix-Multiply"></a>5.5. Case Study 1: Matrix-Multiply</h2><p>使用Top-Down对矩阵相乘的经典内核进行了分析。这展示了性能调优的迭代性质。</p>
+<h2 id="case-study-1-matrix-multiply">5.5. Case Study 1:
+Matrix-Multiply</h2>
+<p>使用Top-Down对矩阵相乘的经典内核进行了分析。这展示了性能调优的迭代性质。</p>
 <p>在multiply()函数的初始代码中，由于大矩阵以不友好的方式遍历，它非常受限于内存。这导致了内存限制。</p>
 <p>通过在multiply2()中应用循环交换优化，获得了显著的加速。优化后的代码仍然受限于后端，但从内存限制转变为受核心限制。</p>
 <p>接下来，在multiply3()中尝试进行向量化，它通过减少端口利用率和减少净指令数进一步提高了性能。这实现了另一个加速效果。</p>
-<h1 id="5-6-Case-Study-2-False-Sharing"><a href="#5-6-Case-Study-2-False-Sharing" class="headerlink" title="5.6. Case Study 2: False Sharing"></a>5.6. Case Study 2: False Sharing</h1><p>一门大学课程通过一个例子来教导学生如何通过并行化串行计算密集型代码来避免多线程陷阱。首次尝试由于伪共享（False Sharing）而没有加速（甚至速度变慢）。伪共享是多线程中的一个问题，即多个线程争用映射到同一缓存行的不同数据元素。通过添加填充以使线程访问不同的缓存行，可以很容易地避免伪共享。</p>
-<p>单线程代码的IPC（每指令周期执行的指令数）适中。Top-Down正确将第一个多线程代码尝试分类为后端内存存储限制（Stores Bound），因为伪共享必须有一个线程将数据写入内存（即存储操作）。在修复后的多线程版本中，存储限制问题被消除了。</p>
-<h2 id="5-7-Case-Study-3-Software-Prefetch"><a href="#5-7-Case-Study-3-Software-Prefetch" class="headerlink" title="5.7. Case Study 3: Software Prefetch"></a>5.7. Case Study 3: Software Prefetch</h2><p>使用Top-Down对客户专有的物体识别实际应用进行了分析。根据应用程序范围的分类，该工作负载被归类为后端内存扩展内存延迟限制（ExtMemory LatencyBound）。在最大的热点函数中也是如此，尽管在那里指标的分数更加明显。这表明在其他热点中存在更多非内存瓶颈。</p>
-<p>在算法的关键循环中引入了软件预取（Software Prefetches）[10]，以预取下一次迭代的数据。根据算法得分，实现了35%的加速，这在工作负载范围内相当于1.21倍的速度提升。需要注意的是，优化后的版本显示出更高的内存带宽利用率，并且已经更多地受限于后端核心（Backend CoreBound）方面。</p>
-<h1 id="SECTION-6-Related-Work"><a href="#SECTION-6-Related-Work" class="headerlink" title="SECTION 6.Related Work"></a>SECTION 6.Related Work</h1><p>一些研究（如[4] [5]）采用了广泛使用的天真方法进行命名。尽管这对于顺序执行的CPU可能有效，但对于乱序执行的CPU来说远非准确，原因在于：停顿重叠、推测性缺失和工作负载相关的惩罚，如第2节所详述。</p>
-<p>IBM POWER5 [6]具有专用的性能监控单元（PMU）事件，可在退休（提交）阶段辅助计算CPI（每周期指令数）的分解。无退休的停顿周期按照下一条将退休的指令类型进行计数，可能会与缺失事件相关联。同样，这是一组在自下而上方式中选择的固定事件集。虽然这相对于天真方法是一种改进，但它低估了前端缺失的代价，因为它们在调度器队列清空后才被计入。Levinthal [5]提出了一种适用于早期Intel Core实现的周期账户方法。在执行阶段进行平坦的分解，将总周期分解为退休、非退休和停顿组件。然后，分解停顿组件使用了不足的天真方法，正如作者本人在文中所指出的那样。</p>
-<p>相比之下，Top-Down在发射阶段进行了更细粒度（槽位）的分解，并避免将所有惩罚简单地汇总到一个平坦的分解中。相反，它以分层的方式深入挖掘停顿，每个层级都会放大到管道的适当部分。此外，使用指定的Top-Down事件；启用对前端发射进行采样（而不是计数），以及在开启超线程时进行分解。[5]中没有涉及到这些内容。</p>
-<p>一些研究人员试图准确地分类乱序体系结构上的性能影响。Eyerman等人在[1] [9]中使用基于仿真的区间分析模型，提出了一种构建准确CPI堆栈的计数器体系结构。所呈现的结果在与天真方法和IBM POWER5相比方面都显示出改进，更接近参考的基于仿真的模型。这种方法（及其参考模型）的一个主要缺点是将所有停顿限制在一组固定的八个预定义的缺失事件上。在[1] [4] [5]中没有考虑（获取）带宽问题以及像L1 Bound这样的低延迟瓶颈。此外，由于跟踪结构相当复杂，[8]中的作者自</p>
-<p>己后来在文中提到了高硬件成本的问题。尽管[8]用较小的FIFO替换了原始结构，但仍需要额外的逻辑来计算惩罚并将其聚合到新的专用计数器中。相比之下，我们的方法采用简单的事件，不需要额外的计数器&#x2F;逻辑。在前面的部分中，我们已经指出了更多的缺点。</p>
-<p>最近，[13]和[12]提出了基于仪器的工具来分析数据局部性和可扩展性瓶颈。在[13]中，通过PMU对平均内存延迟进行采样，并结合Pin和缓存模拟器获取的重用距离，以便优先考虑优化工作。离线分析器将这些指标映射回源代码，并允许用户从主函数开始以分层的方式探索数据。[12]提出了一种针对特定类型并行程序获得加速堆栈的方法，同时考虑了三个瓶颈：缓存容量、外部内存带宽和同步。</p>
-<p>这些可以看作是特定于优化的高级技术，可以在Top-Down中触发，一旦被标记为后端内存限制（Backend MemoryBound）。此外，我们的MemStalls. L3Miss事件等更好的指标可以用来代替[13]中的原始延迟值，以量化何时可以应用加速。首先在更高的程序范围内检查指标，可以应用于我们的方法，就像VTune的General Exploration view [2]已经做的那样。尽管[12]估计了加速比（我们的方法没有），但它只考虑了一部分可扩展性瓶颈。例如，在5.6的情况下，它没有涵盖它们的三个瓶颈。</p>
-<h1 id="SECTION-7-Summary-and-Future-Work"><a href="#SECTION-7-Summary-and-Future-Work" class="headerlink" title="SECTION 7.Summary and Future Work"></a>SECTION 7.Summary and Future Work</h1><p>本文介绍了一种名为Top-Down分析方法的综合、系统化的在生产中分析方法，用于识别乱序CPU中的关键性能瓶颈。该方法利用通用多核心中的指定PMU事件，采用分层分类，使用户能够准确定位导致性能不佳的问题。该方法经过演示，能够对各种客户端和服务器工作负载、多个微架构世代以及单线程和多核场景进行关键性能瓶颈分类。</p>
+<h1 id="case-study-2-false-sharing">5.6. Case Study 2: False
+Sharing</h1>
+<p>一门大学课程通过一个例子来教导学生如何通过并行化串行计算密集型代码来避免多线程陷阱。首次尝试由于伪共享（False
+Sharing）而没有加速（甚至速度变慢）。伪共享是多线程中的一个问题，即多个线程争用映射到同一缓存行的不同数据元素。通过添加填充以使线程访问不同的缓存行，可以很容易地避免伪共享。</p>
+<p>单线程代码的IPC（每指令周期执行的指令数）适中。Top-Down正确将第一个多线程代码尝试分类为后端内存存储限制（Stores
+Bound），因为伪共享必须有一个线程将数据写入内存（即存储操作）。在修复后的多线程版本中，存储限制问题被消除了。</p>
+<h2 id="case-study-3-software-prefetch">5.7. Case Study 3: Software
+Prefetch</h2>
+<p>使用Top-Down对客户专有的物体识别实际应用进行了分析。根据应用程序范围的分类，该工作负载被归类为后端内存扩展内存延迟限制（ExtMemory
+LatencyBound）。在最大的热点函数中也是如此，尽管在那里指标的分数更加明显。这表明在其他热点中存在更多非内存瓶颈。</p>
+<p>在算法的关键循环中引入了软件预取（Software
+Prefetches）[10]，以预取下一次迭代的数据。根据算法得分，实现了35%的加速，这在工作负载范围内相当于1.21倍的速度提升。需要注意的是，优化后的版本显示出更高的内存带宽利用率，并且已经更多地受限于后端核心（Backend
+CoreBound）方面。</p>
+<h1 id="section-6.related-work">SECTION 6.Related Work</h1>
+<p>一些研究（如<a href="#section-2">4</a> <a
+href="#section-3">5</a>）采用了广泛使用的天真方法进行命名。尽管这对于顺序执行的CPU可能有效，但对于乱序执行的CPU来说远非准确，原因在于：停顿重叠、推测性缺失和工作负载相关的惩罚，如第2节所详述。</p>
+<p>IBM POWER5
+[6]具有专用的性能监控单元（PMU）事件，可在退休（提交）阶段辅助计算CPI（每周期指令数）的分解。无退休的停顿周期按照下一条将退休的指令类型进行计数，可能会与缺失事件相关联。同样，这是一组在自下而上方式中选择的固定事件集。虽然这相对于天真方法是一种改进，但它低估了前端缺失的代价，因为它们在调度器队列清空后才被计入。Levinthal
+<a href="#section-3">5</a>提出了一种适用于早期Intel
+Core实现的周期账户方法。在执行阶段进行平坦的分解，将总周期分解为退休、非退休和停顿组件。然后，分解停顿组件使用了不足的天真方法，正如作者本人在文中所指出的那样。</p>
+<p>相比之下，Top-Down在发射阶段进行了更细粒度（槽位）的分解，并避免将所有惩罚简单地汇总到一个平坦的分解中。相反，它以分层的方式深入挖掘停顿，每个层级都会放大到管道的适当部分。此外，使用指定的Top-Down事件；启用对前端发射进行采样（而不是计数），以及在开启超线程时进行分解。<a
+href="#section-3">5</a>中没有涉及到这些内容。</p>
+<p>一些研究人员试图准确地分类乱序体系结构上的性能影响。Eyerman等人在[1]
+<a
+href="#section-6">9</a>中使用基于仿真的区间分析模型，提出了一种构建准确CPI堆栈的计数器体系结构。所呈现的结果在与天真方法和IBM
+POWER5相比方面都显示出改进，更接近参考的基于仿真的模型。这种方法（及其参考模型）的一个主要缺点是将所有停顿限制在一组固定的八个预定义的缺失事件上。在[1]
+<a href="#section-2">4</a> <a
+href="#section-3">5</a>中没有考虑（获取）带宽问题以及像L1
+Bound这样的低延迟瓶颈。此外，由于跟踪结构相当复杂，<a
+href="#section-5">8</a>中的作者自</p>
+<p>己后来在文中提到了高硬件成本的问题。尽管<a
+href="#section-5">8</a>用较小的FIFO替换了原始结构，但仍需要额外的逻辑来计算惩罚并将其聚合到新的专用计数器中。相比之下，我们的方法采用简单的事件，不需要额外的计数器/逻辑。在前面的部分中，我们已经指出了更多的缺点。</p>
+<p>最近，<a href="#section-8">13</a>和<a
+href="#section-7">12</a>提出了基于仪器的工具来分析数据局部性和可扩展性瓶颈。在<a
+href="#section-8">13</a>中，通过PMU对平均内存延迟进行采样，并结合Pin和缓存模拟器获取的重用距离，以便优先考虑优化工作。离线分析器将这些指标映射回源代码，并允许用户从主函数开始以分层的方式探索数据。<a
+href="#section-7">12</a>提出了一种针对特定类型并行程序获得加速堆栈的方法，同时考虑了三个瓶颈：缓存容量、外部内存带宽和同步。</p>
+<p>这些可以看作是特定于优化的高级技术，可以在Top-Down中触发，一旦被标记为后端内存限制（Backend
+MemoryBound）。此外，我们的MemStalls.
+L3Miss事件等更好的指标可以用来代替<a
+href="#section-8">13</a>中的原始延迟值，以量化何时可以应用加速。首先在更高的程序范围内检查指标，可以应用于我们的方法，就像VTune的General
+Exploration view [2]已经做的那样。尽管<a
+href="#section-7">12</a>估计了加速比（我们的方法没有），但它只考虑了一部分可扩展性瓶颈。例如，在5.6的情况下，它没有涵盖它们的三个瓶颈。</p>
+<h1 id="section-7.summary-and-future-work">SECTION 7.Summary and Future
+Work</h1>
+<p>本文介绍了一种名为Top-Down分析方法的综合、系统化的在生产中分析方法，用于识别乱序CPU中的关键性能瓶颈。该方法利用通用多核心中的指定PMU事件，采用分层分类，使用户能够准确定位导致性能不佳的问题。该方法经过演示，能够对各种客户端和服务器工作负载、多个微架构世代以及单线程和多核场景进行关键性能瓶颈分类。</p>
 <p>该方法的见解被用于提出一种新颖的低成本性能计数器架构，可以确定一般乱序处理器的真正瓶颈。只需要八个简单的新事件。</p>
-<p>所提出的方法在PMU架构和工具方面提出了一些观点。分解几个层级需要同时收集多个事件。某些技术可能可以容忍，例如Sandy Bridge对最多支持八个通用计数器的支持[10]，或工具中的事件复用[2] [3]。然而，仍然希望有更好的硬件支持。此外，将已识别的问题追溯到用户代码可以极大地惠及软件开发人员。虽然PMU的精确机制是一个有希望的方向，但某些微架构领域的覆盖仍然不足。此外，企业级应用程序对平坦的长尾轮廓提出了额外的挑战。</p>
-<p>在硬件超线程（HT）的背景下正确地分类瓶颈绝对是一个具有挑战性的前沿领域。虽然超出了本文的范围，但一些Top-Down事件的设计确实考虑了HT，使得顶层在启用HT时起作用；但这只是一个开始。最后，虽然我们的方法的目标是识别关键性能瓶颈，但它并不评估在修复底层问题后可能带来的加速。通常，确定问题修复是否会转化为加速（或是否会产生加速）是棘手的。工作负载通常会转移到下一个关键性能瓶颈上。[12]在可扩展性瓶颈的背景下在这方面取得了不错的进展。</p>
-<h1 id="10-Appendix-1"><a href="#10-Appendix-1" class="headerlink" title="10. Appendix 1"></a>10. Appendix 1</h1><p>英特尔Core™微架构是一个4-wide的指令发射机制。表7总结了使用Ivy Bridge PMU事件名称实现的指标。其中一些Top-Down指定的事件在硬件中并不直接可用，而是提供了一个公式来从可用事件中近似计算指标。请注意，表中没有出现的指标对英特尔实现没有特殊要求，可以直接从表2中使用。</p>
-<h1 id="PRE"><a href="#PRE" class="headerlink" title="PRE"></a>PRE</h1><h1 id="1"><a href="#1" class="headerlink" title="1."></a>1.</h1><p>一种自上而下的性能分析方法和计数器架构</p>
+<p>所提出的方法在PMU架构和工具方面提出了一些观点。分解几个层级需要同时收集多个事件。某些技术可能可以容忍，例如Sandy
+Bridge对最多支持八个通用计数器的支持[10]，或工具中的事件复用[2] <a
+href="#section-1">3</a>。然而，仍然希望有更好的硬件支持。此外，将已识别的问题追溯到用户代码可以极大地惠及软件开发人员。虽然PMU的精确机制是一个有希望的方向，但某些微架构领域的覆盖仍然不足。此外，企业级应用程序对平坦的长尾轮廓提出了额外的挑战。</p>
+<p>在硬件超线程（HT）的背景下正确地分类瓶颈绝对是一个具有挑战性的前沿领域。虽然超出了本文的范围，但一些Top-Down事件的设计确实考虑了HT，使得顶层在启用HT时起作用；但这只是一个开始。最后，虽然我们的方法的目标是识别关键性能瓶颈，但它并不评估在修复底层问题后可能带来的加速。通常，确定问题修复是否会转化为加速（或是否会产生加速）是棘手的。工作负载通常会转移到下一个关键性能瓶颈上。<a
+href="#section-7">12</a>在可扩展性瓶颈的背景下在这方面取得了不错的进展。</p>
+<h1 id="appendix-1">10. Appendix 1</h1>
+<p>英特尔Core™微架构是一个4-wide的指令发射机制。表7总结了使用Ivy Bridge
+PMU事件名称实现的指标。其中一些Top-Down指定的事件在硬件中并不直接可用，而是提供了一个公式来从可用事件中近似计算指标。请注意，表中没有出现的指标对英特尔实现没有特殊要求，可以直接从表2中使用。</p>
+<h1 id="pre">PRE</h1>
+<h1 id="section">1.</h1>
+<p>一种自上而下的性能分析方法和计数器架构</p>
 <p>使用top-down分析方法 快速识别乱序处理器中真正瓶颈</p>
-<p>计数器架构（Counters Architecture）<br>是收集和记录特定指标或事件的硬件或软件机制。<br>用于监测系统性能、资源利用和事件发生。</p>
-<p>计数器（Counters）：存储单元。硬&#x2F;软。可以统计如指令执行次数、缓存命中、中断发生次数等各种系统活动。</p>
-<h1 id="2-动机"><a href="#2-动机" class="headerlink" title="2. 动机"></a>2. 动机</h1><p>性能优化具有一定的挑战性，原因如下：</p>
-<ol>
-<li><p>复杂的微体系结构：现代计算机的微体系结构变得越来越复杂，涉及多级缓存、超标量执行、预取等技术。这增加了性能分析和优化的复杂性，需要深入理解硬件特性以找到性能瓶颈。</p>
-</li>
-<li><p>应用程序&#x2F;工作负载多样性：不同的应用程序和工作负载具有不同的性能特征和行为。优化性能需要针对具体应用的特点进行分析和调整，而这种多样性增加了优化的挑战。</p>
-</li>
-<li><p>难以管理的数据：在大规模系统中收集和管理性能数据是一项具有挑战性的任务。性能计数器、事件跟踪和日志可能会生成大量数据，分析和提取有用的信息需要合适的工具和技术。</p>
-</li>
-<li><p>更严格的约束条件：性能优化通常受到时间、资源和优先级等更严格的约束条件限制。有时，需要在有限的时间内取得显著的性能改进，而同时要考虑可用资源和其他任务的优先级。</p>
-</li>
+<p>计数器架构（Counters Architecture）
+是收集和记录特定指标或事件的硬件或软件机制。
+用于监测系统性能、资源利用和事件发生。</p>
+<p>计数器（Counters）：存储单元。硬/软。可以统计如指令执行次数、缓存命中、中断发生次数等各种系统活动。</p>
+<h1 id="动机">2. 动机</h1>
+<p>性能优化具有一定的挑战性，原因如下：</p>
+<ol type="1">
+<li><p>复杂的微体系结构：现代计算机的微体系结构变得越来越复杂，涉及多级缓存、超标量执行、预取等技术。这增加了性能分析和优化的复杂性，需要深入理解硬件特性以找到性能瓶颈。</p></li>
+<li><p>应用程序/工作负载多样性：不同的应用程序和工作负载具有不同的性能特征和行为。优化性能需要针对具体应用的特点进行分析和调整，而这种多样性增加了优化的挑战。</p></li>
+<li><p>难以管理的数据：在大规模系统中收集和管理性能数据是一项具有挑战性的任务。性能计数器、事件跟踪和日志可能会生成大量数据，分析和提取有用的信息需要合适的工具和技术。</p></li>
+<li><p>更严格的约束条件：性能优化通常受到时间、资源和优先级等更严格的约束条件限制。有时，需要在有限的时间内取得显著的性能改进，而同时要考虑可用资源和其他任务的优先级。</p></li>
 </ol>
 <p>一旦真正的性能瓶颈被确定，就会有机会进行优化，可以采取以下方法：</p>
-<ol>
-<li><p>软件调优&#x2F;优化：对应用程序的代码进行调优，消除性能瓶颈和低效操作。这可能涉及算法改进、代码重构、并行化等技术。</p>
-</li>
-<li><p>工作负载特性分析：深入分析工作负载的特点和行为，了解其对系统的需求和资源利用模式。这有助于针对性地优化和配置系统以满足特定工作负载的需求。</p>
-</li>
-<li><p>基于剖析的优化：使用剖析工具收集应用程序的运行时数据，例如函数调用频率、循环迭代次数等，以指导优化决策。通过剖析数据，可以针对性地优化关键代码路径和热点。</p>
-</li>
-<li><p>云中的资源利用：在云计算环境中，性能优化还涉及到合理利用云服务提供的资源。根据工作负载的需求，动态分配和释放资源，以实现更高的性能和效率。</p>
-</li>
+<ol type="1">
+<li><p>软件调优/优化：对应用程序的代码进行调优，消除性能瓶颈和低效操作。这可能涉及算法改进、代码重构、并行化等技术。</p></li>
+<li><p>工作负载特性分析：深入分析工作负载的特点和行为，了解其对系统的需求和资源利用模式。这有助于针对性地优化和配置系统以满足特定工作负载的需求。</p></li>
+<li><p>基于剖析的优化：使用剖析工具收集应用程序的运行时数据，例如函数调用频率、循环迭代次数等，以指导优化决策。通过剖析数据，可以针对性地优化关键代码路径和热点。</p></li>
+<li><p>云中的资源利用：在云计算环境中，性能优化还涉及到合理利用云服务提供的资源。根据工作负载的需求，动态分配和释放资源，以实现更高的性能和效率。</p></li>
 </ol>
 <p>性能优化是一个迭代的过程，需要持续监测和改进。通过克服上述挑战，利用合适的工具和技术，可以实现系统的性能提升和资源利用的优化。</p>
-<h1 id="3"><a href="#3" class="headerlink" title="3"></a>3</h1><p>顶层分析（Top Down Analysis）是一种识别真正瓶颈的方法，具有以下特点：</p>
+<h1 id="section-1">3</h1>
+<p>顶层分析（Top Down
+Analysis）是一种识别真正瓶颈的方法，具有以下特点：</p>
 <ul>
 <li>简单：采用结构化的层级方法。通过几个步骤即可追溯到最底层的问题点。</li>
 <li>快速：能够快速定位到问题的根源。</li>
@@ -365,97 +586,166 @@
 <p>这种方法本身很简单：首先对CPU执行时间进行高层次的分类。这一步会标记（报告高分数）一些可能需要调查的领域。接下来，用户可以深入研究这些被标记的领域，并可以安全地忽略所有未被标记的领域。该过程以分层方式重复进行，直到确定特定的性能问题，或者至少确定了一小部分候选问题，可以进行进一步调查。</p>
 <p>顶层分析的好处包括：</p>
 <ul>
-<li>使非专家用户更容易进行分析，简化了微架构的学习曲线。<br>假设</li>
+<li>使非专家用户更容易进行分析，简化了微架构的学习曲线。 假设</li>
 <li>目标是检测瓶颈，而不是量化加速效果。</li>
 <li>分析过程的一个子层级包括系统、应用程序和微架构。</li>
 </ul>
 <p>通过顶层分析方法，可以更轻松地识别系统中的瓶颈，使分析过程更加简化和实用。</p>
-<h1 id="4"><a href="#4" class="headerlink" title="4"></a>4</h1><p>顶层启发式：<br>顶层启发式是指在解决问题或做决策时，基于经验或常识的一般原则或指导方针。它们可以帮助人们在面对复杂的情况时快速做出决策或采取行动。</p>
-<h1 id="5"><a href="#5" class="headerlink" title="5"></a>5</h1><p>intel内核微架构</p>
-<p> Where and How to start in this Complex microarchitecture?</p>
-<p> 从鸟瞰角度来看，现代乱序CPU的流水线主要由前端和后端两个部分组成。前端负责从内存中获取指令并将其转换为微操作（uops）。这些uops被送到后端部分进行调度、执行和提交（retire），按照原始程序的顺序。为了保持机器的平衡，已经准备好供后端使用的uops通常会被缓存在某个“ready-uops-queue”中。</p>
-<h1 id="6-挑战"><a href="#6-挑战" class="headerlink" title="6 挑战"></a>6 挑战</h1><p>传统方法：<br>• 傻瓜式方法<br>    - 停顿周期 &#x3D; Σ 惩罚i * 错误事件i<br>• 不适用于乱序（间隙）情况<br>    1) 停顿重叠  数据cache miss和指令cache miss同时发生<br>    2) 推测执行 来自错误路径的事件比来自正确路径的事件更不重要。<br>    3) 工作负载相关的惩罚 而天真方法假设所有工作负载的惩罚都是固定的。例如，分支之间的距离可能增加错误预测的成本。<br>如果目标地址距离过远，预测的目标地址可能不会立即可用，导致预测错误和流水线的清空与填充，从而降低了处理器的性能<br>    4) 预定义的错误事件集合 这些复杂的微架构存在许多可能的故障，而只有最常见的子集由专用事件涵盖。<br>    5) 超标量不准确性 CPU可以在一个周期内发射、执行和退役多个操作。一些（例如客户端）应用程序由于流水线的带宽限制而受到限制，因为通过越来越多的技术来减轻延迟。</p>
-<p>自顶向下分析：<br>• 一个层次结构<br>    - 在适当的流水线阶段指定自顶向下事件<br>    - “层次安全属性”<br>• 解决间隙问题<br>    - 顶部的错误推测<br>    - 通用的自顶向下事件，对计数的时间和位置都有影响<br>    - 占用事件</p>
-<p>“Bad Speculation”放置在顶层<br>涵盖了  错误预测而引起的停顿<br>以及    执行错误路径而浪费的资源</p>
-<p>我们引入了一打真正的“自上而下”指定的计数器，以便处理其他问题。<br>我们发现，在解决问题（1）和（3）时，确定要查看的流水线阶段和“计数的时机很重要。<br>例如，我们不仅仅检查总内存访问持续时间，而是仅检查由于待定内存访问而导致执行单元利用率不足的子持续时间。<br>通过调用与“专用缺失事件”无关的通用事件，我们可以处理问题（4）。<br>其中一些是占用事件，用于处理问题（5）。</p>
-<h1 id="7"><a href="#7" class="headerlink" title="7"></a>7</h1><p>首先概述层次结构</p>
-<p>流水线槽被分为四个基本类别：退役（Retiring）、坏预测（Bad Speculation）、前端受限（Frontend Bound）和后端受限（Backend Bound）。</p>
-<h1 id="8"><a href="#8" class="headerlink" title="8"></a>8</h1><p>以一个受 数据缓存性能限制 的工作负载为例。<br>该方法标记了后端受限（Backend Bound），而前端受限（Frontend Bound）不会被标记。这意味着用户需要下一步深入研究后端受限（Backend Bound）类别，而忽略所有与前端相关的问题。<br>在深入研究后端受限（Backend Bound）时，如果应用程序被认为对缓存敏感，那么会标记内存受限（Memory Bound）类别。<br>类似地，在这一点上，用户可以跳过非内存相关的问题。接下来，进行内存受限（Memory Bound）的深入研究。<br>L1、L2和L3-Bound自然地细分了内存受限（Memory Bound）类别。每个类别表示工作负载受到该缓存级别限制的部分。L1受限（L1 Bound）应该在那里被标记。<br>该方法最终会建议用户将注意力集中在这个领域上。</p>
-<h1 id="9"><a href="#9" class="headerlink" title="9"></a>9</h1><p>在高度复杂的微架构中，首先需要对流水线活动进行一级分类。第一个有趣的问题是如何以及在哪里进行第一级分解？我们选择问题点（在图1中用星号标记）作为自然的边界，将机器的前端和后端部分分割开来。这样可以实现高度准确的最高级别分类。</p>
-<p>在问题点上，我们将每个流水线槽分类为四个基本类别：前端受限（Frontend Bound）、后端受限（Backend Bound）、坏预测（Bad Speculation）和退役（Retiring），</p>
+<h1 id="section-2">4</h1>
+<p>顶层启发式：
+顶层启发式是指在解决问题或做决策时，基于经验或常识的一般原则或指导方针。它们可以帮助人们在面对复杂的情况时快速做出决策或采取行动。</p>
+<h1 id="section-3">5</h1>
+<p>intel内核微架构</p>
+<p>Where and How to start in this Complex microarchitecture?</p>
+<p>从鸟瞰角度来看，现代乱序CPU的流水线主要由前端和后端两个部分组成。前端负责从内存中获取指令并将其转换为微操作（uops）。这些uops被送到后端部分进行调度、执行和提交（retire），按照原始程序的顺序。为了保持机器的平衡，已经准备好供后端使用的uops通常会被缓存在某个“ready-uops-queue”中。</p>
+<h1 id="挑战">6 挑战</h1>
+<p>传统方法： • 傻瓜式方法 - 停顿周期 = Σ 惩罚i * 错误事件i •
+不适用于乱序（间隙）情况 1) 停顿重叠 数据cache miss和指令cache
+miss同时发生 2) 推测执行
+来自错误路径的事件比来自正确路径的事件更不重要。 3) 工作负载相关的惩罚
+而天真方法假设所有工作负载的惩罚都是固定的。例如，分支之间的距离可能增加错误预测的成本。
+如果目标地址距离过远，预测的目标地址可能不会立即可用，导致预测错误和流水线的清空与填充，从而降低了处理器的性能
+4) 预定义的错误事件集合
+这些复杂的微架构存在许多可能的故障，而只有最常见的子集由专用事件涵盖。
+5) 超标量不准确性
+CPU可以在一个周期内发射、执行和退役多个操作。一些（例如客户端）应用程序由于流水线的带宽限制而受到限制，因为通过越来越多的技术来减轻延迟。</p>
+<p>自顶向下分析： • 一个层次结构 - 在适当的流水线阶段指定自顶向下事件 -
+"层次安全属性" • 解决间隙问题 - 顶部的错误推测 -
+通用的自顶向下事件，对计数的时间和位置都有影响 - 占用事件</p>
+<p>“Bad Speculation”放置在顶层 涵盖了 错误预测而引起的停顿 以及
+执行错误路径而浪费的资源</p>
+<p>我们引入了一打真正的“自上而下”指定的计数器，以便处理其他问题。
+我们发现，在解决问题（1）和（3）时，确定要查看的流水线阶段和“计数的时机很重要。
+例如，我们不仅仅检查总内存访问持续时间，而是仅检查由于待定内存访问而导致执行单元利用率不足的子持续时间。
+通过调用与“专用缺失事件”无关的通用事件，我们可以处理问题（4）。
+其中一些是占用事件，用于处理问题（5）。</p>
+<h1 id="section-4">7</h1>
+<p>首先概述层次结构</p>
+<p>流水线槽被分为四个基本类别：退役（Retiring）、坏预测（Bad
+Speculation）、前端受限（Frontend Bound）和后端受限（Backend
+Bound）。</p>
+<h1 id="section-5">8</h1>
+<p>以一个受 数据缓存性能限制 的工作负载为例。
+该方法标记了后端受限（Backend Bound），而前端受限（Frontend
+Bound）不会被标记。这意味着用户需要下一步深入研究后端受限（Backend
+Bound）类别，而忽略所有与前端相关的问题。 在深入研究后端受限（Backend
+Bound）时，如果应用程序被认为对缓存敏感，那么会标记内存受限（Memory
+Bound）类别。
+类似地，在这一点上，用户可以跳过非内存相关的问题。接下来，进行内存受限（Memory
+Bound）的深入研究。 L1、L2和L3-Bound自然地细分了内存受限（Memory
+Bound）类别。每个类别表示工作负载受到该缓存级别限制的部分。L1受限（L1
+Bound）应该在那里被标记。
+该方法最终会建议用户将注意力集中在这个领域上。</p>
+<h1 id="section-6">9</h1>
+<p>在高度复杂的微架构中，首先需要对流水线活动进行一级分类。第一个有趣的问题是如何以及在哪里进行第一级分解？我们选择问题点（在图1中用星号标记）作为自然的边界，将机器的前端和后端部分分割开来。这样可以实现高度准确的最高级别分类。</p>
+<p>在问题点上，我们将每个流水线槽分类为四个基本类别：前端受限（Frontend
+Bound）、后端受限（Backend Bound）、坏预测（Bad
+Speculation）和退役（Retiring），</p>
 <p>如图3所示。如果在给定的周期内发出了一个微操作（uop），它最终将被退役或取消。因此，它可以分别归属于退役或坏预测类别。</p>
-<p>否则，流水线槽可以被分为是否存在后端停顿。后端停顿是后端在资源不可用（例如缺少加载缓冲区条目）时施加的反压机制。在这种情况下，我们将停顿归因于后端，因为即使前端准备好了更多的微操作，它也无法将它们传递到流水线中。<br>如果没有后端停顿，这意味着前端在后端准备接收微操作时应该已经传递了一些微操作；因此，我们将其标记为前端受限。</p>
+<p>否则，流水线槽可以被分为是否存在后端停顿。后端停顿是后端在资源不可用（例如缺少加载缓冲区条目）时施加的反压机制。在这种情况下，我们将停顿归因于后端，因为即使前端准备好了更多的微操作，它也无法将它们传递到流水线中。
+如果没有后端停顿，这意味着前端在后端准备接收微操作时应该已经传递了一些微操作；因此，我们将其标记为前端受限。</p>
 <p>分类是以流水线槽的粒度进行的</p>
 <p>100%的退役对应于达到给定微架构每个周期最大可退役的uops数。例如，假设一个指令解码成一个uop，50%的退役意味着在一个四路发射机器上实现了IPC为2。</p>
-<p>然而，高退役值并不一定意味着没有提升性能的空间。诸如浮点（FP）辅助之类的微码序列通常会降低性能，可以避免使用[7]。它们在微序列度量下被隔离，以引起用户的注意。</p>
-<p>对于非矢量化代码，高退役值可能是用户矢量化代码的一个好的提示。这样做实际上使得更多的操作可以由单个指令&#x2F;uop完成，从而提高性能。</p>
-<h1 id="12"><a href="#12" class="headerlink" title="12"></a>12</h1><p>计数器架构是指在计算机系统中用于性能监测和分析的计数器的结构和组织方式。</p>
+<p>然而，高退役值并不一定意味着没有提升性能的空间。诸如浮点（FP）辅助之类的微码序列通常会降低性能，可以避免使用<a
+href="#section-4">7</a>。它们在微序列度量下被隔离，以引起用户的注意。</p>
+<p>对于非矢量化代码，高退役值可能是用户矢量化代码的一个好的提示。这样做实际上使得更多的操作可以由单个指令/uop完成，从而提高性能。</p>
+<h1 id="section-7">12</h1>
+<p>计数器架构是指在计算机系统中用于性能监测和分析的计数器的结构和组织方式。</p>
 <p>我们假设有一个基线的常见性能监控单元（PMU），它具有有限数量的通用计数器，但这些计数器可以用于计算多个性能事件。我们需要一组性能事件来捕获关键层级节点（以实现对性能层次结构节点的特征化），其中只有8个是新的TopDown事件，其余的已经存在于PMU中。</p>
 <p>（PMU是一个硬件组件，负责监测和测量计算机系统的各种与性能相关的指标。它提供计数器，可以编程以计算特定的事件，例如缓存失效、分支指令或内存访问。）</p>
 <p>以 Frontend Bound（前端受限）为例，该架构使用了以下指标和事件：</p>
 <ul>
-<li><p>TopDown 事件：</p>
+<li>TopDown 事件：
 <ul>
 <li>FetchBubbles：未被利用的发射流水线插槽，且没有后端停顿。</li>
-<li>TotalSlots：发射流水线插槽的总数（例如，英特尔处理器中为 4*时钟周期）。</li>
-</ul>
-</li>
-<li><p>TopDown 指标：</p>
+<li>TotalSlots：发射流水线插槽的总数（例如，英特尔处理器中为
+4*时钟周期）。</li>
+</ul></li>
+<li>TopDown 指标：
 <ul>
-<li>Frontend Bound（前端受限）&#x3D; FetchBubbles &#x2F; TotalSlots。</li>
-</ul>
-</li>
+<li>Frontend Bound（前端受限）= FetchBubbles / TotalSlots。</li>
+</ul></li>
 </ul>
 <p>这个指标可以用来衡量前端是否限制了整体性能，即是否有大量未被利用的发射流水线插槽导致性能瓶颈。</p>
-<h1 id="13"><a href="#13" class="headerlink" title="13"></a>13</h1><p>事件名称：总槽位数（TotalSlots）<br>定义：总的发射流水线槽位数量。<br>解释：该事件用于统计线程未停顿的时钟周期数，可用于估计处理器的工作负载。</p>
-<p>事件名称：发射槽位利用数（SlotsIssued）<br>定义：用于发射操作的已利用发射流水线槽位数量。<br>解释：该事件统计发射的微操作数量，包括任何类型的微操作。</p>
-<p>事件名称：退休槽位利用数（SlotsRetired）<br>定义：用于退休（完成）操作的已利用发射流水线槽位数量。<br>解释：该事件统计已退休（完成）的微操作数量，即已成功执行的操作数量。</p>
-<p>事件名称：取指气泡（FetchBubbles）<br>定义：在没有后端停顿的情况下未利用的发射流水线槽位数量。<br>解释：该事件用于统计未交付到指令队列的微操作数量，表示未利用的发射槽位数量，当发射流水线上没有后端停顿时。</p>
-<p>事件名称：恢复气泡（RecoveryBubbles）<br>定义：由于从先前的错误预测中恢复而未利用的发射流水线槽位数量</p>
-<h1 id="14"><a href="#14" class="headerlink" title="14"></a>14</h1><p>在顶层（Top Level），图5a显示了基准测试应用程序的多样化分布。<br>从性能角度来看，Retiring类别接近50%，与相同一组运行的聚合IPC约为1.7相符。请记住，100%的Retiring意味着每个周期有四个已退休的uop，而对于SPEC CPU2006，平均而言，一个指令被解码成略多于一个uop。请注意，Retiring与IPC的相关性良好，这是为了与已建立的指标进行交叉验证。</p>
+<h1 id="section-8">13</h1>
+<p>事件名称：总槽位数（TotalSlots） 定义：总的发射流水线槽位数量。
+解释：该事件用于统计线程未停顿的时钟周期数，可用于估计处理器的工作负载。</p>
+<p>事件名称：发射槽位利用数（SlotsIssued）
+定义：用于发射操作的已利用发射流水线槽位数量。
+解释：该事件统计发射的微操作数量，包括任何类型的微操作。</p>
+<p>事件名称：退休槽位利用数（SlotsRetired）
+定义：用于退休（完成）操作的已利用发射流水线槽位数量。
+解释：该事件统计已退休（完成）的微操作数量，即已成功执行的操作数量。</p>
+<p>事件名称：取指气泡（FetchBubbles）
+定义：在没有后端停顿的情况下未利用的发射流水线槽位数量。
+解释：该事件用于统计未交付到指令队列的微操作数量，表示未利用的发射槽位数量，当发射流水线上没有后端停顿时。</p>
+<p>事件名称：恢复气泡（RecoveryBubbles）
+定义：由于从先前的错误预测中恢复而未利用的发射流水线槽位数量</p>
+<h1 id="section-9">14</h1>
+<p>在顶层（Top Level），图5a显示了基准测试应用程序的多样化分布。
+从性能角度来看，Retiring类别接近50%，与相同一组运行的聚合IPC约为1.7相符。请记住，100%的Retiring意味着每个周期有四个已退休的uop，而对于SPEC
+CPU2006，平均而言，一个指令被解码成略多于一个uop。请注意，Retiring与IPC的相关性良好，这是为了与已建立的指标进行交叉验证。</p>
 <p>整体上，Backend Bound占主导地位。</p>
-<p>整数型应用程序对前端限制（Frontend Bound）和错误预测（Bad Speculation）更为敏感，而浮点型应用程序则相对较不敏感。<br>这与使用专有的逐周期模拟器进行的模拟数据以及Jaleel的先前分析一致。例如，Jaleel的分析报告称gcc、perlbench、xalancbmk、gobmk和sjeng的代码占用空间超过32KB，它们被归类为前端限制最严重的工作负载。请注意，通过这种分类方式，可以更容易地评估多个瓶颈的相对重要性。</p>
-<h1 id="15"><a href="#15" class="headerlink" title="15"></a>15</h1><p>在微架构的支持方面，Haswell（第四代Core处理器）改进了前端部分。它引入了具有更好时序的预测性iTLB（指令翻译缓冲器）和缓存访问，以提高预取的效益。</p>
-<p>这些改进使得受益于此的基准测试清楚地显示了前端受限的减少。这意味着在Haswell处理器上使用Top Down Analysis（自顶向下分析）时，可以更好地识别和分析前端部分对性能的影响。</p>
-<h1 id="16"><a href="#16" class="headerlink" title="16"></a>16</h1><p>在运行4个副本的情况下，<br>顶层显示与单个副本相似，但仔细观察，<strong>某些应用程序确实表现出更大的Backend Bound</strong>。根据图6b中更大的Memory Bound比例，这些是内存敏感型应用程序。这是可以预期的，<strong>因为L3缓存在核心之间是“共享”的</strong>。由于每个物理核心中都运行着相同的线程，并且给定CPU2006几乎没有i-cache缺失，因此4个副本中的前端限制（Frontend Bound）和错误预测（Bad Speculation）与单个副本几乎没有变化。</p>
-<p>对于不太可扩展的应用程序，将Figure 6c与Figure 5c 4进行比较可以看出，Memory Bound的细分指向了<strong>核外争用</strong>。<br>主要差异出现在两类应用程序中，一类是<strong>对可用内存带宽敏感的应用程序</strong>，另一类是受到线程之间共享缓存竞争影响的应用程序。其中一个例子是470.lbm，它以其高内存带宽需求而闻名[12]。在1个和4个副本之间，其大型的MEM Bound是主要的差异。</p>
-<p>另一个重要的例子是482.sphinx3。仔细观察Memory Bound的细分可以发现，4个副本的L3 Bound减少，而MEM Bound大幅增加；共享L3缓存中的线程之间的容量竞争导致更多的L3缺失。这个结论可以通过查看此工作负载的工作集进行验证[11]：单个副本在1个副本中需求8MB（与LLC容量相同），而4个副本运行时每个核心的LLC共享为2MB有效。</p>
-<h1 id="17"><a href="#17" class="headerlink" title="17"></a>17</h1><p>在这个案例研究中，我们以”Matrix Multiply”（矩阵乘法）为例进行了迭代的Top-Down分析。下面是具体的分析过程：</p>
-<ol>
-<li><p>初始情况：矩阵较大，内存访问是性能的瓶颈（MEM Bound）。这意味着矩阵乘法的执行受限于内存访问速度，而不是处理器的计算能力。</p>
-</li>
-<li><p>循环交换（Loop Interchange）：进行了12倍的循环交换优化。通过重新排列循环，可以更好地利用处理器的执行端口，从而减少了核心受限（CoreBound）的情况。现在，性能瓶颈不再是内存访问，而是处理器核心的利用率。</p>
-</li>
-<li><p>向量化（Vectorization）：经过向量化优化后，性能提升了17倍。向量化是利用处理器的向量指令集来并行处理多个数据元素的技术。这进一步减轻了核心受限的情况，提高了矩阵乘法的执行效率。</p>
-</li>
-<li><p>结果：通过这些优化步骤，multiply3（第三次优化后的矩阵乘法）成功减轻了核心受限的问题。这意味着处理器核心的利用率得到了更好的改善，从而提高了整体性能。</p>
-</li>
+<p>整数型应用程序对前端限制（Frontend Bound）和错误预测（Bad
+Speculation）更为敏感，而浮点型应用程序则相对较不敏感。
+这与使用专有的逐周期模拟器进行的模拟数据以及Jaleel的先前分析一致。例如，Jaleel的分析报告称gcc、perlbench、xalancbmk、gobmk和sjeng的代码占用空间超过32KB，它们被归类为前端限制最严重的工作负载。请注意，通过这种分类方式，可以更容易地评估多个瓶颈的相对重要性。</p>
+<h1 id="section-10">15</h1>
+<p>在微架构的支持方面，Haswell（第四代Core处理器）改进了前端部分。它引入了具有更好时序的预测性iTLB（指令翻译缓冲器）和缓存访问，以提高预取的效益。</p>
+<p>这些改进使得受益于此的基准测试清楚地显示了前端受限的减少。这意味着在Haswell处理器上使用Top
+Down
+Analysis（自顶向下分析）时，可以更好地识别和分析前端部分对性能的影响。</p>
+<h1 id="section-11">16</h1>
+<p>在运行4个副本的情况下，
+顶层显示与单个副本相似，但仔细观察，<strong>某些应用程序确实表现出更大的Backend
+Bound</strong>。根据图6b中更大的Memory
+Bound比例，这些是内存敏感型应用程序。这是可以预期的，<strong>因为L3缓存在核心之间是“共享”的</strong>。由于每个物理核心中都运行着相同的线程，并且给定CPU2006几乎没有i-cache缺失，因此4个副本中的前端限制（Frontend
+Bound）和错误预测（Bad Speculation）与单个副本几乎没有变化。</p>
+<p>对于不太可扩展的应用程序，将Figure 6c与Figure 5c
+4进行比较可以看出，Memory Bound的细分指向了<strong>核外争用</strong>。
+主要差异出现在两类应用程序中，一类是<strong>对可用内存带宽敏感的应用程序</strong>，另一类是受到线程之间共享缓存竞争影响的应用程序。其中一个例子是470.lbm，它以其高内存带宽需求而闻名<a
+href="#section-7">12</a>。在1个和4个副本之间，其大型的MEM
+Bound是主要的差异。</p>
+<p>另一个重要的例子是482.sphinx3。仔细观察Memory
+Bound的细分可以发现，4个副本的L3 Bound减少，而MEM
+Bound大幅增加；共享L3缓存中的线程之间的容量竞争导致更多的L3缺失。这个结论可以通过查看此工作负载的工作集进行验证[11]：单个副本在1个副本中需求8MB（与LLC容量相同），而4个副本运行时每个核心的LLC共享为2MB有效。</p>
+<h1 id="section-12">17</h1>
+<p>在这个案例研究中，我们以"Matrix
+Multiply"（矩阵乘法）为例进行了迭代的Top-Down分析。下面是具体的分析过程：</p>
+<ol type="1">
+<li><p>初始情况：矩阵较大，内存访问是性能的瓶颈（MEM
+Bound）。这意味着矩阵乘法的执行受限于内存访问速度，而不是处理器的计算能力。</p></li>
+<li><p>循环交换（Loop
+Interchange）：进行了12倍的循环交换优化。通过重新排列循环，可以更好地利用处理器的执行端口，从而减少了核心受限（CoreBound）的情况。现在，性能瓶颈不再是内存访问，而是处理器核心的利用率。</p></li>
+<li><p>向量化（Vectorization）：经过向量化优化后，性能提升了17倍。向量化是利用处理器的向量指令集来并行处理多个数据元素的技术。这进一步减轻了核心受限的情况，提高了矩阵乘法的执行效率。</p></li>
+<li><p>结果：通过这些优化步骤，multiply3（第三次优化后的矩阵乘法）成功减轻了核心受限的问题。这意味着处理器核心的利用率得到了更好的改善，从而提高了整体性能。</p></li>
 </ol>
 <p>这个案例研究说明了如何使用Top-Down分析来识别性能瓶颈并应用优化策略来改进矩阵乘法的执行效率。通过不断迭代分析和优化，我们能够逐步解决不同的性能限制，从而取得更好的性能结果。</p>
 <p>使用Top-Down对矩阵相乘的经典内核进行了分析。这展示了性能调优的迭代性质。</p>
 <p>在multiply()函数的初始代码中，由于大矩阵以不友好的方式遍历，它非常受限于内存。这导致了内存限制。</p>
 <p>通过在multiply2()中应用循环交换优化，获得了显著的加速。优化后的代码仍然受限于后端，但从内存限制转变为受核心限制。</p>
 <p>接下来，在multiply3()中尝试进行向量化，它通过减少端口利用率和减少净指令数进一步提高了性能。这实现了另一个加速效果。</p>
-<h1 id="18"><a href="#18" class="headerlink" title="18"></a>18</h1><p>在相关的研究中，有一些与性能分析和优化相关的工作。以下是对这些研究的简要描述：</p>
-<ol>
-<li><p>[4][5] 使用了朴素方法：这些研究采用了一种简单的方法来进行性能分析，可能没有考虑到复杂的因素和优化策略。</p>
-</li>
-<li><p>[6] IBM POWER5：该研究使用了IBM POWER5处理器，并在提交阶段对CPI进行了分解，并统计了各种类型的下一条指令的停顿周期。</p>
-</li>
-<li><p>[5] 周期计算（x-Intel）：这项研究在执行阶段对周期进行了详细的分解，以提供更详细的性能信息。</p>
-</li>
-<li><p>[1][6][8] CPI堆栈：这些研究使用基于模拟的间隔分析，以改进性能分析的准确性，相比于朴素方法有所提高。然而，这些方法可能需要更高的硬件成本，并且在某些情况下需要额外的逻辑用于惩罚计算和聚合。</p>
-</li>
-<li><p>[12][13] 数据局部性和可扩展性瓶颈：这些研究使用基于仪器和模拟的工具，针对数据局部性和可扩展性瓶颈进行分析。一旦发现内存受限情况，可以调用高级的优化特定技术来进行优化。</p>
-</li>
+<h1 id="section-13">18</h1>
+<p>在相关的研究中，有一些与性能分析和优化相关的工作。以下是对这些研究的简要描述：</p>
+<ol type="1">
+<li><p><a href="#section-3">4</a>
+使用了朴素方法：这些研究采用了一种简单的方法来进行性能分析，可能没有考虑到复杂的因素和优化策略。</p></li>
+<li><p>[6] IBM POWER5：该研究使用了IBM
+POWER5处理器，并在提交阶段对CPI进行了分解，并统计了各种类型的下一条指令的停顿周期。</p></li>
+<li><p><a href="#section-3">5</a>
+周期计算（x-Intel）：这项研究在执行阶段对周期进行了详细的分解，以提供更详细的性能信息。</p></li>
+<li><p>[1][6]<a href="#section-5">8</a>
+CPI堆栈：这些研究使用基于模拟的间隔分析，以改进性能分析的准确性，相比于朴素方法有所提高。然而，这些方法可能需要更高的硬件成本，并且在某些情况下需要额外的逻辑用于惩罚计算和聚合。</p></li>
+<li><p><a href="#section-8">12</a>
+数据局部性和可扩展性瓶颈：这些研究使用基于仪器和模拟的工具，针对数据局部性和可扩展性瓶颈进行分析。一旦发现内存受限情况，可以调用高级的优化特定技术来进行优化。</p></li>
 </ol>
-<p>这些研究与性能分析和优化相关，提供了不同的方法和技术来理解和改进计算机系统的性能。在使用Top Down进行性能分析时，可以借鉴这些研究的成果，并结合具体的问题和目标进行相应的分析和优化。</p>
-<h1 id="19"><a href="#19" class="headerlink" title="19"></a>19</h1><p>总结如下：</p>
+<p>这些研究与性能分析和优化相关，提供了不同的方法和技术来理解和改进计算机系统的性能。在使用Top
+Down进行性能分析时，可以借鉴这些研究的成果，并结合具体的问题和目标进行相应的分析和优化。</p>
+<h1 id="section-14">19</h1>
+<p>总结如下：</p>
 <ul>
-<li><p>Top Down分析方法：该方法可以识别关键的瓶颈，它简单、结构化且快速。它已经在许多工作负载中得到验证，并在生产环境中使用，例如VTuneTM和perf*。此外，它还具有与Intel核心的向前兼容性。</p>
-</li>
-<li><p>计数器架构：为了支持通用的乱序处理器，设计了计数器架构。它使用了8个简单的事件，成本较低，并且在不同平台之间实现了标准化。</p>
-</li>
+<li><p>Top
+Down分析方法：该方法可以识别关键的瓶颈，它简单、结构化且快速。它已经在许多工作负载中得到验证，并在生产环境中使用，例如VTuneTM和perf*。此外，它还具有与Intel核心的向前兼容性。</p></li>
+<li><p>计数器架构：为了支持通用的乱序处理器，设计了计数器架构。它使用了8个简单的事件，成本较低，并且在不同平台之间实现了标准化。</p></li>
 </ul>
 <p>作者鼓励读者查看他们的论文，并提供反馈意见。</p>
 
@@ -477,11 +767,11 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/zyhjy/2023/05/19/Qemu%E4%BB%8B%E7%BB%8D/" rel="prev" title="Qemu介绍">
-      <i class="fa fa-chevron-left"></i> Qemu介绍
+    <a href="/zyhjy/2023/06/04/C++%E4%BE%AF%E6%8D%B7STL%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" rel="prev" title="C++并发编程">
+      <i class="fa fa-chevron-left"></i> C++并发编程
     </a></div>
       <div class="post-nav-item">
-    <a href="/zyhjy/2023/06/04/C++%E4%BE%AF%E6%8D%B7STL%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" rel="next" title="C++并发编程">
+    <a href="/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="next" title="C++并发编程">
       C++并发编程 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
@@ -542,7 +832,14 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Abstract"><span class="nav-number">1.</span> <span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#S1"><span class="nav-number">2.</span> <span class="nav-text">S1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Section2-Background"><span class="nav-number">3.</span> <span class="nav-text">Section2 Background</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SECTION-3-Top-Down-Analysis"><span class="nav-number">4.</span> <span class="nav-text">SECTION 3.Top-Down Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-Top-Level-Breakdown"><span class="nav-number">4.1.</span> <span class="nav-text">3.2. Top Level Breakdown</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-Frontend-Bound-Category"><span class="nav-number">4.2.</span> <span class="nav-text">3.3. Frontend Bound Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-Bad-Speculation-Category"><span class="nav-number">4.3.</span> <span class="nav-text">3.4. Bad Speculation Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-Retiring-Category"><span class="nav-number">4.4.</span> <span class="nav-text">3.5. Retiring Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-6-Backend-Bound-Category"><span class="nav-number">4.5.</span> <span class="nav-text">3.6. Backend Bound Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-7-Memory-Bound-Breakdown-within-backend"><span class="nav-number">4.6.</span> <span class="nav-text">3.7. Memory Bound Breakdown (within backend)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SECTION-4-Counters-Architecture"><span class="nav-number">5.</span> <span class="nav-text">SECTION 4.Counters Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-Top-Down-Events"><span class="nav-number">5.1.</span> <span class="nav-text">4.1. Top-Down Events</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-Top-Down-Metrics"><span class="nav-number">5.2.</span> <span class="nav-text">4.2. Top-Down Metrics</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SECTION-5-Results"><span class="nav-number">6.</span> <span class="nav-text">SECTION 5.Results</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-SPEC-CPU2006-1C"><span class="nav-number">6.1.</span> <span class="nav-text">5.1. SPEC CPU2006 1C</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2-SPEC-CPU2006-4C"><span class="nav-number">6.2.</span> <span class="nav-text">5.2. SPEC CPU2006 4C</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-3-Microarchitectures-Comparison"><span class="nav-number">6.3.</span> <span class="nav-text">5.3. Microarchitectures Comparison</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-4-Server-Workloads"><span class="nav-number">6.4.</span> <span class="nav-text">5.4. Server Workloads</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-5-Case-Study-1-Matrix-Multiply"><span class="nav-number">6.5.</span> <span class="nav-text">5.5. Case Study 1: Matrix-Multiply</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-6-Case-Study-2-False-Sharing"><span class="nav-number">7.</span> <span class="nav-text">5.6. Case Study 2: False Sharing</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-7-Case-Study-3-Software-Prefetch"><span class="nav-number">7.1.</span> <span class="nav-text">5.7. Case Study 3: Software Prefetch</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SECTION-6-Related-Work"><span class="nav-number">8.</span> <span class="nav-text">SECTION 6.Related Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SECTION-7-Summary-and-Future-Work"><span class="nav-number">9.</span> <span class="nav-text">SECTION 7.Summary and Future Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-Appendix-1"><span class="nav-number">10.</span> <span class="nav-text">10. Appendix 1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PRE"><span class="nav-number">11.</span> <span class="nav-text">PRE</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1"><span class="nav-number">12.</span> <span class="nav-text">1.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E5%8A%A8%E6%9C%BA"><span class="nav-number">13.</span> <span class="nav-text">2. 动机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3"><span class="nav-number">14.</span> <span class="nav-text">3</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4"><span class="nav-number">15.</span> <span class="nav-text">4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5"><span class="nav-number">16.</span> <span class="nav-text">5</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-%E6%8C%91%E6%88%98"><span class="nav-number">17.</span> <span class="nav-text">6 挑战</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7"><span class="nav-number">18.</span> <span class="nav-text">7</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8"><span class="nav-number">19.</span> <span class="nav-text">8</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#9"><span class="nav-number">20.</span> <span class="nav-text">9</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#12"><span class="nav-number">21.</span> <span class="nav-text">12</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#13"><span class="nav-number">22.</span> <span class="nav-text">13</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#14"><span class="nav-number">23.</span> <span class="nav-text">14</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#15"><span class="nav-number">24.</span> <span class="nav-text">15</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#16"><span class="nav-number">25.</span> <span class="nav-text">16</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#17"><span class="nav-number">26.</span> <span class="nav-text">17</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#18"><span class="nav-number">27.</span> <span class="nav-text">18</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#19"><span class="nav-number">28.</span> <span class="nav-text">19</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#s1"><span class="nav-number">2.</span> <span class="nav-text">S1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section2-background"><span class="nav-number">3.</span> <span class="nav-text">Section2 Background</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-3.top-down-analysis"><span class="nav-number">4.</span> <span class="nav-text">SECTION 3.Top-Down Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#top-level-breakdown"><span class="nav-number">4.1.</span> <span class="nav-text">3.2. Top Level Breakdown</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#frontend-bound-category"><span class="nav-number">4.2.</span> <span class="nav-text">3.3. Frontend Bound Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bad-speculation-category"><span class="nav-number">4.3.</span> <span class="nav-text">3.4. Bad Speculation Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#retiring-category"><span class="nav-number">4.4.</span> <span class="nav-text">3.5. Retiring Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#backend-bound-category"><span class="nav-number">4.5.</span> <span class="nav-text">3.6. Backend Bound Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#memory-bound-breakdown-within-backend"><span class="nav-number">4.6.</span> <span class="nav-text">3.7. Memory Bound
+Breakdown (within backend)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-4.counters-architecture"><span class="nav-number">5.</span> <span class="nav-text">SECTION 4.Counters
+Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#top-down-events"><span class="nav-number">5.1.</span> <span class="nav-text">4.1. Top-Down Events</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#top-down-metrics"><span class="nav-number">5.2.</span> <span class="nav-text">4.2. Top-Down Metrics</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-5.results"><span class="nav-number">6.</span> <span class="nav-text">SECTION 5.Results</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#spec-cpu2006-1c"><span class="nav-number">6.1.</span> <span class="nav-text">5.1. SPEC CPU2006 1C</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spec-cpu2006-4c"><span class="nav-number">6.2.</span> <span class="nav-text">5.2. SPEC CPU2006 4C</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#microarchitectures-comparison"><span class="nav-number">6.3.</span> <span class="nav-text">5.3. Microarchitectures
+Comparison</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#server-workloads"><span class="nav-number">6.4.</span> <span class="nav-text">5.4. Server Workloads</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#case-study-1-matrix-multiply"><span class="nav-number">6.5.</span> <span class="nav-text">5.5. Case Study 1:
+Matrix-Multiply</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#case-study-2-false-sharing"><span class="nav-number">7.</span> <span class="nav-text">5.6. Case Study 2: False
+Sharing</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#case-study-3-software-prefetch"><span class="nav-number">7.1.</span> <span class="nav-text">5.7. Case Study 3: Software
+Prefetch</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-6.related-work"><span class="nav-number">8.</span> <span class="nav-text">SECTION 6.Related Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-7.summary-and-future-work"><span class="nav-number">9.</span> <span class="nav-text">SECTION 7.Summary and Future
+Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#appendix-1"><span class="nav-number">10.</span> <span class="nav-text">10. Appendix 1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pre"><span class="nav-number">11.</span> <span class="nav-text">PRE</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section"><span class="nav-number">12.</span> <span class="nav-text">1.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A8%E6%9C%BA"><span class="nav-number">13.</span> <span class="nav-text">2. 动机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-1"><span class="nav-number">14.</span> <span class="nav-text">3</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-2"><span class="nav-number">15.</span> <span class="nav-text">4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-3"><span class="nav-number">16.</span> <span class="nav-text">5</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%91%E6%88%98"><span class="nav-number">17.</span> <span class="nav-text">6 挑战</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-4"><span class="nav-number">18.</span> <span class="nav-text">7</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-5"><span class="nav-number">19.</span> <span class="nav-text">8</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-6"><span class="nav-number">20.</span> <span class="nav-text">9</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-7"><span class="nav-number">21.</span> <span class="nav-text">12</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-8"><span class="nav-number">22.</span> <span class="nav-text">13</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-9"><span class="nav-number">23.</span> <span class="nav-text">14</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-10"><span class="nav-number">24.</span> <span class="nav-text">15</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-11"><span class="nav-number">25.</span> <span class="nav-text">16</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-12"><span class="nav-number">26.</span> <span class="nav-text">17</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-13"><span class="nav-number">27.</span> <span class="nav-text">18</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-14"><span class="nav-number">28.</span> <span class="nav-text">19</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -603,6 +900,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">284k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">7:54</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -622,6 +929,8 @@
 
   
   <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
 
 <script src="/zyhjy/js/utils.js"></script>
 
@@ -639,6 +948,10 @@
 
 
 
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
 
 
 
@@ -651,6 +964,61 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
