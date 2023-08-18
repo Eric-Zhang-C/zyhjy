@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/zyhjy/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="OS(Operating System) An operating system (OS) is system software that manages computer hardware and software resources, and provides common services for computer programs.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kernel and OS">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/08/16/Kernel-and-OS/">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="OS(Operating System) An operating system (OS) is system software that manages computer hardware and software resources, and provides common services for computer programs.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-16T13:50:03.000Z">
+<meta property="article:modified_time" content="2023-08-18T12:51:32.131Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/08/16/Kernel-and-OS/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Kernel and OS | ZYHJY</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/zyhjy/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/zyhjy/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/zyhjy/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/zyhjy/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/zyhjy/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/08/16/Kernel-and-OS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Kernel and OS
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-08-16 21:50:03" itemprop="dateCreated datePublished" datetime="2023-08-16T21:50:03+08:00">2023-08-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-18 20:51:32" itemprop="dateModified" datetime="2023-08-18T20:51:32+08:00">2023-08-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/OS/" itemprop="url" rel="index"><span itemprop="name">OS</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">体系结构</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/OS/kernel/" itemprop="url" rel="index"><span itemprop="name">kernel</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>12 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="osoperating-system">OS(Operating System)</h2>
+<p>An <strong>operating system</strong> (<strong>OS</strong>) is system
+software that manages computer hardware and software resources, and
+provides common services for computer programs.</p>
+<span id="more"></span>
+<h3 id="component">component</h3>
+<p>除了操作系统的内核外，操作系统通常还包括以下几个重要的组件和层级：</p>
+<ol type="1">
+<li><strong>Shell（外壳）：</strong>
+Shell是用户与操作系统进行交互的接口。它可以是命令行界面（Command Line
+Interface，CLI）或图形用户界面（Graphical User
+Interface，GUI）。CLI提供了命令行提示符，用户可以输入命令来执行各种操作，而GUI则通过图形元素和窗口来实现用户界面。</li>
+<li><strong>系统库（System Libraries）：</strong>
+系统库是一组供应用程序使用的预编写的功能和例程。这些库提供了访问操作系统功能的方法，例如文件操作、网络通信等。它们帮助开发人员避免从头开始编写所有必要的代码。</li>
+<li><strong>用户界面管理器（User Interface Manager）：</strong>
+对于图形用户界面（GUI），用户界面管理器负责显示图形元素，如窗口、菜单和按钮，并接收用户输入，然后将其传递给操作系统。</li>
+<li><strong>系统工具和实用程序（System Utilities）：</strong>
+这些工具和实用程序为用户提供了执行特定任务的方法，如文件管理、磁盘维护、安全性设置等。常见的系统工具包括文件管理器、磁盘清理工具、任务管理器等。</li>
+</ol>
+<h2 id="kernel">kernel</h2>
+<p>At the core of the operating system is the kernel, which manages and
+controls the hardware resources like I/O (networking, storage, graphics
+and various user interface devices, etc.), memory and CPU for your
+device or computer.</p>
+<p>It is one of the first software programs a booting device loads and
+runs on the central processing unit (CPU).</p>
+<p>It is the part of Operating System which converts user commands into
+machine language.</p>
+<p>It resides in the main memory.</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230818175412579.png"
+alt="image-20230818175412579" />
+<figcaption aria-hidden="true">image-20230818175412579</figcaption>
+</figure>
+<h3 id="what-the-kernel-does">What the kernel does</h3>
+<ol type="1">
+<li><strong>系统资源管理：</strong>
+Linux内核负责管理计算机的各种硬件资源，包括内存、处理器、硬盘和其他外部设备。它通过调度算法来分配处理器时间和内存空间，以优化系统性能和资源利用率。</li>
+<li><strong>设备驱动程序：</strong>
+内核提供了用于与计算机硬件通信的设备驱动程序。这些驱动程序使操作系统能够与各种硬件设备进行交互，如显示器、键盘、鼠标、网络适配器等。</li>
+<li><strong>文件系统管理：</strong>
+Linux内核支持多种文件系统，如EXT4、Btrfs、XFS等，它负责管理文件和目录的存储、访问和维护。这使得用户能够在不同的存储设备上创建、读取和写入文件。</li>
+<li><strong>进程管理：</strong>
+内核管理系统中运行的进程（应用程序的执行实例）。它负责进程的创建、调度、终止以及进程间的通信和同步。</li>
+<li><strong>系统调用：</strong>
+内核提供了一组系统调用，这些调用允许应用程序与内核交互，请求操作系统提供服务，如文件访问、网络通信等。</li>
+<li><strong>内存管理：</strong>
+内核管理系统的内存分配和释放，确保不同进程之间不会互相干扰。它通过虚拟内存管理来实现更高效的内存使用和保护。</li>
+<li><strong>网络通信：</strong>
+内核管理计算机的网络通信，包括处理网络协议、数据包的路由和传输，以及网络设备的配置和管理。</li>
+<li><strong>安全和权限：</strong>
+内核实施访问控制和权限管理，确保不同用户和进程之间的隔离，防止未经授权的访问和操作。</li>
+<li><strong>中断处理：</strong>
+内核负责处理硬件中断，这些中断可以是来自设备的信号，需要立即处理以响应硬件事件。</li>
+<li><strong>能源管理：</strong>
+内核支持能源管理功能，如电源管理和CPU频率调整，以降低系统的能耗。</li>
+</ol>
+<h3 id="load-a-kernel-image">load a kernel image</h3>
+<p>To "load" them means copying them from the boot medium (harddisk, CD,
+USB stick, ...) to system RAM(Random Access Memory).</p>
+<p>The CPU can only receive instructions directly from either the BIOS
+or the RAM; in order to run a program stored on the hard disk, there
+needs to be a program that is already accessible that will make the
+other program accessible.</p>
+<p>At system start, there is only the BIOS, which knows how to test the
+RAM for defects and read data from the hard disk. The BIOS loads the
+bootloader, which is placed so that it can be found easily (either at
+the beginning of the disk, or in a special partition).</p>
+<p>The bootloader is an intermediate program that basically just
+performs the same function as the BIOS -- it loads the next program.
+Unlike the BIOS, it is specifically made to load Linux, so it knows how
+to read the <a
+target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Executable_and_Linkable_Format">Executable
+and Linking Format</a> (which is used for programs under Linux), and it
+knows that it should also read the initrd file into memory and pass the
+address where its contents can be found to the Linux kernel.</p>
+<p>The kernel itself can typically be found in the <code>/boot</code>
+directory, with a name of <code>vmlinuz-</code> followed by a version
+number, and at the moment you can execute commands, a copy of it is
+somewhere in system memory; the exact address is unpredictable.</p>
+<h2 id="image">image</h2>
+<h3 id="kernel-image">kernel image</h3>
+<p>内核镜像（Kernel
+Image）是操作系统内核的二进制文件，它包含了操作系统内核的代码和数据，以及启动操作系统所需的信息。内核镜像是操作系统启动时加载到计算机内存中的部分，它负责初始化系统的各个部分，管理硬件资源，以及启动其他系统组件。</p>
+<p>在引导过程中，计算机会首先加载内核镜像到内存中，然后将控制权交给内核，使其开始执行。内核镜像负责初始化处理器、内存管理、设备驱动程序加载、文件系统挂载等关键操作，从而建立一个能够运行用户程序的环境。</p>
+<h3 id="disk-image">disk image</h3>
+<p>磁盘镜像（Disk
+Image）是计算机中存储在硬盘或其他存储介质上的完整拷贝或快照。它包含了源磁盘上的所有数据、文件、文件系统结构和分区信息，以及可能的操作系统和应用程序。磁盘镜像可以看作是一个虚拟的磁盘副本，可以在需要时被还原到硬件设备上，恢复原始状态。</p>
+<p>磁盘镜像通常用于数据备份、恢复、系统部署和虚拟化等场景。它可以用于创建系统备份，以便在数据丢失或硬件故障时进行恢复。在软件开发和测试中，磁盘镜像可以用于在不同环境中复制相同的系统配置和数据，以确保一致性。虚拟化技术也经常使用磁盘镜像来创建虚拟机，以模拟不同的操作系统环境。</p>
+<h3 id="docker-image">docker image</h3>
+<p>A Docker image is a lightweight, standalone, and executable software
+package that contains all the necessary components to run a piece of
+software. It includes the application code, runtime, system tools,
+libraries, and settings required for the software to run consistently
+across different environments.</p>
+<p>Docker images do not include an entire operating system. Instead,
+they leverage the host system's operating system, isolating only the
+necessary components required for the application to run.</p>
+<h2 id="kernel与os的关系">kernel与OS的关系</h2>
+<p>At the <strong>core</strong> of operating system is the kernel.</p>
+<p>Every operating system has a kernel.</p>
+<h3
+id="difference-between-operating-system-and-kernel"><strong>Difference
+between Operating System and Kernel:</strong></h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Operating System</th>
+<th style="text-align: center;">Kernel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Operating System is a <a
+target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/system-software/">system
+software</a>.</td>
+<td style="text-align: center;">Kernel is system software which is part
+of operating system.</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Operating System provides interface
+between user and hardware.</td>
+<td style="text-align: center;">Kernel provides interface between
+applications and hardware.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">It also provides protection and
+security.</td>
+<td style="text-align: center;">It’s main purpose is memory management,
+disk management, process management and task management.</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">An operating system is a complete
+software package that includes a kernel and other system-level
+components such as device drivers, system libraries, and utilities.</td>
+<td style="text-align: center;">The kernel, on the other hand, is the
+core of the operating system that manages system resources, such as the
+CPU, memory, and I/O devices.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">the operating system provides a
+higher-level interface to the user, such as the GUI, command-line
+interface, and file system.</td>
+<td style="text-align: center;">The kernel provides low-level services,
+such as memory management, process management, and device management, to
+other parts of the operating system</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">the operating system is a more complex
+system that includes a large number of components.</td>
+<td style="text-align: center;">The kernel is a relatively small and
+simple component of the operating system,</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">the operating system provides a more
+general-purpose interface that can be used on a wide range of hardware
+platforms.</td>
+<td style="text-align: center;">The kernel is often customized for
+specific hardware platforms or applications,</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">The operating system is designed to be
+portable across different hardware platforms,</td>
+<td style="text-align: center;">the kernel is often
+platform-specific.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">All system needs operating system to
+run.</td>
+<td style="text-align: center;">All operating systems need kernel to
+run.</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Type of operating system includes single
+and multiuser OS, <a
+target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/introduction-of-multiprocessor-and-multicomputer/">multiprocessor
+OS</a>, <a
+target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/real-time-operating-system-rtos/">Realtime
+OS</a>, <a
+target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/features-of-distributed-operating-system/">Distributed
+OS</a>.</td>
+<td style="text-align: center;">Type of kernel includes <a
+target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/monolithic-architecture/">Monolithic</a>and
+<a
+target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/microkernel-in-operating-systems/">Micro
+kernel</a>.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">It is the first program to load when
+computer boots up.</td>
+<td style="text-align: center;">It is the first program to load when
+operating system loads.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="linux-kernel与ubuntu的关系">linux kernel与ubuntu的关系</h3>
+<p>Linux is a <em>kernel</em>, and Ubuntu is a "<em>Linux
+distribution</em>".</p>
+<p>Ubuntu
+OS，以Linux内核为基础，还包括其他附加软件，如图形用户界面和用户友好的实用工具。</p>
+<p>每个ubuntu发行版都有对应的ubuntu kernel版本范围可供选择。ubuntu
+kernel是在某个版本的linux kernel上演化更新而来的。</p>
+<h4 id="ubuntu-kernel">ubuntu kernel</h4>
+<p>The Ubuntu kernel is maintained by Canonical. It's built on the
+Debian kernel, which is itself a distribution of the Linux kernel.</p>
+<h4 id="mac-kernel">mac kernel</h4>
+<p>the <em>Mac OS X</em> kernel - <em>XNU</em> - actually shares a lot
+of qualities with Linux, kernel-wise, as Linux is based on
+<em>UNIX</em>, and so is <em>XNU</em>.</p>
+<h3 id="查看kernel信息">查看kernel信息</h3>
+<p>通过<code>uname -v</code>命令，例如macOS下的结果为<code>Darwin Kernel Version 19.6.0: Tue Jun 21 21:18:39 PDT 2022; root:xnu-6153.141.66~1/RELEASE_X86_64</code>.</p>
+<h2 id="mmu">MMU</h2>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Memory_management_unit">The
+MMU (memory management unit)</a> is a physical component of the computer
+system, typically part of the CPU (but not necessarily). It translates
+virtual addresses (also known as linear addresses in the x86 world) to
+physical addresses; it can also enforce memory access control, cache
+control, and bus arbitration. It doesn’t usually have its own memory, it
+relies on data in the system’s main memory to operate.</p>
+<p>The MMU performs this translation by using information stored in data
+structures such as page tables; these specify which physical address
+ranges correspond to linear address ranges (if any — a page can be “not
+present”). <strong>The page tables are set up by the kernel, and the
+kernel determines what the mappings should be — so the ultimate
+authority on physical addresses is the kernel, however it always
+operates with the help of the MMU.</strong> Put another way, the CPU
+always operates on linear addresses, which are translated to physical
+addresses by the MMU, but the kernel is aware of the translations and
+programs the MMU to perform them.</p>
+<p>User-space processes are oblivious to all this and aren’t (normally)
+aware of the physical addresses corresponding to the linear addresses
+they use, and typically can’t access the mappings either. There are some
+cases where physical mappings leak, but those are usually considered to
+be security vulnerabilities and quickly addressed. However, in Linux,
+processes with sufficient privileges can see their physical map in
+<code>/proc/&lt;pid&gt;/pagemap</code>.</p>
+<p>For Linux specifically, see <a
+target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/admin-guide/mm/index.html">the
+memory management documentation</a>, and in particular <a
+target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/admin-guide/mm/pagemap.html">the
+section on examining page tables</a>.</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yuhang Zhang
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2023/08/16/Kernel-and-OS/" title="Kernel and OS">https://zyh-eric.gitee.io/zyhjy/2023/08/16/Kernel-and-OS/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/08/05/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-Valgrind-perf-pin/" rel="prev" title="性能分析工具--Valgrind, perf, pin">
+      <i class="fa fa-chevron-left"></i> 性能分析工具--Valgrind, perf, pin
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/08/16/FS-Full-System-Emulation/" rel="next" title="gem5 Full System Simulation">
+      gem5 Full System Simulation <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81ODg3Ni8zNTMzOA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#osoperating-system"><span class="nav-number">1.</span> <span class="nav-text">OS(Operating System)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#component"><span class="nav-number">1.1.</span> <span class="nav-text">component</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kernel"><span class="nav-number">2.</span> <span class="nav-text">kernel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#what-the-kernel-does"><span class="nav-number">2.1.</span> <span class="nav-text">What the kernel does</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#load-a-kernel-image"><span class="nav-number">2.2.</span> <span class="nav-text">load a kernel image</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#image"><span class="nav-number">3.</span> <span class="nav-text">image</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#kernel-image"><span class="nav-number">3.1.</span> <span class="nav-text">kernel image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#disk-image"><span class="nav-number">3.2.</span> <span class="nav-text">disk image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#docker-image"><span class="nav-number">3.3.</span> <span class="nav-text">docker image</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kernel%E4%B8%8Eos%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">4.</span> <span class="nav-text">kernel与OS的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#difference-between-operating-system-and-kernel"><span class="nav-number">4.1.</span> <span class="nav-text">Difference
+between Operating System and Kernel:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#linux-kernel%E4%B8%8Eubuntu%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">4.2.</span> <span class="nav-text">linux kernel与ubuntu的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ubuntu-kernel"><span class="nav-number">4.2.1.</span> <span class="nav-text">ubuntu kernel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mac-kernel"><span class="nav-number">4.2.2.</span> <span class="nav-text">mac kernel</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8Bkernel%E4%BF%A1%E6%81%AF"><span class="nav-number">4.3.</span> <span class="nav-text">查看kernel信息</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mmu"><span class="nav-number">5.</span> <span class="nav-text">MMU</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/zyhjy/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/zyhjy/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/zyhjy/categories/">
+          
+        <span class="site-state-item-count">36</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/zyhjy/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/zyhjy/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">296k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">8:13</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+
+<script src="/zyhjy/js/utils.js"></script>
+
+
+<script src="/zyhjy/js/schemes/pisces.js"></script>
+
+
+<script src="/zyhjy/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>

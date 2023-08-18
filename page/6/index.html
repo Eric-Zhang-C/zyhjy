@@ -201,6 +201,534 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/06/10/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/06/10/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E8%AE%B0%E5%BD%95/" class="post-title-link" itemprop="url">科学上网记录</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-10 22:18:50" itemprop="dateCreated datePublished" datetime="2022-06-10T22:18:50+08:00">2022-06-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/vpn/" itemprop="url" rel="index"><span itemprop="name">vpn</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="基础教程">基础教程</h1>
+<ul>
+<li>具体见<a
+target="_blank" rel="noopener" href="https://github.com/mku228/trojan/blob/main/README.md">vpn傻瓜教程</a>
+# 注意事项 ## 机器选择</li>
+<li>Location: singapore</li>
+<li>CPU chose: 选$12, 后面选size变成$5，已经没有$3.5的了</li>
+<li>ssh-key填了没用</li>
+<li>左下角month选1，每月一续</li>
+</ul>
+<h2 id="安装trojan">安装Trojan</h2>
+<ol type="1">
+<li>SElinux开启:
+<ul>
+<li>选择重启</li>
+</ul></li>
+<li>域名解析失败
+<ul>
+<li>我申请的是xxx.tk,则输入www.xxx.tk</li>
+</ul></li>
+<li>证书申请失败
+<ul>
+<li>运行<code>curl https://get.acme.sh | sh -s email=my@example.com</code>,
+邮箱可不管</li>
+<li>然后运行安装脚本</li>
+</ul></li>
+</ol>
+<h2 id="mac端使用">Mac端使用</h2>
+<ol type="1">
+<li><p>下载 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">======================================================================</span><br><span class="line">Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数</span><br><span class="line">1、复制下面的链接，在浏览器打开，下载客户端</span><br><span class="line">Windows客户端下载:http://www.fxxkhwclose.tk/21439b51a3756814/trojan-cli.zip</span><br><span class="line">MacOS客户端下载:http://www.fxxkhwclose.tk/21439b51a3756814/trojan-mac.zip</span><br><span class="line">2、Windows将下载的客户端解压，打开文件夹，打开start.bat即打开并运行Trojan客户端</span><br><span class="line">3、MacOS将下载的客户端解压，打开文件夹，打开start.command即打开并运行Trojan客户端</span><br><span class="line">Trojan推荐使用 Mellow 工具代理（WIN/MAC通用）下载地址如下:</span><br><span class="line">https://github.com/mellow-io/mellow/releases  (exe为Win客户端,dmg为Mac客户端)</span><br><span class="line">======================================================================</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>下载后打开<code>config.json</code>文件,
+两个<code>verify</code>改成false</li>
+<li>run
+<code>cd path_to/trojan &amp;&amp; ./trojan -c config.json</code></li>
+</ul></li>
+<li><p>安装<code>SwitchyOmega</code>插件</p>
+<ul>
+<li>Chrome应用商店安装<code>Proxy SwitchyOmega</code></li>
+<li>插件配置见<a
+target="_blank" rel="noopener" href="https://trojan123.com/index.php/2020/03/29/trojan-chrome-switchyomega-zidong/">说明</a></li>
+</ul></li>
+<li><p>系统代理还没配，只能Chrome使用</p></li>
+<li><p>ssh免密登陆:</p>
+<ul>
+<li>将id_rsa.pub 内容拷贝到~/.ssh/authorized_keys即可</li>
+</ul></li>
+</ol>
+<h1 id="测速">测速</h1>
+<ol type="1">
+<li>安装iperf3:
+<ul>
+<li>CentOS : <code>yum install iperf3</code></li>
+<li>MacOS : <code>brew  install iperf3</code></li>
+</ul></li>
+<li>测试:
+<ul>
+<li>在服务端启动server端的程序: <code>iperf3 -s</code></li>
+<li>接着在client端执行: <code>iperf3 -c 48.77.234.178</code></li>
+</ul></li>
+<li>可能出现错误:
+<code>iperf3: error - unable to connect to server: Connection refused</code>
+<ul>
+<li>原因: 防火墙端口未打开</li>
+<li>solution: <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --zone=public --list-ports</span><br><span class="line">firewall-cmd --zone=public --add-port=5201/tcp --permanent </span><br><span class="line">firewall-cmd --reload</span><br><span class="line">firewall-cmd --zone=public --list-ports</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+</ol>
+<ul>
+<li>iperf3默认5201端口,TCP</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/06/10/git%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/06/10/git%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C/" class="post-title-link" itemprop="url">git常用操作(长期收藏更新)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-10 21:50:50" itemprop="dateCreated datePublished" datetime="2022-06-10T21:50:50+08:00">2022-06-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/git/" itemprop="url" rel="index"><span itemprop="name">git</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="背景">背景</h1>
+<ul>
+<li>虽然习惯了使用IDE里集成的图形化git操作，但是有时候还是难免需要在命令行中使用git。</li>
+</ul>
+<h1 id="场景">场景</h1>
+<h2 id="本地新建git仓并同步到远程">1. 本地新建git仓并同步到远程</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mkdir CSAPP</span><br><span class="line">git init</span><br><span class="line">git remote add origin git@gitee.com:zyh-eric/csapp.git</span><br><span class="line">git checkout -b archlab</span><br><span class="line">...add some file...</span><br><span class="line">git add .</span><br><span class="line">git commit -m &quot;archlab init&quot;</span><br><span class="line">git push -u origin archlab</span><br></pre></td></tr></table></figure>
+<p>修改最后一次注释 git commit --amend</p>
+<h2 id="git设置本地信息">2. git设置本地信息</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name zyh@docker</span><br><span class="line">git config --global user.email yuhangzhang22@m.fudan.edu.cn</span><br><span class="line">git config --list </span><br></pre></td></tr></table></figure>
+<h2 id="mac-无法ping通github但是可以从网页打开github">3. Mac
+无法ping通github但是可以从网页打开github</h2>
+<ol type="1">
+<li>在<code>https://ipaddress.com/website/github.com</code>查找github.com</li>
+<li><code>vim /etc/hosts</code>
+<ul>
+<li><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">140.82.113.3 github.com</span><br><span class="line">199.232.69.194 github.global.ssl.fastly.net</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+<li>重启DNS(ubuntu18可跳过这步)
+<ul>
+<li><code>killall -HUP mDNSResponder</code></li>
+</ul></li>
+<li><code>git clone https://github.com/xxx.git</code>提示下载失败
+<ul>
+<li>可以尝试把<code>https://</code>换成
+<code>git://</code>或者<code>http://</code></li>
+</ul></li>
+</ol>
+<h2 id="git-checkout后之前本地commit的内容消失">4. git
+checkout后之前本地commit的内容消失</h2>
+<p>https://blog.csdn.net/yupyuping/article/details/118106810</p>
+<h2 id="push">5. push</h2>
+<ul>
+<li>把当前仓库的一个分支push到另一个仓库的指定分支 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git push [remote repo] [local branch]:[remote branch]</span><br><span class="line"># git push origin o3_0320:o3  /// eg </span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="git-push-命令没有任何反应"><code>git push</code>
+命令没有任何反应</h3>
+<ul>
+<li>本地分支与远程分支不匹配：确保您的本地分支和远程分支之间的名称和关联正确。在执行
+<code>git push</code> 命令时，Git
+会将本地分支推送到与其关联的远程分支。如果本地分支与远程分支之间的关联存在问题，<code>git push</code>
+命令可能会失败或无响应。
+<ul>
+<li>您可以使用以下命令检查本地分支与远程分支的关联： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch -vv</span><br></pre></td></tr></table></figure></li>
+<li>如果关联不正确，可以使用以下命令进行关联设置（假设您的本地分支名为
+<code>local_branch</code>，远程分支名为
+<code>origin/remote_branch</code>）： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch --set-upstream-to=origin/remote_branch local_branch</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/06/09/%E5%9C%A8llvm%E7%BC%96%E5%86%99pass/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/06/09/%E5%9C%A8llvm%E7%BC%96%E5%86%99pass/" class="post-title-link" itemprop="url">在LLVM中使用PASS!</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-09 22:19:50" itemprop="dateCreated datePublished" datetime="2022-06-09T22:19:50+08:00">2022-06-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/llvm-pass/" itemprop="url" rel="index"><span itemprop="name">llvm pass</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="pass简介">pass简介</h1>
+<ul>
+<li>LLVM
+的pass框架是LLVM系统的一个很重要的部分。LLVM的优化和转换工作就是由多个pass来一起完成的。类似流水线操作一样，每个pass完成特定的优化工作。
+要想真正发挥LLVM的威力，掌握pass是不可或缺的一环。LLVM中pass架构的可重用性和可控制性都非常好，这允许用户自己开发pass或者关闭一些默认提供的pass。</li>
+<li>pass分为两类, 一类是分析(analysis)pass, 负责收集信息共其它pass使用,
+辅助调试或使程序可视化; 另一类是转换(transform)pass, 改变程序的dataflow
+/ controlflow. LLVM中实现了几十种优化pass, 其中许多pass运行不止一次.
+analysis pass存放在lib/Analysis下, transform
+pass存放在lib/Transforms下.</li>
+</ul>
+<h1 id="hello-world"><code>Hello World</code></h1>
+<ul>
+<li>我的<code>llvm</code>安装在<code>/usr/local/opt/llvm</code>的路径下。<br></li>
+</ul>
+<p>打开<code>～/.zshrc</code>:<br>
+<code>export PATH=/usr/local/opt/llvm/bin:$PATH</code><br>
+使用<code>source ~/.zshrc</code>使.<code>zshrc</code>文件文件生效<br></p>
+<p>输入<code>llvm-dis --version</code>测试<br></p>
+<h2 id="使用">使用</h2>
+<h3 id="场景1">场景1</h3>
+<p>建立build目录并且在该目录下进行编译，注意LLVM禁止源码内编译（in-tree
+build is not supported） <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; cd /usr/local/opt/llvm</span><br><span class="line">&gt; mkdir build</span><br><span class="line">&gt; cd build</span><br><span class="line">&gt; cmake -G &quot;Unix Makefiles&quot; \</span><br><span class="line">  -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \</span><br><span class="line">  -DLLVM_BUILD_LLVM_DYLIB=ON \</span><br><span class="line">  --enable-optimized \</span><br><span class="line">  --enable-targets=host-only \</span><br><span class="line">  ../../llvm</span><br><span class="line">&gt; make</span><br></pre></td></tr></table></figure> -G = 指定生成编译器
+-DCMAKE_BUILD_TYPE = 调试版本（Debug）或者发布版本（Release）
+-DCMAKE_EXPORT_COMPILE_COMMANDS = 是否输出编译命令
+-DLLVM_BUILD_LLVM_DYLIB = 是否添加libLLVM共享库 更多的编译项可以参考<a
+target="_blank" rel="noopener" href="https://llvm.org/docs/CMake.html">LLVM compile
+docs</a>的编译文档。</p>
+<h3 id="场景2">场景2</h3>
+<p>创建一个C语言文件test.c <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">int main() &#123;</span><br><span class="line">  printf(&quot;hello world\n&quot;);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> - 编译生成可执行文件<br>
+<code>clang test.c -o test</code></p>
+<ul>
+<li><p>运行可执行文件<br> <code>test</code></p></li>
+<li><p>生成llvm字节码文件<br>
+<code>clang -O1 -emit-llvm test.c -c -o test.bc</code></p></li>
+<li><p>生成LLVM 的汇编代码 .ll 文件(可视化字节码文件)
+<code>clang -O1 -emit-llvm test.c -S -o test.ll</code></p></li>
+<li><p>运行字节码文件<br> <code>lli test.bc</code> 结果: "hello world"
+.ll文件也可以用lli来执行</p></li>
+<li><p>将 .bc 文件转化为 .ll 文件:
+<code>llvm-dis test.bc</code></p></li>
+<li><p>将 .ll 文件转化为 .bc 文件: <code>llvm-as test.ll</code></p></li>
+<li><p>编译字节码文件为汇编文件<br>
+<code>llc test.bc -o test.s</code></p></li>
+<li><p>将 .bc 或 .ll 文件转化为本机平台的汇编代码<br>
+<code>llc test.bc</code> <code>llc test.ll</code></p></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/06/09/python3%E5%88%A9%E7%94%A8clang%E8%AF%AD%E6%B3%95%E6%A0%91%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/06/09/python3%E5%88%A9%E7%94%A8clang%E8%AF%AD%E6%B3%95%E6%A0%91%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">python3利用clang语法树识别文件中的函数</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-09 21:34:50" itemprop="dateCreated datePublished" datetime="2022-06-09T21:34:50+08:00">2022-06-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/python3-clang-AST/" itemprop="url" rel="index"><span itemprop="name">python3 clang AST</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>673</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="背景">背景</h1>
+<p>python3利用cindex库解析c文件时遇到空宏前缀、
+<code>#ifdef</code>作用域内函数无法识别的问题。</p>
+<h1 id="解决思路">解决思路</h1>
+<p>将c文件对应的<code>compile_commands.json</code>文件导入cindex库，然后解析。</p>
+<h1 id="具体步骤">具体步骤</h1>
+<ol type="1">
+<li><p>编译生成文件对应的<code>compile_commands.json</code>。
+公司里相关的项目没有用cmake,直接使用的make。
+这种情况比较好处理，make改为bear make即可。 具体见<a
+target="_blank" rel="noopener" href="https://github.com/rizsotto/Bear">bear工具</a></p></li>
+<li><p>cindex导入<code>compile_commands.json</code>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env python3</span><br><span class="line">from clang import cindex</span><br><span class="line"></span><br><span class="line">index = cindex.Index.create()</span><br><span class="line"># Step 1: load the compilation database</span><br><span class="line">compdb = cindex.CompilationDatabase.fromDirectory(your_cc.json_path)</span><br><span class="line"></span><br><span class="line"># Step 2: query compilation flags</span><br><span class="line">commands = compdb.getCompileCommands(you_target.c)</span><br><span class="line">file_args = []</span><br><span class="line">for command in commands:</span><br><span class="line">    for argument in command.arguments:</span><br><span class="line">        file_args.append(argument)</span><br><span class="line"></span><br><span class="line">translation_unit = index.parse(you_target.c, file_args[:-1]) # the last command it the target file self</span><br></pre></td></tr></table></figure></p></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/30/llvm%20install/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1025,239 +1553,10 @@ on how to get the most out of LLVM.</p>
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/21/python%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/05/21/python%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/" class="post-title-link" itemprop="url">python字符串操作</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-21 17:48:50" itemprop="dateCreated datePublished" datetime="2022-05-21T17:48:50+08:00">2022-05-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>220</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <table>
-<colgroup>
-<col style="width: 42%" />
-<col style="width: 42%" />
-<col style="width: 14%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">操作符/ 函数</th>
-<th style="text-align: left;">描述</th>
-<th style="text-align: left;">实例</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">[ : ]</td>
-<td
-style="text-align: left;">截取字符串中的一部分，遵循左闭右开原则，str[0:2]
-是不包含第 3 个字符的</td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">r/R</td>
-<td style="text-align: left;">原始字符串 -
-原始字符串：所有的字符串都是直接按照字面的意思来使用，没有转义特殊或不能打印的字符</td>
-<td
-style="text-align: left;"><code>print(r'\n')</code><br><code>print(R'\n')</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">rfind(str, beg=0,end=len(string))</td>
-<td
-style="text-align: left;">返回字符串最后一次出现的位置，如果没有匹配项则返回-1</td>
-<td style="text-align: left;"></td>
-</tr>
-</tbody>
-</table>
-<p>Check out the <a
-target="_blank" rel="noopener" href="https://www.runoob.com/python3/python3-string.html">python3
-string</a> for more info.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/18/git-clone%E6%8A%A5%E9%94%99443/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/05/18/git-clone%E6%8A%A5%E9%94%99443/" class="post-title-link" itemprop="url">git clone常见报错</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-18 23:39:50" itemprop="dateCreated datePublished" datetime="2022-05-18T23:39:50+08:00">2022-05-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/git/" itemprop="url" rel="index"><span itemprop="name">git</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>662</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>环境: <code>Mac</code> ; 蓝灯代理全部流量 ## 问题1
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  tools git clone https://github.com/llvm/llvm-project</span><br><span class="line">Cloning into &#x27;llvm-project&#x27;...</span><br><span class="line">fatal: unable to access &#x27;https://github.com/llvm/llvm-project/&#x27;: Failed to connect to github.com port 443: Operation timed out</span><br></pre></td></tr></table></figure></li>
-<li>解决办法:
-<code>➜  tools git config --global https.proxy https://127.0.0.1:1080</code></li>
-</ul>
-<h2 id="问题2">问题2</h2>
-<p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">➜  tools git clone https://github.com/llvm/llvm-project</span><br><span class="line">Cloning into &#x27;llvm-project&#x27;...</span><br><span class="line">error: RPC failed; curl 7 LibreSSL SSL_read: SSL_ERROR_SYSCALL, errno 60</span><br><span class="line">fatal: the remote end hung up unexpectedly</span><br></pre></td></tr></table></figure> - 解决办法:
-<code>➜  tools git config --global https.proxy https://127.0.0.1:62019</code>
-- ps : <code>https://127.0.0.1:62019</code>是蓝灯代理服务器</p>
-<p>git config --global http.proxy http://127.0.0.1:62019</p>
-<h5
-id="附git常用命令总结jekyll-docs-git-config常用命令总结jekyll-gh">附:<a
-target="_blank" rel="noopener" href="http://t.zoukankan.com/fanyegong-p-5127780.html">git常用命令总结</a>;
-<a target="_blank" rel="noopener" href="https://blog.csdn.net/zhw21w/article/details/124109159">git
-config常用命令总结</a></h5>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/zyhjy/page/5/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/zyhjy/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zyhjy/page/5/">5</a><span class="page-number current">6</span>
+    <a class="extend prev" rel="prev" href="/zyhjy/page/5/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/zyhjy/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zyhjy/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/zyhjy/page/7/">7</a><a class="extend next" rel="next" href="/zyhjy/page/7/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1325,14 +1624,14 @@ config常用命令总结</a></h5>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-count">62</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-count">36</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -1377,12 +1676,12 @@ config常用命令总结</a></h5>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">284k</span>
+    <span title="站点总字数">296k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">7:54</span>
+    <span title="站点阅读时长">8:13</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
