@@ -25,14 +25,14 @@
   <meta name="description" content="爱小雅，爱生活，爱物理!">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ZYHJY">
-<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/categories/OS/">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/categories/os/">
 <meta property="og:site_name" content="ZYHJY">
 <meta property="og:description" content="爱小雅，爱生活，爱物理!">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="Yuhang Zhang">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/categories/OS/">
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/categories/os/">
 
 
 <script id="page-configurations">
@@ -45,7 +45,7 @@
   };
 </script>
 
-  <title>分类: OS | ZYHJY</title>
+  <title>分类: os | ZYHJY</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
     <script>
@@ -204,35 +204,12 @@
   <div class="post-block">
     <div class="posts-collapse">
       <div class="collection-title">
-        <h2 class="collection-header">OS
+        <h2 class="collection-header">os
           <small>分类</small>
         </h2>
       </div>
 
       
-    <div class="collection-year">
-      <span class="collection-header">2023</span>
-    </div>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-08-16T21:50:03+08:00"
-              content="2023-08-16">
-          08-16
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/zyhjy/2023/08/16/Kernel-and-OS/" itemprop="url">
-            <span itemprop="name">Kernel and OS</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
     <div class="collection-year">
       <span class="collection-header">2022</span>
     </div>
@@ -242,15 +219,15 @@
 
       <div class="post-meta">
         <time itemprop="dateCreated"
-              datetime="2022-08-25T22:10:50+08:00"
-              content="2022-08-25">
-          08-25
+              datetime="2022-06-10T22:56:50+08:00"
+              content="2022-06-10">
+          06-10
         </time>
       </div>
 
       <div class="post-title">
-          <a class="post-title-link" href="/zyhjy/2022/08/25/OSTEP%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" itemprop="url">
-            <span itemprop="name">OSTEP阅读笔记</span>
+          <a class="post-title-link" href="/zyhjy/2022/06/10/CMU-CSAPP-LAB%E6%8C%87%E5%8D%97/" itemprop="url">
+            <span itemprop="name">CMU CSAPP LAB指南</span>
           </a>
       </div>
 
@@ -337,7 +314,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">36</span>
+        <span class="site-state-item-count">37</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -382,12 +359,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">296k</span>
+    <span title="站点总字数">301k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">8:13</span>
+    <span title="站点阅读时长">8:21</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -494,6 +471,36 @@
           }, '', false],
           insertedScript: [200, () => {
             document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+
+</body>
+</html>
+r').forEach(node => {
               let target = node.parentNode;
               if (target.nodeName.toLowerCase() === 'li') {
                 target.parentNode.classList.add('has-jax');

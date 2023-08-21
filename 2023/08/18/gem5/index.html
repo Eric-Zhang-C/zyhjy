@@ -22,15 +22,15 @@
     var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Interaction of CPU model with other parts of gem5   image-20230818201426319">
+  <meta name="description" content="这篇文章用于记录在做实验室项目时遇到的gem5相关的知识，对应的gem5版本为21.2.0。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="gem5">
+<meta property="og:title" content="gem5 guidelines">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/08/18/gem5/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="Interaction of CPU model with other parts of gem5   image-20230818201426319">
+<meta property="og:description" content="这篇文章用于记录在做实验室项目时遇到的gem5相关的知识，对应的gem5版本为21.2.0。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-08-18T10:18:40.000Z">
-<meta property="article:modified_time" content="2023-08-18T12:14:50.611Z">
+<meta property="article:modified_time" content="2023-08-21T13:42:56.292Z">
 <meta property="article:author" content="Yuhang Zhang">
 <meta name="twitter:card" content="summary">
 
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>gem5 | ZYHJY</title>
+  <title>gem5 guidelines | ZYHJY</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
     <script>
@@ -217,7 +217,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          gem5
+          gem5 guidelines
         </h1>
 
         <div class="post-meta">
@@ -226,10 +226,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2023-08-18 18:18:40 / 修改时间：20:14:50" itemprop="dateCreated datePublished" datetime="2023-08-18T18:18:40+08:00">2023-08-18</time>
+              <time title="创建时间：2023-08-18 18:18:40" itemprop="dateCreated datePublished" datetime="2023-08-18T18:18:40+08:00">2023-08-18</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-21 21:42:56" itemprop="dateModified" datetime="2023-08-21T21:42:56+08:00">2023-08-21</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -257,14 +263,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>64</span>
+              <span>2.9k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>5 分钟</span>
             </span>
 
         </div>
@@ -276,7 +282,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="interaction-of-cpu-model-with-other-parts-of-gem5">Interaction
+        <p>这篇文章用于记录在做实验室项目时遇到的gem5相关的知识，对应的gem5版本为21.2.0。</p>
+<span id="more"></span>
+<h1 id="gem5-guidelines">gem5 guidelines</h1>
+<h2 id="interaction-of-cpu-model-with-other-parts-of-gem5">Interaction
 of CPU model with other parts of gem5</h2>
 <figure>
 <img
@@ -284,6 +293,25 @@ src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230818201426319.pn
 alt="image-20230818201426319" />
 <figcaption aria-hidden="true">image-20230818201426319</figcaption>
 </figure>
+<h2 id="section"></h2>
+<h2 id="o3cpu的若干细节">O3CPU的若干细节</h2>
+<h3 id="fetch">fetch</h3>
+<h4 id="fetchdecoder与macro-opmicro-op">1.
+<code>fetch::decoder</code>与macro op、micro op</h4>
+<p>在真实CPU中，CPU获得从PC地址取出一条指令后，需要将指令从机器码（二进制表示的指令）转化为内部控制信号和操作码，以便
+CPU 可以理解并执行指令，然后由细分的硬件进行下一步处理。</p>
+<p>类似的，当gem5 cpu进行模拟时，也需要将程序的机器码解码成gem5
+cpu内部处理的信息,在gem5源码中为<code>o3::StaticInst</code>，解码的工作由<code>fetch::decoder</code>完成。</p>
+<p>对于一条目标程序的机器码来说，其对应的<code>o3::StaticInst</code>可能不止一条，如arm64架构下的<code>stp(store pair)</code>指令，会被分解为两条类型为<code>str</code>的<code>o3::StaticInst</code>指令。</p>
+<p>这时，就引出了macro inst和micro inst的概念。</p>
+<p>我们将<code>o3::StaticInst</code>称为micro
+op，如果一条机器码分解为多条micro op，则称该机器码为macro op。</p>
+<h5 id="以下是相关代码">以下是相关代码:</h5>
+<p>function : <code>Fetch::fetch(bool &amp;status_change)</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line">  StaticInstPtr staticInst = <span class="literal">NULL</span>;</span><br><span class="line">  StaticInstPtr curMacroop = macroop[tid];		<span class="comment">/// 如果上个tick存在没有处理完的macroop，则取出</span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">  <span class="keyword">auto</span> *dec_ptr = decoder[tid];								<span class="comment">/// 每个线程有独立的decoder，保存状态</span></span><br><span class="line">  </span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (numInst &lt; fetchWidth &amp;&amp; fetchQueue[tid].<span class="built_in">size</span>() &lt; fetchQueueSize</span><br><span class="line">         &amp;&amp; !predictedBranch &amp;&amp; !quiesce) &#123;</span><br><span class="line">    </span><br><span class="line">      ...</span><br><span class="line">      </span><br><span class="line">      Addr fetchBufferBlockPC = <span class="built_in">fetchBufferAlignPC</span>(fetchAddr);</span><br><span class="line"></span><br><span class="line">    	...</span><br><span class="line"></span><br><span class="line">      <span class="keyword">do</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (!(curMacroop)) &#123;</span><br><span class="line">              <span class="keyword">if</span> (dec_ptr-&gt;<span class="built_in">instReady</span>()) &#123;</span><br><span class="line">                  staticInst = dec_ptr-&gt;<span class="built_in">decode</span>(this_pc);</span><br><span class="line"></span><br><span class="line">                  <span class="comment">// Increment stat of fetched instructions.</span></span><br><span class="line">                  ++fetchStats.insts;</span><br><span class="line"></span><br><span class="line">                  <span class="keyword">if</span> (staticInst-&gt;<span class="built_in">isMacroop</span>()) &#123;</span><br><span class="line">                      curMacroop = staticInst;</span><br><span class="line">                  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                      pcOffset = <span class="number">0</span>;</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                  <span class="comment">// We need more bytes for this instruction so blkOffset and</span></span><br><span class="line">                  <span class="comment">// pcOffset will be updated</span></span><br><span class="line">                  <span class="keyword">break</span>;</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">// Whether we&#x27;re moving to a new macroop because we&#x27;re at the</span></span><br><span class="line">          <span class="comment">// end of the current one, or the branch predictor incorrectly</span></span><br><span class="line">          <span class="comment">// thinks we are...</span></span><br><span class="line">          <span class="type">bool</span> newMacro = <span class="literal">false</span>;</span><br><span class="line">          <span class="keyword">if</span> (curMacroop) &#123;</span><br><span class="line">              staticInst = curMacroop-&gt;<span class="built_in">fetchMicroop</span>(this_pc.<span class="built_in">microPC</span>());</span><br><span class="line">              newMacro |= staticInst-&gt;<span class="built_in">isLastMicroop</span>();</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          DynInstPtr instruction = <span class="built_in">buildInst</span>(</span><br><span class="line">                  tid, staticInst, curMacroop, this_pc, *next_pc, <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">          ppFetch-&gt;<span class="built_in">notify</span>(instruction);</span><br><span class="line">          numInst++;</span><br><span class="line"></span><br><span class="line">          <span class="built_in">set</span>(next_pc, this_pc);</span><br><span class="line"></span><br><span class="line">          <span class="comment">// If we&#x27;re branching after this instruction, quit fetching</span></span><br><span class="line">          <span class="comment">// from the same block.</span></span><br><span class="line">          predictedBranch |= this_pc.<span class="built_in">branching</span>();</span><br><span class="line">          predictedBranch |= <span class="built_in">lookupAndUpdateNextPC</span>(instruction, *next_pc);</span><br><span class="line">          <span class="keyword">if</span> (predictedBranch) &#123;</span><br><span class="line">              <span class="built_in">DPRINTF</span>(Fetch, <span class="string">&quot;Branch detected with PC = %s\n&quot;</span>, this_pc);</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          newMacro |= this_pc.<span class="built_in">instAddr</span>() != next_pc-&gt;<span class="built_in">instAddr</span>();</span><br><span class="line"></span><br><span class="line">          <span class="comment">// Move to the next instruction, unless we have a branch.</span></span><br><span class="line">          <span class="built_in">set</span>(this_pc, *next_pc);</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> (newMacro) &#123;</span><br><span class="line">              fetchAddr = this_pc.<span class="built_in">instAddr</span>() &amp; pc_mask;</span><br><span class="line">              blkOffset = (fetchAddr - fetchBufferPC[tid]) / instSize;</span><br><span class="line">              pcOffset = <span class="number">0</span>;</span><br><span class="line">              curMacroop = <span class="literal">NULL</span>;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> (instruction-&gt;<span class="built_in">isQuiesce</span>()) &#123;</span><br><span class="line">              <span class="built_in">DPRINTF</span>(Fetch,</span><br><span class="line">                      <span class="string">&quot;Quiesce instruction encountered, halting fetch!\n&quot;</span>);</span><br><span class="line">              fetchStatus[tid] = QuiescePending;</span><br><span class="line">              status_change = <span class="literal">true</span>;</span><br><span class="line">              quiesce = <span class="literal">true</span>;</span><br><span class="line">              <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125; <span class="keyword">while</span> ((curMacroop || dec_ptr-&gt;<span class="built_in">instReady</span>()) &amp;&amp;</span><br><span class="line">               numInst &lt; fetchWidth &amp;&amp;</span><br><span class="line">               fetchQueue[tid].<span class="built_in">size</span>() &lt; fetchQueueSize);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  macroop[tid] = curMacroop;</span><br><span class="line">  fetchOffset[tid] = pcOffset;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="inrom">inRom</h4>
+<p>upc的最高位记录MicroPC是否在Rom中,x86等架构会用到，arm64不会使用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">bool</span> inRom = <span class="built_in">isRomMicroPC</span>(this_pc.<span class="built_in">microPC</span>());		</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -299,7 +327,7 @@ alt="image-20230818201426319" />
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://zyh-eric.gitee.io/zyhjy/2023/08/18/gem5/" title="gem5">https://zyh-eric.gitee.io/zyhjy/2023/08/18/gem5/</a>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2023/08/18/gem5/" title="gem5 guidelines">https://zyh-eric.gitee.io/zyhjy/2023/08/18/gem5/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -386,8 +414,9 @@ alt="image-20230818201426319" />
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#interaction-of-cpu-model-with-other-parts-of-gem5"><span class="nav-number">1.</span> <span class="nav-text">Interaction
-of CPU model with other parts of gem5</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#gem5-guidelines"><span class="nav-number">1.</span> <span class="nav-text">gem5 guidelines</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#interaction-of-cpu-model-with-other-parts-of-gem5"><span class="nav-number">1.1.</span> <span class="nav-text">Interaction
+of CPU model with other parts of gem5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section"><span class="nav-number">1.2.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#o3cpu%E7%9A%84%E8%8B%A5%E5%B9%B2%E7%BB%86%E8%8A%82"><span class="nav-number">1.3.</span> <span class="nav-text">O3CPU的若干细节</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#fetch"><span class="nav-number">1.3.1.</span> <span class="nav-text">fetch</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#fetchdecoder%E4%B8%8Emacro-opmicro-op"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">1.
+fetch::decoder与macro op、micro op</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BB%A5%E4%B8%8B%E6%98%AF%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81"><span class="nav-number">1.3.1.1.1.</span> <span class="nav-text">以下是相关代码:</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#inrom"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">inRom</span></a></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -410,7 +439,7 @@ of CPU model with other parts of gem5</span></a></li></ol></div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">36</span>
+        <span class="site-state-item-count">37</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -455,12 +484,12 @@ of CPU model with other parts of gem5</span></a></li></ol></div>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">296k</span>
+    <span title="站点总字数">301k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">8:13</span>
+    <span title="站点阅读时长">8:21</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
