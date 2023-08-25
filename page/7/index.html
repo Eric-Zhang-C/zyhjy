@@ -201,6 +201,507 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/27/mac%E4%BD%BF%E7%94%A8brew%20update%E6%97%A0%E5%8F%8D%E5%BA%94,%E6%9B%B4%E6%96%B0%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/05/27/mac%E4%BD%BF%E7%94%A8brew%20update%E6%97%A0%E5%8F%8D%E5%BA%94,%E6%9B%B4%E6%96%B0%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="post-title-link" itemprop="url">mac使用brew update无反应,更新慢，断链等解决办法</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-27 00:36:50" itemprop="dateCreated datePublished" datetime="2022-05-27T00:36:50+08:00">2022-05-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/mac/" itemprop="url" rel="index"><span itemprop="name">mac</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="问题">问题</h2>
+<p>由于国内某种特殊原因，我们访问很多repo源是有一定难度的，比如在Mac上非常好用的包管理软件Brew安装各种工具时发现居然报错，下载不了这，连接那又timeout，什么也安装不了，心肝迷茫和无助。<br>
+参考<a
+target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_36562804/article/details/107872131">brew
+docs</a>。<br></p>
+<p>https://www.jianshu.com/p/2dcfc3de4fa3</p>
+<h2 id="安装valgrind">安装valgrind</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew remove valgrind # remove previous attempts at installing it (if any)</span><br><span class="line">brew tap LouisBrunner/valgrind</span><br><span class="line">brew install --HEAD LouisBrunner/valgrind/valgrind</span><br></pre></td></tr></table></figure>
+<h2 id="github-433">github 433</h2>
+<p>根据vpn端口设置代理</p>
+<p>https://stackoverflow.com/questions/48987512/ssl-connect-ssl-error-syscall-in-connection-to-github-com443</p>
+<p>https://gist.github.com/laispace/666dd7b27e9116faece6</p>
+<p>git config --global http.proxy http://127.0.0.1:62019</p>
+<h2 id="破解staruml">破解starUML</h2>
+<ol type="1">
+<li>安装npm brew install npm</li>
+<li>安装asar</li>
+</ol>
+<p>npm install asar -g</p>
+<ol start="3" type="1">
+<li>进入目录，解压文件app.asar</li>
+</ol>
+<p>cd /Applications/StarUML.app/Contents/Resources/ asar extract
+app.asar app</p>
+<ol start="4" type="1">
+<li>修改新生成的app目录下的lisence文件</li>
+</ol>
+<p>vim app/src/engine/license-manager.js</p>
+<ol start="5" type="1">
+<li>找到checkLicenseValidity()函数，125行开始的，原代码：</li>
+</ol>
+<p>checkLicenseValidity () { this.validate().then(() =&gt; {
+setStatus(this, true) }, () =&gt; { setStatus(this, false)
+UnregisteredDialog.showDialog() }) }</p>
+<p>修改为：</p>
+<p>checkLicenseValidity () { this.validate().then(() =&gt; {
+setStatus(this, true) }, () =&gt; { setStatus(this, true) }) }</p>
+<ol start="6" type="1">
+<li>打包覆盖原app.asar</li>
+</ol>
+<p>asar pack app app.asar</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/27/%E7%BB%95%E5%BC%80%E7%BD%91%E9%A1%B5js%E8%84%9A%E6%9C%AC%E7%9A%84%E8%8B%A5%E5%B9%B2%E6%96%B9%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/05/27/%E7%BB%95%E5%BC%80%E7%BD%91%E9%A1%B5js%E8%84%9A%E6%9C%AC%E7%9A%84%E8%8B%A5%E5%B9%B2%E6%96%B9%E6%B3%95/" class="post-title-link" itemprop="url">绕开网页js脚本的若干方法</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-27 00:36:50" itemprop="dateCreated datePublished" datetime="2022-05-27T00:36:50+08:00">2022-05-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/mac/" itemprop="url" rel="index"><span itemprop="name">mac</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>58</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>很多网站都会使用js限制用户进行复制、粘贴，本文列出一下绕开这些限制的方法。<br>
+浏览器: Safari<br> 1. 使用阅读器视图。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/26/mac-terminal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/05/26/mac-terminal/" class="post-title-link" itemprop="url">macOS teminal主题设置</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-26 19:30:50" itemprop="dateCreated datePublished" datetime="2022-05-26T19:30:50+08:00">2022-05-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/mac/" itemprop="url" rel="index"><span itemprop="name">mac</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>操作系统: <code>macOS Catalina version 10.15.3</code></li>
+<li>shell环境: <code>zsh</code></li>
+</ul>
+<h2 id="主题">主题</h2>
+<p>原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow
+Night，所以尝试一下。<br> 1. 下载<a
+target="_blank" rel="noopener" href="https://github.com/chriskempson/tomorrow-theme/tree/master/OS%20X%20Terminal">Tomorrow
+Night git</a>需要的.terminal文件。 2. 导入<code>Terminal</code>: 1.
+shell &gt;&gt; 导入... <img src="/pics/2022-05-27-terminal.png"
+title="Import" alt="import" /> 2. 终端 &gt;&gt; 偏好设置 &gt;&gt;
+描述文件, 在左侧选择相应的theme。</p>
+<h2 id="oh-my-zsh">oh my zsh</h2>
+<h3 id="为什么要用-zsh">1. 为什么要用 Zsh</h3>
+<p>相比于默认的 Bash，Zsh 有更多的自定义选项，并支持扩展。因此 Zsh
+可以实现更强大的命令补全，命令高亮等一系列酷炫功能.<br>
+不过代价就是启动速度稍微有点慢（1秒左右，不过相比Bash还是慢了点），而且据说语法和标准
+Shell
+有点区别（至少我是在使用中完全没有碰到兼容性问题）。因此现在几乎所有的
+Linux / Unix 版本的默认 Shell 仍然是 Bash。<br></p>
+<h3 id="oh-my-zsh-1">2. oh my zsh</h3>
+<p>默认的 Zsh 配置有点麻烦。因此一个叫 robbyrussel 的用户在 GitHub
+上制作了一个配置文件 oh-my-zsh，这是目前为止最流行的 Zsh 配置：<a
+target="_blank" rel="noopener" href="https://ohmyz.sh">oh my zsh官网</a><br> #### 安装 1.
+官网给出了两种安装方法：<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">$ sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br></pre></td></tr></table></figure>
+但是在mac上均会出错，试了网上各种方法均无效，原因未知：<br>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to raw.github.com:443 </span><br><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br><span class="line">--2022-05-27 16:15:36--  https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh</span><br><span class="line">正在解析主机 raw.github.com (raw.github.com)... 185.199.111.133, 185.199.110.133, 185.199.109.133, ...</span><br><span class="line">正在连接 raw.github.com (raw.github.com)|185.199.111.133|:443... 已连接。</span><br><span class="line">无法建立 SSL 连接</span><br></pre></td></tr></table></figure>
+其实我们仔细观察上面那个命令，只是去拿了一个.sh脚本然后执行，如果我们手动把它下载下来或者创建一份然后执行呢？
+2. 复制install.sh安装脚本内容<br> <a
+target="_blank" rel="noopener" href="https://gitee.com/mirrors/oh-my-zsh/blob/master/tools/install.sh">oh
+my zsh on gitee</a>是oh my
+zsh这个项目在码云Gitee里的镜像仓库中具体安装脚本install.sh的位置，打开这个URL点击一键复制按钮将内容复制下来
+3. 新建脚本文件粘贴脚本内容<br> 在本地新建 install.sh
+文件，并将刚刚复制的内容粘贴进去 4. 添加执行权限并安装<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % chmod +x install.sh </span><br><span class="line">zyh@zyhs-MBP tools % sh -c ./install.sh</span><br><span class="line">Cloning Oh My Zsh...</span><br><span class="line">remote: Enumerating objects: 1295, done.</span><br><span class="line">remote: Counting objects: 100% (1295/1295), done.</span><br><span class="line">remote: Compressing objects: 100% (1249/1249), done.</span><br><span class="line">remote: Total 1295 (delta 26), reused 1253 (delta 26), pack-reused 0</span><br><span class="line">Receiving objects: 100% (1295/1295), 1.06 MiB | 4.90 MiB/s, done.</span><br><span class="line">Resolving deltas: 100% (26/26), done.</span><br><span class="line">From https://github.com/ohmyzsh/ohmyzsh</span><br><span class="line">...</span><br><span class="line">➜  tools </span><br></pre></td></tr></table></figure>
+注意到提示符变化了，安装成功。 5. 删除无用的安装脚本<br>
+<code>$ rm install.sh</code></p>
+<h4 id="主题配置">主题配置</h4>
+<p>你可能会觉得现在的主题已经超棒了，但是记得吗，我说过Zsh支持很多个性化配置和插件。现在，编辑<code>~/.zshrc</code>文件（比如用<code>Vim</code>或者<code>VSCode</code>），我们来尝试一下各种主题：<br>
+你会看到有一行<code>ZSH_THEME="robbyrussell"</code>，把它替换成<code>ZSH_THEME="agnoster"</code>。<br>
+然后回到终端，输入<code>source ~/.zshrc</code>，你会发现你的Zsh主题变了<br>
+现在你的主题名称是Agnoster，如果你觉得不太好看，你可以改。<br> 前往
+oh-my-zsh 的 Wiki 就可以看到大多数 oh-my-zsh
+的内置主题以及它们的截图。如果你看中的其中的一款，可以重复上面的步骤，编辑<code>~/.zshrc</code>，并更改<code>ZSH_THEME="xxx"</code>。<br>
+比如你看中了 ys 主题（我的最爱），你可以把 ZSH_THEME 改成
+"ys"，然后回到终端，执行 <code>source ~/.zshrc</code> 命令。<br> P.S.
+这些主题都保存在 <code>~/.oh-my-zsh/themes</code> 目录中<br></p>
+<h4 id="插件">插件</h4>
+<p>oh-my-zsh 的自带插件都储存在 <code>~/.oh-my-zsh/plugins</code>
+目录中，如果你希望安装一个插件，可以在 <code>~/.zshrc</code> 的
+<code>plugins=(xxx, xxx, ...)</code> 这一行里加入插件名称<br>
+如果你需要安装第三方插件和主题，你可以在 <code>~/.zshrc</code>
+的某一行（比如末尾）加入 <code>source /path/to/plugin</code><br>
+比如你希望添加一个 <code>zsh-syntax-highlighting</code> 插件<br>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh</span><br><span class="line"># 这里要根据你自己的输入目录，而不是抄我的，否则然并卵</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/24/llvm%E4%B8%8Eclang%E7%9A%84%E5%85%B3%E7%B3%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/05/24/llvm%E4%B8%8Eclang%E7%9A%84%E5%85%B3%E7%B3%BB/" class="post-title-link" itemprop="url">LLVM与clang的关系</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-24 23:22:50" itemprop="dateCreated datePublished" datetime="2022-05-24T23:22:50+08:00">2022-05-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/clang-llvm/" itemprop="url" rel="index"><span itemprop="name">clang llvm</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong>LLVM</strong>最初是底层虚拟机（<strong>L</strong>ow
+<strong>L</strong>evel <strong>V</strong>irtual
+<strong>M</strong>achine）的缩写，指<strong>架构编译器</strong>的框架系统，用C++编写而成。<br>
+我们可以认为LLVM已经类似于一个商标,是一个完整的编译器架构，也可以认为它是一系列模块化和可重用的编译器和工具链技术的集合。<br></p>
+<h3 id="llvm的子项目">LLVM的子项目：</h3>
+<ol type="1">
+<li>LLVM Core<br> <strong>LLVM Core</strong>
+libraries提供了一个源代码无关和目标架构无关的独立配置器，以及许多流行CPU（以及一些不太常见的CPU）的架构后端生成支持。这些库是围绕一个称为LLVM中间码（LLVM
+intermediate representation, "LLVM
+IR"）的的工具来构建的。LLVM核心库的文档特别详细，所以用LLVM作为优化器和代码生成器来形成自己的语言（或移植现有编译器）是非常容易的。</li>
+<li><strong>Clang</strong><br> Clang是一个LLVM“原配”的C/C
+++/Objective-C编译器，旨在提供高效快速的编译效率（例如，在debug模式下编译Objective-C代码时比GCC快3倍），风格良好的warning和error信息，以及作为开源库来构建第三方语言的编译器。
+<img src="/pics/20160718211639694.png" title="clangAndLLVM"
+alt="clangAndLLVM" /> Clang Static
+Analyzer是一个静态的自动查找代码中的错误的工具，是使用Clang前端作为依赖库来解析C/C++代码的工具类型的一个很好的例子。</li>
+<li>LLDB<br>
+LLDB项目以LLVM和Clang提供的库为基础，提供了一个出色的native级别调试器。它使用Clang
+AST和表达式解析器、LLVM
+JIT、LLVM反汇编器等元生组件，所以跟它们配合的很好。在加载调试符号时，它也比GDB快多了而且能够更好的节约内存。</li>
+<li>libc++ and libc++ ABI<br> libc++和libc++
+ABI项目提供了符合C++标准库的高性能实现，而且还包括对C++11和C++14的完整支持。</li>
+<li>compiler-rt<br>
+compiler-rt项目为动态测试工具（如AddressSanitizer，ThreadSanitizer，MemorySanitizer和DataFlowSanitizer）提供了运行时库的实现。它还为像“__fixunsdfdi”这样的低级代码生成器支持进程提供高层面的调整实现，也提供当目标没有用于实现核心IR操作的短序列本机指令时生成的其他调用。</li>
+<li>OpenMP项目提供了一个OpenMP运行时，用于Clang中的OpenMP实现。</li>
+<li>polly项目使用多面体模型实现一组缓存局部优化以及自动并行和矢量化。</li>
+<li>libclc项目旨在实现OpenCL标准库。</li>
+<li>klee项目实现了一个“符号虚拟机”，它使用一个定理证明器来尝试评估程序中的所有动态路径，以发现错误并证明函数的属性。
+klee的一个主要特性是它可以在检测到错误时生成测试用例。</li>
+<li>SAFECode项目是用于C / C ++程序的内存安全编译器。
+它通过运行时检查来检测代码，以便在运行时检测内存安全错误（例如，缓冲区溢出）。
+它可用于保护软件免受安全攻击，也可用作Valgrind等内存安全错误调试工具。</li>
+<li>LLD项目是一个新的链接器。
+可以作为系统链接器的直接替代品，有更快的运行速度。</li>
+</ol>
+<h3 id="llvm的功能介绍">LLVM的功能介绍</h3>
+<ul>
+<li>以C/C++为例，LLVM编译系统包括以下内容：
+<ul>
+<li>一个良好的前端；GCC 4.2解析器能解析的语言，比如C，C
+++，Objective-C，Fortran等，它都能提供同能能力的支持；另外它还能支持一些GCC的扩展插件。</li>
+<li>LLVM指令集的稳定实现；不管代码处于何种状态，都可以在汇编（ASCII）和字节码（二进制）之间自由转换。</li>
+<li>一个功能强大的<strong>Pass</strong>管理系统，它根据它们的依赖性自动对<strong>Pass</strong>（包括分析，转换和代码生成Pass）进行排序，并将它们管道化以提高效率。</li>
+<li>广泛的全局标量优化。</li>
+<li>包含丰富的分析和转换的链接时过程优化框架，包括复杂的完整程序指针分析、调用图构建以及对配置文件引导优化的支持。</li>
+<li>易于重定向的代码生成器，目前支持X86，X86-64，PowerPC，PowerPC-64，ARM，Thumb，SPARC，Alpha，CellSPU，MIPS，MSP430，SystemZ和XCore。</li>
+<li>Just-In-Time（JIT）即时编译器，目前支持X86，X86-64，ARM，AArch64，Mips，SystemZ，PowerPC和PowerPC-64。</li>
+<li>支持生成DWARF调试信息。</li>
+<li>用于测试和生成除上面列出的目标之外的目标的本机代码的C后端。</li>
+<li>与gprof类似的分析系统。</li>
+<li>具有许多基准代码和应用程​​序的测试框架。</li>
+<li>API和调试工具，以简化LLVM组件的快速开发。 <img
+src="/pics/223786_M9G9ETTWNHNZP65.png" alt="LLVM" /></li>
+</ul></li>
+</ul>
+<p>Check out the <a target="_blank" rel="noopener" href="https://llvm.org">LLVM docs</a> for more info
+on how to get the most out of LLVM.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/21/python%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -497,14 +998,14 @@ config常用命令总结</a></h5>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-count">66</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">37</span>
+        <span class="site-state-item-count">40</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -549,12 +1050,12 @@ config常用命令总结</a></h5>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">301k</span>
+    <span title="站点总字数">306k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">8:21</span>
+    <span title="站点阅读时长">8:31</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
