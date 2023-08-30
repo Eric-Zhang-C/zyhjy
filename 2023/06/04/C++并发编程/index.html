@@ -7,8 +7,8 @@
 <meta name="generator" content="Hexo 6.3.0">
 <meta name="referrer" content="no-referrer">
   <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/favicon-16x16-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
   <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
 
 <link rel="stylesheet" href="/zyhjy/css/main.css">
@@ -19,18 +19,18 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="基础知识 并发与并行 并发（Concurrent）与并行（Parallel）都是很常见的术语。 - Concurrent : two queues one coffee machine - Parallel : two queues one coffee machines ## 进程与线程 - 进程（英语：process），是指计算机中已运行的程序。进程为曾经是分时系统的基本运作单位。在面向进程设">
+  <meta name="description" content="基础知识 并发与并行 并发（Concurrent）与并行（Parallel）都是很常见的术语。 - Concurrent : two queues one coffee machine - Parallel : two queues respectively one coffee machine">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++并发编程">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="基础知识 并发与并行 并发（Concurrent）与并行（Parallel）都是很常见的术语。 - Concurrent : two queues one coffee machine - Parallel : two queues one coffee machines ## 进程与线程 - 进程（英语：process），是指计算机中已运行的程序。进程为曾经是分时系统的基本运作单位。在面向进程设">
+<meta property="og:description" content="基础知识 并发与并行 并发（Concurrent）与并行（Parallel）都是很常见的术语。 - Concurrent : two queues one coffee machine - Parallel : two queues respectively one coffee machine">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-06-04T03:06:00.000Z">
-<meta property="article:modified_time" content="2023-08-18T12:18:11.023Z">
+<meta property="article:modified_time" content="2023-08-26T09:52:12.240Z">
 <meta property="article:author" content="Yuhang Zhang">
 <meta name="twitter:card" content="summary">
 
@@ -87,7 +87,7 @@
   </style>
 </noscript>
 
-</head>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container">
@@ -234,7 +234,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-08-18 20:18:11" itemprop="dateModified" datetime="2023-08-18T20:18:11+08:00">2023-08-18</time>
+                <time title="修改时间：2023-08-26 17:52:12" itemprop="dateModified" datetime="2023-08-26T17:52:12+08:00">2023-08-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,6 +243,10 @@
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/zyhjy/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Concurrent/" itemprop="url" rel="index"><span itemprop="name">Concurrent</span></a>
                 </span>
             </span>
 
@@ -259,14 +263,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>7.3k</span>
+              <span>7.8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>12 分钟</span>
+              <span>13 分钟</span>
             </span>
 
         </div>
@@ -281,17 +285,42 @@
         <h1 id="基础知识">基础知识</h1>
 <h2 id="并发与并行">并发与并行</h2>
 <p>并发（Concurrent）与并行（Parallel）都是很常见的术语。 - Concurrent :
-two queues one coffee machine - Parallel : two queues one coffee
-machines ## 进程与线程 -
-进程（英语：process），是指计算机中已运行的程序。进程为曾经是分时系统的基本运作单位。在面向进程设计的系统（如早期的UNIX，Linux
-2.4及更早的版本）中，进程是程序的基本执行实体；</p>
+two queues one coffee machine - Parallel : two queues respectively one
+coffee machine</p>
+<span id="more"></span>
+<h2 id="进程与线程">进程与线程</h2>
 <ul>
-<li>线程（英语：thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。
+<li><p>进程（英语：process），是指计算机中已运行的程序。进程为曾经是分时系统的基本运作单位。在面向进程设计的系统（如早期的UNIX，Linux
+2.4及更早的版本）中，进程是程序的基本执行实体；</p></li>
+<li><p>线程（英语：thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。
 ## 并发系统的性能 阿姆达尔定律<a
 target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Amdahl%27s_law">Amdahl's
-law</a>。简单来说：我们想要预先意识到那些任务是可以并行的，那些是无法并行的。只有明确了任务的性质，才能有的放矢的进行优化。这个定律告诉了我们将系统并行之后性能收益的上限。</li>
+law</a>。简单来说：我们想要预先意识到那些任务是可以并行的，那些是无法并行的。只有明确了任务的性质，才能有的放矢的进行优化。这个定律告诉了我们将系统并行之后性能收益的上限。</p></li>
 </ul>
-<span id="more"></span>
+<h2 id="re-entrant-thread-safe-async-signal-safe">re-entrant、
+thread-safe、 async-signal safe</h2>
+<h3 id="re-entrant可重入">re-entrant（可重入）</h3>
+<p>A function is <strong>reentrant</strong> if:</p>
+<ul>
+<li>it can be <strong>interrupted at any point during its execution and
+then safely called again</strong> ("re-entered") before its previous
+invocations complete execution.</li>
+</ul>
+<h3 id="thread-safe线程安全">thread-safe（线程安全）</h3>
+<p>A function is <strong>thread-safe</strong> if:</p>
+<ul>
+<li>it only manipulates shared data structures in a manner that
+guarantees safe <strong>execution by multiple threads at the same
+time</strong>.</li>
+</ul>
+<p>常见的无锁编程提供的就是线程安全的接口。</p>
+<h3 id="async-signal-safe">async-signal safe</h3>
+<p>We say that a function that is <strong>safe to be reentered from an
+asynchronous signal handler</strong> is async-signal safe.</p>
+<h3 id="总结">总结</h3>
+<p>可重入并不保证线程安全，反之亦然，例子见<a
+target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Reentrancy_(computing)">wiki</a>。</p>
+<p>async-signal safe是增强版的re-entrant。</p>
 <h1 id="c并发编程api">C++并发编程API</h1>
 <p><code>thread</code>可以和<code>callable</code>类型一起工作，因此如果你熟悉<code>lambda表达式</code>，你可以直接用它来写线程的逻辑，像这样：
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">thread <span class="title">t</span><span class="params">([] &#123;</span></span></span><br><span class="line"><span class="params"><span class="function">  cout &lt;&lt; <span class="string">&quot;Hello World from lambda thread.&quot;</span> &lt;&lt; endl;</span></span></span><br><span class="line"><span class="params"><span class="function">&#125;)</span></span>;</span><br><span class="line"></span><br><span class="line">t.<span class="built_in">join</span>();</span><br></pre></td></tr></table></figure> or: <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">hello</span><span class="params">(string name)</span> </span>&#123;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Welcome to &quot;</span> &lt;&lt; name &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">  <span class="function">thread <span class="title">t</span><span class="params">(hello, <span class="string">&quot;zyh&quot;</span>)</span></span>;</span><br><span class="line">  t.<span class="built_in">join</span>();</span><br></pre></td></tr></table></figure> ## join与detach |API |说明| |-|-| |join
@@ -543,7 +572,7 @@ unique_lock ｜ 实现可移动的互斥体所有权包装器 ｜ ｜ shared_loc
 </ol>
 <p>需要注意的是，<code>future</code>对象只有被一个线程获取值。并且在调用<code>get()</code>之后，就没有可以获取的值了。如果从多个线程调用<code>get()</code>会出现数据竞争，其结果是未定义的。</p>
 <p>如果真的需要在多个线程中获取<code>future</code>的结果，可以使用<code>shared_future</code>。</p>
-<h3 id="总结">总结</h3>
+<h3 id="总结-1">总结</h3>
 <p>这三者分别工作在不同的抽象层次上。</p>
 <ol type="1">
 <li>async层次最高，你只需要给它提供一个函数，它就会返回一个future对象。接下来就只需等待结果了。</li>
@@ -626,12 +655,12 @@ unique_lock ｜ 实现可移动的互斥体所有权包装器 ｜ ｜ shared_loc
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/zyhjy/2023/05/19/Qemu%E4%BB%8B%E7%BB%8D/" rel="prev" title="Qemu介绍">
-      <i class="fa fa-chevron-left"></i> Qemu介绍
+    <a href="/zyhjy/2023/06/04/C++%E4%BE%AF%E6%8D%B7STL%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" rel="prev" title="C++并发编程">
+      <i class="fa fa-chevron-left"></i> C++并发编程
     </a></div>
       <div class="post-nav-item">
-    <a href="/zyhjy/2023/06/04/A%20Top-Down%20method%20for%20performance%20analysis%20and%20counters%20architecture/" rel="next" title="Topdown论文--ISPASS2014">
-      Topdown论文--ISPASS2014 <i class="fa fa-chevron-right"></i>
+    <a href="/zyhjy/2023/06/06/gmock/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -696,7 +725,8 @@ unique_lock ｜ 实现可移动的互斥体所有权包装器 ｜ ｜ shared_loc
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E4%B8%8E%E5%B9%B6%E8%A1%8C"><span class="nav-number">1.1.</span> <span class="nav-text">并发与并行</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#c%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8Bapi"><span class="nav-number">2.</span> <span class="nav-text">C++并发编程API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E6%AC%A1%E8%B0%83%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">一次调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#threadhardware_concurrency"><span class="nav-number">2.2.</span> <span class="nav-text">thread::hardware_concurrency()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%92%E6%96%A5%E4%BD%93%E4%B8%8E%E9%94%81"><span class="nav-number">2.3.</span> <span class="nav-text">互斥体与锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mutex"><span class="nav-number">2.3.1.</span> <span class="nav-text">mutex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E9%94%81%E5%AE%9A%E7%AE%97%E6%B3%95"><span class="nav-number">2.3.2.</span> <span class="nav-text">通用锁定算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E4%BA%92%E6%96%A5%E7%AE%A1%E7%90%86"><span class="nav-number">2.3.3.</span> <span class="nav-text">通用互斥管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F"><span class="nav-number">2.3.4.</span> <span class="nav-text">条件变量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#future"><span class="nav-number">2.4.</span> <span class="nav-text">future</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#async"><span class="nav-number">2.4.1.</span> <span class="nav-text">async</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#promise%E4%B8%8Efuture"><span class="nav-number">2.4.2.</span> <span class="nav-text">promise与future</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.4.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E8%A1%8C%E7%AE%97%E6%B3%95"><span class="nav-number">2.5.</span> <span class="nav-text">并行算法</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E4%B8%8E%E5%B9%B6%E8%A1%8C"><span class="nav-number">1.1.</span> <span class="nav-text">并发与并行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">进程与线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#re-entrant-thread-safe-async-signal-safe"><span class="nav-number">1.3.</span> <span class="nav-text">re-entrant、
+thread-safe、 async-signal safe</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#re-entrant%E5%8F%AF%E9%87%8D%E5%85%A5"><span class="nav-number">1.3.1.</span> <span class="nav-text">re-entrant（可重入）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#thread-safe%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8"><span class="nav-number">1.3.2.</span> <span class="nav-text">thread-safe（线程安全）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#async-signal-safe"><span class="nav-number">1.3.3.</span> <span class="nav-text">async-signal safe</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.3.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#c%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8Bapi"><span class="nav-number">2.</span> <span class="nav-text">C++并发编程API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E6%AC%A1%E8%B0%83%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">一次调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#threadhardware_concurrency"><span class="nav-number">2.2.</span> <span class="nav-text">thread::hardware_concurrency()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%92%E6%96%A5%E4%BD%93%E4%B8%8E%E9%94%81"><span class="nav-number">2.3.</span> <span class="nav-text">互斥体与锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mutex"><span class="nav-number">2.3.1.</span> <span class="nav-text">mutex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E9%94%81%E5%AE%9A%E7%AE%97%E6%B3%95"><span class="nav-number">2.3.2.</span> <span class="nav-text">通用锁定算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E4%BA%92%E6%96%A5%E7%AE%A1%E7%90%86"><span class="nav-number">2.3.3.</span> <span class="nav-text">通用互斥管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F"><span class="nav-number">2.3.4.</span> <span class="nav-text">条件变量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#future"><span class="nav-number">2.4.</span> <span class="nav-text">future</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#async"><span class="nav-number">2.4.1.</span> <span class="nav-text">async</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#promise%E4%B8%8Efuture"><span class="nav-number">2.4.2.</span> <span class="nav-text">promise与future</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">2.4.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E8%A1%8C%E7%AE%97%E6%B3%95"><span class="nav-number">2.5.</span> <span class="nav-text">并行算法</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -712,14 +742,14 @@ unique_lock ｜ 实现可移动的互斥体所有权包装器 ｜ ｜ shared_loc
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-count">67</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-count">41</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -764,12 +794,12 @@ unique_lock ｜ 实现可移动的互斥体所有权包装器 ｜ ｜ shared_loc
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">306k</span>
+    <span title="站点总字数">320k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">8:31</span>
+    <span title="站点阅读时长">8:53</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -901,6 +931,26 @@ unique_lock ｜ 实现可移动的互斥体所有权包装器 ｜ ｜ shared_loc
     
 
   
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
 
 <script>
 NexT.utils.loadComments(document.querySelector('#lv-container'), () => {

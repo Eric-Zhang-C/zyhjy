@@ -7,8 +7,8 @@
 <meta name="generator" content="Hexo 6.3.0">
 <meta name="referrer" content="no-referrer">
   <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/favicon-16x16-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
   <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
 
 <link rel="stylesheet" href="/zyhjy/css/main.css">
@@ -19,7 +19,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="爱小雅，爱生活，爱物理!">
@@ -85,7 +85,7 @@
   </style>
 </noscript>
 
-</head>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container">
@@ -306,6 +306,378 @@ registers代表这段内联汇编执行后，哪些寄存器的值被破坏，�
 <p>Check out the <a
 target="_blank" rel="noopener" href="https://www.ibiblio.org/gferg/ldp/GCC-Inline-Assembly-HOWTO.html">GCC
 Inline Assembly</a> for more info on how to get the most out of ASM.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/02/07/Qemu%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/02/07/Qemu%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/" class="post-title-link" itemprop="url">Qemu使用记录</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-02-07 17:28:50" itemprop="dateCreated datePublished" datetime="2023-02-07T17:28:50+08:00">2023-02-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>11k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>18 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="qemu说明">1. Qemu说明</h1>
+<ul>
+<li>通用的开源机器和用户空间模拟器和虚拟器</li>
+<li>具体内容见官网<code>https://github.com/qemu/qemu</code></li>
+<li>比如：Qemu可以模拟出一个ARM系统中的：CPU. 内存.
+IO设备等，然后在这个模拟层之上，可以跑一台ARM虚拟机，这个ARM虚拟机认为自己在和硬件进行打交道，但实际上这些硬件都是Qemu模拟出来的。</li>
+</ul>
+<h2 id="qemu的两种模式">Qemu的两种模式</h2>
+<ol type="1">
+<li>用户模式(User
+mode)：利用动态代码翻译机制来执行不同主机架构的代码，例如：在x86平台上模拟执行ARM代码，也就是说：我们写一条ARM指令，传入整个模拟器中，模拟器会把整个指令翻译成x86平台的指令，然后在x86的CPU中执行。</li>
+<li>系统模式(System mode)：模拟整个电脑系统，利用其它VMM(Xen,
+KVM)来使用硬件提供的虚拟化支持，创建接近于主机性能的全功能虚拟机。</li>
+</ol>
+<h1 id="qemu执行流程">2. qemu执行流程</h1>
+<h2 id="宏">0. 宏</h2>
+<ul>
+<li><code>#ifdef PPI_QR_FUNC</code> 宏是我们所有改动加的宏 ## 1.
+qemu启动</li>
+<li>file: softmmu/vl.c</li>
+<li>初始化参数</li>
+<li>调用vcpu初始化。 ## 2. vcpu初始化</li>
+<li>file: target/arm/cpu64.c</li>
+<li>func:
+<ul>
+<li>aarch64_cpu_class_init</li>
+<li>aarch64_cpu_instance_init
+<ul>
+<li>对cpu实例进行初始化</li>
+<li>共享内存初始化(包括qemu要用的向gem5传输的共享内存)
+<ul>
+<li>ringbuf_init 进行初始化环形队列。</li>
+<li>第二块共享内存是shm_init。</li>
+</ul></li>
+<li>每个qemu vcpu会初始化调用一次aarch64_cpu_instance_init
+<ul>
+<li>eg：run.sh里是16 cpu，那么就调用16次aarch64_cpu_instance_init，所以
+也会初始化16个ringbuf_init，共享内存队列，每个核维护一个。key_insoff+channel_d+i是每个共享内存的id。</li>
+</ul></li>
+<li>这里面的cpu以及cpu-&gt;env就是
+qemu的vcpu，其中cpu-&gt;env就是cpuarmstate。这个时候已经初始化完毕。 ##
+3. 翻译</li>
+</ul></li>
+</ul></li>
+<li>初始化之后开始主流程翻译</li>
+<li>翻译是两步，
+<ol type="1">
+<li>guest-&gt;ir</li>
+<li>ir-&gt;host</li>
+</ol>
+<ul>
+<li>eg: 也就是比如 用户程序是 arm，arm-&gt;ir ir-&gt;x86
+code，host运行x86
+code。如果是用户程序是x86，host也是，那么不用翻译，直接在host上执行。
+### guest-&gt;ir</li>
+</ul></li>
+</ul>
+<ol type="1">
+<li>调用<code>tb_find</code>[accel/tcg/cpu-exec.c]
+<ul>
+<li>找是否有翻译过,若无则进行2.(刚开始肯定无)</li>
+</ul></li>
+<li>调用<code>tb_gen_code</code>[accel/tcg/cpu-exec.c]
+<ul>
+<li>翻译主函数</li>
+</ul></li>
+<li>这个又调用gen_intermediate_code，
+<ul>
+<li>进行guest-&gt;ir的翻译。</li>
+</ul></li>
+<li>上面又继续调用translator_loop
+<ul>
+<li>来到accel/tcg/translator.c。</li>
+<li>translator_loop 函数 对tb里的每一个指令 进行翻译。</li>
+<li>while (true)就是每条指令循环翻译。</li>
+</ul></li>
+<li>aarch64_tr_translate_insn函数。
+<ul>
+<li>添加函数名，target/arm/translate-a64.c</li>
+</ul></li>
+<li>调用disas_a64_insn
+<ul>
+<li>就是每个指令进行decoder</li>
+<li>里面switch (extract32(insn, 25, 4)) { 看是哪类指令。</li>
+</ul></li>
+</ol>
+<ul>
+<li>至此完成了 guest-&gt;ir的翻译。 ### ir-&gt;host的暂不考虑</li>
+</ul>
+<h2 id="执行">4. 执行</h2>
+<ul>
+<li>翻译之后，host代码已经生成，需要执行。</li>
+<li>我们采用在guest的tb开始和结束前插callback函数的方式
+<ul>
+<li>target/arm/translate.c 里的函数
+<ul>
+<li>helper_start_callback插在tb执行开始前的。插在它tb guest的开头，</li>
+<li><code>helper_end_callback</code>在结尾</li>
+<li>会随tb一起翻译。</li>
+</ul></li>
+</ul></li>
+<li>那么执行就是先 helper_start_callback -&gt; tb -&gt;
+helper_end_callback</li>
+<li>当执行helper_end_callback的时候，整个tb都执行好了。</li>
+<li>所以可以对下一个执行的tb进行预测。</li>
+<li>tb-&gt;tt里存放我们记下来的tb的trace，包括 pc insn。</li>
+<li>env-&gt;sendbuf-&gt;real_insn_num记了tb的实际指令数。</li>
+<li>helper_end_callback调用lookupAndUpdateNextPC预测。</li>
+<li>执行tb 是一串二进制代码，无法代码操作。 只能通过cb来操作。</li>
+<li>bt-&gt;IsControl 是true 说明是分支指令，需要存。所以在这里可以存cpu
+state</li>
+</ul>
+<h3 id="内存处理">内存处理</h3>
+<ul>
+<li>主函数如果是ld st指令</li>
+<li>mem信息我们额外插了cb进行收集mem 访存信息。</li>
+<li>ppi_insert_mem_st[tcg/tcg-op.c]进行ld st插桩。
+<ul>
+<li>函数体insert_mem_st[target/arm/translate.c]<br />
+</li>
+</ul></li>
+<li><code>helper_load_callback</code> 里，env-&gt;sendbuf 是 cpu
+armstate结构体里划出来的一块临时内存。</li>
+<li>mem cb里会将mem trace 记在这里。</li>
+<li>env里是否有mem的寄存器信息？</li>
+<li>到end
+cb的时候，helper_load_callback里的所有东西都记好了，env的sendbuf里有完整的tb里的mem
+insn trace</li>
+</ul>
+<h2 id="qemu主函数调用">qemu主函数调用</h2>
+<ol type="1">
+<li><p>main[./softmmu/vl.c]</p></li>
+<li><p>aarch64_cpu_instance_init[target/arm/cpu64.c]</p></li>
+<li><p>aarch64_cpu_class_init[target/arm/cpu64.c]</p></li>
+<li><p>cpu_exec[accel/tcg/cpu-exec.c]</p>
+<ul>
+<li>main execution loop</li>
+</ul>
+<ol type="1">
+<li>tb_gen_code[accel/tcg/translate-all.c]
+<ul>
+<li>生成下一个tb块代码</li>
+</ul>
+<ol type="1">
+<li>cpu_loop_exit[accel/tcg/cpu-exec-common.c]
+<ul>
+<li>exit the current TB</li>
+<li>抛出异常时触发</li>
+</ul>
+<ol type="1">
+<li>helper_end_callback[target/arm/translate.c]
+<ul>
+<li>移植了gem5的分支预测器</li>
+</ul></li>
+</ol></li>
+</ol></li>
+<li>cpu_loop_exec_tb[accel/tcg/cpu-exec.c]
+<ol type="1">
+<li>cpu_tb_exec[accel/tcg/cpu-exec.c]</li>
+</ol></li>
+</ol></li>
+<li><p>cpu_exec_exit[accel/tcg/cpu-exec.c]</p></li>
+</ol>
+<ul>
+<li>退出qemu<code>ctrl+A+X</code></li>
+</ul>
+<h1 id="问题">问题</h1>
+<p>分支预测加在了每个tb运行结束的末尾，在运行到tb末尾时进行预测
+当下一个tb运行完之后，取出该tb的头地址，并与上次预测结果比对验证</p>
+<p>checkpoint是系统层面的快照接口 在程序内部调用不好处理</p>
+<p>接下来首先篡改执行的tb路径，即迫使qemu按照分支预测结果执行</p>
+<p>在cpu_exec中主循环通过调用tb_lookup/tb_gen_code来获得下一个执行的tb
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tb = tb_lookup(cpu, pc, cs_base, flags, cflags);</span><br><span class="line">tb = tb_gen_code(cpu, pc, cs_base, flags, cflags);</span><br></pre></td></tr></table></figure>
+我们可以通过改变cpu的pc来控制下一个tb，既可以迫使其走上错误分支，也可以再恢复状态后安排它执行正确的pc
+pc在这里取出<code>cpu_get_tb_cpu_state(cpu-&gt;env_ptr, &amp;pc, &amp;cs_base, &amp;flags);</code>，根据<code>cpu-&gt;env_ptr</code>内的值
+这个指针实际指向CPUARMState
+cpu_get_tb_cpu_state[target/arm/helper.c]中pc的值分两种情况 pc /
+regs[15] 怎么选取?</p>
+<p>core的时候打屏可以 写文件不行</p>
+<ul>
+<li>s0, add a new file to do the following things</li>
+<li>s1, todo: secondery pointer, deep copy the whole struct</li>
+<li>s2, todo: backup the memory</li>
+<li>s3, checkpoint?</li>
+<li>当前仅修改pc，不做备份，只为了篡改执行路径</li>
+</ul>
+<p>分支当前的pc是tb块的最后一条指令(有时为跳转指令)的pc</p>
+<p>Tiny Code Generator (TCG)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tb_trace</span>&#123;</span></span><br><span class="line">    <span class="type">int</span> insn_num;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> pc_start;     <span class="comment">/* tb first pc */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">trace_info</span> <span class="title">ti</span>[512];</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TranslationBlock</span> &#123;</span></span><br><span class="line">    target_ulong pc;   <span class="comment">/* simulated PC corresponding to this block (EIP + CS base) */</span></span><br><span class="line">    target_ulong cs_base; <span class="comment">/* CS base for this block */</span></span><br><span class="line">    <span class="type">uint32_t</span> flags; <span class="comment">/* flags defining in which context the code was generated */</span></span><br><span class="line">    <span class="type">uint32_t</span> cflags;    <span class="comment">/* compile flags */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Per-vCPU dynamic tracing state used to generate this TB */</span></span><br><span class="line">    <span class="type">uint32_t</span> trace_vcpu_dstate;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Above fields used for comparing</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* size of target code for this block (1 &lt;= size &lt;= TARGET_PAGE_SIZE) */</span></span><br><span class="line">    <span class="type">uint16_t</span> size;</span><br><span class="line">    <span class="type">uint16_t</span> icount;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tb_tc</span> <span class="title">tc</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* first and second physical page containing code. The lower bit</span></span><br><span class="line"><span class="comment">       of the pointer tells the index in page_next[].</span></span><br><span class="line"><span class="comment">       The list is protected by the TB&#x27;s page(&#x27;s) lock(s) */</span></span><br><span class="line">    <span class="type">uintptr_t</span> page_next[<span class="number">2</span>];</span><br><span class="line">    <span class="type">tb_page_addr_t</span> page_addr[<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* jmp_lock placed here to fill a 4-byte hole. Its documentation is below */</span></span><br><span class="line">    QemuSpin jmp_lock;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* The following data are used to directly call another TB from</span></span><br><span class="line"><span class="comment">     * the code of this one. This can be done either by emitting direct or</span></span><br><span class="line"><span class="comment">     * indirect native jump instructions. These jumps are reset so that the TB</span></span><br><span class="line"><span class="comment">     * just continues its execution. The TB can be linked to another one by</span></span><br><span class="line"><span class="comment">     * setting one of the jump targets (or patching the jump instruction). Only</span></span><br><span class="line"><span class="comment">     * two of such jumps are supported.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">uint16_t</span> jmp_reset_offset[<span class="number">2</span>]; <span class="comment">/* offset of original jump target */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TB_JMP_RESET_OFFSET_INVALID 0xffff <span class="comment">/* indicates no jump generated */</span></span></span><br><span class="line">    <span class="type">uintptr_t</span> jmp_target_arg[<span class="number">2</span>];  <span class="comment">/* target address or offset */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Each TB has a NULL-terminated list (jmp_list_head) of incoming jumps.</span></span><br><span class="line"><span class="comment">     * Each TB can have two outgoing jumps, and therefore can participate</span></span><br><span class="line"><span class="comment">     * in two lists. The list entries are kept in jmp_list_next[2]. The least</span></span><br><span class="line"><span class="comment">     * significant bit (LSB) of the pointers in these lists is used to encode</span></span><br><span class="line"><span class="comment">     * which of the two list entries is to be used in the pointed TB.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * List traversals are protected by jmp_lock. The destination TB of each</span></span><br><span class="line"><span class="comment">     * outgoing jump is kept in jmp_dest[] so that the appropriate jmp_lock</span></span><br><span class="line"><span class="comment">     * can be acquired from any origin TB.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * jmp_dest[] are tagged pointers as well. The LSB is set when the TB is</span></span><br><span class="line"><span class="comment">     * being invalidated, so that no further outgoing jumps from it can be set.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * jmp_lock also protects the CF_INVALID cflag; a jump must not be chained</span></span><br><span class="line"><span class="comment">     * to a destination TB that has CF_INVALID set.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">uintptr_t</span> jmp_list_head;</span><br><span class="line">    <span class="type">uintptr_t</span> jmp_list_next[<span class="number">2</span>];</span><br><span class="line">    <span class="type">uintptr_t</span> jmp_dest[<span class="number">2</span>];</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> PPI_QR_FUNC</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tb_trace</span> *<span class="title">tt</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tb_mem</span> *<span class="title">tm</span>;</span></span><br><span class="line">    <span class="type">int</span> cpu_id;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>{standard input}: Assembler messages: {standard input}:166160:
+Warning: end of file not at end of a line; newline inserted {standard
+input}:166333: Error: expected comma after name
+`_ZNSt8_Rb_treeIiSt4pairIKiSt3setI11met' in .size directive
+x86_64-xxx-linux-g++: internal compiler error: Killed (program cc1plus)
+Please submit a full bug report, with preprocessed source if
+appropriate. See for instructions. make[3]: *** [mds/Server.lo] Error 1
+make[3]: *** Waiting for unfinished jobs....</p>
+<p>这个错误的原因通常是，host机器内存不够导致的。
+解决的办法是增加内存。硬件上的增加内存可以解决，或者kill系统当前其他的applications。甚至重新启动host，给编译器一个较为宽松的运行环境</p>
+<p>QEMU以TB为单位进行翻译并执行。这也就是说每当在code
+cache执行完一个TB之后，控制权必须交还给QEMU。这很没有效率。所以只要TB执行完之后，它的跳跃目标确定且该跳跃目标也已经在code
+cache里，那我们就把这两个TB串接起来。这个就叫做block
+chaining。有时QEMU开始执行一个基本块，然后被中断。然后，它可能会从一开始就重新执行该块，或者转换尚未执行的块的一部分并执行它。这将导致edge
+map中出现一些额外的edge。所以首先禁用QEMU的chaining特性。</p>
+<p>Tcgout branch生成两条 条件分支 一条b翻译成四条 非条件 条件 8条 jmmj
+tcg_out_bl 条件跳转 翻译成call指令 改pc calue target
+Guest知道bb最后一条</p>
+<p>Tcg gencode预测 翻译的时候记录指令 在此之前disas已经完成
+在这里插入跳转指令</p>
+<p>2&gt; 输出系统错误</p>
+<p>guest -&gt; ir -&gt; host</p>
+<p>printf会影响回调函数的个数?</p>
+<ol type="1">
+<li>start_callback
+是当前block执行前执行的函数，在里面对当前block的最后一条分支指令进行分支预测。</li>
+<li>在当前block跳转指令执行前确定分支指令的跳转情况，用这个真实的跳转信息更新预测器</li>
+<li>修改ir的目标地址，使得下一个block为预测方向的block</li>
+<li>在错误路径执行N个block后恢复上次保存的信息，恢复到正常流程(N可以先写个固定的interval
+比如5个block)</li>
+</ol>
+<ul>
+<li>cpu_gen_code 負責 guest binary → TCG IR → host binary 的翻譯。
+<ul>
+<li>gen_intermediate_code_internal (target-*/translate.c) 初始化並呼叫
+disas_insn 反組譯 guest binary 成 TCG IR。
+<ul>
+<li>disas_insn 呼叫 tcg_gen_xxx (tcg/tcg-op.h) 產生 TCG IR。分別將
+opcode 寫入 gen_opc_ptr 指向的緩衝區 (translate-all.c 裡的 gen_opc_buf);
+operand 寫入 gen_opparam_ptr 指向的緩衝區 (translate-all.c 裡的
+gen_opparam_buf )。</li>
+</ul></li>
+<li>tcg_gen_code (tcg/tcg.c) 呼叫 tcg_gen_code_common (tcg/tcg.c) 將 TCG
+IR 轉成 host binary</li>
+</ul></li>
+<li>tb_find_fast/slow 傳回 translation block 後，交給 tcg_qemu_tb_exec
+執行。</li>
+</ul>
+<ol start="0" type="1">
+<li>插桩 start_cb, 插在BB块开始的部分，会随着BB一起翻译、执行</li>
+<li>翻译代码 Guest ---(teg_gen)--&gt; IR ---(tcg_out)--&gt; Host
+<ul>
+<li>aarch64_tr_translate_insn 调用tcg_gen</li>
+<li>在tcg_out_xxx中插桩，在执行阶段中会被执行</li>
+</ul></li>
+<li>执行host代码</li>
+</ol>
+<h2 id="以cbz指令为例">以cbz指令为例</h2>
+<p>Guest(arrch64) ---(teg_gen)--&gt; IR ---(tcg_out)--&gt; Host(i386)
+tcg_gen_brcondi_i64(tcg/tcg-op.c)生成 ir</p>
+<p>brcond_i64 tmp2,<span class="math inline">\(0x0,eq,\)</span>L1</p>
+<p>目标 找到一条arrch64的分支指令究竟被翻译成了哪些IR
+这些IR又变成了哪些host指令(i386) 然后
+在tcg_out中插桩，获得我想要的真实信息，篡改执行的BB块</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title function_">tcg_out_op</span><span class="params">(TCGContext* s, TCGOpcode opc, <span class="type">const</span> TCGArg* args, <span class="type">const</span> <span class="type">int</span>* const_args)</span></span><br><span class="line">&#123;</span><br><span class="line">    TCGArg a0, a1, a2;</span><br><span class="line">    <span class="type">int</span> c, const_a2, vexop, rexw = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 获取最常见的参数 Hoist the loads of the most common arguments.  */</span></span><br><span class="line">    a0 = args[<span class="number">0</span>];     <span class="comment">// = TCG_REG_EBP, 代表要比较的寄存器</span></span><br><span class="line">    a1 = args[<span class="number">1</span>];    <span class="comment">// = 0, 要比较的常数</span></span><br><span class="line">    a2 = args[<span class="number">2</span>];    <span class="comment">// = 0x9, 表示分支的条件</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (opc) &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">case</span> INDEX_op_brcond_i32:</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">            a2: 表示分支条件; </span></span><br><span class="line"><span class="comment">            a0 a1为要比较的变量和值, </span></span><br><span class="line"><span class="comment">            const_args[1]: 表示a1是否为常数</span></span><br><span class="line"><span class="comment">            arg_label(args[3]): 表示跳转目标的标签</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        tcg_out_brcond32(s, a2, a0, a1, const_args[<span class="number">1</span>], arg_label(args[<span class="number">3</span>]), <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">accel/tcg/translate-all.c::tb_gen_code --&gt;&gt; </span><br><span class="line">tcg/tcg.c::tcg_gen_code --&gt;&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TCGContext</span> &#123;</span></span><br><span class="line">    ...;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> gen_next_op_idx;    <span class="comment">//写入下一个操作码的位置</span></span><br><span class="line">    <span class="type">int</span> gen_next_parm_idx;    <span class="comment">//写入下一个操作数的位置</span></span><br><span class="line"></span><br><span class="line">    ...;</span><br><span class="line"></span><br><span class="line">    TCGOp gen_op_buf[OPC_BUF_SIZE]; <span class="comment">//保存生成的中间指令</span></span><br><span class="line">    TCGArg gen_opparam_buf[OPPARAM_BUF_SIZE];   <span class="comment">//保存中间指令的操作数</span></span><br><span class="line"></span><br><span class="line">    <span class="type">uint16_t</span> gen_insn_end_off[TCG_MAX_INSNS];</span><br><span class="line">    target_ulong gen_insn_data[TCG_MAX_INSNS][TARGET_INSN_START_WORDS];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    ...;</span><br><span class="line">    <span class="comment">/// 放Host指令的地方</span></span><br><span class="line">    <span class="type">void</span> *code_gen_buffer;      <span class="comment">//保存生成的指令的缓冲区</span></span><br><span class="line">    <span class="type">size_t</span> code_gen_buffer_size;    <span class="comment">//缓冲区大小</span></span><br><span class="line">    <span class="type">void</span> *code_gen_ptr;     <span class="comment">//写入下一个生成指令的位置, 位于code_gen_buffer内部</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">TCGCond</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    <span class="comment">/* non-signed */</span></span><br><span class="line">    TCG_COND_NEVER  = <span class="number">0</span> | <span class="number">0</span> | <span class="number">0</span> | <span class="number">0</span>,</span><br><span class="line">    TCG_COND_ALWAYS = <span class="number">0</span> | <span class="number">0</span> | <span class="number">0</span> | <span class="number">1</span>,</span><br><span class="line">    TCG_COND_EQ     = <span class="number">8</span> ,</span><br><span class="line">    TCG_COND_NE     = <span class="number">9</span>,</span><br><span class="line">    <span class="comment">/* signed */</span></span><br><span class="line">    TCG_COND_LT     = <span class="number">0</span> | <span class="number">0</span> | <span class="number">2</span> | <span class="number">0</span>,</span><br><span class="line">    TCG_COND_GE     = <span class="number">0</span> | <span class="number">0</span> | <span class="number">2</span> | <span class="number">1</span>,</span><br><span class="line">    TCG_COND_LE     = <span class="number">8</span> | <span class="number">0</span> | <span class="number">2</span> | <span class="number">0</span>,</span><br><span class="line">    TCG_COND_GT     = <span class="number">8</span> | <span class="number">0</span> | <span class="number">2</span> | <span class="number">1</span>,</span><br><span class="line">    <span class="comment">/* unsigned */</span></span><br><span class="line">    TCG_COND_LTU    = <span class="number">0</span> | <span class="number">4</span> | <span class="number">0</span> | <span class="number">0</span>,</span><br><span class="line">    TCG_COND_GEU    = <span class="number">0</span> | <span class="number">4</span> | <span class="number">0</span> | <span class="number">1</span>,</span><br><span class="line">    TCG_COND_LEU    = <span class="number">8</span> | <span class="number">4</span> | <span class="number">0</span> | <span class="number">0</span>,</span><br><span class="line">    TCG_COND_GTU    = <span class="number">8</span> | <span class="number">4</span> | <span class="number">0</span> | <span class="number">1</span>,</span><br><span class="line">&#125; TCGCond;</span><br></pre></td></tr></table></figure>
+<p>armv8指令手册 page202 Unconditional branch BL Branch with link BR
+Branch to register BLR Branch with link to register</p>
+<p>Conditional branch B.cond Branch conditionally CBNZ Compare and
+branch if nonzero CBZ Compare and branch if zero TBNZ Test bit and
+branch if nonzero TBZ Test bit and branch if zero</p>
+<p>翻译的时候已经拿到预测结果 所以可以强行在tcg_out加跳转指令，
+但是同时还需要知道真实的跳转指令，以便决定后面是否需要恢复
+我可以利用重定向来进行篡改</p>
+<h1 id="prologue初始化">prologue初始化</h1>
+<ul>
+<li>prologue 用来切换 qemu 代码和 code cache 的代码上下文，在
+tcg_prologue_init(tcg_ctx) 调用 host 的 tcg_target_qemu_prologue
+来组装这块代码。</li>
+</ul>
+<p>在x86上组装出来的代码如下: <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">0x5644ca0ab000:  push   %rbp               //函数调用过程中将callee saved的入栈保存,完成了callee本身需要做的事情，因此在执行tb代码时可以使用所有的寄存器，在tb执行过程中不遵循函数调用的接口规范了</span><br><span class="line">0x5644ca0ab001:  push   %rbx  </span><br><span class="line">0x5644ca0ab002:  push   %r12  </span><br><span class="line">0x5644ca0ab004:  push   %r13  </span><br><span class="line">0x5644ca0ab006:  push   %r14  </span><br><span class="line">0x5644ca0ab008:  push   %r15  </span><br><span class="line">0x5644ca0ab00a:  mov    %rdi,%r14      //env到r14中，本身指向CPULOONGARCHState的对象，tb操作的对象都在</span><br><span class="line">0x5644ca0ab00d:  add    $0xfffffffffffffb78,%rsp      //</span><br><span class="line">0x5644ca0ab014:  jmpq   *%rsi      //跳转的tb的起始位置</span><br><span class="line"></span><br><span class="line">0x5644ca0ab016:  xor    %eax,%eax           //epilogue位置，返回值为0. 主要是为了goto_ptr使用</span><br><span class="line">0x5644ca0ab018:  add    $0x488,%rsp      //正常退出</span><br><span class="line">0x5644ca0ab01f:  emms   </span><br><span class="line">0x5644ca0ab022:  pop    %r15          //saved寄存器出栈</span><br><span class="line">0x5644ca0ab024:  pop    %r14  </span><br><span class="line">0x5644ca0ab026:  pop    %r13  </span><br><span class="line">0x5644ca0ab028:  pop    %r12  </span><br><span class="line">0x5644ca0ab02a:  pop    %rbx  </span><br><span class="line">0x5644ca0ab02b:  pop    %rbp  </span><br><span class="line">0x5644ca0ab02c:  retq                    //退出到qemu中</span><br></pre></td></tr></table></figure></p>
+<h1 id="frontend的翻译">frontend的翻译</h1>
+<ul>
+<li>在target指令翻译过程TB以跳转指令结束，其他指令只需要根据语义翻译成IR指令就可以。
+<ul>
+<li>其中比较特殊的是跳转指令，TB开始和TB结束时的一些特殊代码. ##
+TB开始位置: <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gen_tb_start</span><br><span class="line">    ld_i32 tmp0,env,$0xffffffffffffffe4        //env指向CPULOONGARCHState，偏移是CPUState.icount_decr.u32相对于env的偏移;</span><br><span class="line">    movi_i32 tmp1,$0x0</span><br><span class="line">    brcond_i32 tmp0,tmp1,lt,$L0        //如果icount_decr.u32小于0则跳转到label 0处</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+</ul>
+<p>参考文档:
+https://qemu.readthedocs.io/en/latest/devel/tcg-icount.html</p>
+<ul>
+<li>icount只有在SOFTMMU中才有用，并且不能用在multi-threaded TCG
+中，主要用于执行过程中指令的计数，后面详细再讲。</li>
+</ul>
+<h2 id="tb结束">TB结束:</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gen_tb_end</span><br><span class="line">   set_label $L0            //生成一个label 0，给`br $label`或者`brcond_i32/i64 label`，`goto_tb`这些提供錨点</span><br><span class="line">   exit_tb $0x55f975f8bec3     //退出到tb_ret_addr</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -716,192 +1088,6 @@ page。注意! guest binary 有可能跨guest page，故这里有两个栏位。
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/" class="post-title-link" itemprop="url">ARM64汇编</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-11-15 22:28:50" itemprop="dateCreated datePublished" datetime="2022-11-15T22:28:50+08:00">2022-11-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="寄存器">寄存器</h1>
-<ul>
-<li>在arm64架构下，所有的寄存器都是64位，并且每个寄存器都有名字的，按照功能来划分，可分为一下几类，分别为：
-<ol type="1">
-<li>通用寄存器</li>
-<li>程序计数器</li>
-<li>堆栈指针</li>
-<li>链接寄存器</li>
-<li>程序状态寄存器</li>
-<li>零寄存器</li>
-</ol></li>
-<li>下面分别说明这些寄存器的作用</li>
-</ul>
-<h2 id="通用寄存器">通用寄存器</h2>
-<ul>
-<li>64bit : x0 ~ x28 ，每个寄存器都是64bit</li>
-<li>32bit：w0 ~ w28，实际上是x0~x28寄存器的低32bit</li>
-<li>x0~x7：通过用来存储函数的参数，如果函数有更多的参数使用堆栈来传递</li>
-<li>x0：通常用来存放函数的返回值</li>
-</ul>
-<h2 id="程序计数器">程序计数器</h2>
-<ul>
-<li>程序计数器叫<code>Program Counter</code>，俗称<code>PC</code>，也就是<code>x32</code>寄存器，存储着CPU当前正在执行的地址。</li>
-</ul>
-<h2 id="堆栈指针">堆栈指针</h2>
-<ul>
-<li><code>SP</code>
-(<code>Stack Pointer</code>)，就是<code>x31</code>寄存器，存储的是栈顶的地址</li>
-<li><code>FP</code>
-(<code>Frame Pointer</code>)，<code>FP</code>也就是<code>x29</code>寄存器，存储着栈底的地址</li>
-<li>随着函数的调用，<code>SP</code>、<code>FP</code>会不断的变化。</li>
-</ul>
-<h2 id="链接寄存器">链接寄存器</h2>
-<p><code>LR</code>（<code>Link Register</code>），也就是<code>x30</code>寄存器，存储着函数的返回地址。
--
-当函数结束时，就是通过LR寄存器的值，跳转到调用函数的位置继续往下执行。</p>
-<h2 id="程序状态寄存器">程序状态寄存器</h2>
-<ul>
-<li><code>CPSR</code>
-(<code>Current Program Status Register</code>)</li>
-<li><code>SPSR</code>
-(<code>Saved Program Status Register</code>)，在异常状态下使用，当发生异常时，会把<code>CPSR</code>的内容写入<code>SPSR</code>,
-等异常恢复之后，又会把<code>SPSR</code>写会到<code>CPSR</code>中。</li>
-</ul>
-<p>零寄存器 WZR XZR 里面存储的值都是0。</p>
-<p>常用指令 算术运算指令 mov 赋值指令</p>
-<p>mov x0, #2 // 把2这个值赋值给x0寄存器 mov x0, x1 //
-把x1寄存器中的值赋值给x0寄存器中 add
-两个操作数相加，相加的结果存放到一个寄存器中</p>
-<p>add, x2, x0, x1 //把x0的值与x1的值相加，得到的结果存放到x2寄存器中
-add, x2, x0, #3 // 把x0的值与3相加，得到的结果存放到x2寄存器中 sub
-第一个操作数减第一个操作数，得到的结果存放到一个寄存器中</p>
-<p>sub, x2, x1, x0 //
-x1的值减去x0的值，得到的结果存放到<em>x2</em>寄存器中 sub, x2, x1, #4 //
-x1的值减去4，得到的结果存放到x2寄存器中 mul 乘法指令</p>
-<p>mul x3, x1, x2 // x1 乘以 x2 的结果存放在 x3 中 sdiv 除法指令</p>
-<p>sdiv w0, w0, w1 // w0 除以 w1 的结果存放在 w0 中 逻辑运算指令
-这里的运算是指位运算</p>
-<p>LSL 逻辑左移 按操作数所指定的数量向左移位，低位用零来填充 ASL
-算术左移 通逻辑左移，ASL 与 LSL等价 lsl x0, x0, #1 asl x1, x1, x0 LSR
-逻辑右移 按操作数所指定的数量向右移位，左端用零来填充。</p>
-<p>ASR 算术右移 按操作数所指定的数量向右移位，左端用最高位位的值来填充
-，如果是负数，最高位为1</p>
-<p>lsr w1, w2, #1 asr x1, x2, #2 ROR 循环右移
-按操作数所指定的数量向右循环移位，
-左端用右端移出的位来填充。其中，操作数可以是通用寄存器，也可以是立即数。
-当进行寄存器bit位数的循环右移操作时，通用寄存器中的值不改变。 ror x0, #6
-ror w0, #32 // 循环移动了32位，w0的值不变 跳转指令 ret
-相当于高级编程语言的return，函数返回。</p>
-<p>cmp 将两个操作数相减，相减的结果会影响cpsr
-寄存器的标志位，当结果小于0时，CPSR寄存器的N位为1， 等于0时，
-CPSR寄存器的Z为位1。 cmp x0, x1</p>
-<p>b
-跳转指令，跳转找指定的标记处执行；可以带条件跳转，一般跟cmp配合使用，使用到的条件域如下：</p>
-<p>EQ：equal NE：not equal GT：great than GE：great equal LT：less than
-LE：less equal 普通跳转 b testCode，testCode是汇编代码中的一个标记</p>
-<p>条件跳转，当x0和x1的值相等时，才跳转到testCode标记处执行代码</p>
-<p>cmp x0, x1 beq testCode bl
-带返回值的跳转指令，这个指令会做两个操作</p>
-<p>将下一条指令的地址存储到lr （x30）寄存器中 跳转到标记处开始执行代码
-bl
-testCode，当执行完testCode标记处代码后，又会返回来执行bl指令下面的指令。
-内存操作 load从内存中读取数据</p>
-<p>ldr 地址没有偏移或者偏移为正数时使用 ldur 地址偏移为负数时使用 a) str
-x5 [x0] x0中是内存的地址，读取的值存放在x5寄存器中, x寄存器读取8个字节
-b）str w6 [x0] x0中是内存的地址，读取的值存放在w5寄存器中,
-w寄存器读取4个字节 说明: 地址还可以偏移 str x5 [x0, #0x4] , stur x5 [x0,
-#-0x4] ,
-偏移量为正数往高地址偏移，使用str指令、偏移量为负数往低地址偏移，使用stur指令。</p>
-<p>ldp 从指定内存中读取数据到一对寄存器中， p 是
-pair的意思，这一对寄存器必须是同类型的，要么x类型,
-要么w类型。其中低位读取到第一个寄存器、高位读取到第二个寄存器 ldp w5,
-w6, [x0] , 地址可以偏移 ldp x5, x6, [x0, #-x04] store
-往指定的内存写入数据</p>
-<p>str str x1, [x0] str w2, [x1] str w3, [x1, #4] stur stur x3, [x0,
-#-4] stur w2, [x1, #-4] stp stp x2, x3, [x0] stp w4, w5, [x0]
-使用方法与从内存中读取数据类似，只不过是往内存写入数据。</p>
-<p>总结
-本文整理了一些在逆向iOS程序时常见的一些汇编指令，当然在实际逆向的过程所看到的汇编指令更加复杂，比如还有函数调用栈，这是下篇的内容。如有错误请指正。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/11/15/Effective%20C++(6)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1222,6 +1408,192 @@ reference/pointer可以完成任务，就不要使用object</li>
 <li>export关键字同样可以，但很少使用</li>
 </ul></li>
 </ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/" class="post-title-link" itemprop="url">ARM64汇编</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-11-15 22:28:50" itemprop="dateCreated datePublished" datetime="2022-11-15T22:28:50+08:00">2022-11-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="寄存器">寄存器</h1>
+<ul>
+<li>在arm64架构下，所有的寄存器都是64位，并且每个寄存器都有名字的，按照功能来划分，可分为一下几类，分别为：
+<ol type="1">
+<li>通用寄存器</li>
+<li>程序计数器</li>
+<li>堆栈指针</li>
+<li>链接寄存器</li>
+<li>程序状态寄存器</li>
+<li>零寄存器</li>
+</ol></li>
+<li>下面分别说明这些寄存器的作用</li>
+</ul>
+<h2 id="通用寄存器">通用寄存器</h2>
+<ul>
+<li>64bit : x0 ~ x28 ，每个寄存器都是64bit</li>
+<li>32bit：w0 ~ w28，实际上是x0~x28寄存器的低32bit</li>
+<li>x0~x7：通过用来存储函数的参数，如果函数有更多的参数使用堆栈来传递</li>
+<li>x0：通常用来存放函数的返回值</li>
+</ul>
+<h2 id="程序计数器">程序计数器</h2>
+<ul>
+<li>程序计数器叫<code>Program Counter</code>，俗称<code>PC</code>，也就是<code>x32</code>寄存器，存储着CPU当前正在执行的地址。</li>
+</ul>
+<h2 id="堆栈指针">堆栈指针</h2>
+<ul>
+<li><code>SP</code>
+(<code>Stack Pointer</code>)，就是<code>x31</code>寄存器，存储的是栈顶的地址</li>
+<li><code>FP</code>
+(<code>Frame Pointer</code>)，<code>FP</code>也就是<code>x29</code>寄存器，存储着栈底的地址</li>
+<li>随着函数的调用，<code>SP</code>、<code>FP</code>会不断的变化。</li>
+</ul>
+<h2 id="链接寄存器">链接寄存器</h2>
+<p><code>LR</code>（<code>Link Register</code>），也就是<code>x30</code>寄存器，存储着函数的返回地址。
+-
+当函数结束时，就是通过LR寄存器的值，跳转到调用函数的位置继续往下执行。</p>
+<h2 id="程序状态寄存器">程序状态寄存器</h2>
+<ul>
+<li><code>CPSR</code>
+(<code>Current Program Status Register</code>)</li>
+<li><code>SPSR</code>
+(<code>Saved Program Status Register</code>)，在异常状态下使用，当发生异常时，会把<code>CPSR</code>的内容写入<code>SPSR</code>,
+等异常恢复之后，又会把<code>SPSR</code>写会到<code>CPSR</code>中。</li>
+</ul>
+<p>零寄存器 WZR XZR 里面存储的值都是0。</p>
+<p>常用指令 算术运算指令 mov 赋值指令</p>
+<p>mov x0, #2 // 把2这个值赋值给x0寄存器 mov x0, x1 //
+把x1寄存器中的值赋值给x0寄存器中 add
+两个操作数相加，相加的结果存放到一个寄存器中</p>
+<p>add, x2, x0, x1 //把x0的值与x1的值相加，得到的结果存放到x2寄存器中
+add, x2, x0, #3 // 把x0的值与3相加，得到的结果存放到x2寄存器中 sub
+第一个操作数减第一个操作数，得到的结果存放到一个寄存器中</p>
+<p>sub, x2, x1, x0 //
+x1的值减去x0的值，得到的结果存放到<em>x2</em>寄存器中 sub, x2, x1, #4 //
+x1的值减去4，得到的结果存放到x2寄存器中 mul 乘法指令</p>
+<p>mul x3, x1, x2 // x1 乘以 x2 的结果存放在 x3 中 sdiv 除法指令</p>
+<p>sdiv w0, w0, w1 // w0 除以 w1 的结果存放在 w0 中 逻辑运算指令
+这里的运算是指位运算</p>
+<p>LSL 逻辑左移 按操作数所指定的数量向左移位，低位用零来填充 ASL
+算术左移 通逻辑左移，ASL 与 LSL等价 lsl x0, x0, #1 asl x1, x1, x0 LSR
+逻辑右移 按操作数所指定的数量向右移位，左端用零来填充。</p>
+<p>ASR 算术右移 按操作数所指定的数量向右移位，左端用最高位位的值来填充
+，如果是负数，最高位为1</p>
+<p>lsr w1, w2, #1 asr x1, x2, #2 ROR 循环右移
+按操作数所指定的数量向右循环移位，
+左端用右端移出的位来填充。其中，操作数可以是通用寄存器，也可以是立即数。
+当进行寄存器bit位数的循环右移操作时，通用寄存器中的值不改变。 ror x0, #6
+ror w0, #32 // 循环移动了32位，w0的值不变 跳转指令 ret
+相当于高级编程语言的return，函数返回。</p>
+<p>cmp 将两个操作数相减，相减的结果会影响cpsr
+寄存器的标志位，当结果小于0时，CPSR寄存器的N位为1， 等于0时，
+CPSR寄存器的Z为位1。 cmp x0, x1</p>
+<p>b
+跳转指令，跳转找指定的标记处执行；可以带条件跳转，一般跟cmp配合使用，使用到的条件域如下：</p>
+<p>EQ：equal NE：not equal GT：great than GE：great equal LT：less than
+LE：less equal 普通跳转 b testCode，testCode是汇编代码中的一个标记</p>
+<p>条件跳转，当x0和x1的值相等时，才跳转到testCode标记处执行代码</p>
+<p>cmp x0, x1 beq testCode bl
+带返回值的跳转指令，这个指令会做两个操作</p>
+<p>将下一条指令的地址存储到lr （x30）寄存器中 跳转到标记处开始执行代码
+bl
+testCode，当执行完testCode标记处代码后，又会返回来执行bl指令下面的指令。
+内存操作 load从内存中读取数据</p>
+<p>ldr 地址没有偏移或者偏移为正数时使用 ldur 地址偏移为负数时使用 a) str
+x5 [x0] x0中是内存的地址，读取的值存放在x5寄存器中, x寄存器读取8个字节
+b）str w6 [x0] x0中是内存的地址，读取的值存放在w5寄存器中,
+w寄存器读取4个字节 说明: 地址还可以偏移 str x5 [x0, #0x4] , stur x5 [x0,
+#-0x4] ,
+偏移量为正数往高地址偏移，使用str指令、偏移量为负数往低地址偏移，使用stur指令。</p>
+<p>ldp 从指定内存中读取数据到一对寄存器中， p 是
+pair的意思，这一对寄存器必须是同类型的，要么x类型,
+要么w类型。其中低位读取到第一个寄存器、高位读取到第二个寄存器 ldp w5,
+w6, [x0] , 地址可以偏移 ldp x5, x6, [x0, #-x04] store
+往指定的内存写入数据</p>
+<p>str str x1, [x0] str w2, [x1] str w3, [x1, #4] stur stur x3, [x0,
+#-4] stur w2, [x1, #-4] stp stp x2, x3, [x0] stp w4, w5, [x0]
+使用方法与从内存中读取数据类似，只不过是往内存写入数据。</p>
+<p>总结
+本文整理了一些在逆向iOS程序时常见的一些汇编指令，当然在实际逆向的过程所看到的汇编指令更加复杂，比如还有函数调用栈，这是下篇的内容。如有错误请指正。</p>
 
       
     </div>
@@ -1917,323 +2289,6 @@ docker run -it -v ~/FDU/PPI/2023spring:/home gem5-amd64-env</p>
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/10/22/Effective%20C++(4)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/10/22/Effective%20C++(4)/" class="post-title-link" itemprop="url">Effective C++(4)--设计与声明</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-10-22 16:28:50" itemprop="dateCreated datePublished" datetime="2022-10-22T16:28:50+08:00">2022-10-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>7.3k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>12 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="让接口容易被正确使用不易被误用">18
-让接口容易被正确使用，不易被误用</h2>
-<h3 id="考虑用户可能犯怎样的错误">考虑用户可能犯怎样的错误</h3>
-<ul>
-<li>容易引起错误的做法 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Date</span>(<span class="type">int</span> month, <span class="type">int</span> day, <span class="type">int</span> year);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>wrapper types
-<ul>
-<li>enum不具备类型安全性，可被用作ints <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Day</span> &#123;</span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Day</span><span class="params">(<span class="type">int</span> d)</span></span></span><br><span class="line"><span class="function">    : val(d) &#123;</span>&#125;    </span><br><span class="line"><span class="type">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Date</span>(<span class="type">const</span> Month&amp; m, <span class="type">const</span> Day&amp; d, <span class="type">int</span> year);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">Date</span>(<span class="number">30</span>, <span class="number">3</span>, <span class="number">1995</span>); <span class="comment">/// wrong! 不正确的类型</span></span><br><span class="line"><span class="built_in">Date</span>(<span class="built_in">Day</span>(<span class="number">30</span>), <span class="built_in">Month</span>(<span class="number">3</span>), <span class="built_in">Year</span>(<span class="number">1995</span>)); <span class="comment">/// wrong! 不正确的类型</span></span><br><span class="line"><span class="built_in">Date</span>(<span class="built_in">Month</span>(<span class="number">3</span>), <span class="built_in">Day</span>(<span class="number">30</span>), <span class="built_in">Year</span>(<span class="number">1995</span>)); <span class="comment">/// OK! 类型正确</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Month</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">static</span> Month <span class="title">Jan</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="built_in">Month</span>(<span class="number">1</span>); &#125; <span class="comment">/// 每次调用都会触发一次构造函数</span></span><br><span class="line">    <span class="function"><span class="type">static</span> Month <span class="title">Feb</span><span class="params">()</span> </span>&#123; </span><br><span class="line">        <span class="type">static</span> <span class="keyword">auto</span> feb = <span class="built_in">Month</span>(<span class="number">2</span>);</span><br><span class="line">        <span class="keyword">return</span> feb; </span><br><span class="line">    &#125; <span class="comment">/// only call once</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">static</span> Month <span class="title">Dec</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="built_in">Month</span>(<span class="number">12</span>); &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Month</span><span class="params">(<span class="type">int</span> m)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">Date</span>(Month::<span class="built_in">Mar</span>(), <span class="built_in">Day</span>(<span class="number">30</span>), <span class="built_in">Year</span>(<span class="number">1995</span>));</span><br></pre></td></tr></table></figure></li>
-</ul></li>
-</ul>
-<h3
-id="限制类型内什么事可做什么事不可做">限制类型内什么事可做，什么事不可做</h3>
-<pre><code>- 常见的限制是加上const</code></pre>
-<h3
-id="除非有好理由尽量使types的行为与内置类型一致">除非有好理由，尽量使types的行为与内置类型一致</h3>
-<pre><code>- 如ints，对a*b赋值不合法
-- STL基本一致</code></pre>
-<h3 id="消除客户的管理资源责任">消除客户的管理资源责任</h3>
-<ul>
-<li>例，工厂函数：返回智能指针
-<ul>
-<li><code>std::shared_ptr&lt;TimeKeeper&gt; getTimeKeeper();</code></li>
-</ul></li>
-<li><code>std::shared_ptr</code>允许指针被建立起来时指定一个资源释放函数（删除器，deleter）
-<ul>
-<li>auto_ptr不支持 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::shared_ptr&lt;TimeKeeper&gt; <span class="title">pTime</span><span class="params">(<span class="keyword">static_cast</span>&lt;TimeKeeper*&gt;(<span class="number">0</span>), getRidOfClock)</span></span>;</span><br><span class="line"><span class="comment">/// getRidOfClock是函数，删除器</span></span><br></pre></td></tr></table></figure></li>
-<li>避免了DLL问题</li>
-<li><code>std::shared_ptr</code>
-<ul>
-<li>是raw pointer两倍大（计数，删除器）</li>
-<li>以virtual形式调用删除器</li>
-<li>修改引用计数时线程同步化带来开销</li>
-</ul></li>
-</ul></li>
-</ul>
-<h2 id="设计class犹如设计type">19 设计class犹如设计type</h2>
-<ul>
-<li>对象应该如何被创建和销毁
-<ul>
-<li>构造函数</li>
-<li>析构函数</li>
-<li>内存分配和释放函数
-<ul>
-<li>operator new</li>
-<li>operator new[]</li>
-<li>operator delete</li>
-<li>operator delete[]</li>
-</ul></li>
-</ul></li>
-<li>对象的初始化和赋值该有什么的差别
-<ul>
-<li>拷贝构造函数 和 拷贝赋值函数</li>
-</ul></li>
-<li>什么是新type的合法值</li>
-<li>新type需要配合inheritance graph吗</li>
-<li>新type需要什么样的转换
-<ul>
-<li>如果允许T1对象被隐式转换为T2，
-<ul>
-<li>则需要在class T1内实现operator T2</li>
-<li>或在class T2内实现一个non-explicit-one-argument的构造函数</li>
-</ul></li>
-</ul></li>
-<li>什么样的操作符和函数对新type是合理的</li>
-<li>什么样的标准函数应该驳回</li>
-<li>谁该去用新type
-<ul>
-<li>哪些成员为 pubulic protected private</li>
-<li>哪些class function为friends</li>
-</ul></li>
-<li>什么是新type的未声明接口</li>
-<li>新type有多么一般化
-<ul>
-<li>如果定义一整个types家族，考虑template</li>
-</ul></li>
-<li>真的需要一个新type吗
-<ul>
-<li>如果定义新的derived
-class只是为已有的class添加机能，考虑non-member函数或templates</li>
-</ul></li>
-</ul>
-<h2 id="prefer-pass-by-reference-to-const-to-pass-by-value">20 Prefer
-pass-by-reference-to-const to pass-by-value</h2>
-<ul>
-<li>前者效率高，且避免切割问题</li>
-<li>以上规则并不适用于内置类型，STL的迭代器和函数对象。
-<ul>
-<li>pass-by-value往往更合适</li>
-</ul></li>
-<li>对象小并不意味着copy构造函数不昂贵
-<ul>
-<li>许多对象如大多数STL容器，内含的东西只比指针多一些，但复制这种对象却包括复制那些指针指向的每一样东西</li>
-</ul></li>
-</ul>
-<h2 id="必须返回对象时别妄想返回其reference">21
-必须返回对象时，别妄想返回其reference</h2>
-<ul>
-<li>构造函数是必须承担的成本</li>
-</ul>
-<h2 id="将成员变量声明为private">22 将成员变量声明为private</h2>
-<ul>
-<li>为class提供充分实现弹性</li>
-<li><code>protected</code>成员变量的封装性并没有高过<code>public</code>成员变量
-<ul>
-<li><code>protected</code>成员变量的改变将会影响所有的<code>derived class</code></li>
-</ul></li>
-</ul>
-<h2 id="prefer-non-member-non-friend-fuctions-to-member-functions">23
-Prefer non-member non-friend fuctions to member functions</h2>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123;</span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearCache</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearHistory</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">removeCookies</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>许多用户想一次执行所有这些动作，那么哪种实现好呢？ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// member函数</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123;</span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearEverything</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// non-member函数，更好的实现</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">clearBrowser</span><span class="params">(WebBrowser&amp; wb)</span> </span>&#123;</span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">    wb.<span class="built_in">clearCache</span>();</span><br><span class="line">    wb.<span class="built_in">clearHistory</span>();</span><br><span class="line">    wb.<span class="built_in">removeCookies</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><code>non-member</code>函数
-<ul>
-<li>可允许对WebBrowser相关机能有较大的包裹弹性，最终导致较低的编译相依度，增加WebBrowser的可延展性
-<ul>
-<li>通过namespace分割不同类别的功能，并可以向namespace中添加新的non-member函数扩充</li>
-</ul></li>
-<li>原因，该函数并不需要看到WebBrowser内部的成员变量</li>
-</ul></li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// non-member函数，一般的做法，将两者放在同一个namespace</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123; ... &#125;;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearBrowser</span><span class="params">(WebBrowser&amp; wb)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>namespace可跨越多个源码文件而classes不同，例如： <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webbrowser.h -- 这个头文件针对class WebBrowser自身及其核心机能</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123; ... &#125;;</span><br><span class="line">    ... <span class="comment">// 核心机能，例如所有客户都需要的non-member函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webbrowserbookmarks.h</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    ... <span class="comment">// 与书签相关的便利函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webbrowsercookies.h</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    ... <span class="comment">// 与cookie相关的便利函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>这正是C++标准程序库的组织方式
-<ul>
-<li>std命名空间分散在许多头文件
-<ul>
-<li><vector>, <algorithm>, <memory> ...</li>
-</ul></li>
-<li>允许客户只对他们所用的一小部分系统形成编译相依
-<ul>
-<li>此方式并不适用于class成员函数，一个class必须整体定义，不能被分割为片段</li>
-</ul></li>
-</ul></li>
-</ul>
-<h2 id="若所有参数皆需类型转换请为此采用non-member函数">24
-若所有参数皆需类型转换，请为此采用non-member函数</h2>
-<ul>
-<li>令class支持隐式转换通常是糟糕的主意
-<ul>
-<li>有例外，如建立在数值类型 ### 设计一个class表示有理数 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rational</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Rational</span>(<span class="type">int</span> numerator = <span class="number">0</span>,       <span class="comment">/// 构造函数刻意不为explicit</span></span><br><span class="line">             <span class="type">int</span> denominator = <span class="number">1</span>);    <span class="comment">/// 允许int-to-Rational隐式转换</span></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">numerator</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">denominator</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-#### Rational支持算术运算诸如加法、乘法</li>
-</ul></li>
-<li>member or non-member func？ ##### member函数 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rational</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="type">const</span> Rational <span class="keyword">operator</span>* (<span class="type">const</span> Rational&amp; rhs) <span class="type">const</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>可以支持两个有理数相乘</li>
-<li>但是混合算术只有一半行得通,不满足交换律 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Rational <span class="title">oneHalf</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">result = oneHalf * <span class="number">2</span>;   <span class="comment">// good</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;   <span class="comment">// wrong</span></span><br></pre></td></tr></table></figure></li>
-<li>oneHalf是一个内含operator*的class的对象，所以编译器调用该函数</li>
-<li>然而整数2没有相应的class，也就是没有operator<em>成语函数；编译器会尝试寻找形如以下这般调用的non-member
-operator</em>(在命名空间或global作用域内): <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result = operator*(2, oneHalf);   // wrong,本例并不存在这样的函数，查找失败</span><br></pre></td></tr></table></figure></li>
-<li>第一种发生了隐式转换 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// result = oneHalf * 2;   // good, non-expicit构造函数</span></span><br><span class="line"><span class="comment">// 相当于</span></span><br><span class="line"><span class="function"><span class="type">const</span> Rational <span class="title">temp</span><span class="params">(<span class="number">2</span>)</span></span>;</span><br><span class="line">result = oneHalf * temp;</span><br></pre></td></tr></table></figure></li>
-<li>第二种无法触发non-expicit构造函数 ##### non-member函数</li>
-<li>允许编译器在每一个实惨上执行隐式类型转换 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> Rational <span class="keyword">operator</span>* (<span class="type">const</span> Rational&amp; lhs, <span class="type">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Rational</span>(lhs.<span class="built_in">numerator</span>() * rhs.<span class="built_in">numerator</span>(), </span><br><span class="line">                    lhs.<span class="built_in">denominator</span>() * rhs.<span class="built_in">denominator</span>());</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">Rational <span class="title">oneHalf</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">result = oneHalf * <span class="number">2</span>;   <span class="comment">// ok</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;   <span class="comment">// ok</span></span><br></pre></td></tr></table></figure></li>
-<li>此处不需要成为friend函数 ##### --&gt;&gt; template class</li>
-<li>见条款46 ###
-如果需要为某个函数的所有参数(包括this指针所指的隐喻参数)进行类型转换，则该函数必须为non-member</li>
-</ul>
-<h1 id="考虑写出一个不抛异常的swap函数">25
-考虑写出一个不抛异常的swap函数</h1>
-<ul>
-<li>swap
-<ul>
-<li>STL的一部分</li>
-<li>异常安全性编程的脊柱(见条款29)</li>
-<li>处理自我赋值可能性的常见机制 ## 缺省情况下标准库的swap
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function">    <span class="type">void</span> <span class="title">swap</span><span class="params">(T&amp; a, T&amp; b)</span> </span>&#123;</span><br><span class="line">        <span class="function">T <span class="title">temp</span><span class="params">(a)</span></span>;</span><br><span class="line">        a = b;</span><br><span class="line">        b = a;</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul></li>
-<li>只要T支持拷贝构造函数和拷贝赋值函数 ## pimpl手法 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">WidgetImpl</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> a, b, c;</span><br><span class="line">    std::vector&lt;<span class="type">double</span>&gt; v;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Widget</span>(<span class="type">const</span> Widget&amp; rhs);</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="type">const</span> Widget&amp; rhs) &#123; <span class="comment">/// 复制Widget时，复制其WidgetImpl对象</span></span><br><span class="line">        ...</span><br><span class="line">        *pImpl = *(rhs.pImpl);</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    WidgetImpl* pImpl;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>要置换Widget时，我们只需要置换起pImpl指针,但缺省算法调用还复制了三个WidgetImpl对象
-###
-我们希望告诉std::swap当Widgets被置换时应该做的是置换其内部的pImpl指针</li>
-<li>将std::swap针对Widget特化 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="keyword">template</span>&lt;&gt; <span class="comment">/// 表示它是std::swap的一个全特化</span></span><br><span class="line">    <span class="type">void</span> <span class="built_in">swap</span>&lt;Widget&gt;(Widget&amp; a, Widget&amp; b) &#123; <span class="comment">/// &#x27;&lt;Widget&gt;&#x27;表明“针对T是Widget”而设计</span></span><br><span class="line">        <span class="built_in">swap</span>(a.pImpl, b.pImpl);     <span class="comment">/// 无法通过编译, pImpl is private data</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>当一般性的swap template施行于Widgets上时便会启用这个版本</li>
-<li>通常我们不被允许改变std命名空间内的任何东西，但可以为标准template制造特化版本
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">const</span> Widget&amp; other)</span> </span>&#123; <span class="comment">/// 复制Widget时，复制其WidgetImpl对象</span></span><br><span class="line">        <span class="keyword">using</span> std::swap;</span><br><span class="line">        <span class="built_in">swap</span>(pImpl, other.pImpl);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="keyword">template</span>&lt;&gt; <span class="comment">/// 表示它是std::swap的一个全特化</span></span><br><span class="line">    <span class="type">void</span> <span class="built_in">swap</span>&lt;Widget&gt;(Widget&amp; a, Widget&amp; b) &#123; <span class="comment">/// &#x27;&lt;Widget&gt;&#x27;表明“针对T是Widget”而设计</span></span><br><span class="line">        a.<span class="built_in">swap</span>(b);     <span class="comment">/// OK!</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>该做法与STL容器具有一致性（public swap + std::swap特化版本） ##
-Widget与WidgetImpl都是template <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WidgetImpl</span> &#123;...&#125;;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;...&#125;;</span><br></pre></td></tr></table></figure> ### 偏特化</li>
-<li>放个swap成员函数与之前相同，但是像上述方法一样特化std::swap会遇上乱流
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">const</span> Widget&amp; other)</span> </span>&#123; </span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span><br><span class="line">    <span class="type">void</span> swap&lt;Widget&lt;T&gt;&gt;(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b) &#123; <span class="comment">/// 错误，不合法</span></span><br><span class="line">        a.<span class="built_in">swap</span>(b); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>C++只允许对<code>class template</code>偏特化，不允许对<code>function template</code>(<code>std::swap</code>)偏特化
-<ul>
-<li>全特化是所有的模板参数都被进行特化，偏特化也就是局部的参数特化</li>
-<li>此处只对Widget特化，没有特化T，所以为偏特化</li>
-</ul></li>
-</ul>
-<h3 id="重载1">重载(1)</h3>
-<ul>
-<li>当打算偏特化一个function
-template时，惯常做法是<code>添加一个重载版本</code> <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="comment">/// std::swap的重载版本</span></span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span></span><br><span class="line"><span class="function">    <span class="type">void</span> <span class="title">swap</span><span class="params">(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b)</span> </span>&#123; <span class="comment">/// 错误，不合法</span></span><br><span class="line">        a.<span class="built_in">swap</span>(b); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>一般而言行得通，但是std是个特殊的命名空间
-<ul>
-<li>客户可以全特化std内的template</li>
-<li>但不可添加新的template、class、function等任何东西</li>
-</ul></li>
-</ul></li>
-<li><h3 id="重载2">重载(2)</h3></li>
-<li>将<code>重载版本</code>放在新的命名空间 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> WidgetStuff &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Widget</span> &#123;...&#125;;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span></span><br><span class="line"><span class="function">    <span class="type">void</span> <span class="title">swap</span><span class="params">(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b)</span> </span>&#123;</span><br><span class="line">        a.<span class="built_in">swap</span>(b); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>现在，如果想置换两个Widget对象因而调用swap，C++的名称查找法则(<code>name lookup rules</code>;<code>argument-dependent lookup</code>或<code>Koenig lookup</code>)会找到WidgetStuff空间内的swap</li>
-</ul>
-<h2 id="应该调用哪个swap">应该调用哪个swap?</h2>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">doSomething</span><span class="params">(T&amp; obj1, T&amp; obj2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">using</span> std::swap;    <span class="comment">// 令std::swap在此函数内可用</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="built_in">swap</span>(obj1, obj2);   <span class="comment">// 为T型对象调用最佳swap版本</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>调用优先级(以T是Widget为例):
-<ol type="1">
-<li><code>WidgetStuff::swap</code></li>
-<li><code>template&lt;&gt; void swap&lt;Widget&gt;</code></li>
-<li><code>std::swap</code></li>
-</ol></li>
-</ul>
-<h2 id="总结">总结</h2>
-<h3
-id="如果swap的缺省实现代码提供足够的效率不需要额外做任何事">如果swap的缺省实现代码提供足够的效率，不需要额外做任何事</h3>
-<h3
-id="如果swap的缺省实现代码效率不足试着做以下事情">如果swap的缺省实现代码效率不足，试着做以下事情:</h3>
-<ol type="1">
-<li>提供一个public swap成员函数，高效置换
-<ul>
-<li>成员版的swap不可抛出异常
-<ul>
-<li>这是帮助class和class template提供强烈的异常安全保障</li>
-</ul></li>
-</ul></li>
-<li>在class或template所在命名空间内提供一个non-member
-swap，并调用上述成员函数</li>
-<li>如果正在编写class而非class
-template，为class特化std::swap,并调用成员函数</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2305,14 +2360,14 @@ template，为class特化std::swap,并调用成员函数</li>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-count">67</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-count">41</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -2357,12 +2412,12 @@ template，为class特化std::swap,并调用成员函数</li>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">306k</span>
+    <span title="站点总字数">320k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">8:31</span>
+    <span title="站点阅读时长">8:53</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -2494,6 +2549,26 @@ template，为class特化std::swap,并调用成员函数</li>
     
 
   
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
 
 
 </body>

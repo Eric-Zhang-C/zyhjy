@@ -7,8 +7,8 @@
 <meta name="generator" content="Hexo 6.3.0">
 <meta name="referrer" content="no-referrer">
   <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/favicon-16x16-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
   <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
 
 <link rel="stylesheet" href="/zyhjy/css/main.css">
@@ -19,17 +19,20 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="Lock的问题 在谈无锁编程之前，我们首先来谈一谈锁存在哪些问题：">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Lock-free Programming">
 <meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/08/24/Lock-free-Programming/">
 <meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="Lock的问题 在谈无锁编程之前，我们首先来谈一谈锁存在哪些问题：">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-08-24T14:52:05.000Z">
-<meta property="article:modified_time" content="2023-08-24T14:52:05.484Z">
+<meta property="article:modified_time" content="2023-08-30T13:38:23.779Z">
 <meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="offer">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/08/24/Lock-free-Programming/">
@@ -85,7 +88,7 @@
   </style>
 </noscript>
 
-</head>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container">
@@ -227,6 +230,30 @@
 
               <time title="创建时间：2023-08-24 22:52:05" itemprop="dateCreated datePublished" datetime="2023-08-24T22:52:05+08:00">2023-08-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-30 21:38:23" itemprop="dateModified" datetime="2023-08-30T21:38:23+08:00">2023-08-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Concurrent/" itemprop="url" rel="index"><span itemprop="name">Concurrent</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E7%AE%97%E6%B3%95%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">算法题</span></a>
+                </span>
+            </span>
 
           
             <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
@@ -241,14 +268,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>13 分钟</span>
             </span>
 
         </div>
@@ -260,7 +287,226 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="lock的问题">Lock的问题</h1>
+<p>在谈无锁编程之前，我们首先来谈一谈锁存在哪些问题：</p>
+<span id="more"></span>
+<ul>
+<li>死锁<strong>Deadlock</strong>：导致程序卡住。</li>
+<li>优先级倒置<strong>Priority
+inversion</strong>：低优先级进程抢占了高优先级进程需要的锁。</li>
+<li>排序<strong>Convoying</strong>：有多个进程需要以大致相同的顺序获得一系列锁，但是一个慢进程获得了第一个锁，其他进程不得不等待。</li>
+<li>异步信号安全<strong>Async-signal safety</strong>
+:信号处理函数不能使用<strong>lock-based
+primitives</strong>，因为信号处理函数允许同一线程重入，第二次进入时锁可能被第一次进入的堆栈持有，发生死锁。</li>
+<li><strong>Kill-tolerance</strong>：如果线程在持有锁的情况下被终止或崩溃，可能会出现死锁、数据不一致、资源泄漏。</li>
+<li>被抢占<strong>Pre-emption
+tolerance</strong>：如果线程在持有锁的情况下被抢占（pre-empted），可能会发生资源阻塞、死锁、锁竞争。</li>
+<li>性能<strong>performance</strong>：老生常谈的问题。</li>
+</ul>
+<h1 id="lock-free-programming无锁编程">Lock-free
+Programming(无锁编程)</h1>
+<h2 id="what-is-it">what is it</h2>
+<p>所谓无锁编程，是在不使用<strong>synchronization
+primitives</strong>（如mutex）的情况下实现线程安全接口。这常常需要硬件的支持。</p>
+<p>人们常把无锁编程描述为在编程中不使用mutex/lock。这是正确的，但这只是其中的一部分。本质上，无锁是用来描述一些代码的属性，而不会详细说明该代码是如何编写的。</p>
+<p>如果程序中的某个部分满足以下条件，则该部分可以被正当地视为无锁。相反地，如果代码中的某个部分不满足这些条件，则该部分不是无锁的。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/its-lock-free.png"
+alt="img" />
+<figcaption aria-hidden="true">img</figcaption>
+</figure>
+<p>从这个意义上讲，"无锁" 中的 "锁"
+并不是直接mutex/lock，而是指在某种程度上"锁住"
+整个应用程序的可能性。所以无锁编程，可以理解为wait-free。</p>
+<h2 id="无锁编程相关知识">无锁编程相关知识</h2>
+<p>事实证明，当您尝试满足无锁编程的非阻塞条件时，会产生一整套技术：原子操作、内存屏障、避免ABA问题等等。</p>
+<p>那么，这些技术之间如何关联呢？为了说明这一点，请看以下流程图。我将逐一详细解释每个技术。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/techniques.png"
+alt="img" />
+<figcaption aria-hidden="true">img</figcaption>
+</figure>
+<h3 id="atomic-read-modify-write-operations">Atomic Read-Modify-Write
+Operations</h3>
+<p>原子操作是以一种看似不可分割的方式操纵内存的操作：没有线程可以观察到操作的一半完成。在现代处理器上，许多操作已经是原子的。例如，对齐的简单类型的读写通常是原子的。</p>
+<p><a
+target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Read-modify-write">Read-modify-write</a>(RMW)
+Operations更进一步，允许您以原子方式执行更复杂的事务。当无锁算法必须支持多个写入者时，它们特别有用，因为当多个线程尝试在相同地址上进行RMW操作时，它们会有效地排成一排，并逐个执行这些操作。</p>
+<p>RMW Operations的示例如C++11中的
+<code>std::atomic&lt;int&gt;::fetch_add</code>。请注意，C++11原子标准并不保证在每个平台上都实现为无锁操作，因此最好了解您的平台和工具链的能力。您可以调用
+<code>std::atomic&lt;&gt;::is_lock_free</code> 来确认。</p>
+<p>RMW 操作在不同的 CPU 家族中是通过不同的方式来支持的。</p>
+<ul>
+<li>x86/64 和 Itanium 架构通过 <a
+target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Compare-and-swap">Compare-And-Swap
+(CAS)</a> 方式来实现；</li>
+<li>PowerPC、MIPS 和 ARM 架构通过 <a
+target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Load-link/store-conditional">Load-Link/Store-Conditional
+(LL/SC)</a> 方式来实现；</li>
+</ul>
+<p>例如在 x86 架构下，通过 LOCK 指令前缀可以使许多指令操作（ADD, ADC,
+AND, BTC, BTR, BTS, CMPXCHG, CMPXCH8B, DEC, INC, NEG, NOT, OR, SBB, SUB,
+XOR, XADD, and XCHG）变成原子操作，其中 CMPXCHG 指令可用于实现 <a
+target="_blank" rel="noopener" href="http://www.cnblogs.com/gaochundong/p/lock_free_programming.html">CAS
+操作</a>。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/231521461683412-20230826190728807.png"
+alt="img" />
+<figcaption aria-hidden="true">img</figcaption>
+</figure>
+<p>下面是使用 LOCK 和 CMPXCHG 来实现 CAS 操作的代码示例。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__inline <span class="type">int</span> <span class="title">CAS</span><span class="params">(<span class="keyword">volatile</span> <span class="type">int</span> &amp; destination, <span class="type">int</span> exchange, <span class="type">int</span> comperand)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __asm &#123;</span><br><span class="line">    MOV eax, comperand</span><br><span class="line">    MOV ecx, exchange</span><br><span class="line">    MOV edx, destination</span><br><span class="line">    LOCK CMPXCHG[edx], ecx <span class="comment">/* 如果eax与edx相等, 则ecx送edx且ZF置1;</span></span><br><span class="line"><span class="comment">                              否则edx送ecx, 且ZF清0.*/</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如流程图所示，即使在单处理器系统上，原子RMW是无锁编程的必要组成部分。如果没有原子性，一个线程在事务进行到一半时可能会被中断，可能导致不一致的状态。</p>
+<h3 id="compare-and-swap-loops">Compare-And-Swap Loops</h3>
+<p>也许最经常讨论的RMW操作是Compare-And-Swap（CAS）。通常，程序员会在循环中执行Compare-And-Swap操作，以重复尝试事务,这种模式通常分为三步：</p>
+<ol type="1">
+<li>涉及将共享变量复制到本地变量</li>
+<li>执行一些假设性的工作</li>
+<li>然后尝试使用CAS发布更改：</li>
+</ol>
+<p>例如，向 LockFreeStack 中压入新的节点：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">LockFreeQueue::push</span><span class="params">(Node* newHead)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (;;)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Copy a shared variable (m_Head) to a local.</span></span><br><span class="line">        Node* oldHead = m_Head;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Do some speculative work, not yet visible to other threads.</span></span><br><span class="line">        newHead-&gt;next = oldHead;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Next, attempt to publish our changes to the shared variable.</span></span><br><span class="line">        <span class="comment">// If the shared variable hasn&#x27;t changed, the CAS succeeds and we return.</span></span><br><span class="line">        <span class="comment">// Otherwise, repeat.</span></span><br><span class="line">        <span class="keyword">if</span> (_InterlockedCompareExchange(&amp;m_Head, newHead, oldHead) == oldHead)</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样的循环仍然被认为是无锁的，因为如果对于一个线程测试失败，那么对于另一个线程来说，这个测试必定是成功的。</p>
+<p>实现CAS循环，必须特别注意避免出现ABA问题。我们将在下文以一个实际的例子说明如何处理ABA问题。</p>
+<hr />
+<h5 id="aba-problem">ABA problem</h5>
+<p>ABA问题是在并发编程中经常会遇到的一种情况。它涉及到在某个线程执行期间，一个共享数据从开始状态
+A 转变为中间状态 B，然后再回到状态
+A。在这个过程中，另一个线程可能会访问这个数据，但由于数据的状态看起来没变过，它可能无法察觉状态的变化过程，从而可能会出现意外的行为。</p>
+<p>为了更好地理解，考虑一个简单的例子：假设有两个线程 A 和 B
+同时访问一个共享整数变量。初始状态下，这个变量的值是 1。线程 A
+首先读取这个值，然后线程 B 抢先执行，将变量的值从 1 修改为
+2，然后又迅速将其修改回 1。最后，线程 A
+继续执行，它会发现变量的值没有变化，尽管实际上它经历了从 1 到 2，再到 1
+的变化过程。</p>
+<p>这种情况可能导致并发程序出现问题，因为线程 A
+可能会基于变量的值作出错误的决策，由于它没有意识到变量的状态实际上已经发生过改变。</p>
+<hr />
+<h3 id="sequential-consistency">Sequential Consistency</h3>
+<p>顺序一致性意味着所有线程都在内存操作发生的顺序上达成一致，并且该顺序与程序源代码中的操作顺序一致。在顺序一致性下，不可能出现像我在之前的帖子中演示的内存重新排序等问题。</p>
+<p>实现顺序一致性的一种简单（但显然不切实际）方法是禁用编译器优化，强制所有线程在单个处理器上运行。处理器永远不会以无序的方式看到其自己的内存效果，即使线程在任意时间被抢占并调度。</p>
+<p>一些编程语言甚至为在多处理器环境中运行的优化代码提供了顺序一致性。在C++11中，您可以将所有共享变量声明为带有默认内存顺序约束的C++11原子类型。为了实现这一点，编译器在幕后输出了额外的指令
+- 通常是内存屏障和/或RMW操作。</p>
+<hr />
+<h5 id="cvolatile关键字">C++<code>volatile</code>关键字</h5>
+<p>在C++中，<code>volatile</code>
+关键字用于告诉编译器，该变量可能在程序执行期间被意外地改变，从而阻止编译器对该变量的某些优化。主要的特性包括：</p>
+<ol type="1">
+<li><p><strong>不进行优化</strong>：使用 <code>volatile</code>
+关键字修饰的变量，编译器不会对其进行优化，以确保每次访问都从内存中读取值，而不是依赖于已缓存的值。这对于与硬件相关的寄存器或设备状态等情况可能是有用的。</p></li>
+<li><p><strong>不进行编译器优化重排</strong>：<code>volatile</code>
+也会告诉编译器不要对其附近的代码进行重排优化，以保持预期的执行顺序。</p></li>
+</ol>
+<p>然而，C++中的 <code>volatile</code>
+并不能提供原子性或多线程同步的保证。在C++中，要实现多线程之间的同步，通常需要使用原子类型（<code>std::atomic</code>）或互斥锁（<code>std::mutex</code>）等机制。</p>
+<hr />
+<h3 id="memory-ordering">Memory Ordering</h3>
+<p>正如流程图所示，每当您在多核（或对称多处理器）环境中进行无锁编程，并且您的环境不保证顺序一致性时，您必须考虑如何防止内存重排序。</p>
+<p>在当今的架构中，强制正确的内存顺序的工具通常可以分为三类，它们防止了编译器重新排序和处理器重新排序：</p>
+<ol type="1">
+<li>轻量级的同步或屏障指令，我会在以后的帖子中谈到；</li>
+<li>完整的内存屏障指令，我之前已经演示过；</li>
+<li>具有获取（acquire）或释放（release）语义的内存操作。</li>
+</ol>
+<p>获取语义防止程序顺序中后续的操作进行内存重排序，而释放语义防止程序顺序中前面的操作进行内存重排序。这些语义特别适用于生产者/消费者关系的情况，其中一个线程发布一些信息，而另一个线程则读取它。我以后也会在帖子中更详细地讨论这个。</p>
+<h3 id="different-processors-have-different-memory-models">Different
+Processors Have Different Memory Models</h3>
+<p>不同的CPU系列在内存重排序方面有不同的行为习惯。每个CPU厂商都会记录这些规则，并且硬件会严格遵循这些规则。例如，PowerPC和ARM处理器可以改变内存存储相对于指令本身的顺序，但通常来说，来自英特尔和AMD的x86/64系列处理器不会这么做。我们说前者的处理器拥有更宽松的内存模型。</p>
+<p>在考虑无锁编程的移植性时，我们常常要考虑不同内存模型带来的差异。有一种方法是将这些特定于平台的细节抽象出来，尤其是在C++11为我们提供了一种编写可移植的无锁代码的标准方式。</p>
+<h2 id="代码实践">代码实践</h2>
+<p>无锁的算法往往是基于无锁的数据结构(Buffer, list, stack, queue, map,
+deque...)实现的，我们将实现一个<code>lock-free stack</code>以及一个<code>lock-free circular queue</code>，以加深我们对无锁编程的理解。</p>
+<h3 id="lock-free-stack">lock-free stack</h3>
+<p>栈结构实际上就是 FILO 先入后出队列，通常包括两个操作：</p>
+<p>Push：向栈顶压入一个元素（Item）； Pop：从栈顶弹出一个元素（Item）；
+这里我们选用单链表结构（Singly Linked List）来实现 FILO
+栈，每次入栈的都是新的链表头，每次出栈的也是链表头。</p>
+<h4 id="simple-lock-free-stack-structures">simple lock-free stack
+structures</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Node</span></span><br><span class="line">&#123;</span><br><span class="line">	Node* next;</span><br><span class="line">	<span class="type">int</span> data;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">Node</span>(<span class="type">int</span> data) : <span class="built_in">next</span>(<span class="literal">nullptr</span>), <span class="built_in">data</span>(data) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// stable ‘head of list’, not an real Node</span></span><br><span class="line">Node* head;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">push</span><span class="params">(<span class="type">int</span> t)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Node* node = <span class="keyword">new</span> <span class="built_in">Node</span>(t);</span><br><span class="line">	<span class="keyword">do</span> &#123;</span><br><span class="line">		node-&gt;next = head;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span> (!<span class="built_in">cas</span>(&amp;head, node, node-&gt;next));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">pop</span><span class="params">(<span class="type">int</span>&amp; t)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Node* current = head;</span><br><span class="line">	<span class="keyword">while</span> (current) &#123;</span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">cas</span>(&amp;head, current-&gt;next, current)) &#123;</span><br><span class="line">			t = current-&gt;data; <span class="comment">// problem?</span></span><br><span class="line">			<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		current = head;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="lock-free-stacks-aba-problem">lock-free stack's ABA problem</h4>
+<ol type="1">
+<li><p>Thread 1执行pop()，查看head，发现为A (A是一个指针,
+如0x7f8d70983400)</p></li>
+<li><p>Thread 1将A-&gt;next（假设为B），存储下来</p></li>
+<li><p>Thread 2此时执行pop()成功, head现在变为了
+B，A所指的内存同时OS回收了</p>
+<ul>
+<li>如果Thread
+1现在被唤醒，CAS将失败，需要重新插入新节点，这是正常的。</li>
+</ul></li>
+<li><p>但是 Thread 2
+这时构造了一个新的节点，且内存地址恰好是之前的A，并将新节点push()</p></li>
+<li><p>Thread
+1被唤醒后，CAS比较发现head仍为A，于是将head置为B，结束push()</p>
+<ul>
+<li>这导致Thread2插入的新节点丢失，造成内存泄漏</li>
+</ul></li>
+</ol>
+<h5 id="solution">solution</h5>
+<p><strong>Keep a ‘update count’ (needs ‘doubleword CAS’)</strong>,
+即对每次CAS操作进行编号</p>
+<h3 id="lock-free-circular-queue">lock-free circular queue</h3>
+<p>无锁的环形队列需要使用原子操作来实现。以下是一个简单的无锁环形队列的示例代码，只有一个生产者和一个消费者，使用C++11的原子操作库
+<code>&lt;atomic&gt;</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;atomic&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="type">size_t</span> Capacity&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LockFreeRingBuffer</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">LockFreeRingBuffer</span>() : <span class="built_in">head</span>(<span class="number">0</span>), <span class="built_in">tail</span>(<span class="number">0</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">enqueue</span><span class="params">(<span class="type">const</span> T&amp; value)</span> </span>&#123;</span><br><span class="line">        <span class="type">size_t</span> currentTail = tail.<span class="built_in">load</span>(std::memory_order_relaxed);</span><br><span class="line">        <span class="type">size_t</span> nextTail = (currentTail + <span class="number">1</span>) % Capacity;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (nextTail == head.<span class="built_in">load</span>(std::memory_order_acquire)) &#123;</span><br><span class="line">            <span class="comment">// Queue is full</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        buffer[currentTail] = value;</span><br><span class="line">        tail.<span class="built_in">store</span>(nextTail, std::memory_order_release);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">dequeue</span><span class="params">(T&amp; value)</span> </span>&#123;</span><br><span class="line">        <span class="type">size_t</span> currentHead = head.<span class="built_in">load</span>(std::memory_order_relaxed);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (currentHead == tail.<span class="built_in">load</span>(std::memory_order_acquire)) &#123;</span><br><span class="line">            <span class="comment">// Queue is empty</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        value = buffer[currentHead];</span><br><span class="line">        head.<span class="built_in">store</span>((currentHead + <span class="number">1</span>) % Capacity, std::memory_order_release);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::atomic&lt;<span class="type">size_t</span>&gt; head;</span><br><span class="line">    std::atomic&lt;<span class="type">size_t</span>&gt; tail;</span><br><span class="line">    T buffer[Capacity];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>在上述示例中，<code>LockFreeRingBuffer</code>
+是一个无锁的环形队列类模板。它使用两个原子操作来管理队列的头部和尾部索引，以确保并发访问的正确性。</p>
+<h4 id="stdmemory_order"><code>std::memory_order</code></h4>
+<p><code>std::memory_order</code>是 C++11
+标准引入的一组枚举常量，用于指定原子操作的内存顺序。在多线程编程中，原子操作是一种保证线程安全性的机制，而内存顺序定义了在多线程环境下，不同线程对内存的读写操作的顺序和可见性。</p>
+<p>在使用原子操作时，你可以通过指定合适的 <code>std::memory_order</code>
+值来控制操作的内存顺序。以下是 <code>std::memory_order</code>
+枚举常量的几个主要成员：</p>
+<ol type="1">
+<li><p><strong><code>memory_order_relaxed</code></strong>：最轻松的内存顺序，不会保证任何顺序关系，只保证原子操作的单个操作是原子的。通常用于不需要强制顺序的情况，提供最大的性能。</p></li>
+<li><p><strong><code>memory_order_consume</code></strong>：用于读取操作，对数据依赖关系的读取具有适当的顺序性，但是并不会保证与其他写操作的顺序关系。</p></li>
+<li><p><strong><code>memory_order_acquire</code></strong>：用于读取操作，确保在当前读取操作之前的所有写操作都对其他线程可见。它提供了适当的顺序性，确保不会出现读取脏数据。</p></li>
+<li><p><strong><code>memory_order_release</code></strong>：用于写入操作，确保在当前写入操作之后的所有读写操作都对其他线程可见。它提供了适当的顺序性，确保写入的数据能够被其他线程看到。</p></li>
+<li><p><strong><code>memory_order_acq_rel</code></strong>：既可以用于读取操作也可以用于写入操作，提供了一个综合的顺序性，确保前后的读写操作都有适当的顺序关系。</p></li>
+<li><p><strong><code>memory_order_seq_cst</code></strong>：最严格的内存顺序，保证了全局顺序性，所有线程对内存操作都具有相同的全局顺序。虽然提供了最高的顺序性，但可能会带来性能开销。</p></li>
+</ol>
+<p>参考https://github.com/cameron314/readerwriterqueue</p>
+<h2 id="无锁编程应用">无锁编程应用</h2>
+<h3 id="lock-free-memory-allocation"><strong>Lock-Free Memory
+Allocation</strong></h3>
+<p>Michael (PLDI 2004), <a
+target="_blank" rel="noopener" href="https://www.cs.tufts.edu/~nr/cs257/archive/neal-glew/mcrt/Non-blocking%20data%20structures/p35-michael.pdf">“Scalable
+Lock-Free Dynamic Memory Allocation”</a></p>
+<p>提供线程安全的malloc()与free()，且无需使用lock。</p>
+<h4 id="思路">思路</h4>
+<p>为每个core分配一大块空间作为heap，使用两个无锁链表分别管理已分配和未分配的块；使用两次cas避免ABA问题，从而实现无锁的分配与释放内存。</p>
+<h3 id="rcu">RCU</h3>
+<p>RCU（Read-Copy
+Update）是一种用于实现多线程环境下高效读取操作的同步机制，特别适用于操作系统内核和其他需要在读取操作频繁的场景中。RCU的主要目标是在不阻塞读取线程的情况下允许并发更新数据结构，从而提高读取操作的性能。</p>
+<p>RCU的工作原理如下：</p>
+<ol type="1">
+<li><p><strong>读操作不加锁</strong>：在RCU中，读取操作是非阻塞的，读取线程可以直接访问数据结构，而无需获得任何锁。</p></li>
+<li><p><strong>写操作的延迟</strong>：当需要修改数据结构时，RCU并不立即更新原始数据，而是创建一个新的数据副本，并将修改应用到副本上。这可以避免在写操作时阻塞读取线程。</p></li>
+<li><p><strong>发布和回收</strong>：在写操作的新数据副本创建完成后，RCU会在合适的时机发布这个副本，使得读取线程可以看到新的数据。而旧数据的回收则是延迟的，只有当所有正在使用旧数据的读取线程都完成后，才会安全地进行回收。</p></li>
+<li><p><strong>避免ABA问题</strong>：为了避免类似ABA问题（比如CAS操作）的情况，在RCU中每个数据副本都有一个版本号，以区分不同的副本。</p></li>
+<li><p><strong>内存屏障</strong>：在发布新的数据副本和回收旧数据时，通常需要使用内存屏障来确保数据的一致性。</p></li>
+</ol>
+<p>RCU的优点在于，它适用于读操作远远多于写操作的场景，并且避免了常规锁所带来的竞争和阻塞。但是，实现和正确使用RCU需要一些技术挑战，例如需要处理内存屏障、版本管理、回收等问题。</p>
+<p>RCU最早是由Linux内核中引入的，用于提高对共享数据结构的并发读取性能。随着时间的推移，RCU的思想也被应用于其他领域。在操作系统和其他需要高效读取的场景中，RCU可以是一个有力的工具来解决并发性能问题。</p>
+<h2 id="无锁编程的问题">无锁编程的问题</h2>
+<ul>
+<li><p>不能根治争用（<strong>contention</strong>）</p>
+<ul>
+<li><p>仍然可能有过多线程竞争无锁数据结构</p></li>
+<li><p>仍然可能发生饥饿现象</p></li>
+</ul></li>
+<li><p>需要与互斥锁相同的硬件支持</p></li>
+<li><p>并非万能解决方法</p></li>
+</ul>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a
+target="_blank" rel="noopener" href="https://preshing.com/20120612/an-introduction-to-lock-free-programming/">preshing</a></li>
+</ul>
 
     </div>
 
@@ -286,6 +532,9 @@
 
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/zyhjy/tags/offer/" rel="tag"><i class="fa fa-tag"></i> offer</a>
+          </div>
 
         
 
@@ -363,6 +612,12 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#lock%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">Lock的问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lock-free-programming%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">Lock-free
+Programming(无锁编程)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#what-is-it"><span class="nav-number">2.1.</span> <span class="nav-text">what is it</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86"><span class="nav-number">2.2.</span> <span class="nav-text">无锁编程相关知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#atomic-read-modify-write-operations"><span class="nav-number">2.2.1.</span> <span class="nav-text">Atomic Read-Modify-Write
+Operations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#compare-and-swap-loops"><span class="nav-number">2.2.2.</span> <span class="nav-text">Compare-And-Swap Loops</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#aba-problem"><span class="nav-number">2.2.2.0.1.</span> <span class="nav-text">ABA problem</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sequential-consistency"><span class="nav-number">2.2.3.</span> <span class="nav-text">Sequential Consistency</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#cvolatile%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">2.2.3.0.1.</span> <span class="nav-text">C++volatile关键字</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memory-ordering"><span class="nav-number">2.2.4.</span> <span class="nav-text">Memory Ordering</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#different-processors-have-different-memory-models"><span class="nav-number">2.2.5.</span> <span class="nav-text">Different
+Processors Have Different Memory Models</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5"><span class="nav-number">2.3.</span> <span class="nav-text">代码实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lock-free-stack"><span class="nav-number">2.3.1.</span> <span class="nav-text">lock-free stack</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#simple-lock-free-stack-structures"><span class="nav-number">2.3.1.1.</span> <span class="nav-text">simple lock-free stack
+structures</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#lock-free-stacks-aba-problem"><span class="nav-number">2.3.1.2.</span> <span class="nav-text">lock-free stack&#39;s ABA problem</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#solution"><span class="nav-number">2.3.1.2.1.</span> <span class="nav-text">solution</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lock-free-circular-queue"><span class="nav-number">2.3.2.</span> <span class="nav-text">lock-free circular queue</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#stdmemory_order"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">std::memory_order</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B%E5%BA%94%E7%94%A8"><span class="nav-number">2.4.</span> <span class="nav-text">无锁编程应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lock-free-memory-allocation"><span class="nav-number">2.4.1.</span> <span class="nav-text">Lock-Free Memory
+Allocation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">2.4.1.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rcu"><span class="nav-number">2.4.2.</span> <span class="nav-text">RCU</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.5.</span> <span class="nav-text">无锁编程的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">2.6.</span> <span class="nav-text">Reference</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -378,14 +633,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-count">67</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-count">41</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -430,12 +685,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">306k</span>
+    <span title="站点总字数">320k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">8:31</span>
+    <span title="站点阅读时长">8:53</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -567,6 +822,26 @@
     
 
   
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
 
 <script>
 NexT.utils.loadComments(document.querySelector('#lv-container'), () => {

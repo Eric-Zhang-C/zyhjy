@@ -7,8 +7,8 @@
 <meta name="generator" content="Hexo 6.3.0">
 <meta name="referrer" content="no-referrer">
   <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/favicon-16x16-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
   <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
 
 <link rel="stylesheet" href="/zyhjy/css/main.css">
@@ -19,7 +19,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="爱小雅，爱生活，爱物理!">
@@ -85,7 +85,7 @@
   </style>
 </noscript>
 
-</head>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container">
@@ -197,6 +197,94 @@
 
           <div class="content index posts-expand">
             
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/08/29/synchronization-primitive/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/08/29/synchronization-primitive/" class="post-title-link" itemprop="url">同步原语</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-08-29 09:50:11" itemprop="dateCreated datePublished" datetime="2023-08-29T09:50:11+08:00">2023-08-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-30 21:38:16" itemprop="dateModified" datetime="2023-08-30T21:38:16+08:00">2023-08-30</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="同步原语">同步原语</h1>
+<p>为了高效的解决如生产者消费者模型等类似的并发编程问题，前人抽象出了一系列同步原语（synchronization
+primitive）供开发者使用。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/zyhjy/2023/08/29/synchronization-primitive/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
   
   
@@ -429,6 +517,30 @@
 
               <time title="创建时间：2023-08-24 22:52:05" itemprop="dateCreated datePublished" datetime="2023-08-24T22:52:05+08:00">2023-08-24</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-30 21:38:23" itemprop="dateModified" datetime="2023-08-30T21:38:23+08:00">2023-08-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Concurrent/" itemprop="url" rel="index"><span itemprop="name">Concurrent</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E7%AE%97%E6%B3%95%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">算法题</span></a>
+                </span>
+            </span>
 
           <br>
             <span class="post-meta-item" title="本文字数">
@@ -436,14 +548,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>13 分钟</span>
             </span>
 
         </div>
@@ -455,8 +567,16 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          
-
+          <h1 id="lock的问题">Lock的问题</h1>
+<p>在谈无锁编程之前，我们首先来谈一谈锁存在哪些问题：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/zyhjy/2023/08/24/Lock-free-Programming/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -498,10 +618,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2023-08-23 10:47:29 / 修改时间：15:26:50" itemprop="dateCreated datePublished" datetime="2023-08-23T10:47:29+08:00">2023-08-23</time>
+              <time title="创建时间：2023-08-23 10:47:29" itemprop="dateCreated datePublished" datetime="2023-08-23T10:47:29+08:00">2023-08-23</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-30 21:38:38" itemprop="dateModified" datetime="2023-08-30T21:38:38+08:00">2023-08-30</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -563,20 +689,14 @@
 <em>y</em>；</p></li>
 <li><p><em>x</em> 到 <em>y</em> 之间的路径即为图中的最长路径。</p></li>
 </ol>
-<h2 id="相关题目">相关题目</h2>
-<h3 id="leetcode-310.-最小高度树">Leetcode 310. 最小高度树</h3>
-<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/minimum-height-trees/">310.
-最小高度树</a></p>
-<h4 id="思路1bfs-dfs">思路1(BFS, DFS)</h4>
-<p>最小高度即图中最长路径的一半。找到最长路径路径的中间节点即为根节点。</p>
-<h4 id="思路2拓扑">思路2(拓扑)</h4>
-<ol type="1">
-<li>把题目输入的 <code>edges</code> 转换成邻接表。</li>
-<li>然后，我们从叶子节点开始，一层一层地删除叶子节点（每删除一层叶子节点，就会产生新的叶子节点），直到剩下的节点数小于等于
-2 个为止。之所以是 2 个而不是 1
-个，是因为如果输入的这幅图两边完全对称，可能出现两个节点都可以作为根节点的情况。</li>
-</ol>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/zyhjy/2023/08/23/%E5%9B%BE%E9%97%AE%E9%A2%98%E7%9B%B8%E5%85%B3%E7%AE%97%E6%B3%95%E5%90%88%E9%9B%86/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1121,105 +1241,6 @@ Pin</h1>
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/08/04/%E5%8D%95%E8%B0%83%E6%A0%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2023/08/04/%E5%8D%95%E8%B0%83%E6%A0%88/" class="post-title-link" itemprop="url">单调栈</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2023-08-04 16:01:46 / 修改时间：17:55:31" itemprop="dateCreated datePublished" datetime="2023-08-04T16:01:46+08:00">2023-08-04</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/%E7%AE%97%E6%B3%95%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">算法题</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="单调栈monotone-stack">单调栈(monotone-stack)</h1>
-<p>单调栈，即满足单调性的栈，与普通的栈相比，就是在入栈时将不满足要求栈顶的元素弹出。</p>
-<p>比如，我们要维护一个从栈底到栈顶单调减少的栈，在某次操作前，栈内有元素：<code>(bottom) 12, 8, 5, 1 (top)</code>;
-此时要将7入栈，由于7
-大于栈顶元素<code>1,  5</code>,于是需要将其弹出，再将7入栈，此时栈为<code>(bottom) 12, 8, 7 (top)</code>。</p>
-<p>单调栈本身很好理解，主要是做题的时候，
-如何将题目转化为用单调栈的思路，接下来通过几个例题分析。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/zyhjy/2023/08/04/%E5%8D%95%E8%B0%83%E6%A0%88/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1291,14 +1312,14 @@ Pin</h1>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-count">67</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-count">41</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -1343,12 +1364,12 @@ Pin</h1>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">306k</span>
+    <span title="站点总字数">320k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">8:31</span>
+    <span title="站点阅读时长">8:53</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
@@ -1480,6 +1501,26 @@ Pin</h1>
     
 
   
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
 
 
 </body>
