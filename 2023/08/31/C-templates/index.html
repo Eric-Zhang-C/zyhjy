@@ -22,17 +22,19 @@
     var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="爱小雅，爱生活，爱物理!">
-<meta property="og:type" content="website">
-<meta property="og:title" content="ZYHJY">
-<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/archives/2023/06/">
+  <meta name="description" content="模板的多态性 多态是将不同的特定行为与单个统一符号关联起来的能力。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ Templates">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/08/31/C-templates/">
 <meta property="og:site_name" content="ZYHJY">
-<meta property="og:description" content="爱小雅，爱生活，爱物理!">
+<meta property="og:description" content="模板的多态性 多态是将不同的特定行为与单个统一符号关联起来的能力。">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-31T04:19:41.000Z">
+<meta property="article:modified_time" content="2023-09-02T04:05:15.736Z">
 <meta property="article:author" content="Yuhang Zhang">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/archives/2023/06/">
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/08/31/C-templates/">
 
 
 <script id="page-configurations">
@@ -40,12 +42,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>归档 | ZYHJY</title>
+  <title>C++ Templates | ZYHJY</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
     <script>
@@ -195,117 +197,194 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        
-        <span class="collection-header">不错! 目前共计 68 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/08/31/C-templates/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++ Templates
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-08-31 12:19:41" itemprop="dateCreated datePublished" datetime="2023-08-31T12:19:41+08:00">2023-08-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-09-02 12:05:15" itemprop="dateModified" datetime="2023-09-02T12:05:15+08:00">2023-09-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2023</span>
-    </div>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-06-06T00:00:00+08:00"
-              content="2023-06-06">
-          06-06
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/zyhjy/2023/06/06/gmock/" itemprop="url">
-            <span itemprop="name">未命名</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-06-04T11:06:00+08:00"
-              content="2023-06-04">
-          06-04
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/zyhjy/2023/06/04/C++%E4%BE%AF%E6%8D%B7STL%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" itemprop="url">
-            <span itemprop="name">C++并发编程</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-06-04T11:06:00+08:00"
-              content="2023-06-04">
-          06-04
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/zyhjy/2023/06/04/A%20Top-Down%20method%20for%20performance%20analysis%20and%20counters%20architecture/" itemprop="url">
-            <span itemprop="name">Topdown论文--ISPASS2014</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2023-06-04T11:06:00+08:00"
-              content="2023-06-04">
-          06-04
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url">
-            <span itemprop="name">C++并发编程</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
+        <h1 id="模板的多态性">模板的多态性</h1>
+<p>多态是将不同的特定行为与单个统一符号关联起来的能力。</p>
+<span id="more"></span>
+<h2 id="动态多态-vs-静态多态">动态多态 vs 静态多态</h2>
+<p>动态多态（dynamic polymorphism）：通过继承与虚函数实现的多态</p>
+<ul>
+<li>通过继承实现的多态是有界的(bounded)和动态的(dynamic):
+<ul>
+<li>有界：在设计公共基类的时候，参与到多态行为中的类型的相关接口就已经确定</li>
+<li>动态的意思是，接口的绑定是在运行期间执行的。</li>
+</ul></li>
+<li>优点
+<ul>
+<li>可以优雅透明地处理异构集合(Heterogeneous
+collection)（静态多态往往需要指出实际的模板参数类型）</li>
+<li>可执行文件的大小可能会比较小(因为它只需要一个多态函数，不像静态多态那样，需要为不同的类型进行各自的实例化)。</li>
+<li>仅公开头文件代码可以被完整的编译(在发布模板库时通常需要发布模板的源代码实现)</li>
+</ul></li>
+</ul>
+<p>静态多态（static polymorphism）：通过模板实现的多态</p>
+<ul>
+<li>通过模板实现的多态是无界的(unbounded)和静态的(static):
+<ul>
+<li>无界：参与到多态行为中的类型的相关接口是不可预先确定的</li>
+<li>静态：接口的绑定是在编译期间执行的</li>
+</ul></li>
+<li>优点
+<ul>
+<li>接口的公共性不需要通过公共基类实现。</li>
+<li>产生的代码可能会更快(因为不需要通过指针进行重定向，非虚函数通常也更容易被
+inline)。</li>
+<li>即使某个具体类型只提供了部分的接口，也可以用于静态多态，只要不会用到那些没有被实现的接口即可。</li>
+</ul></li>
+</ul>
+<h2 id="conceptc20">Concept（C++20）</h2>
+<p>静态多态的问题就在于没有办法像动态多态一样提供一个公共基类，模板没有办法控制实例化的代码是有效的。concept就是为解决这一问题提出的：它代表了为了能够成功的实例化模板，模板参数必须要满足的一组约束条件。也就是可以显示地检查模板参数是否有要求的接口。</p>
+<h2 id="桥接模式bridge-pattern">桥接模式（Bridge pattern）</h2>
+<p>传统的桥接模式通过使用一个接口类实现的，接口类中包含了一个指向具体实现的指针，然后通过该指针委派所有的函数调用。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230831153852832.png"
+alt="image-20230831153852832" />
+<figcaption aria-hidden="true">image-20230831153852832</figcaption>
+</figure>
+<p>但是，如果具体类型在编译期可知，我们也可以使用模板实现桥接模式，这样做更加类型安全（省去了指针类型转换），性能也会更好。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20230831153825001.png"
+alt="image-20230831153825001" />
+<figcaption aria-hidden="true">image-20230831153825001</figcaption>
+</figure>
+<h1 id="萃取">萃取</h1>
+<p>萃取(或者叫萃取模板，traits/traits template)是
+C++编程的组件，用于管理过多的模板参数。如主模板参数T已经确定，与T相关/不相关的类型以及默认值都可以确定，此时为了减少模板参数的个数，这些可以由T确定的参数可以通过萃取模板管理。</p>
 
     </div>
-  </div>
-  
-  
-  
 
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yuhang Zhang
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2023/08/31/C-templates/" title="C++ Templates">https://zyh-eric.gitee.io/zyhjy/2023/08/31/C-templates/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/08/29/synchronization-primitive/" rel="prev" title="同步原语">
+      <i class="fa fa-chevron-left"></i> 同步原语
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
   
 
 
 
           </div>
           
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81ODg3Ni8zNTMzOA=="></div>
+  </div>
+  
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -352,6 +431,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E6%9D%BF%E7%9A%84%E5%A4%9A%E6%80%81%E6%80%A7"><span class="nav-number">1.</span> <span class="nav-text">模板的多态性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%A4%9A%E6%80%81-vs-%E9%9D%99%E6%80%81%E5%A4%9A%E6%80%81"><span class="nav-number">1.1.</span> <span class="nav-text">动态多态 vs 静态多态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conceptc20"><span class="nav-number">1.2.</span> <span class="nav-text">Concept（C++20）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8Fbridge-pattern"><span class="nav-number">1.3.</span> <span class="nav-text">桥接模式（Bridge pattern）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%90%83%E5%8F%96"><span class="nav-number">2.</span> <span class="nav-text">萃取</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -577,6 +657,21 @@ window.darkmode = darkmode;
 darkmode.showWidget();
 </script>
 
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
 
 </body>
 </html>

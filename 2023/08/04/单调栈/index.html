@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 6.3.0">
 <meta name="referrer" content="no-referrer">
-  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/apple-touch-icon-next.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
   <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
@@ -30,7 +30,7 @@
 <meta property="og:description" content="单调栈(monotone-stack) 单调栈，即满足单调性的栈，与普通的栈相比，就是在入栈时将不满足要求栈顶的元素弹出。 比如，我们要维护一个从栈底到栈顶单调减少的栈，在某次操作前，栈内有元素：(bottom) 12, 8, 5, 1 (top); 此时要将7入栈，由于7 大于栈顶元素1,  5,于是需要将其弹出，再将7入栈，此时栈为(bottom) 12, 8, 7 (top)。 单调栈本身很">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-08-04T08:01:46.000Z">
-<meta property="article:modified_time" content="2023-08-04T09:55:31.872Z">
+<meta property="article:modified_time" content="2023-09-09T05:56:46.173Z">
 <meta property="article:author" content="Yuhang Zhang">
 <meta property="article:tag" content="offer">
 <meta name="twitter:card" content="summary">
@@ -227,10 +227,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2023-08-04 16:01:46 / 修改时间：17:55:31" itemprop="dateCreated datePublished" datetime="2023-08-04T16:01:46+08:00">2023-08-04</time>
+              <time title="创建时间：2023-08-04 16:01:46" itemprop="dateCreated datePublished" datetime="2023-08-04T16:01:46+08:00">2023-08-04</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-09-09 13:56:46" itemprop="dateModified" datetime="2023-09-09T13:56:46+08:00">2023-09-09</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -258,14 +264,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.2k</span>
+              <span>2.8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>5 分钟</span>
             </span>
 
         </div>
@@ -285,6 +291,79 @@
 <p>单调栈本身很好理解，主要是做题的时候，
 如何将题目转化为用单调栈的思路，接下来通过几个例题分析。</p>
 <span id="more"></span>
+<h2 id="leetcode-496.-下一个更大元素">LeetCode 496. 下一个更大元素</h2>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/next-greater-element-i/">496.
+下一个更大元素 I</a></p>
+<p><code>nums1</code> 中数字 <code>x</code> 的
+<strong>下一个更大元素</strong> 是指 <code>x</code> 在
+<code>nums2</code> 中对应位置 <strong>右侧</strong> 的
+<strong>第一个</strong> 比 <code>x</code> 大的元素。</p>
+<p>给你两个 <strong>没有重复元素</strong> 的数组 <code>nums1</code> 和
+<code>nums2</code> ，下标从 <strong>0</strong>
+开始计数，其中<code>nums1</code> 是 <code>nums2</code> 的子集。</p>
+<p>对于每个 <code>0 &lt;= i &lt; nums1.length</code> ，找出满足
+<code>nums1[i] == nums2[j]</code> 的下标 <code>j</code> ，并且在
+<code>nums2</code> 确定 <code>nums2[j]</code> 的
+<strong>下一个更大元素</strong>
+。如果不存在下一个更大元素，那么本次查询的答案是 <code>-1</code> 。</p>
+<p>返回一个长度为 <code>nums1.length</code> 的数组 <code>ans</code>
+作为答案，满足 <code>ans[i]</code> 是如上所述的
+<strong>下一个更大元素</strong> 。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">输入：nums1 = [4,1,2], nums2 = [1,3,4,2].</span><br><span class="line">输出：[-1,3,-1]</span><br><span class="line">解释：nums1 中每个值的下一个更大元素如下所述：</span><br><span class="line">- 4 ，用加粗斜体标识，nums2 = [1,3,4,2]。不存在下一个更大元素，所以答案是 -1 。</span><br><span class="line">- 1 ，用加粗斜体标识，nums2 = [1,3,4,2]。下一个更大元素是 3 。</span><br><span class="line">- 2 ，用加粗斜体标识，nums2 = [1,3,4,2]。不存在下一个更大元素，所以答案是 -1 。</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入：nums1 = [2,4], nums2 = [1,2,3,4].</span><br><span class="line">输出：[3,-1]</span><br><span class="line">解释：nums1 中每个值的下一个更大元素如下所述：</span><br><span class="line">- 2 ，用加粗斜体标识，nums2 = [1,2,3,4]。下一个更大元素是 3 。</span><br><span class="line">- 4 ，用加粗斜体标识，nums2 = [1,2,3,4]。不存在下一个更大元素，所以答案是 -1 。</span><br></pre></td></tr></table></figure>
+<h3 id="思路">思路</h3>
+<p>题目让我们nums1
+中每个值在nums2中的下一个更大元素。所以可以分成两步：</p>
+<pre><code>1. 首先找到nums2中每个元素的下一个更大元素，用哈希表记录结果；
+1. 在哈希表中查询nums1中每个元素的对应的结果。</code></pre>
+<p>查找下一个更大元素，可以利用单调栈的性质：维护一个单调递减的栈。遍历数组，将元素依次压入单调栈，那么当每一个元素被入栈元素弹出的时候，入栈元素就是他的下一个更大元素；如果遍历结束后仍有元素在数组，则对应答案是-1。</p>
+<h2 id="下一个更大元素-ii">503. 下一个更大元素 II</h2>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/next-greater-element-ii/">503.
+下一个更大元素 II</a></p>
+<p>给定一个循环数组 <code>nums</code> （
+<code>nums[nums.length - 1]</code> 的下一个元素是 <code>nums[0]</code>
+），返回 <em><code>nums</code> 中每个元素的
+<strong>下一个更大元素</strong></em> 。</p>
+<p>数字 <code>x</code> 的 <strong>下一个更大的元素</strong>
+是按数组遍历顺序，这个数字之后的第一个比它更大的数，这意味着你应该循环地搜索它的下一个更大的数。如果不存在，则输出
+<code>-1</code> 。</p>
+<p><strong>示例 1:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入: nums = [1,2,1]</span><br><span class="line">输出: [2,-1,2]</span><br><span class="line">解释: 第一个 1 的下一个更大的数是 2；</span><br><span class="line">数字 2 找不到下一个更大的数； </span><br><span class="line">第二个 1 的下一个最大的数需要循环搜索，结果也是 2。</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入: nums = [1,2,3,4,3]</span><br><span class="line">输出: [2,3,4,-1,4]</span><br></pre></td></tr></table></figure>
+<h3 id="思路-1">思路</h3>
+<p>与上一题相同，维护一个单调递减的栈。遍历数组，但是考虑到是循环数组，遍历的范围是<code>2 * nums.size() - 1</code>,可以用取模的方式避免越界访问。</p>
+<h2 id="链表中的下一个更大节点">1019. 链表中的下一个更大节点</h2>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/next-greater-node-in-linked-list/">1019.
+链表中的下一个更大节点</a></p>
+<p>给定一个长度为 <code>n</code> 的链表 <code>head</code></p>
+<p>对于列表中的每个节点，查找下一个 <strong>更大节点</strong>
+的值。也就是说，对于每个节点，找到它旁边的第一个节点的值，这个节点的值
+<strong>严格大于</strong> 它的值。</p>
+<p>返回一个整数数组 <code>answer</code> ，其中 <code>answer[i]</code>
+是第 <code>i</code> 个节点( <strong>从1开始</strong>
+)的下一个更大的节点的值。如果第 <code>i</code>
+个节点没有下一个更大的节点，设置 <code>answer[i] = 0</code> 。</p>
+<p><strong>示例 1：</strong></p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/linkedlistnext1.jpg"
+alt="img" />
+<figcaption aria-hidden="true">img</figcaption>
+</figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：head = [2,1,5]</span><br><span class="line">输出：[5,5,0]</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2：</strong></p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/linkedlistnext2-20230909113647715.jpg"
+alt="img" />
+<figcaption aria-hidden="true">img</figcaption>
+</figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：head = [2,7,4,3,5]</span><br><span class="line">输出：[7,0,5,5,0]</span><br></pre></td></tr></table></figure>
+<p>依然是使用单调栈，维护一个单调不增的栈。唯一的问题是元素出栈时不知道元素在<code>answer</code>中的位置，所以入栈不仅仅压入节点值，也要一同压入位置信息。</p>
 <h2 id="leetcode-402.-移掉-k-位数字">LeetCode 402. 移掉 K 位数字</h2>
 <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/remove-k-digits/">402. 移掉 K
 位数字</a></p>
@@ -297,7 +376,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：num = &quot;10200&quot;, k = 1</span><br><span class="line">输出：&quot;200&quot;</span><br><span class="line">解释：移掉首位的 1 剩下的数字为 200. 注意输出不能有任何前导零。</span><br></pre></td></tr></table></figure>
 <p><strong>示例 3 ：</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：num = &quot;10&quot;, k = 2</span><br><span class="line">输出：&quot;0&quot;</span><br><span class="line">解释：从原数字移除所有的数字，剩余为空就是 0 。</span><br></pre></td></tr></table></figure>
-<h3 id="思路">思路</h3>
+<h3 id="思路-2">思路</h3>
 <p>首先观察示例1，"1432219"若要去除一个数字，肯定选4，因为3 &lt;
 4,所以132XXX &lt; 142XXX,；之后同理，去除3，因为12XXX &lt;
 13XXX;一般地，<span
@@ -316,7 +395,7 @@ class="math inline">\(L_{i-1}\)</span></strong>。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;bcabc&quot;</span><br><span class="line">输出：&quot;abc&quot;</span><br></pre></td></tr></table></figure>
 <p><strong>示例 2：</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：s = &quot;cbacdcbc&quot;</span><br><span class="line">输出：&quot;acdb&quot;</span><br></pre></td></tr></table></figure>
-<h3 id="思路-1">思路</h3>
+<h3 id="思路-3">思路</h3>
 <p>题目要求每个字母只出现一次，所以只出现过一次的字母肯定是不能删除的，</p>
 <p>要求字典序最小，类似上一题要求剩下的数字最小，肯定是<strong>小的字母尽量排在前面</strong>。与上一题思路相同，考虑单调栈，<strong>每次压入字母c时需弹出栈顶字典序大于c的的字母</strong>。</p>
 <p>但是，题目要求出现一次，所以开始时先统计每个字母的个数；每次单调栈需要弹出时，如果栈顶字母只剩一个，则不可弹出；否则，弹出且对计数-1；另外记录已经入栈且未被弹出的字母，后续遇到则不需入栈。</p>
@@ -425,7 +504,7 @@ class="math inline">\(L_{i-1}\)</span></strong>。</p>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E8%B0%83%E6%A0%88monotone-stack"><span class="nav-number">1.</span> <span class="nav-text">单调栈(monotone-stack)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#leetcode-402.-%E7%A7%BB%E6%8E%89-k-%E4%BD%8D%E6%95%B0%E5%AD%97"><span class="nav-number">1.1.</span> <span class="nav-text">LeetCode 402. 移掉 K 位数字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#leetcode-316.-%E5%8E%BB%E9%99%A4%E9%87%8D%E5%A4%8D%E5%AD%97%E6%AF%8D"><span class="nav-number">1.2.</span> <span class="nav-text">LeetCode 316. 去除重复字母</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">思路</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E8%B0%83%E6%A0%88monotone-stack"><span class="nav-number">1.</span> <span class="nav-text">单调栈(monotone-stack)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#leetcode-496.-%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%A4%A7%E5%85%83%E7%B4%A0"><span class="nav-number">1.1.</span> <span class="nav-text">LeetCode 496. 下一个更大元素</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%A4%A7%E5%85%83%E7%B4%A0-ii"><span class="nav-number">1.2.</span> <span class="nav-text">503. 下一个更大元素 II</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%A4%A7%E8%8A%82%E7%82%B9"><span class="nav-number">1.3.</span> <span class="nav-text">1019. 链表中的下一个更大节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#leetcode-402.-%E7%A7%BB%E6%8E%89-k-%E4%BD%8D%E6%95%B0%E5%AD%97"><span class="nav-number">1.4.</span> <span class="nav-text">LeetCode 402. 移掉 K 位数字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-2"><span class="nav-number">1.4.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#leetcode-316.-%E5%8E%BB%E9%99%A4%E9%87%8D%E5%A4%8D%E5%AD%97%E6%AF%8D"><span class="nav-number">1.5.</span> <span class="nav-text">LeetCode 316. 去除重复字母</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-3"><span class="nav-number">1.5.1.</span> <span class="nav-text">思路</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -441,7 +520,7 @@ class="math inline">\(L_{i-1}\)</span></strong>。</p>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-count">68</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -454,7 +533,7 @@ class="math inline">\(L_{i-1}\)</span></strong>。</p>
       <div class="site-state-item site-state-tags">
             <a href="/zyhjy/tags/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -493,12 +572,12 @@ class="math inline">\(L_{i-1}\)</span></strong>。</p>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">320k</span>
+    <span title="站点总字数">333k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">8:53</span>
+    <span title="站点阅读时长">9:15</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

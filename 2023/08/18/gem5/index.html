@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 6.3.0">
 <meta name="referrer" content="no-referrer">
-  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/apple-touch-icon-next.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
   <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
@@ -30,8 +30,9 @@
 <meta property="og:description" content="这篇文章用于记录在做实验室项目时遇到的gem5 O3CPU相关的知识，对应的gem5版本为21.2.0.0。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-08-18T10:18:40.000Z">
-<meta property="article:modified_time" content="2023-08-24T14:49:55.705Z">
+<meta property="article:modified_time" content="2023-09-08T02:12:16.462Z">
 <meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="lab">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/08/18/gem5/">
@@ -234,7 +235,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-08-24 22:49:55" itemprop="dateModified" datetime="2023-08-24T22:49:55+08:00">2023-08-24</time>
+                <time title="修改时间：2023-09-08 10:12:16" itemprop="dateModified" datetime="2023-09-08T10:12:16+08:00">2023-09-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -263,14 +264,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>5.2k</span>
+              <span>7.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>9 分钟</span>
+              <span>13 分钟</span>
             </span>
 
         </div>
@@ -353,6 +354,70 @@ stage的指令数以达到fetchWidth)，则保存pcOffset供下个tick使用：<
 </ul>
 <h3 id="blkoffset">6. blkOffset</h3>
 <p>记录指令在cache line中的offset.</p>
+<h3 id="fetchfetchcacheline">7. Fetch::fetchCacheLine</h3>
+<p>translateTiming(req, tc, translation, mode, NormalTran, false);</p>
+<p>Request::INST_FETCH flag 呼应mmu req-&gt;isInstFetch()</p>
+<p>SCTLR (System Control Register) 在 ARMv8 架构的 Memory Management
+Unit (MMU) 中是一个非常重要的寄存器。SCTLR
+控制了处理器的一些重要特性和操作模式，包括虚拟内存的管理。它的全名是
+"System Control Register (EL1)"，表示在 EL1 (Exception Level 1)
+模式下的系统控制寄存器。</p>
+<p>在 SCTLR 中，有许多位用于控制不同的系统行为。以下是一些常见的 SCTLR
+位及其功能：</p>
+<ol type="1">
+<li><p>M (Bit 0): 控制 MMU 的整体使能。如果 M
+位被清零，将禁用虚拟内存支持，这意味着处理器将以物理地址模式运行。</p></li>
+<li><p>C (Bit 2): 控制缓存使能。如果 C
+位被清零，将禁用数据缓存。</p></li>
+<li><p>I (Bit 12): 控制指令缓存使能。如果 I
+位被清零，将禁用指令缓存。</p></li>
+<li><p>A (Bit 15): 强制对齐访问使能。如果 A
+位被设置，处理器将执行强制对齐检查。</p></li>
+<li><p>SA0 (Bits 21:22) 和 SA (Bits 23:24):
+控制栈对齐。这些位用于配置堆栈的对齐方式。</p></li>
+<li><p>EE (Bit 25): 异常端点。如果 EE
+位被设置，异常将发生在指令执行的结束阶段。</p></li>
+<li><p>VE (Bit 24): 虚拟化使能。如果 VE
+位被设置，将启用虚拟化支持。</p></li>
+</ol>
+<p>请注意，SCTLR
+的精确配置和位的含义可能会因处理器的具体实现而有所不同，因此在特定的
+ARMv8 处理器手册中可以找到详细的信息。配置 SCTLR 是配置 ARMv8
+处理器的关键部分，以适应特定的系统需求和应用场景。</p>
+<p>在ARMv8架构中，HCR (Hypervisor Configuration Register)
+是一个特殊寄存器，用于控制虚拟化和Hypervisor模式下的配置。HCR寄存器的作用是允许虚拟机监视程序（VMM，Virtual
+Machine Monitor）在ARM虚拟化环境中控制虚拟机的行为。</p>
+<p>HCR寄存器的位字段通常包括以下重要功能：</p>
+<ol type="1">
+<li><p><strong>VM（Virtualization
+Mode）使能位</strong>：它允许或禁用虚拟化模式。当VM使能位被设置时，处理器将进入虚拟化模式，允许多个虚拟机同时运行。当VM使能位被清除时，处理器将以非虚拟化模式运行，允许单一操作系统或监视程序控制整个系统。</p></li>
+<li><p><strong>TCR（Translation Control
+Register）的EL2位</strong>：它允许虚拟机监视程序设置虚拟机的地址转换控制寄存器（TCR）的值。这是为了支持虚拟机自己的地址空间映射和管理。</p></li>
+<li><p><strong>全局中断使能位</strong>：HCR中可能还包括一些用于控制虚拟机的中断处理的位字段。</p></li>
+</ol>
+<p>HCR寄存器的确切细节可能会根据ARMv8架构的特定实现而有所不同。因此，如果你正在编写虚拟机监视程序或需要详细了解HCR寄存器的配置，请参考相关的ARM架构文档或处理器手册，以获取针对你的特定硬件实现的详细信息。</p>
+<p>在ARMv8架构中，TCR代表Translation Control
+Register（翻译控制寄存器），用于配置内存管理单元（MMU）的行为。TCR中包含了一些字段，用于控制虚拟地址到物理地址的翻译。具体而言，TCR的字段可以配置页表、虚拟地址的位数、缓存策略以及一些安全特性。</p>
+<p>以下是ARMv8架构中TCR的一些重要字段和功能：</p>
+<ol type="1">
+<li><p><strong>T0SZ和T1SZ</strong>：这些字段分别用于配置第一级和第二级页表的虚拟地址位数。它们决定了虚拟地址空间的大小。例如，如果T0SZ设置为32，那么第一级页表将使用32位的虚拟地址。</p></li>
+<li><p><strong>T2SZ</strong>：用于配置第三级页表的虚拟地址位数。</p></li>
+<li><p><strong>TG0和TG1</strong>：这些字段控制页表的粒度。可以选择4KB或64KB的页大小。</p></li>
+<li><p><strong>IPS</strong>：用于配置页表的页表级数。较低的值对应于更多的页表级别，从而允许更灵活的内存映射。</p></li>
+<li><p><strong>SH0和SH1</strong>：用于配置内存区域的共享属性，如内存区域是否可共享或私有。</p></li>
+<li><p><strong>ORGN0和ORGN1</strong>：用于配置内存区域的原点（cacheability）属性，例如，是否可缓存或不可缓存。</p></li>
+<li><p><strong>IRGN0和IRGN1</strong>：用于配置内存区域的指令区域（cacheability）属性。</p></li>
+<li><p><strong>EPD0和EPD1</strong>：用于配置是否启用自动页表更新。</p></li>
+<li><p><strong>A1和EPD1</strong>：这些位用于配置是否启用第二级页表。</p></li>
+<li><p><strong>TBI0和TBI1</strong>：用于配置是否启用Top Byte
+Ignore，这允许在页表翻译过程中忽略虚拟地址的最高字节，用于地址空间扩展。</p></li>
+</ol>
+<p>这些字段的具体配置取决于系统的需求和操作系统的支持。通过适当地配置TCR寄存器，可以实现不同的内存映射和安全策略，以满足特定应用的需求。要了解更多详细信息，可以参考ARMv8架构的官方文档或特定处理器的技术参考手册。</p>
+<p>LPAE（Large Physical Address
+Extension）是ARMv8架构中的一项技术，用于扩展内存管理单元（MMU）的物理地址空间大小。LPAE的主要目的是支持更大的物理内存地址范围，以适应现代计算需求。</p>
+<p>在ARMv8架构中，LPAE允许系统使用64位物理地址，这使得系统能够管理和访问更多的物理内存。传统的32位ARM架构仅支持32位物理地址，限制了可寻址的物理内存范围。通过引入LPAE，ARMv8可以支持高达64位的物理地址，从而提高了内存的扩展性和容量。</p>
+<p>LPAE技术的引入使得ARMv8架构更适合用于高性能计算和服务器领域，因为它可以轻松处理大规模内存的需求。这对于虚拟化、大数据处理以及其他需要大内存的应用非常有益。</p>
+<p>总之，LPAE是ARMv8中的一项技术，用于扩展物理内存地址空间，支持更大容量的内存。</p>
 <hr />
 <h2 id="物理页分配流程">物理页分配流程</h2>
 <p>gem5::ArmLinuxProcess64::initState --&gt;&gt;
@@ -395,6 +460,9 @@ EmulationPageTable::map()</p>
 
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/zyhjy/tags/lab/" rel="tag"><i class="fa fa-tag"></i> lab</a>
+          </div>
 
         
 
@@ -476,7 +544,7 @@ EmulationPageTable::map()</p>
 of CPU model with other parts of gem5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fetch"><span class="nav-number">1.2.</span> <span class="nav-text">fetch</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#fetchdecoder%E4%B8%8Emacro-opmicro-op"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.
 fetch::decoder与macro op、micro op</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#inrom"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. inRom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fetchdecoder%E4%B8%8Epcoffset"><span class="nav-number">1.2.3.</span> <span class="nav-text">3.
 fetch::decoder与pcOffset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pcmask"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. pcMask()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fetchdecodermorebytes"><span class="nav-number">1.2.5.</span> <span class="nav-text">5.
-fetch::decoder::moreBytes()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#blkoffset"><span class="nav-number">1.2.6.</span> <span class="nav-text">6. blkOffset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%A9%E7%90%86%E9%A1%B5%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">1.3.</span> <span class="nav-text">物理页分配流程</span></a></li></ol></li></ol></div>
+fetch::decoder::moreBytes()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#blkoffset"><span class="nav-number">1.2.6.</span> <span class="nav-text">6. blkOffset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fetchfetchcacheline"><span class="nav-number">1.2.7.</span> <span class="nav-text">7. Fetch::fetchCacheLine</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%A9%E7%90%86%E9%A1%B5%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">1.3.</span> <span class="nav-text">物理页分配流程</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -492,7 +560,7 @@ fetch::decoder::moreBytes()</span></a></li><li class="nav-item nav-level-3"><a c
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-count">68</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -505,7 +573,7 @@ fetch::decoder::moreBytes()</span></a></li><li class="nav-item nav-level-3"><a c
       <div class="site-state-item site-state-tags">
             <a href="/zyhjy/tags/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -544,12 +612,12 @@ fetch::decoder::moreBytes()</span></a></li><li class="nav-item nav-level-3"><a c
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">320k</span>
+    <span title="站点总字数">333k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">8:53</span>
+    <span title="站点阅读时长">9:15</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

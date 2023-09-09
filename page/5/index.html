@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 6.3.0">
 <meta name="referrer" content="no-referrer">
-  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/apple-touch-icon-next.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
   <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
@@ -197,6 +197,146 @@
 
           <div class="content index posts-expand">
             
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/10/26/Docker%E4%BD%BF%E7%94%A8tips/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/10/26/Docker%E4%BD%BF%E7%94%A8tips/" class="post-title-link" itemprop="url">Docker使用Tips</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-10-26 16:28:50" itemprop="dateCreated datePublished" datetime="2022-10-26T16:28:50+08:00">2022-10-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/docker/" itemprop="url" rel="index"><span itemprop="name">docker</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="docker基本命令">docker基本命令</h1>
+<h2 id="查看docker占用空间">查看docker占用空间</h2>
+<pre><code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker system df</span><br></pre></td></tr></table></figure></code></pre>
+<h2 id="清理无用镜像缓存挂载数据">清理无用镜像、缓存、挂载数据：</h2>
+<ul>
+<li><code>docker system prune -a</code>
+<ul>
+<li>已停止的容器（container）</li>
+<li>未被任何容器所使用的卷（volume）</li>
+<li>未被任何容器所关联的网络（network）</li>
+<li>所有悬空镜像（image）</li>
+</ul></li>
+</ul>
+<h2 id="docker导出载入镜像库里的镜像">docker导出/载入镜像库里的镜像</h2>
+<pre><code>- `docker save -o qemu-gem5-o3.tar  qemu-gem5-o3:v2.0` REPOSITORY:TAG
+- 载入镜像`docker load &lt; images/qemu-gem5-o3.tar`</code></pre>
+<h1 id="其他">其他</h1>
+<h2 id="容器的磁盘占用">容器的磁盘占用</h2>
+<pre><code>- 每次创建一个容器时，都会有一些文件和目录被创建，
+    - 例如：`/var/lib/docker/containers/ID`目录，
+    - 如果容器使用了默认的日志模式，他的所有日志都会以JSON形式保存到此目录下。
+    - `/var/lib/docker/overlay2` 目录下含有容器的读写层，如果容器使用自己的文件系统保存了数据，那么就会写到此目录下。
+- 进入到/var/lib/docker/containers 目录下 通过 du -h --max-depth=1 查找大文件占用,发现这些文件中占用空间最大的是***-json.log**文件。而此文件的内容为docker生成的日志文件。
+- 然后可使用如下命令对该文件的内容进行清理：`cat /dev/null &gt; *-json.log`清理完成可不重启服务，
+    - 但如果允许建议重启一下docker服务。在此执行`df -h`命令之后，你会发现overlay2所占的磁盘空间已经减小。
+
+- 可以定期删除的地方，有3. ipch（可完全删除）</code></pre>
+<h2 id="vscode-server-no-space-left-on-device">vscode-server : No space
+left on device</h2>
+<ul>
+<li>删除diff和merged下的bin文件<code>rm -rf ~/.vscode-server/bin/*</code></li>
+</ul>
+<h2
+id="docker中使用了叫overlay2的层叠式结构">docker中使用了叫overlay2的层叠式结构，</h2>
+<ul>
+<li><p>为了简化存储，一个容器运行后会直接把镜像的存储状况作为容器的存储状况，然后针对容器运行产生的任何改动，都会在容器下相关目录中进行存储差分信息，也就是说一个容器中的存储情况由镜像原始存储情况和改动差分内容共同组成。</p></li>
+<li><p>以centos为例，docker的默认存储路径位于/var/lib/docker</p>
+<ul>
+<li>其中container文件夹保存着容器的相关信息，</li>
+<li>image保存着镜像的相关信息，overlay2保存着容器虚拟文件系统的相关信息。
+### overlay2中有diff目录和merged目录，</li>
+</ul></li>
+<li><p>diff中保存的就是差分信息</p></li>
+<li><p>merged是在容器运行时才会出现的存储情况集合，我们可以直接对差分信息进行修改，也可以在merged中进行修改，修改后的结果也会出现在diff中，同时容器内部也会直观的看到我们的修改内容</p></li>
+</ul>
+<p>docker exec -it
+f9922cef36973708172b909b7f3115248ebca48a359bef99c0051cd8c87ba89d bash
+docker run -it -v ~/FDU/PPI/2023spring:/home gem5-amd64-env</p>
+<h1 id="安装docker">安装docker</h1>
+<ul>
+<li>用国内 daocloud 一键安装命令：
+<code>curl -sSL https://get.daocloud.io/docker | sh</code></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
   
   
@@ -1816,396 +1956,6 @@ class自身声明了virtual析构函数 - copy构造函数和copy assignment操�
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/07/19/%E5%90%84%E7%A7%8Dlinux%E5%B0%8F%E6%8A%80%E5%B7%A7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/07/19/%E5%90%84%E7%A7%8Dlinux%E5%B0%8F%E6%8A%80%E5%B7%A7/" class="post-title-link" itemprop="url">各种linux小技巧</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-19 17:28:50" itemprop="dateCreated datePublished" datetime="2022-07-19T17:28:50+08:00">2022-07-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>5.7k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>9 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1
-id="已知pid已知fd号需要知道文件">已知PID，已知fd号，需要知道文件</h1>
-<ul>
-<li><code>ll /proc/[pid]/fd/</code></li>
-</ul>
-<h1 id="文件锁的情况">文件锁的情况</h1>
-<ul>
-<li><code>cat /proc/locks</code>
-<ul>
-<li>第一个是pid，:后是inode号</li>
-</ul></li>
-</ul>
-<h1 id="查看进程打开所有文件信息lsof">查看进程打开所有文件信息lsof</h1>
-<ul>
-<li><code>lsof -p [pid]</code></li>
-</ul>
-<h1 id="linux-error-code">linux error code</h1>
-<p>https://mariadb.com/kb/en/operating-system-error-codes/</p>
-<h1 id="反向删除文件">反向删除文件</h1>
-<ul>
-<li><code>xargs</code>:
-<ul>
-<li>根据这个命令的名字, 就可以知道它的含义了:<code>x</code>: transmit
-传递, <code>args</code>: 多个参数, 正是: 向命令(不能带多个参数的命令,
-如<code>rpm -e</code>)传递多个参数,
-循环遍历处理.<code>xargs</code>就相当于一个<code>for</code>循环.</li>
-</ul></li>
-<li>反向删除文件:
-<ul>
-<li><code>ls | grep -v 'install_falsh' | xargs rm -rf</code></li>
-</ul></li>
-</ul>
-<h1 id="linux怎么查看当前登录用户">linux怎么查看当前登录用户</h1>
-<ol type="1">
-<li>使用“w”命令，可以显示目前登入系统的用户信息；</li>
-<li>使用“who”命令，可以显示当前已登录的用户信息；</li>
-<li>使用“last”命令；</li>
-<li>使用“lastlog”命令</li>
-<li>使用“ac”命令。</li>
-</ol>
-<h1 id="查看时间和日期">查看时间和日期</h1>
-<ul>
-<li>命令: “date”</li>
-</ul>
-<h1 id="grep显示目标附近的几行">grep显示目标附近的几行</h1>
-<p>cat temp.txt | grep "Mis Predict! [commit]" -A9 -B1</p>
-<h1 id="linux查看文件夹多大">linux查看文件夹多大</h1>
-<ol type="1">
-<li><code>ls</code>
-<ul>
-<li><code>ls -ll</code>，会显示成字节大小，</li>
-<li><code>ls- lh</code>会以KB、MB等为单位进行显示，这样比较直观一些。</li>
-</ul></li>
-<li><code>du</code>
-<ul>
-<li><code>du -h --max-depth=1</code>，可以查看当前目录下各文件、文件夹的大小，这个比较实用。</li>
-<li><code>du -h –-max-depth=0 *</code>，可以只显示直接子目录文件及文件夹大小统计值。</li>
-<li>查询当前目录总大小可以使用<code>du -sh</code>，其中s代表统计汇总的意思，即只输出一个总和大小。
-<ul>
-<li>如果只想查看指定目录的总大小，可以使用du -sh 目录名称。</li>
-</ul></li>
-<li>对于指定文件夹也可以指定显示层次深度，如<code>du -h --max-depth=0 software/</code>及<code>du -h --max-depth=1 software/</code></li>
-</ul></li>
-</ol>
-<h1 id="scons编译">scons编译</h1>
-<ul>
-<li><p>scons：进行代码文件编译</p></li>
-<li><p>scons
--Q：进行代码文件编译，不显示Scons内部操作打印的信息，只显示编译信息</p></li>
-<li><p>scons -c：清除编译中间文件和可执行文件</p></li>
-</ul>
-<h1 id="linux按照大小行数切割文件">Linux按照大小、行数切割文件</h1>
-<ul>
-<li>按照大小切割文件
-<ol type="1">
-<li>按照10k为大小切分：【 split -b 10k data.txt -d 】</li>
-<li>按照5M为大小切分：【 split -b 5M data.txt -d 】</li>
-</ol>
-<ul>
-<li>说明： -d 指定切割后的文件后缀名为数字</li>
-</ul></li>
-<li>按照行数据切割文件
-<ol type="1">
-<li>以100行作为基本单位切分data.txt文件
-<ul>
-<li><code>split -l 100 data.txt result.txt</code></li>
-<li>输出文件：result.txtab result.txtac…结尾以 aa ab ac…</li>
-</ul></li>
-<li>指定切割后的文件前缀名与后缀名
-<ul>
-<li><code>split -l 100 data.txt -d -a 4 data_</code></li>
-<li>说明：
-<ul>
-<li>1）-l 100：按100行切割</li>
-<li>2）data_：指定切割后的文件前缀名</li>
-<li>3）-d：指定切割后的文件后缀名为数字</li>
-<li>4）-a 4：指定切割后的文件后缀名数字的长度</li>
-</ul></li>
-</ul></li>
-</ol></li>
-</ul>
-<h1 id="linux-ls指令">Linux ls指令</h1>
-<ul>
-<li>文件大小以M为单位显示<code>ll -h</code></li>
-<li>根据最近更新顺序排列<code>ls -lrt</code></li>
-</ul>
-<h1 id="解压缩">解压缩</h1>
-<h2 id="解压.tar.bz2">解压<code>.tar.bz2</code></h2>
-<ul>
-<li><code>tar -jxvf 包名</code></li>
-<li><code>-j</code> ： 打包后用zip2压缩，生成.tar.bz2文件</li>
-<li><code>-x</code> ：解开一个打包文件</li>
-<li><code>-v</code> ：过程中显示包内各文件</li>
-<li><code>-f</code> ：使用文件名 后面只可以接文件名不可以加其他参数</li>
-</ul>
-<h1 id="查看cpu的核数">查看CPU的核数</h1>
-<h2 id="物理-cpu-的个数">物理 CPU 的个数</h2>
-<ul>
-<li>物理核心就是计算机上实际配置的 CPU 个数。</li>
-<li><code>wc -l</code> 是统计行数</li>
-<li><code>cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l</code></li>
-</ul>
-<h2 id="每个-cpu-的核数">每个 CPU 的核数</h2>
-<ul>
-<li>指 CPU 上集成的处理数据的 CPU 核心个数，单核指 CPU
-核心数一个，双核则指的是两个。</li>
-<li><code>uniq</code> 可以去重连续出现的相同记录</li>
-<li><code>cat /proc/cpuinfo | grep "cpu cores" | uniq</code></li>
-</ul>
-<h1 id="限制某进程的cpu占用率----cpulimit">限制某进程的CPU占用率 --
-CPULimit</h1>
-<ul>
-<li><code>-l</code> 限定CPU占据率0%~X00% X为CPU核数</li>
-<li><code>-v</code> 显现控制的统计信息</li>
-<li><code>-z</code>
-当被控制的程式退出的时候，CPULimit程式也跟着退出</li>
-<li><code>-i</code> 同时限定被控程式的子进程 #command</li>
-<li><code>-p</code> 被控程式的PID</li>
-<li><code>-e</code> 被控程式的程式称号</li>
-</ul>
-<h1 id="vim">VIM</h1>
-<h2 id="删除多行">删除多行</h2>
-<p>:3,5d
-https://blog.csdn.net/ayychiguoguo/article/details/124926240</p>
-<h1 id="交叉编译">交叉编译</h1>
-<ol type="1">
-<li>安装arm工具包</li>
-</ol>
-<ul>
-<li><code>apt install gcc-8-aarch64-linux-gnu</code></li>
-</ul>
-<ol start="2" type="1">
-<li>编译</li>
-</ol>
-<ul>
-<li>动态链接-默认
-<ul>
-<li><code>aarch64-linux-gnu-gcc-8 main.c</code></li>
-</ul></li>
-<li>静态链接
-<ul>
-<li><code>aarch64-linux-gnu-gcc-8 -static main.c</code></li>
-</ul></li>
-</ul>
-<h1 id="反汇编">反汇编</h1>
-<ol type="1">
-<li>arch64</li>
-</ol>
-<ul>
-<li><code>aarch64-linux-gnu-objdump -d a.out</code></li>
-</ul>
-<ol start="2" type="1">
-<li>host(x86)</li>
-</ol>
-<ul>
-<li><code>objdump -d a.out</code></li>
-</ul>
-<h1 id="查看文件类型">查看文件类型</h1>
-<ul>
-<li><code>file a.out</code>　</li>
-</ul>
-<h1 id="调整磁盘分区">调整磁盘分区</h1>
-<ol start="0" type="1">
-<li>查看当前系统的磁盘情况：
-<ul>
-<li><code>df -h</code> 查看当前系统的磁盘大小</li>
-<li><code>df -T</code> 查看当前系统的磁盘类型，
-以下为xfs类型磁盘扩容</li>
-</ul></li>
-<li>将home目录进行备份,备份完成后,卸载/home 目录
-<code>umount /home</code></li>
-<li>移除home目录对应的分区
-<code>lvremove /dev/mapper/centos-home</code></li>
-<li>扩展根目录分区大小 (我们这里扩展到300G)
-<code>lvextend -L 300G /dev/mapper/centos-root</code></li>
-<li>同步 <code>xfs_growfs /dev/mapper/centos-root</code></li>
-<li>查看硬盘分组 <code>pvs</code></li>
-<li>将剩余空间分给Home目录
-<code>lvcreate -l +100%Free -n home centos</code></li>
-<li>写入分区 <code>mkfs.xfs /dev/mapper/centos-home</code></li>
-<li>硬盘挂在 <code>mount /dev/mapper/centos-home /home</code></li>
-<li>查看结果 <code>df -h</code></li>
-</ol>
-<h1 id="yum换源">yum换源</h1>
-<ol type="1">
-<li>进入yum源配置文件 <code>cd /etc/yum.repos.d</code></li>
-<li>备份一下当前的源，以防出错后可以还原回来
-<code>mv ./CentOS-Base.repo ./CentOS-Base-repo.bak</code></li>
-<li>下载网易163的源<code>wget http://mirrors.163.com/.help/CentOS7-Base-163.repo</code>
-<ul>
-<li>我的机器在这一步遇到了问题，无法访问http，将http改为https</li>
-<li>把下载下来文件 CentOS7-Base-163.repo设置成为默认源
-<code>mv CentOS7-Base-163.repo CentOS-Base.repo</code></li>
-</ul></li>
-<li>清理一下旧包 <code>yum clean all</code></li>
-<li>生成缓存即可用163源了 <code>yum makecache</code></li>
-</ol>
-<ul>
-<li>我的机器在这一步遇到了问题，无法访问http: <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://mirrors.163.com/centos/7/os/x86_64/repodata/repomd.xml: [Errno 14] curl#7 - &quot;Failed connect to mirrors.163.com:80; 拒绝连接&quot;</span><br><span class="line">http://mirrors.163.com/centos/7/os/x86_64/repodata/repomd.xml: [Errno 14] curl#7 - &quot;Failed connect to mirrors.163.com:80; 拒绝连接&quot;</span><br><span class="line">http://mirrors.163.com/centos/7/os/x86_64/repodata/repomd.xml: [Errno 14] curl#7 - &quot;Failed connect to mirrors.163.com:80; 拒绝连接&quot;</span><br></pre></td></tr></table></figure></li>
-<li>解决方案: <code>vim CentOS-Base.repo</code>将http改成https</li>
-</ul>
-<h1 id="ubuntu换源">ubuntu换源</h1>
-<p>如果您想将 Ubuntu
-的软件源更改为清华大学镜像源，可以按照以下步骤进行操作：</p>
-<ol type="1">
-<li><p>打开终端：打开终端应用程序，以便在命令行中执行操作。</p></li>
-<li><p>备份原有源配置（可选）：在更改软件源之前，建议备份原有的源配置文件，以防意外发生。您可以使用以下命令将原有源配置文件复制到其他位置进行备份：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup</span><br></pre></td></tr></table></figure></li>
-<li><p>编辑源配置文件：使用文本编辑器打开源配置文件
-<code>/etc/apt/sources.list</code>。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nano /etc/apt/sources.list</span><br></pre></td></tr></table></figure></li>
-<li><p>获取清华大学镜像源地址：访问清华大学 TUNA
-镜像源站点（https://mirrors.tuna.tsinghua.edu.cn/）或清华大学镜像源站点（https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/）查找可用的软件源地址。</p></li>
-<li><p>更新软件源地址：在编辑器中，将现有的软件源地址替换为清华大学镜像源的地址。根据您的
-Ubuntu 版本和软件源配置文件的格式，通常每个软件源地址占据一行。</p>
-<p>以清华大学 TUNA 镜像源为例，对于 Ubuntu 20.04 LTS（Focal
-Fossa）：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse</span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse</span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse</span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse</span><br></pre></td></tr></table></figure>
-<p>对于其他 Ubuntu 版本，请将 <code>focal</code>
-替换为适合您版本的代号，例如 <code>bionic</code>（18.04 LTS）或
-<code>impish</code>（21.10）。</p></li>
-<li><p>保存更改：在编辑器中保存您对源配置文件的更改。</p></li>
-<li><p>更新软件源缓存：执行以下命令来更新软件源缓存：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br></pre></td></tr></table></figure></li>
-<li><p>完成：软件源已经更换为清华大学镜像源。您现在可以使用清华大学镜像源获取和安装软件包。</p></li>
-</ol>
-<p>请注意，清华大学镜像源是一种可靠和高速的镜像源选择，但它可能会因网络和地理位置而有所不同。如果您遇到问题，您可以恢复先前的源配置文件或尝试其他可用的软件源。</p>
-<h1 id="linux-批量杀死进程">Linux 批量杀死进程</h1>
-<p><code>ps -ef|grep GSM_run.py|grep -v grep|cut -c 9-15|xargs kill -9</code>
-- 命令说明 : 1. 管道符 "|"
-用来隔开两个命令，管道符左边命令的输出会作为管道符右边命令的输入。 2.
-<code>ps -ef</code> 是 查看所有进程,其中 <code>ps -aux</code>
-也是查看所有进程,不过两者以下区别： 1.
-<code>-ef</code>是<code>System V</code>展示风格，而<code>-aux</code>是<code>BSD</code>风格,Unix操作系统在操作风格上主要分为System
-V和BSD 2.
-<code>COMMADN</code>列如果过长，<code>-aux</code>会截断显示，而<code>-ef</code>不会
-3.
-<code>-aux</code>可以查看进程的CPU占用率和内存占用率，而<code>-ef</code>不能
-3. <code>grep GSM_run.py</code>
-列出含有关键字<code>GSM_run.py</code>的所有进程 4.
-<code>grep -v grep</code>是在列出的进程中去除含有关键字<code>grep</code>的进程
-5.
-<code>cut -c 9-15</code>是截取输入行的第9个字符到第15个字符，而这正好是进程号PID
-- 某些情况下 9-15 是 不够的 可以 写成 <code>awk '&#123;print $2&#125;'</code> 其
-表示 按空格分割取第二个元素，即取进程号
-PID。此时完整的命令为<code>ps -ef|grep GSM_run.py|grep -v grep|awk '&#123;print $2&#125;'|xargs kill -9</code>
-6. <code>xargs kill -9</code> -
-xargs命令把前面命令的输出结果（PID）作为<code>kill -9</code>命令的参数，并执行</p>
-<h1
-id="比较两个文件并找出它们之间不同的行">比较两个文件并找出它们之间不同的行</h1>
-<p>要比较两个文件并找出它们之间不同的行，可以使用<code>diff</code>命令。<code>diff</code>命令用于比较文件之间的差异，并显示不同之处。</p>
-<p>以下是使用<code>diff</code>命令比较两个文件并找出不同行的示例：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diff file1.txt file2.txt</span><br></pre></td></tr></table></figure>
-<p>上述命令将比较名为<code>file1.txt</code>和<code>file2.txt</code>的两个文件，并显示它们之间的差异。<code>diff</code>命令将显示出两个文件中不同的行，并用"&lt;"和"&gt;"符号标记它们。"&lt;"表示该行在第一个文件中出现，而"&gt;"表示该行在第二个文件中出现。</p>
-<p>如果只关注不同的行而不关心具体的差异内容，可以使用以下命令：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diff --brief file1.txt file2.txt</span><br></pre></td></tr></table></figure>
-<p>上述命令将仅显示文件之间的差异，并不显示具体的差异内容。</p>
-<p>请注意，<code>diff</code>命令还有其他选项和用法，可以根据需要进行调整。您可以使用<code>man diff</code>命令查看完整的<code>diff</code>命令文档和更多选项。</p>
-<h1
-id="要在ubuntu上安装clang-format您可以按照以下步骤进行操作">要在Ubuntu上安装Clang
-Format，您可以按照以下步骤进行操作：</h1>
-<ol type="1">
-<li><p>使用以下命令安装Clang和Clang Format： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt install clang</span><br><span class="line">sudo apt install clang-format</span><br></pre></td></tr></table></figure>
-这将更新软件包列表并安装Clang和Clang Format。</p></li>
-<li><p>安装完成后，您可以使用以下命令验证是否成功安装Clang Format：
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang-format --version</span><br></pre></td></tr></table></figure> 如果安装成功，将显示Clang Format的版本信息。</p></li>
-</ol>
-<p>现在，您已经成功在Ubuntu上安装了Clang
-Format。您可以使用它来格式化C、C++和其他受支持的语言的源代码文件。</p>
-<h1 id="grep">grep</h1>
-<ol type="1">
-<li>或 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -E <span class="string">&#x27;123|abc&#x27;</span> filename  // 找出文件（filename）中包含123或者包含abc的行</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h1 id="ssh">ssh</h1>
-<ol type="1">
-<li>"permissions are too open"
-<ul>
-<li><code>chmod 600 ~/.ssh/id_rsa</code></li>
-</ul></li>
-</ol>
-<h1 id="perf">perf</h1>
-<p>ubuntu无法安装perf
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1844443</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2277,7 +2027,7 @@ https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1844443</p>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-count">68</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -2290,7 +2040,7 @@ https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1844443</p>
       <div class="site-state-item site-state-tags">
             <a href="/zyhjy/tags/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -2329,12 +2079,12 @@ https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1844443</p>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">320k</span>
+    <span title="站点总字数">333k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">8:53</span>
+    <span title="站点阅读时长">9:15</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
