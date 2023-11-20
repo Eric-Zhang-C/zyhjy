@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
+  <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/zyhjy/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="TEA: Time-Proportional Event Analysis ABSTRACT 随着计算机架构变得越来越复杂和异构化，编写能够充分利用硬件资源的应用程序变得越来越困难。因此，性能分析工具变得至关重要，因为它们是开发人员了解其应用程序性能表现原因的唯一途径。最先进的性能分析工具捕捉了大量的性能事件，并且实际上不具侵入性，但性能优化仍然极具挑战性。我们认为根本原因是目前的最先进工具通常无">
+<meta property="og:type" content="article">
+<meta property="og:title" content="论文翻译:TEA">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/10/05/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91-TEA/">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="TEA: Time-Proportional Event Analysis ABSTRACT 随着计算机架构变得越来越复杂和异构化，编写能够充分利用硬件资源的应用程序变得越来越困难。因此，性能分析工具变得至关重要，因为它们是开发人员了解其应用程序性能表现原因的唯一途径。最先进的性能分析工具捕捉了大量的性能事件，并且实际上不具侵入性，但性能优化仍然极具挑战性。我们认为根本原因是目前的最先进工具通常无">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-05T04:18:43.000Z">
+<meta property="article:modified_time" content="2023-11-20T13:19:52.299Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="Paper">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/10/05/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91-TEA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>论文翻译:TEA | ZYHJY</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/zyhjy/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/zyhjy/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/zyhjy/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/zyhjy/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/zyhjy/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/10/05/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91-TEA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          论文翻译:TEA
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-10-05 12:18:43" itemprop="dateCreated datePublished" datetime="2023-10-05T12:18:43+08:00">2023-10-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-11-20 21:19:52" itemprop="dateModified" datetime="2023-11-20T21:19:52+08:00">2023-11-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">性能分析</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>22k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>36 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="tea-time-proportional-event-analysis">TEA: Time-Proportional
+Event Analysis</h1>
+<h2 id="abstract">ABSTRACT</h2>
+<p>随着计算机架构变得越来越复杂和异构化，编写能够充分利用硬件资源的应用程序变得越来越困难。因此，性能分析工具变得至关重要，因为它们是开发人员了解其应用程序性能表现原因的唯一途径。最先进的性能分析工具捕捉了大量的性能事件，并且实际上不具侵入性，但性能优化仍然极具挑战性。我们认为根本原因是目前的最先进工具通常无法解释为什么执行应用程序的性能关键指令需要时间。</p>
+<p>因此，我们提出了时间比例事件分析（TEA），它通过创建时间比例的“每指令周期堆栈”（Per-Instruction
+Cycle
+Stacks，PICS）来解释为什么架构花费时间执行应用程序的性能关键指令。PICS统一了性能分析和性能事件分析，从而（i）报告每个静态指令对总体执行时间的贡献，以及（ii）将每个指令的执行时间分解为它在动态执行期间所受到的性能事件（组合）的影响。创建时间比例的PICS需要跟踪所有in-flight的指令上发生的性能事件，但TEA仅使每个核心的功耗增加约3.2毫瓦（约0.1％），因为我们仔细选择了事件以平衡洞察力和开销。TEA利用统计采样来保持性能开销平均在1.1％，同时与非采样的黄金参考相比，平均误差为2.1％；这是对于AMD
+IBS、Arm SPE和IBM
+RIS的平均误差分别为55.6％、55.5％和56.0％的显着改进。我们通过使用TEA来识别SPEC
+CPU2017基准测试中的性能问题来证明TEA的准确性很重要，一旦解决了这些问题，<em>lbm</em>和<em>nab</em>的速度提升分别为1.28倍和2.45倍。</p>
+<span id="more"></span>
+<h2 id="introduction">1 INTRODUCTION</h2>
+<p>随着 Dennard
+缩放的结束和摩尔定律即将结束，我们不再能够期望通用CPU架构提供性能的扩展
+[16]。行业已经通过利用专用化和集成异构计算引擎，包括GPU和特定领域的加速器，以及传统的CPU核心
+[28] 来应对这一挑战。也许出乎意料的是，由于阿姆达尔定律（Amdahl's
+Law），在异构系统中，顺序CPU代码相对而言更加性能关键，即可加速的代码区域执行时间要短得多，而不可加速的代码仍然需要相同的时间
+[6]。因此，对顺序CPU代码进行性能调优，以更好地利用底层硬件正变得日益关键。不幸的是，由于现代CPU架构通过各种形式和程度的指令级并行性、预测(speculation)、缓存、预取和隐藏延迟来优化性能，因此这是一项耗时且繁琐的工作。</p>
+<p>性能调优在没有先进的性能分析工具的情况下几乎是不可能的，例如Intel
+VTune [31] 和AMD µProf <a
+href="#section">2</a>，它们的目的是帮助开发人员回答两个基本问题： Q1
+应用程序最多花费时间执行的是哪些指令？换句话说，哪些是性能关键指令？ Q2
+为什么这些指令是性能关键的？是什么微架构事件（缓存未命中、分支错误预测等）使这些指令变得性能关键？</p>
+<p>第一个问题（Q1）通常通过性能分析器来解决。最先进的性能分析器TIP [22]
+是根据时间比例的，与其他性能分析器 [3, 4, 18, 19, 21, 30, 38]
+不同，这意味着在最终性能分析中，指令的重要性与指令相对于总执行时间的贡献成比例。时间比例是通过在commit
+time分析指令对性能的影响来实现的，因为commit
+time是指令的延迟暴露的地方。更具体地说，指令对执行时间的主要贡献是它阻止core提交指令的时间的一部分
+[22]。时间比例的性能分析实际可行，因为它依赖于<strong>统计采样</strong>，即性能分析器偶尔会中断CPU以获取CPU在采样周期内暴露延迟的指令地址。</p>
+<p>虽然性能分析是必要的第一步，但它并不足够，因为它不能回答第二个问题（Q2）。更具体地说，性能分析工具如TIP
+[22]
+不解释为什么架构要花时间执行性能关键指令，因为它们不会分解每个指令的执行时间在微架构性能事件上的贡献。试图解决Q2的最先进方法不够成熟，因为它们以非时间比例的方式考虑性能事件，因此提供了对性能的扭曲视图。现有的性能分析方法可以分为指令驱动和事件驱动两类。指令驱动方法，如AMD
+IBS [19]、Arm SPE [4] 和IBM RIS
+[29]，会在流水线的fetch或dispatch阶段标记指令，然后记录标记的各个指令所受到的性能事件。在fetch或dispatch阶段标记指令会使指令配置朝着在fetch和调度dispatch花费大量时间的指令倾斜，而不一定是在commit阶段花费时间，因此缺乏时间比例。</p>
+<p>另一方面，事件驱动方法 [3, 20, 30, 54]
+依靠计数性能事件（例如，缓存未命中、分支错误预测等）。然后，将事件计数归因于指令，或者用于生成粗粒度的性能信息，例如应用程序级别的每指令周期堆栈。事件驱动方法也提供了对性能的扭曲视图，因为它们提供的性能事件计数未必与这些事件对性能的影响相关，这是因为隐藏延迟效应（我们将在第5节中进行量化）。</p>
+<p>我们的关键洞察是，通过创建时间比例的<strong>“每指令周期堆栈”（Per-Instruction
+Cycle
+Stacks，PICS）</strong>，可以回答Q1和Q2这两个问题，PICS中将架构花费时间执行每个指令的时间分解为它在程序执行期间遇到的（组合的）性能事件。由于我们的PICS是通过设计具有时间比例性质的，因此它们具有令人满意的特性，即（i）周期堆栈的高度与静态指令对总体执行时间的影响成比例
+—
+回答了Q1，以及（ii）周期堆栈中每个组成部分的大小与该（组合的）性能事件对总体性能的影响成比例
+— 回答了Q2。由于时间比例的TIP [22]
+捕捉了每个静态指令对总体执行时间的影响（从而回答了Q1），它不能回答Q2并创建PICS，因为这需要分解每个静态指令在其动态执行期间所受到的事件的性能影响。</p>
+<p>创建PICS的一个关键挑战是，当代处理器记录许多性能事件，例如，最近的英特尔
+Alder Lake 的性能监控单元（PMU）可以报告297个不同的性能事件
+[32]。然而，构建时间比例的PICS需要跟踪所有in-flight的指令的事件 —
+限制所跟踪事件的数量对于控制开销至关重要。我们通过回到基本原理来解决这个问题，即PICS必须根据导致指令延迟的架构行为来分解指令的执行时间影响。因此，我们必须关注提交阶段，并利用提交阶段可能处于三种非计算状态的事实：（i）提交<strong>被阻塞</strong>，因为某个指令在完全执行之前达到了重排序缓冲区（ROB）的头部；（ii）由于前端阻塞而<strong>被排空</strong>；或（iii）由于例如分支错误预测而被<strong>刷新</strong>。因此，我们的任务是将这些状态映射回导致它们的性能事件。幸运的是，性能事件形成了层次结构，我们利用这一点选择使PICS易于解释并保持开销低的事件。也许令人惊讶的是，我们发现仅捕获九个事件就足以确保99%未受到任何事件影响的指令所产生的停顿周期少于5.8个时钟周期。【剩余的事件产生的停顿已经很少，可以忽略不计】</p>
+<p>因此，我们提出了<strong>时间比例事件分析（TEA）</strong>，它通过增加硬件支持来跟踪每个指令在执行期间遇到的性能事件，从而实现了PICS的创建。更具体地说，TEA为每个动态执行的指令分配一个<strong>性能签名向量（Performance
+Signature
+Vector，PSV）</strong>，其中包括每个支持的性能事件的一个位。在应用程序执行期间，TEA使用一个周期计数器以典型的4
+KHz采样频率定期收集PSV。然后，PMU检索指令指针和在采样时CPU正在暴露延迟的指令的指令指针和PSV，遵循之前工作中描述的时间比例归因策略
+[22]。当样本准备好时，PMU中断核心，并且中断处理程序读取指令指针和PSV，并将它们存储在内存缓冲区中。当应用程序完成时，对PSV进行后处理，以通过汇总为其每个动态执行样本捕获的PSV来创建每个静态指令的PICS。</p>
+<p>我们在伯克利乱序机器（BOOM）核心 [58]
+内的RTL级别实现了TEA，并跟踪了所有in-lfight指令的九个性能事件。TEA只产生了轻微的开销，即需要249字节的存储空间，仅增加每个核心的功耗约3.2毫瓦（约0.1%）。我们通过将其PICS与AMD
+IBS [19]、Arm SPE [4] 和IBM RIS [29]
+生成的PICS进行比较，这些是最先进的指令驱动性能分析方法，以及一个（无法实现的）黄金参考，后者检索了所有时钟周期内所有动态指令的PSV，来证明TEA的准确性。与黄金参考相比，TEA的平均误差为2.1%，这是相对于IBS、SPE和RIS的55.6%、55.5%和56.0%的平均误差的显着改进。由于TEA依赖统计采样，因此启用它的性能开销平均仅为1.1%。</p>
+<p>为了证明TEA在实践中的实用性，我们使用它来分析SPEC CPU2017 [46]
+基准测试中的<em>lbm</em>和<em>nab</em>。对于这两个基准测试，TEA提供的PICS可以解释性能问题，而最先进的方法则不能。<em>lbm</em>的性能问题是由于一个非隐藏的加载指令引起的，我们通过插入软件预取指令来解决这个问题。TEA使我们能够选择一个足够大的预取距离，以隐藏大多数加载延迟，同时不要太大，因为这会导致核心和L1缓存中的存储资源争用，从而实现了1.28倍的整体性能提升。对于<em>nab</em>，TEA的高精度使我们能够得出结论，浮点平方根指令是性能关键，因为较早的指令刷新了流水线，因此导致它被发射得太晚，以至于无法隐藏其执行延迟。我们通过使用–finite-math和–fast-math编译器选项放宽IEEE
+754的规范，从而实现了1.96倍和2.45倍的速度提升。</p>
+<p>总之，我们做出了以下主要贡献： •
+我们观察到时间比例的<strong>每指令周期堆栈（PICS）</strong>提供了解释哪些指令是性能关键（回答Q1）以及为什么这些指令是性能关键（回答Q2）所需的所有信息，从而帮助开发人员理解繁琐的性能问题。
+•
+我们提出了<strong>时间比例事件分析（TEA）</strong>，它通过增加硬件支持来跟踪每个指令在执行期间遇到的性能事件，以便创建PICS。更具体地说，TEA为每个动态执行的指令分配一个<strong>性能签名向量（PSV）</strong>，其中包括每个支持的性能事件的一个位。
+• 我们在BOOM核心 [58]
+内的RTL级别实现了TEA，并证明了它相对于黄金参考的平均误差为2.1%，这是相对于IBS、SPE和RIS的55.6%、55.5%和56.0%的平均误差的显着改进。TEA的开销较低（即249字节的存储开销，功耗开销约为0.1%，性能开销平均为1.1%）。
+• 我们使用TEA来分析SPEC CPU2017 [46]
+基准测试中的<em>lbm</em>和<em>nab</em>。对于这两个基准测试，TEA提供的PICS解释了性能问题，而最先进的方法则没有。<em>lbm</em>的性能问题是由于一个非隐藏的加载指令引起的，我们通过插入软件预取指令来解决这个问题。对于<em>nab</em>，TEA的高精度使我们能够推断出浮点平方根指令是性能关键，因为较早的指令刷新了流水线，因此导致它被发射得太晚，以至于无法隐藏其执行延迟。我们通过使用–finite-math和–fast-math编译器选项放宽IEEE
+754的规范，从而实现了1.96倍和2.45倍的速度提升。</p>
+<h2 id="background-and-motivation">2 BACKGROUND AND MOTIVATION</h2>
+<p>时间比例性能分析[22]基于这样的观察：确定每条指令对总执行时间的贡献需要确定核心当前正在暴露延迟的指令（们）。
+（我们假设已经支持TIP
+[22]，这是最先进的时间比例性能分析器的基线。）时间比例性能分析需要集中在流水线的提交阶段，因为这是非隐藏指令延迟暴露的地方。专注于提交是时间比例性能的一个必要但不充分条件，因为根据CPU的状态不同，它将暴露不同指令的延迟。具体来说，在任何给定周期内，处理器将处于以下四种提交状态之一：
+•
+<strong>计算</strong>：处理器正在提交一条或多条指令。因此，时间比例性能会均匀分配给提交的指令（即当𝑛条指令并行提交时，每条指令分配
+1/𝑛 个周期）。 •
+<strong>清空</strong>：由于前端停滞，例如由于指令高速缓存未命中，ROB为空。因此，时间被归因于下一个提交的指令。
+• <strong>停滞</strong>：由于尚未完全执行，指令 𝐼 在 ROB
+头部停滞。因此，时间被归因于 𝐼，它是下一个提交的指令。 •
+<strong>刷新</strong>：由于错误预测的分支等原因，指令 𝐼 导致 ROB
+刷新，ROB 为空。因此，时间被归因于
+𝐼，但与停滞和清空状态不同，它已经提交，即它是最后提交的指令。
+因此，解释为何执行特定指令需要时间，因此需要将非计算提交状态（清空、停滞和刷新）与导致它们发生的性能事件进行映射。（在计算状态下，执行延迟完全隐藏，因此在这种状态下不需要额外的执行时间解释。）</p>
+<p><strong>TEA示例。</strong>图1说明了当应用程序在支持三个性能事件（即指令高速缓存未命中、数据高速缓存未命中和分支错误预测）的乱序处理器上执行图1b中的短循环时，TEA的实际工作原理。TEA依赖于统计采样，为了本示例，我们假设它每1,000个周期采样一次；TEA收集的样本显示在图1a中。（在我们的评估中，TEA以4
+kHz的速度进行采样，即在3.2 GHz下每800,000个周期采样一次，这是Linux perf
+[38]的默认设置。）在样本1中，由于在取指令I1时发生指令高速缓存未命中，ROB已经清空，因此TEA对I1进行了采样。TEA还通过为每个中in-flight指令附加<strong>性能签名向量Performance
+Signature
+Vector（PSV）</strong>来跟踪每个动态指令所受的性能事件。PSV由每个支持的性能事件的一位组成，在这个示例中共有三位。由于I1遭受了指令高速缓存未命中，因此在其PSV中设置了指令高速缓存未命中事件位，见1。因此，TEA样本包括所有已采样指令的PSV，以及由TIP返回的信息（即指令地址和时间戳）。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231006120425070.png"
+alt="image-20231006120425070" />
+<figcaption aria-hidden="true">image-20231006120425070</figcaption>
+</figure>
+<p>在样本2中，ROB再次为空，但现在的原因是分支指令I4被错误预测。因此，I4已提交，而所有I4之后的指令都被清除，导致处理器处于刷新状态。因此，该样本归因于I4，TEA提供了一个PSV，其中分支错误预测位被设置，见2。在样本3中，I1再次是性能损失的原因，但这次它因为高速缓存未命中而停滞。因此，处理器处于停滞状态，TEA解释了原因，因为PSV中设置了数据高速缓存未命中事件位。在样本4和5中，I1的工作集已加载到L1缓存中，分支预测器已学会正确预测I4。因此，4宽度核心能够并行提交I1、I2、I3和I4，并处于计算状态。所有的PSV条目都是0，因为这些指令都没有受到任何性能事件的影响，见3。
+应用程序在没有收集额外样本的情况下终止，然后TEA使用捕获的样本为I1、I2、I3和I4创建PICS（见图1c）。每个样本都通过指令（们）的地址将其映射到静态指令，然后根据PSV的值进行分类，该值标识了导致处理器在此样本中暴露该指令的延迟的性能事件（或组合）。从样本1和3中，TEA将分别归因于I1的指令高速缓存未命中事件和数据高速缓存未命中事件，共计1,000个周期，见4。同样，在样本2中，由于分支错误预测，TEA将1,000个周期归因于I4。由于在样本4和5中并行提交，剩余的周期均匀分配给I1、I2、I3和I4。此类别标记为“基准”，因为这些指令都没有受到性能事件的影响。
+如果一条指令受到多个事件的影响，那么PSV中将设置多个位，并且我们称影响同一指令的事件为组合事件。组合事件通常按顺序处理，例如，指令高速缓存未命中必须解析才能执行并受到数据高速缓存未命中的影响。由于这种负载引起的停滞周期由这两个事件引起，因此难以分开每个事件的停滞影响。因此，TEA将组合事件报告为单独的类别。在所有遇到至少一个事件的动态指令执行中，30.0%受到组合事件的影响（见第5节）。因此，组合事件并不太常见，但可以帮助解释复杂的问题。</p>
+<p><strong>捕获PSV。</strong>创建PICS需要记录每个指令在执行过程中所受到的性能事件，即为每个指令包创建一个PSV。指令包包括指令（或μop）本身以及与之相关的元数据（例如指令地址），处理器在指令在流经pipline时更新并传递这些数据。图2a通过显示乱序核心的执行状态和每个指令的PSV来说明了TEA如何捕获PSV；这种架构支持六个性能事件，因此有一个六位的PSV格式。（我们将在第3节详细解释如何实现TEA。）在前端，PSV需要捕获并传递在当前及前一个流水线阶段发生的事件，例如，本示例中是指令高速缓存未命中和TLB未命中，见1。在派发时，TEA通过将与每个ROB条目相关联的六位PSV的前端位设置为它们各自的值，并将所有剩余的PSV位设置为零来初始化它。在2中，受到指令高速缓存未命中影响的I5的两个最高有效位被设置为10，因为这些是前端PSV位（见3）。在我们关注的周期中，I1是最老的指令，由于L1高速缓存未命中和TLB未命中而停滞，因此其两个最低有效PSV位均为1，见4。类似地，I2也是数据高速缓存未命中，而I3和I4的PSV均为零，因为到目前为止它们都没有受到任何性能事件的影响。由于TEA是时间比例性的，因此其硬件采样器在中断处理器之前选择I1及其PSV，以便软件采样功能可以检索样本并将其存储在内存缓冲区中。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231006120558314.png"
+alt="image-20231006120558314" />
+<figcaption aria-hidden="true">image-20231006120558314</figcaption>
+</figure>
+<p><strong>指令驱动的性能分析。</strong>AMD IBS [19]，Arm SPE [4] 和IBM
+RIS
+[29]存在不足，因为它们在派发或取指令时标记指令，因此不是时间比例性的。图2b说明了与我们在图2a中用来解释TEA的相同核心状态的派发标记操作。派发标记标记在采样发生的周期内派发的指令，即I5（见6）。取指令标记的工作方式类似，只是它在取指令而不是在派发时标记，因此在此示例中标记了I8。在前端标记指令的关键优点是该方案只需要跟踪标记指令的事件，即它需要一个PSV来记录标记指令所受的事件，见7。
+然而，在派发或取指令时标记会产生显著的错误，因为它不是时间比例性的。更具体地说，采样I5或I8不是时间比例性的，因为在采样时，I1在ROB头部停滞，即处理器在此周期内暴露了I1的延迟。（回想一下，TEA在图2a中采样了I1。）这种情况很常见，因为性能关键的指令往往在提交时停滞，这反过来又会导致前端停滞——导致在停滞期间派发或取指令的指令的PSV在PICS中过多。在派发或取指令时标记还会捕获可能不会影响性能的事件。例如，I1在组合的数据高速缓存和TLB未命中事件上停滞，但派发标记捕获了I5的指令高速缓存未命中事件（这在I1的事件下被隐藏了)。</p>
+<h2 id="time-proportional-event-analysis">3 TIME-PROPORTIONAL EVENT
+ANALYSIS</h2>
+<p>现在我们解释我们的TEA实现的细节。虽然在本节中我们专注于开源的BOOM核心[58]，但对于其他微体系结构，方法将类似，即一些实现细节将不同，但信息流将保持相同。</p>
+<p><strong>性能事件层次结构。</strong>PICS帮助开发人员理解为什么指令对性能至关重要，而TEA通过将非计算提交状态映射到引起它们的最重要性能事件来提供这些信息。然而，TEA必须跟踪所有正在执行的指令的性能事件，因此我们需要仔细选择一小组性能事件，这些事件共同捕获关键的体系结构瓶颈，以保持开销在可控范围内。幸运的是，性能事件可以根据它们可能引起的非计算提交状态分组。性能事件因此形成层次结构，我们可以利用它们来权衡开销与可解释性，即所选性能计数器集合解释提交停顿的能力。</p>
+<p>图3解释了事件层次结构如何通过关注停滞（ST）提交状态来推理事件选择。性能事件可以是依赖性的或独立的。依赖性性能事件只有在之前发生过性能事件时才能发生，例如，仅当在L1高速缓存中发生缺失时，加载才能在LLC中发生缺失。相反，独立性能事件则独立于彼此发生，例如，加载可以在L1高速缓存中命中，而不管它是否在L1
+TLB中命中或缺失。因此，我们可以利用事件层次结构来平衡开发人员解释PICS的容易程度（有利于捕获更多事件，从而解释越来越复杂的体系结构行为）与开销（因为TEA必须跟踪所有正在执行的指令的事件而随着事件数量增加而增加）之间的关系。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231007201045364.png"
+alt="image-20231007201045364" />
+<figcaption aria-hidden="true">image-20231007201045364</figcaption>
+</figure>
+<p>我们将由PSV捕获的事件称为事件集。对于图3中的事件，我们可以创建一个仅捕获加载停滞事件发生的单个位PSV，因此开销较低，但提供有限的见解。通过切换到2位PSV，我们可以提高可解释性。在这种情况下，最有利的选项是包括L1数据缓存和TLB缺失事件，因为它们涵盖了事件层次结构中的所有可能的Level
+2事件。通过添加L1数据和TLB缺失的依赖性事件，如3位和4位PSVs所示，我们可以提高可解释性。在这种情况下，我们仍然需要报告每个依赖链的根事件，以避免失去可解释性。例如，如果我们只捕获LLC缺失而不捕获L1缺失，那么我们将无法识别LLC命中。</p>
+<p><strong>TEA的性能事件。</strong>表1列出了TEA在我们的BOOM实现中捕获的九个性能事件。我们以X-Y的形式命名性能事件，其中X是提交状态，Y是事件，例如，L1数据缓存缺失被标记为ST-L1，因为它解释了停滞的提交状态。为了解释Drained状态，TEA捕获了指令在L1指令高速缓存中未命中（DR-L1），在L1指令TLB中未命中（DR-TLB），以及ROB由于存储队列满而排空（DR-SQ）。DR-SQ事件捕获了ROB由于存储无法分派而排空的情况，因为Load/Store队列（LSQ）中充满了已完成但尚未退休的存储，这提高了应用程序对存储带宽敏感时的可解释性。对于刷新状态，TEA捕获了指令是错误误预测的分支（FL-MB），引发了异常（FL-EX），并引发了内存排序违规（FL-MO）。内存排序违规是指当加载在较旧的存储之前执行并因此读取陈旧数据时发生的情况。通过重新执行加载并squash所有较年轻的正在执行的指令来解决它（这是耗时的）。为了解释停滞状态，TEA捕获了L1数据缓存缺失（ST-L1）、L1数据TLB缺失（ST-TLB）和由加载指令引发的LLC缺失（ST-LLC）。捕获LLC缺失提高了对内存敏感应用的可解释性。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231007201559294.png"
+alt="image-20231007201559294" />
+<figcaption aria-hidden="true">image-20231007201559294</figcaption>
+</figure>
+<p>TEA利用事件层次结构来平衡可解释性和开销。保持可解释性意味着TEA应该将事件分配给导致长时间停滞的指令，即无法通过指令执行延迟和依赖性来解释的停滞，因为这些因素决定了在缺失事件不存在的情况下预期的停滞时间。我们通过捕获任何动态指令引起的停滞来从这个角度评估TEA。我们的黄金参考提供了这些数据，因为它捕获了所有动态指令和所有时钟周期（有关我们实验设置的详细信息，请参阅第4节）。我们进一步提取了导致提交停滞但TEA未分配事件的指令。总体而言，这些指令中有99%的停滞时间小于5.8个时钟周期，因此TEA捕获了主要影响性能的事件。</p>
+<p>表1还显示，指令驱动的方法AMD IBS [1, 19]、Arm SPE [4, 5]和IBM RIS
+[29]捕获了与TEA相同的许多事件，这表明一些事件在特定体系结构之外也很重要。</p>
+<p><strong>TEA微体系结构。</strong>图4说明了我们如何在BOOM核心中实现TEA。DR-L1和DR-TLB事件发生在Fetch阶段，需要在取指数据包中分配一个2位PSV，见1。因为取指数据包的第一条指令总是会发生DR-L1和DR-TLB事件，所以TEA只需要一个PSV，见2。当取指数据包扩展为单独的指令并添加到取指缓冲区时，第一条指令将复制PSV
+of Fetch
+Packet，而所有其他指令的PSV将初始化为零。在Decode阶段，从取指缓冲区解码成微操作，每个微操作的PSV都会传递，见3。Dispatch将微操作插入ROB和功能单元的发布队列。当存储器访问是最老的微操作且由于LSQ已满而无法分派时，Dispatch会检测DR-SQ，见4。为了避免复杂化LSU到ROB接口，我们在每个LSU条目中分配了ST-TLB事件的存储空间，因为它在缓存响应之前就被检测到，见5。相反，ST-L1和ST-LLC事件在缓存响应后立即可用（通过Writeback）。每个微操作的完整9位PSV存储在微操作的ROB条目中，见6。FL-MB、FL-EX和FL-MO事件已经被ROB检测到，因为它们需要清空流水线，ROB可以记录它们在PSV中。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231007202506982.png"
+alt="image-20231007202506982" />
+<figcaption aria-hidden="true">image-20231007202506982</figcaption>
+</figure>
+<p>TEA连接到ROB的头部，具有来自TIP[22]的时间比例采样选择逻辑，见7。一旦PMU发出一个计数器事件（见8），采样选择单元识别提交状态（即计算、停滞、刷新或排空）并选择适当的指令（在给定状态下）。TEA在停滞和排空状态下延迟返回样本，直到下一个微操作提交以确保微操作的PSV已更新。一个样本包含时间戳、标志（即提交状态和有效位）以及指令地址和PSV，见9。因此，TEA无论跟踪微操作还是动态指令，都会在采样时将它们映射到静态指令。最后，样本被写入TEA的控制和状态寄存器（CSRs），并发出中断。</p>
+<p><strong>样本收集和PICS生成。</strong>中断引发了采样软件检索TEA的样本以及检查其他CSR以确定逻辑核标识符以及进程和线程标识符，然后将所有这些信息写入内存中的缓冲区（在必要时刷新到文件中）；这是Linux
+perf [38]的典型操作。逻辑核标识符映射到Simultaneous
+Multi-Threading（SMT）下的硬件线程，否则映射到物理核心；我们需要每个物理核心一个TEA单元。虽然在这项工作中我们专注于单线程应用程序，但TEA同样适用于多线程应用程序，因为我们捕获足够的信息来为每个线程创建PICS。性能分析工具将样本映射到进程的能力还可以用于创建任何软件片段的PICS（例如，操作系统代码和即时编译器）。</p>
+<p>因此，当应用程序终止时，所有收集的样本都可用于文件。我们已经创建了一个工具，该工具以此样本文件作为输入，然后对每个静态指令的PSV签名跨周期进行汇总，从而为每个静态指令创建PICS，其中每个类别对应于特定的性能事件（或事件组合）。开发人员可以使用此工具通过可视化不同粒度（例如，静态指令和函数）的PICS来分析应用程序性能。</p>
+<p><strong>开销。</strong>我们假设一个实现了TIP
+[22]的基线，与未修改的BOOM核心相比，TIP产生了57字节的存储开销。TEA还需要跟踪所有正在执行的指令的PSV，因此需要在48个入口的取指缓冲区中添加两位来存储DR-L1和DR-TLB事件（12字节），并在每个ROB入口中添加一个9位的PSV字段（对于我们的192个ROB来说，是216字节）。TEA还需要在fetch中为跟踪DR-L1和DR-TLB的所有取指数据包分别分配三个2位寄存器，并在解码和分派中为跟踪这些事件的其余部分分配2位。TEA需要一个一位的寄存器来跟踪DR-SQ事件，在每个LSU条目中跟踪ST-TLB，直到加载完成。TEA还需要一个寄存器来存储最后提交指令的PSV以正确处理Flushed状态（2字节）。因此，TEA的总存储开销为每个核心249字节（对于TEA和TIP每个核心为306字节）。</p>
+<p>由于IBS、SPE和RIS在前端标记指令，它们知道要从哪个指令捕获PSV，因此只需要存储6、5和7位，即一个字节。然而，在商业核心中实现时，它们还会捕获其他信息，如分支目标、内存地址和各种延迟。因此，IBS、SPE和RIS的最小存储要求可以忽略不计，但这一好处是由于在前端标记指令，而这也是它们大误差的根本原因。</p>
+<p>为了更好地了解TEA（和TIP）的功耗开销，我们使用Cadence Genus
+[10]在商业可用的28纳米技术中合成了BOOM核心的ROB和取指缓冲器模块，分别考虑了有和没有TEA，并使用Cadence
+Joules
+[11]估算了其功耗。我们关注ROB和取指缓冲器，因为它们占TEA存储开销的91.7%。（请注意，TEA捕获的事件已在微体系结构中识别。）总体而言，TEA将这些模块的功耗增加了4.6%。绝对值而言，在这些模块中支持TEA会增加3.2毫瓦的功耗，这是可以忽略的。例如，RAPL
+[17]报告了一台最近的笔记本电脑上的核心功耗为32.7瓦，该笔记本搭载了一款Intel
+i7-1260P芯片，运行在所有8个物理核心上的stress-ng测试中，每个核心产生了4.7瓦的功耗。在此系统上实现TEA会将每个核心的功耗增加约0.1%。如果这种功耗开销是一个问题，那么可以将PSV进行时钟或功耗门控，并提前启用，以便在采样时更新所有正在执行的指令的PSV。</p>
+<p>TEA的性能开销与TIP相同，因为我们可以将PSV打包到TIP用于向软件通信样本元数据的CSR中。CSR必须是64位宽以匹配体系结构中其他寄存器的宽度，但TIP只使用10位用于元数据。传输四个PSV需要36位，这导致TEA使用了64位CSR位中的46位。因此，TEA保留了TIP的88字节样本大小，从而导致性能开销为1.1%
+[22]。TEA的逻辑不在BOOM核心的关键路径上，因此不会影响周期时间。</p>
+<h2 id="experimental-setup">4 EXPERIMENTAL SETUP</h2>
+<p><strong>模拟器</strong>。我们使用FireSim
+[33]，这是一个精确到周期的FPGA加速全系统模拟器，用于评估不同的性能分析策略。模拟的模型是BOOM
+4路超标量乱序核[58]，请参阅表2以了解其配置，它运行的是一个常见的buildroot
+5.7.0 Linux内核。BOOM核被合成并在Xilinx U250
+FPGA上运行，位于NTNU的Idun集群[45]中。我们考虑了FPGA实现的BOOM核和FPGA内存系统之间的频率差异，使用FireSim的令牌机制。我们使用TraceDoctor
+[23]来捕获逐周期的跟踪，其中包含指令地址以及有效、提交、异常和刷新标志，以及每个ROB银行中头ROB条目的PSV；跟踪还包括我们需要建模的调度标记所需的ROB的头指针和尾指针。我们在主机上配置了高度并行的TraceDoctor工作框架，以在最小化模拟减速的同时进行即时处理。性能分析方法因此建模在主机CPU上，与FPGA并行运行，通过处理跟踪数据。这使我们能够在单次模拟运行中模拟和评估多个配置；我们在每个FPGA模拟运行上运行多达15个配置，每个配置使用12个CPU。我们之所以在单个运行中评估多个配置，是因为：(i)它使我们能够在完全相同的周期内对分析方法进行公平比较，以及(ii)它减少了评估时间。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231008215418034.png"
+alt="image-20231008215418034" />
+<figcaption aria-hidden="true">image-20231008215418034</figcaption>
+</figure>
+<p><strong>基准测试</strong>。我们运行了一组与我们的设置兼容的SPEC
+CPU2017
+[46]基准测试。我们使用参考输入将这些基准测试模拟到完成。我们使用GCC
+10.1编译所有基准测试，使用了-O3
+-g编译标志和静态链接。我们在系统启动后启用性能分析器，直到基准测试结束后系统关闭。我们只保留命中用户级代码的样本，因为(i)我们的基准测试在操作系统代码（例如系统调用）中所花费的时间有限（总时间的1.7%），以及(ii)我们不希望在性能分析中包括系统启动和关闭时间。</p>
+<p><strong>黄金参考</strong>。我们要比较的基线计算了每条指令的PICS，也就是说，我们知道每条指令如何影响总执行时间以及在哪里花费时间
+-
+我们认为这是我们的黄金参考。但在真实系统中实现这一点是不切实际的，因为它将要求为每个动态执行的指令与软件通信，这将产生太高的性能开销。更具体地说，黄金参考需要在总共2.7PB的性能数据上以116GB/s的速率进行通信和解析。尽管如此，这个黄金参考非常有用，因为它代表了理想的性能分析配置来进行比较。</p>
+<p><strong>错误度量</strong>。量化TEA（或任何其他技术）获取的周期栈的准确性需要一个错误度量，该度量量化了周期栈中所有组件的错误。此外，我们希望能够在计算周期栈的粒度级别计算错误度量。在这项工作中，我们考虑指令和函数粒度。我们将周期栈中的组件称为<span
+class="math inline">\(C_{i,j}\)</span> ，其中 1 ≤ 𝑗 ≤ 𝑁，𝑁
+是栈中组件的数量，𝑖
+是粒度单位，即指令、基本块、函数或整个应用程序。通过黄金参考获得的周期栈中的相应组件称为
+<span
+class="math inline">\(C_{i,j}^R\)</span>。因此，每个组件的正确归因周期计数等于
+<span
+class="math inline">\(min(C_{i,j},C_{i,j}^R)\)</span>。将所有组件和感兴趣粒度下的所有单位
+𝐺 中的这些正确归因的周期计数相加，得到了正确归因周期的总数，即$
+𝑇_{correct} = ∑^𝐺_{i=1}
+∑<sup>N_{j=1}(min(C_{i,j},C_{i,j}</sup>R))$。误差定义为总周期计数 <span
+class="math inline">\(𝑇_{total}\)</span>与正确归因周期计数之间的相对差异，即
+<span class="math inline">\(𝐸 = (𝑇_{total} − 𝑇_{correct} ) /
+𝑇_{total}\)</span>。并非我们评估的所有技术都生成相同的组件集。特别是，IBS、SPE
+和 RIS 不提供与 TEA
+相同的组件。为了与黄金参考进行公平比较，因此我们将每个方案与一个具有与该方案支持的相同组件集的黄金参考进行比较。</p>
+<h2 id="results">5 RESULTS</h2>
+<p>创建每条指令周期栈（PICS）的最先进方法由IBS、SPE 和 RIS
+代表，它们是我们对 AMD IBS [1]、Arm SPE [4] 和 IBM RIS [29]
+的最佳努力实现。IBS 和 SPE 在分发时标记指令，而 RIS
+在取指阶段形成指令组时标记指令。IBS、SPE 和 RIS
+都记录了被标记指令在流水线中经历的性能事件，但支持不同的事件集（见表1）。我们还与
+TEA 的两个变种进行了比较。NCI-TEA 将 TEA 支持的事件与Intel PEBS [30]
+使用的Next-Committing Instruction (NCI)
+采样策略相结合，已被证明比在取指或分发时标记指令更准确 [22]。TEA
+是我们在第3节中描述的方法，它使用了按时间比例采样的PSV。对于所有技术，我们以4
+KHz的频率对指令进行采样，除非另有说明。我们还评估了一种在分发时标记指令的TEA版本，其准确性与IBS、SPE
+和 RIS 类似，但由于页限制，我们无法包括这个配置。</p>
+<h3 id="average-accuracy">5.1 Average Accuracy</h3>
+<p>首先，我们首先关注TEA生成PICS的准确性，图5报告了每个基准测试的误差。可以得出一些有趣的观察结果。首先，IBS、SPE
+和 RIS 的准确性明显低于NCI-TEA 和 TEA。原因在于，IBS、SPE 和 RIS
+在分发或取指时标记指令，导致性能配置文件不符合时间比例。
+（这证实了之前的研究中的观察结果[22]。）从根本上讲，在前端标记指令会使配置文件偏向于在分发或取指时花费大量时间的指令
+- 这些指令不一定是应用程序在提交时花费时间的指令。RIS 的性能略差于 IBS
+和
+SPE，因为它捕获了更多的事件，因此周期栈具有更多的组件。因此，准确捕获栈中的所有组件更具挑战性。IBS
+和 SPE 之间的微小差异也是由于捕获不同的事件集。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231008221127805.png"
+alt="image-20231008221127805" />
+<figcaption aria-hidden="true">image-20231008221127805</figcaption>
+</figure>
+<p>其次，在提交时对指令进行采样显着提高了准确性，这可以从比较 NCI-TEA 与
+IBS、SPE 和 RIS 的结果中看出。NCI-TEA
+对指令进行采样，因为它们对执行时间有贡献，即，导致提交停顿的指令更有可能被采样，因此周期栈更能代表此指令对程序整体执行时间的贡献。</p>
+<p>第三，仅在提交时对指令进行采样并不足以获得准确的周期栈。我们需要将采样归因给正确的指令，并将采样归因给正确的签名。将采样归因给下一次提交的指令（NCI）在流水线由于错误的分支预测或异常而刷新时不准确。应该受到指责的指令不是下一次提交的指令，而是上一次提交的指令，即错误的分支预测或异常指令。TEA通过如第3节中所述的跟踪上一次提交的指令的PSV来解决此问题。</p>
+<p>总体而言，TEA的平均误差为2.1%（最多为7.7%）。与其他技术相比，这明显更准确：NCI-TEA（平均误差为11.3%，最多为22.0%）、RIS（平均误差为56.0%，最多为79.7%）、IBS（平均误差为55.6%，最多为79.7%）和SPE（平均误差为55.5%，最多为79.7%）。</p>
+<h3 id="per-instruction-accuracy">5.2 Per-Instruction Accuracy</h3>
+<p>前一节量化了在基准测试中所有指令中PICS的平均准确性。现在，我们将重点关注单个指令的准确性。图6报告了四个基准测试中前三个（执行时间最长的）指令的PICS，分别为IBS、TEA和黄金参考；我们选择IBS代表SPE和RIS，因为它们的准确性非常相似（见图5）。我们选择bwaves、omnetpp和fotonik3d，因为它们共同说明了TEA如何报告孤立事件与组合事件，以及exchange2，因为它是IBS误差最低的基准测试。总体结论是，IBS报告的PICS不准确，原因有两个：（i）周期栈的高度不准确，因为IBS不是按时间比例的，（ii）周期栈内组件的相对重要性不准确，因为签名错误归因。这也适用于exchange2，这是IBS误差最低的基准测试（即，将图6d与图5进行比较）。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231008221259486.png"
+alt="image-20231008221259486" />
+<figcaption aria-hidden="true">image-20231008221259486</figcaption>
+</figure>
+<p>这个分析还说明了TEA检测组合事件的能力。例如，缓存和TLB缺失的组合，即（ST-L1，ST-TLB）和（ST-LLC，ST-TLB），占据了bwaves和omnetpp前三个指令的PICS的相当大一部分（见图6a和6b）。在所有至少受到一个事件影响的动态指令执行中，有30.0%会遇到组合事件。因此，组合事件并不太常见，但它们可以帮助解释特定的性能问题。例如，优化bwaves需要改善缓存和TLB的利用率，而优化fotonik3d则可以专注于改善缓存利用率（见图6a和6c）。</p>
+<h3 id="why-event-driven-analysis-falls-short">5.3 Why Event-Driven
+Analysis Falls Short</h3>
+<p>如前文在介绍中提到的，事件驱动的性能分析试图回答问题（Q2），即为什么指令在性能上具有关键性，它通过计算性能事件（例如，缓存未命中、TLB未命中、分支错误预测等）的次数来实现。这是一种广泛使用的软件调优方法。不幸的是，这是一项极其繁琐和耗时的工作，似乎更像是一门艺术而不是一门科学，即性能调优需要对代码和底层硬件有密切的了解。根本原因在于事件计数未必与这些事件对整体性能的影响有关。通过开发一种计算准确PICS的方法，我们现在可以量化性能事件计数的适用性。</p>
+<p>我们通过计算事件计数与周期栈中相应组件之间的相关性来实现这一点。我们计算皮尔逊相关系数
+𝑟，它的取值范围在-1到+1之间。在我们的上下文中，𝑟
+接近1表示几乎完美的正相关性；另一方面，𝑟
+接近零表示没有相关性。图7报告了皮尔逊相关性的箱线图。一些性能事件与性能强烈相关，就像分支错误预测（FL-MB）、异常（FL-EX）和内存顺序违规（FL-MO）一样。原因是这些事件导致流水线刷新，在大多数情况下无法隐藏。另一方面，TLB未命中（DR-TLB
+和 ST-TLB）和缓存未命中（ST-L1、ST-LLC 和
+DR-L1）与性能的相关性适中，其中LLC未命中（SL-LLC）的相关性高于L1数据缓存未命中（ST-L1）。原因是缓存未命中可以部分隐藏，对于L1数据缓存未命中而言，情况更是如此，而对于LLC未命中则不然。存储队列停顿（DR-SQ）显示出最小的相关性和最大的分散，即在某些情况下，完整的存储队列完全被隐藏，而在其他情况下，完整的存储队列会导致处理器停顿。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231008221422251.png"
+alt="image-20231008221422251" />
+<figcaption aria-hidden="true">image-20231008221422251</figcaption>
+</figure>
+<p>虽然上述分析在直觉上是可以理解的，即架构师对隐藏延迟效应非常了解，但这项工作是第一个量化事件计数与其对性能影响之间（缺乏）相关性的研究。这也是使用事件计数进行性能调优如此繁琐和耗时的根本原因。TEA通过提供准确的PICS来解决了这个问题。</p>
+<h3 id="sensitivity-analysis">5.4 Sensitivity analysis</h3>
+<p><strong>采样频率。</strong>图8报告了各种技术的准确性与采样频率的关系。在4
+KHz以上的采样频率范围内，准确性对采样频率变化不太敏感，这就是为什么我们选择4
+KHz作为基准采样频率，以平衡准确性和运行时开销的原因。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231008221456222.png"
+alt="image-20231008221456222" />
+<figcaption aria-hidden="true">image-20231008221456222</figcaption>
+</figure>
+<p><strong>分析粒度。</strong>图9评估了各种技术在计算指令和函数粒度的周期栈时的准确性；基本块和应用程序粒度表现出相同的趋势。TEA始终是最准确的技术。虽然在替代方法中，错误在函数粒度下减少，但并没有像人们预期的那样急剧减少。原因在于周期被系统性地错误归因于错误的事件。因此，即使在粗粒度下，替代方法也无法达到预期的准确性。这加强了对更适当的分析技术（如TEA）的需求。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231008221509827.png"
+alt="image-20231008221509827" />
+<figcaption aria-hidden="true">image-20231008221509827</figcaption>
+</figure>
+<h2 id="case-studies">6 CASE STUDIES</h2>
+<p>我们现在演示了TEA的功能，通过识别性能关键指令（Q1）并解释为什么它们对性能至关重要（Q2），全面识别了应用程序优化机会，而这是现有最先进方法在分析和优化lbm和nab时会忽略的。与第5.2节一样，我们以IBS作为SPE和RIS的代表。</p>
+<p><strong>分析lbm。</strong>在使用当前最先进的方法时，第一步是收集性能配置文件。如果我们使用TIP
+[22]，则配置文件是按时间比例的，因此报告了每个静态指令对总体执行时间的贡献（即回答Q1）。然而，TIP并没有解释为什么特定的指令对性能至关重要，因此迫使开发人员根据指令类型和TIP的标志来猜测问题可能是什么。对于lbm而言，TIP将识别性能关键的加载指令，并且或许不出所料，报告此加载导致提交停顿。</p>
+<p>相比之下，TEA提供了如图10a所示的PICS，它们（i）识别性能关键的lw指令 -
+从而回答了Q1，并且（ii）解释了这个lw指令总是在LLC中未命中，同时隐藏了随后的加载指令的延迟，这些加载指令也在LLC中未命中
+-
+因此回答了Q2；TEA的PICS与黄金参考生成的PICS几乎相同。图10b显示了IBS为其标识为性能关键的代码区域生成的PICS。IBS将性能问题归因于一些浮点算术指令，这些指令碰巧在性能关键的lw指令在ROB头部停顿时派发。事件驱动的分析也不清楚，因为lbm在内循环中有11个加载指令，它们都导致了每个指令之间的33亿到39亿次未命中。关键问题在于事件计数不能区分隐藏的未命中和非隐藏的未命中。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231008221914243.png"
+alt="image-20231008221914243" />
+<figcaption aria-hidden="true">image-20231008221914243</figcaption>
+</figure>
+<p>TEA解释了lbm的主要性能问题是（i）其工作集超过了LLC的大小，以及（ii）体系结构不能足够早地发出加载指令以隐藏其延迟。更具体地说，lbm的内部循环体包含足够的计算指令来填充ROB，从而阻止处理器在处理前一次迭代时发出下一次迭代的加载。与TIP、IBS和事件计数不同，TEA在其PICS中提供了所有这些信息，从而解释了要应用的优化是软件预取。</p>
+<p><strong>优化lbm。</strong>应用软件预取是具有挑战性的，因为开发人员必须足够早地插入预取以隐藏内存延迟，同时又不能使其他核心资源（例如，LSQ）瓶颈化或者污染缓存。（由于BOOM核心不支持软件预取，我们使用其ROCC接口实现了自定义的软件预取指令。）图11显示了在lbm执行其内部循环主体之前的𝑛次迭代（我们将其称为预取距离为𝑛）时，为lbm执行软件预取的情况下，生成的最性能关键的加载和存储指令的TEA生成的PICS。PICS显示，随着预取距离的增加，最性能关键的加载指令对总体执行时间的影响逐渐减小，直到在预取距离为4时达到饱和，即LLC命中（ST-L1）占据了其执行时间影响的大部分。这提高了性能，进而提高了存储带宽要求。因此，最性能关键的存储指令的性能影响也增加，主要涉及到满存储队列（DR-SQ）的类别。lbm在每次迭代中写入19个缓存行，因此预取将其瓶颈从加载延迟移动到存储带宽。尽管延迟问题通常会影响一个静态指令，但带宽问题通常会分布在多个指令上，例如，lbm有七个存储指令，它们的运行时间超过了100亿个时钟周期。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231008221954128.png"
+alt="image-20231008221954128" />
+<figcaption aria-hidden="true">image-20231008221954128</figcaption>
+</figure>
+<p>解决这个性能问题需要不断调整预取距离，以确定加载延迟和存储带宽效应平衡的点，这说明了为什么TEA
+- 通过在运行应用程序一次后提供全面的性能视图 -
+是可取的。对于这种架构，最佳的预取距离是3，可以实现1.28倍的加速（见图11中的线）。</p>
+<p><strong>分析nab。</strong>图12a显示了TEA报告的包含nab性能关键fsqrt.d指令的代码区域的PICS。再次强调，TEA报告的PICS与黄金参考非常相似，而IBS生成的PICS则不同（图12b）。在此示例中，没有任何指令受到性能事件的影响，因此TEA的关键优势在于开发人员可以信任（i）分配给fsqrt.d的时间是准确的，以及（ii）TEA没有错过可能会严重影响性能的任何性能事件。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231008222030228.png"
+alt="image-20231008222030228" />
+<figcaption aria-hidden="true">image-20231008222030228</figcaption>
+</figure>
+<p>因此，fsqrt.d的性能关键是因为其执行延迟没有被隐藏。原因是在此架构中，正是在它之前执行的fsflags和frflags指令总是会刷新流水线。这些指令由编译器插入，以符合IEEE
+754标准，因为默认情况下，flt.d在涉及NaN值的比较时不应触发异常。然而，RISC-V
+ISA不包括flt.d指令的非异常版本，因此需要fsflags和frflags指令来屏蔽异常。虽然通过查看这些确切指令的PICS可以理解这种（复杂的）行为，但在其他情况下理解将会非常具有挑战性。</p>
+<p><strong>优化nab。</strong>解决这个问题很简单，因为nab不需要处理涉及NaN值的比较。更具体地说，启用编译器选项-finite-math或-fast-math将分别提供1.96×和2.45×的加速。显著加速的原因是避免了流水线刷新，使处理器能够更深入地提取和执行指令流，从而更好地隐藏独立浮点指令的执行延迟。</p>
+<h2 id="related-work">7 RELATED WORK</h2>
+<p>与TEA最相关的方法是AMD IBS [19]、Arm SPE [4]和IBM RIS
+[29]这些基于指令的性能分析方法，它们不准确，因为它们不是按时间比例的（请参阅第5节）。</p>
+<p>大量的研究工作依赖于使用由Intel提供的性能监测计数器（PMCs）进行事件驱动性能分析，因此研究人员已经调查了PMU设计[36]，PMUs具有各种用途（例如运行时优化[9]、受管语言的性能分析[47,52,59]、基于性能分析的编译[12,13]和基于性能分析的元编程[8]）。Xu等人[53]专注于通过利用在真实硬件上运行和在二进制仪器化期间相同时的计数器（例如已退休的指令）来提供PMC采样中的正确偏移量。BayesPerf
+[7]使用机器学习模型对性能计数器之间的已知关系进行编码，然后推断哪些性能计数器值可以信任。众所周知，PMCs可能很难理解[50,51,57]，并且已经提出了减少只能同时监视有限数量事件的后果的方法（例如[41]）。我们在第5节中证明，基于PMCs的优化具有挑战性，因为PMC计数通常与性能关联性较差，因此采用TEA也将解决这些问题。</p>
+<p>Eyerman等人[20]提出了一种PMC架构，可以构建每指令周期数（CPI）堆栈。顶层模型[54]将PMC输出与性能模型结合起来，将应用程序分类为主要是退休指令或受限于前端、后端或遭受恶意猜测的形式，可以视为一种循环堆栈的受限形式，因为它呈现了应用程序主要性能瓶颈的分类，而CPI堆栈将应用程序的整体CPI拆分为时间花费在其中的处理器单元。与TEA不同，这些方法不能生成每指令周期堆栈，而我们的案例研究证明了理解性能问题的关键性分析。</p>
+<p>虽然TEA解释了为什么指令对性能至关重要，但其他性能方面也很有趣。垂直分析[26,27]将硬件性能计数器与软件仪器结合起来，以在深层软件堆栈中对应用程序进行分析，而调用上下文分析[60]则有效地识别了函数的通常调用顺序。因果分析[15,40,43,55]能够通过人为减慢段的速度并测量其影响来识别并行代码中程序段的重要性。研究人员还制定了用于分析高度优化代码[48]、评估输入敏感性[14,56]和分析部署应用程序[35]的方法。</p>
+<p>静态仪器化修改二进制代码以收集（广泛的）应用程序执行数据，但会增加性能开销[24,25,37,44,49]。动态仪器化（例如Pin
+[39]和Valgrind
+[42]）不修改二进制代码，因此性能开销比静态仪器化更高。统计性能分析方法（例如TEA、IBS、SPE和RIS）不修改二进制代码，因此开销（较低）比基于仪器的方法小。模拟和建模也可以用于理解关键性能问题。与我们的方法最相关的方法是FirePerf
+[34]，它使用FireSim
+[33]来非侵入性地收集广泛的性能统计信息。因此，如果在非模拟环境中使用，FirePerf将会产生显著的性能开销，而TEA则不会。</p>
+<h2 id="conclusion">8 CONCLUSION</h2>
+<p>我们提出了按时间比例的事件分析（TEA），通过将提交停滞映射到导致它们的性能事件，从而实现了按时间比例的每指令周期堆栈（PICS），以解释执行时间。为了生成PICS，TEA跟踪所有in-flight的指令上的性能事件，但通过精心选择要跟踪的事件，它仅将每核功耗增加了约0.1%。TEA依赖于统计抽样，因此性能开销仅为1.1%，但与不进行抽样的黄金参考相比，平均误差仅为2.1%。我们通过使用TEA在SPEC
+CPU2017基准测试中的lbm和nab中识别性能问题来演示其实用性，一旦解决，它们分别提供了1.28×和2.45×的加速。</p>
+<hr />
+<h1 id="tip">TIP</h1>
+<p>Time-Proportional Instruction Profiler (TIP). TIP 架构通过将 Oracle
+的时间分配策略与统计抽样相结合，弥合了与现代最先进的性能分析工具之间的差距，从而将性能分析数据量减少了几个数量级（与
+Oracle 相比，例如，在常用的 4 KHz 抽样频率下，TIP 为 192 KB/s，而 Oracle
+为 179
+GB/s），但会引入一定的统计误差。有趣的是，图1显示，在实际应用中，统计误差可以忽略不计。具体来说，TIP
+的平均指令级别分析误差仅为 1.6% — 因此，与 NCI、LCI、Dispatch
+和软件性能分析相比，TIP 将平均误差分别减少了 5.8×、34.6×、33.2× 和
+38.6×。我们在 Berkeley Out-of-Order Machine (BOOM) [57] 中的 FireSim
+[28] 模拟基础架构中实现了 TIP。</p>
+<p>尽管低误差对性能分析来说非常吸引人，但准确性对于帮助开发人员编写更高效的应用程序才是真正的好处。为了说明
+TIP 的准确性在实践中的重要性，我们使用 TIP 和 NCI 来分析 SPEC CPU2017
+基准测试 Imagick。我们发现，尽管 TIP 和 NCI
+在函数级别上都非常准确（平均误差分别为 0.3% 和
+0.6%），但函数级别的性能分析并没有清晰地识别出性能问题；这是函数级别性能分析常见的挑战，因为开发人员使用函数来组织功能，而不是性能。在指令级别，TIP
+正确地将时间归因于导致流水线刷新的控制状态寄存器（CSR）指令，而 NCI
+错误地将执行时间归因于下一条提交的指令（详情请参见第 6
+节）。有趣的是，Imagick 不需要执行 CSR 指令，将它们替换为 nop
+指令与原始代码相比可以加速
+1.93×，主要是由于去除刷新操作提高了处理器隐藏延迟的能力。</p>
+<h2 id="section">2</h2>
+<p>实际性能分析器依赖于统计抽样来创建性能分析报告，即它们随机获取（一组）当前执行指令的地址。由于抽样在时间上是随机的，因此对指令的抽样概率
+- 以及因此归因给它的时间 -
+应该与指令对整体执行时间的影响成比例，我们将这个属性称为时间比例归因。例如，考虑一个按照顺序执行一条指令的处理器：需要两个时钟周期执行的指令应该被归因为比单周期指令多两倍的时间。</p>
+<p>理解为什么在提交阶段进行抽样能够实现时间比例归因需要详细了解乱序处理器的运作方式（见图2a）。乱序处理器由一个按顺序执行的前端组成，该前端负责获取和解码指令、预测分支、执行寄存器重命名，并最终将指令分派到重排序缓冲区（ROB）和适当执行单元的发布队列中。然后，指令一旦其输入可用，就会尽快执行（可能是乱序的）。通常情况下，为了支持精确的异常处理，指令按程序顺序提交，并且ROB用于跟踪指令的顺序。因此，在提交时进行抽样可以实现时间比例归因，因为这是不仅指令的执行对软件可见的地方，还是它对整体执行时间的延迟影响变得可见的地方。</p>
+<p>在提交时进行抽样是实现时间比例归因的一个必要但不充分条件，因为性能分析器还必须将时间归因给处理器花费时间的指令（例如，解决错误预测分支所花费的时间必须归因给该分支，而不是其他指令）。我们发现在这项工作中考虑的现有性能分析器都没有进行时间比例归因，因为Dispatch和Software不在提交时进行抽样，而NCI和LCI误将时间错误地分配给了指令。在第2.1节中，我们将首先举例说明为什么不在提交时进行抽样是不准确的，然后在第2.2节中解释为什么我们的Oracle性能分析器实现了时间比例归因，而NCI和LCI没有。</p>
+<h3 id="section-1">2.1</h3>
+<p>派发抽样（如 AMD IBS [15]、Arm SPE <a href="#section">2</a> 和
+ProfileMe [13]
+中使用的方式）在派发阶段选择要进行分析的指令，然后跟踪它通过处理器的后端。虽然这提供了关于个别指令如何在流水线中进行的有趣见解，但它不是按时间比例的。图2b
+显示了当前正在阻塞在加载指令上的处理器状态（见1）。由于处理器有一些独立的指令需要处理，因此在加载待处理时，它能够执行这些指令。然而，这导致
+ROB 填满了指令，从而阻止了派发（见 2）。这导致指令 I10
+由于加载指令造成的后压力而在派发阶段卡住。因为 I10
+在派发阶段的时间比其他指令多，所以 I10
+将吸引根据派发抽样策略进行采样，因为它在派发阶段的时间比其他指令长。图2c
+从提交阶段的角度展示了图2b
+中的情况。如果我们在提交时进行抽样，加载指令将吸引样本，因为它在 ROB
+头部的时间比其他指令长（见
+3）。在提交时进行抽样因此实现了按时间比例的归因，即加载指令将更频繁地被抽样，因为处理器花费了更多时间执行它。实际上，由于几乎完全隐藏了执行延迟，处理器仅对
+I10 公开了半个时钟周期的延迟（见4）。</p>
+<p>由于现象之前的工作称为 "skid" [15,
+52]，因此软件分析也不是按时间比例的。与派发类似，长延迟的指令导致提交停滞，吸引了样本，但与派发不同，软件将时间归因于在取样时左右获取的指令。原因在于软件依赖中断。在中断时，处理器会存储应用程序的当前程序计数器（PC）并将控制权传递给中断处理程序，然后中断处理程序将样本归因于
+PC
+中的指令地址。因此，软件倾向于将延迟归因于距离停滞指令在指令流中更远的指令。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yuhang Zhang
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2023/10/05/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91-TEA/" title="论文翻译:TEA">https://zyh-eric.gitee.io/zyhjy/2023/10/05/论文翻译-TEA/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/zyhjy/tags/Paper/" rel="tag"><i class="fa fa-tag"></i> Paper</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/09/30/C++%E5%8F%AF%E8%B0%83%E7%94%A8%E5%AF%B9%E8%B1%A1/" rel="prev" title="C++可调用对象">
+      <i class="fa fa-chevron-left"></i> C++可调用对象
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/10/24/QEMU-gem5%E9%A1%B9%E7%9B%AE%E6%80%BB%E7%BB%93/" rel="next" title="QEMU-gem5项目总结">
+      QEMU-gem5项目总结 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81ODg3Ni8zNTMzOA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#tea-time-proportional-event-analysis"><span class="nav-number">1.</span> <span class="nav-text">TEA: Time-Proportional
+Event Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract"><span class="nav-number">1.1.</span> <span class="nav-text">ABSTRACT</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">1.2.</span> <span class="nav-text">1 INTRODUCTION</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#background-and-motivation"><span class="nav-number">1.3.</span> <span class="nav-text">2 BACKGROUND AND MOTIVATION</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#time-proportional-event-analysis"><span class="nav-number">1.4.</span> <span class="nav-text">3 TIME-PROPORTIONAL EVENT
+ANALYSIS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#experimental-setup"><span class="nav-number">1.5.</span> <span class="nav-text">4 EXPERIMENTAL SETUP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#results"><span class="nav-number">1.6.</span> <span class="nav-text">5 RESULTS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#average-accuracy"><span class="nav-number">1.6.1.</span> <span class="nav-text">5.1 Average Accuracy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#per-instruction-accuracy"><span class="nav-number">1.6.2.</span> <span class="nav-text">5.2 Per-Instruction Accuracy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#why-event-driven-analysis-falls-short"><span class="nav-number">1.6.3.</span> <span class="nav-text">5.3 Why Event-Driven
+Analysis Falls Short</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sensitivity-analysis"><span class="nav-number">1.6.4.</span> <span class="nav-text">5.4 Sensitivity analysis</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#case-studies"><span class="nav-number">1.7.</span> <span class="nav-text">6 CASE STUDIES</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#related-work"><span class="nav-number">1.8.</span> <span class="nav-text">7 RELATED WORK</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion"><span class="nav-number">1.9.</span> <span class="nav-text">8 CONCLUSION</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tip"><span class="nav-number">2.</span> <span class="nav-text">TIP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#section"><span class="nav-number">2.1.</span> <span class="nav-text">2</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#section-1"><span class="nav-number">2.1.1.</span> <span class="nav-text">2.1</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/zyhjy/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/zyhjy/archives/">
+        
+          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/zyhjy/categories/">
+          
+        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/zyhjy/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/zyhjy/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">407k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">11:19</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+
+<script src="/zyhjy/js/utils.js"></script>
+
+
+<script src="/zyhjy/js/schemes/pisces.js"></script>
+
+
+<script src="/zyhjy/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>

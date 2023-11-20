@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
+  <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/zyhjy/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="树状数组 Binary Indexed Tree 引入 树状数组是一种支持 单点修改 和 区间查询 的，代码量小的数据结构。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="树状数组">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/11/20/%E6%A0%91%E7%8A%B6%E6%95%B0%E7%BB%84/">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="树状数组 Binary Indexed Tree 引入 树状数组是一种支持 单点修改 和 区间查询 的，代码量小的数据结构。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/fenwick.svg">
+<meta property="article:published_time" content="2023-11-20T12:18:38.000Z">
+<meta property="article:modified_time" content="2023-11-20T13:20:48.782Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="offer">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/zyh-eric/mypics/raw/master/img/fenwick.svg">
+
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/11/20/%E6%A0%91%E7%8A%B6%E6%95%B0%E7%BB%84/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>树状数组 | ZYHJY</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/zyhjy/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/zyhjy/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/zyhjy/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/zyhjy/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/zyhjy/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/11/20/%E6%A0%91%E7%8A%B6%E6%95%B0%E7%BB%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          树状数组
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-11-20 20:18:38 / 修改时间：21:20:48" itemprop="dateCreated datePublished" datetime="2023-11-20T20:18:38+08:00">2023-11-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E7%AE%97%E6%B3%95%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">算法题</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>9.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>16 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="树状数组-binary-indexed-tree">树状数组 Binary Indexed Tree</h1>
+<h2 id="引入">引入</h2>
+<p>树状数组是一种支持 <strong>单点修改</strong> 和
+<strong>区间查询</strong> 的，代码量小的数据结构。</p>
+<span id="more"></span>
+<hr />
+<h5 id="tips-什么是单点修改和区间查询">tips:
+什么是「单点修改」和「区间查询」？</h5>
+<p>假设有这样一道题：</p>
+<p>已知一个数列<code>a</code>，你需要进行下面两种操作：</p>
+<ul>
+<li>给定<code>x</code>,
+<code>y</code>，将<code>a[x]</code>自增<code>y</code>。</li>
+<li>给定<code>l</code>,<code>r</code>,求解<code>a[l...r]</code>的和。</li>
+</ul>
+<p>其中第一种操作就是「单点修改」，第二种操作就是「区间查询」</p>
+<hr />
+<p>事实上，树状数组能解决的问题是线段树能解决的问题的子集：<strong>树状数组能做的，线段树一定能做</strong>；线段树能做的，树状数组不一定可以。然而，树状数组的代码要远比线段树短，时间效率常数也更小，因此仍有学习价值。</p>
+<p>普通树状数组维护的信息及运算要满足 <strong>结合律</strong> 且
+<strong>可差分</strong>，如加法（和）、乘法（积）、异或等。</p>
+<ul>
+<li>结合律：<span class="math inline">\((x \circ y) \circ z = x \circ (y
+\circ z)\)</span>，其中 <span class="math inline">\(\circ\)</span>
+是一个二元运算符。</li>
+<li>可差分：具有逆运算的运算，即已知 <span class="math inline">\(x \circ
+y\)</span> 和 <span class="math inline">\(x\)</span> 可以求出 <span
+class="math inline">\(y\)</span>。</li>
+</ul>
+<p>需要注意的是：</p>
+<ul>
+<li>模意义下的乘法若要可差分，需保证每个数都存在逆元（模数为质数时一定存在）；</li>
+<li>例如 <span class="math inline">\(\gcd\)</span>，<span
+class="math inline">\(\max\)</span>
+这些信息不可差分，所以不能用普通树状数组处理.</li>
+</ul>
+<h2 id="划分区间">划分区间</h2>
+<p>树状数组的实现是一个扁平数组，树上每个节点对应原数组<code>a</code>上的一段区间，规定数组下标从<code>1</code>开始。</p>
+<p>树状数组能快速求解信息的原因：我们总能将一段前缀[1,n]拆成
+<strong>不多于<code>log(n)</code>段区间</strong>，使得这<code>log(n)</code>段区间的信息是
+<strong>已知的</strong>。</p>
+<p>下面这张图展示了树状数组的工作原理：</p>
+<figure>
+<img src="https://gitee.com/zyh-eric/mypics/raw/master/img/fenwick.svg"
+alt="img" />
+<figcaption aria-hidden="true">img</figcaption>
+</figure>
+<p>那么问题来了，<code>c[x](x &gt; 1)</code>管辖的区间的长度是多少？</p>
+<p>树状数组中，规定<code>c[x]</code>管辖的区间长度为 <span
+class="math inline">\(2^{k}\)</span>，其中：</p>
+<ul>
+<li>设二进制最低位为第<code>0</code>位，则<code>k</code>恰好为<code>x</code>的二进制表示中，最低位的
+<code>1</code> 所在的二进制位数；</li>
+<li><span
+class="math inline">\(2^{k}\)</span>（<code>c[x]</code>的管辖区间长度）恰好为<code>x</code>的二进制表示中，最低位的
+<code>1</code> 以及后面所有 <code>0</code> 组成的数。</li>
+</ul>
+<p>举个例子，<span
+class="math inline">\(c_{88}\)</span>管辖的是哪个区间？</p>
+<p>因为 <span
+class="math inline">\(88_{(10)}=01011000_{(2)}\)</span>，其二进制最低位的
+<code>1</code> 以及后面的 <code>0</code> 组成的二进制是
+<code>1000</code>，即 <code>8</code>，所以 <span
+class="math inline">\(c_{88}\)</span>管辖<code>8</code>个
+<code>a</code>数组中的元素。</p>
+<p>因此，<span class="math inline">\(c_{88}\)</span>代表 <span
+class="math inline">\(a[81 \ldots 88]\)</span>的区间信息。</p>
+<p>我们记 <code>x</code>二进制最低位 <code>1</code> 以及后面的
+<code>0</code> 组成的数为 <span
+class="math inline">\(\operatorname{lowbit}(x)\)</span>，那么管<code>c[x]</code>辖的区间就是
+<span class="math inline">\([x-\operatorname{lowbit}(x)+1,
+x]\)</span>。</p>
+<p><strong>这里注意：<span
+class="math inline">\(\boldsymbol{\operatorname{lowbit}}\)</span>指的不是最低位
+<code>1</code> 所在的位数<code>k</code>，而是这个 <code>1</code>
+和后面所有 <code>0</code> 组成的 <span
+class="math inline">\(\boldsymbol{2^k}\)</span>。</strong></p>
+<p>怎么计算 <code>lowbit</code>？根据位运算知识，可以得到
+<code>lowbit(x) = x &amp; -x</code>。</p>
+<hr />
+<h5 id="tips-lowbit-的原理">tips: lowbit 的原理</h5>
+<p>将 <code>x</code> 的二进制所有位全部取反，再加 1，就可以得到
+<code>-x</code> 的二进制编码。例如，<span
+class="math inline">\(6\)</span> 的二进制编码是
+<code>110</code>，全部取反后得到 <code>001</code>，加 <code>1</code>
+得到 <code>010</code>。</p>
+<p>设原先 <code>x</code> 的二进制编码是
+<code>(...)10...00</code>，全部取反后得到 <code>[...]01...11</code>，加
+<code>1</code> 后得到 <code>[...]10...00</code>，也就是 <code>-x</code>
+的二进制编码了。这里 <code>x</code> 二进制表示中第一个 <code>1</code> 是
+<code>x</code> 最低位的 <code>1</code>。</p>
+<p><code>(...)</code> 和 <code>[...]</code>
+中省略号的每一位分别相反，所以
+<code>x &amp; -x = (...)10...00 &amp; [...]10...00 = 10...00</code>，得到的结果就是
+<code>lowbit</code>。</p>
+<hr />
+<h2 id="区间查询">区间查询</h2>
+<p>查询<code>a[l...r]</code>的和，就是<code>a[1...r]</code>的和减去<code>a[1...l-1]</code>的和，从而把区间问题转化为前缀问题，更方便处理。</p>
+<p>那么前缀查询怎么做呢？<strong>如果求区间<span
+class="math inline">\(a[1 \ldots
+n]\)</span>的和，可以转换为求其每个二进制位对应区间的和。</strong></p>
+<p>我们可以写出查询 <span class="math inline">\(a[1 \ldots
+x]\)</span>的过程：</p>
+<ul>
+<li>从 <span class="math inline">\(c[x]\)</span>开始往前跳，有 <span
+class="math inline">\(c[x]\)</span>管辖 <span
+class="math inline">\(a[x-\operatorname{lowbit}(x)+1 \ldots
+x]\)</span>；</li>
+<li>令 <span class="math inline">\(x \gets x -
+\operatorname{lowbit}(x)\)</span>，如果 <span class="math inline">\(x =
+0\)</span>说明已经跳到尽头了，终止循环；否则回到第一步。</li>
+<li>将跳到的 <span class="math inline">\(c\)</span>合并。</li>
+</ul>
+<p>举个例子，如果求<span class="math inline">\(a[1 \ldots
+88]\)</span>的和，实际上就是求<code>c[88] + c[80] + c[64]</code>，(即<span
+class="math inline">\(0b1011000\)</span>, <span
+class="math inline">\(0b101\boldsymbol{0}000\)</span>, <span
+class="math inline">\(0b10\boldsymbol{0}0000\)</span>)，从而将时间复杂度从<code>O(n)</code>降至<code>O(log n)</code>。</p>
+<p>显然，<code>c[x]</code>的树高<code>h</code>就是<code>x</code>的二进制表示的位数。</p>
+<p>## 单点修改</p>
+<p>我们的目标是快速正确地维护 <span class="math inline">\(c\)</span>
+数组。为保证效率，我们只需遍历并修改管辖了 <span
+class="math inline">\(a[x]\)</span> 的所有 <span
+class="math inline">\(c[y]\)</span>，因为其他的 <span
+class="math inline">\(c\)</span> 显然没有发生变化。</p>
+<p>管辖 <span class="math inline">\(a[x]\)</span> 的 <span
+class="math inline">\(c[y]\)</span> 一定包含 <span
+class="math inline">\(c[x]\)</span>，所以 <span
+class="math inline">\(y\)</span> 在树状数组树形态上是 <span
+class="math inline">\(x\)</span> 的祖先。因此我们从 <span
+class="math inline">\(x\)</span>
+开始不断跳父亲，直到跳得超过了原数组长度为止。</p>
+<p>设 <span class="math inline">\(n\)</span> 表示 <span
+class="math inline">\(a\)</span> 的大小，不难写出单点修改 <span
+class="math inline">\(a[x]\)</span> 的过程：</p>
+<ul>
+<li>初始令 <span class="math inline">\(x&#39; = x\)</span>。</li>
+<li>修改 <span class="math inline">\(c[x&#39;]\)</span>。</li>
+<li>令 <span class="math inline">\(x&#39; \gets x&#39; +
+\operatorname{lowbit}(x&#39;)\)</span>，如果 <span
+class="math inline">\(x&#39; &gt; n\)</span>
+说明已经跳到尽头了，终止循环；否则回到第二步。</li>
+</ul>
+<p>区间信息和单点修改的种类，共同决定 <span
+class="math inline">\(c[x&#39;]\)</span>
+的修改方式。下面给几个例子：</p>
+<ul>
+<li>若 <span class="math inline">\(c[x&#39;]\)</span>
+维护区间和，修改种类是将 <span class="math inline">\(a[x]\)</span> 加上
+<span class="math inline">\(p\)</span>，则修改方式则是将所有 <span
+class="math inline">\(c[x&#39;]\)</span> 也加上 <span
+class="math inline">\(p\)</span>。</li>
+<li>若 <span class="math inline">\(c[x&#39;]\)</span>
+维护区间积，修改种类是将 <span class="math inline">\(a[x]\)</span> 乘上
+<span class="math inline">\(p\)</span>，则修改方式则是将所有 <span
+class="math inline">\(c[x&#39;]\)</span> 也乘上 <span
+class="math inline">\(p\)</span>。</li>
+</ul>
+<p>然而，单点修改的自由性使得修改的种类和维护的信息不一定是同种运算，比如，若
+<span class="math inline">\(c[x&#39;]\)</span> 维护区间和，修改种类是将
+<span class="math inline">\(a[x]\)</span> 赋值为 <span
+class="math inline">\(p\)</span>，可以考虑转化为将 <span
+class="math inline">\(a[x]\)</span> 加上 <span class="math inline">\(p -
+a[x]\)</span>。如果是将 <span class="math inline">\(a[x]\)</span> 乘上
+<span class="math inline">\(p\)</span>，就考虑转化为 <span
+class="math inline">\(a[x]\)</span> 加上 <span
+class="math inline">\(a[x] \times p - a[x]\)</span>。</p>
+<h2 id="建树">建树</h2>
+<p>也就是根据最开始给出的序列，将树状数组建出来（<span
+class="math inline">\(c\)</span> 全部预处理好）。</p>
+<p>一般可以直接转化为 <span class="math inline">\(n\)</span>
+次单点修改，时间复杂度 <span class="math inline">\(\Theta(n \log
+m)\)</span>，其中m为数组值域的二进制位数。</p>
+<p>也有 <span class="math inline">\(\Theta(n)\)</span> 的建树方法，见<a
+target="_blank" rel="noopener" href="https://oi-wiki.org/ds/fenwick/#thetan-建树">洛谷建树</a> 。</p>
+<h2 id="复杂度分析">复杂度分析</h2>
+<p>空间复杂度显然 <span class="math inline">\(\Theta(n)\)</span>。</p>
+<p>时间复杂度：</p>
+<ul>
+<li>对于区间查询操作：整个 <span class="math inline">\(x \gets x -
+\operatorname{lowbit}(x)\)</span> 的迭代过程，可看做将 <span
+class="math inline">\(x\)</span> 二进制中的所有 <span
+class="math inline">\(1\)</span>，从低位到高位逐渐改成 <span
+class="math inline">\(0\)</span> 的过程，拆分出的区间数等于 <span
+class="math inline">\(x\)</span> 二进制中 <span
+class="math inline">\(1\)</span> 的数量（即 <span
+class="math inline">\(\operatorname{popcount}(x)\)</span>）。因此，单次查询时间复杂度是
+<span class="math inline">\(\Theta(\log n)\)</span>；</li>
+<li>对于单点修改操作：跳父亲时，访问到的高度一直严格增加，且始终有 <span
+class="math inline">\(x \le n\)</span>。由于点 <span
+class="math inline">\(x\)</span> 的高度是 <span
+class="math inline">\(\log_2\operatorname{lowbit}(x)\)</span>，所以跳到的高度不会超过
+<span class="math inline">\(\log_2n\)</span>，所以访问到的 <span
+class="math inline">\(c\)</span> 的数量是 <span
+class="math inline">\(\log n\)</span> 级别。因此，单次单点修改复杂度是
+<span class="math inline">\(\Theta(\log n)\)</span>。</li>
+</ul>
+<h2 id="代码">代码</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BIT</span> &#123;</span><br><span class="line">	vector&lt;<span class="type">int</span>&gt; tree_;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="built_in">BIT</span>(<span class="type">int</span> m) : <span class="built_in">tree_</span>(m + <span class="number">1</span>, <span class="number">0</span>) &#123;&#125; 	<span class="comment">/// index range : 1...n</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">add</span><span class="params">(<span class="type">int</span> i, <span class="type">int</span> val)</span> </span>&#123;</span><br><span class="line">		<span class="type">int</span> x = i;</span><br><span class="line">		<span class="keyword">while</span> (x &lt; tree_.<span class="built_in">size</span>()) &#123;</span><br><span class="line">			tree_[x] += val;</span><br><span class="line">			x += (x &amp; -x);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="type">int</span> <span class="title">query</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">help</span>(r) - <span class="built_in">help</span>(l - <span class="number">1</span>);</span><br><span class="line">	&#125;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="function"><span class="type">int</span> <span class="title">help</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">		<span class="type">int</span> ret = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">while</span> (x &gt; <span class="number">0</span>) &#123;</span><br><span class="line">			ret += tree_[x];</span><br><span class="line">			x -= (x &amp; -x);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> ret;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="离散化">离散化</h2>
+<p>离散化（discrete）思想，在不改变数据相对大小的条件下，对<strong>数据范围</strong>进行相应的<strong>缩小</strong>，便于后续建树。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// nums[0...n-1] （值域1...10e5） --&gt;&gt; [1...m] (m &lt;= n， 为去重后元素的个数)</span></span><br><span class="line">	<span class="keyword">auto</span> temp = nums;</span><br><span class="line">	<span class="built_in">sort</span>(temp.<span class="built_in">begin</span>(), temp.<span class="built_in">end</span>());</span><br><span class="line">	<span class="keyword">auto</span> last = <span class="built_in">unique</span>(temp.<span class="built_in">begin</span>(), temp.<span class="built_in">end</span>());</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">auto</span>&amp; num : nums) &#123;</span><br><span class="line">		num = <span class="built_in">lower_bound</span>(temp.<span class="built_in">begin</span>(), last, num) - temp.<span class="built_in">begin</span>() + <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> m = last - temp.<span class="built_in">begin</span>();</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="权值树状数组">权值树状数组</h2>
+<p>我们知道，普通树状数组直接在原序列的基础上构建，<span
+class="math inline">\(c_6\)</span> 表示的就是 <span
+class="math inline">\(a[5 \ldots 6]\)</span> 的区间信息。</p>
+<p>然而事实上，我们还可以在原序列的权值数组上构建树状数组，这就是权值树状数组。运用权值树状数组，我们可以解决一些经典问题。</p>
+<hr />
+<h3 id="什么是权值数组">什么是权值数组？</h3>
+<p>一个序列 <span class="math inline">\(a\)</span> 的权值数组 <span
+class="math inline">\(b\)</span>，满足 <span
+class="math inline">\(b[x]\)</span> 的值为 <span
+class="math inline">\(x\)</span> 在 <span
+class="math inline">\(a\)</span> 中的出现次数。</p>
+<p>例如：<span class="math inline">\(a = (1, 3, 4, 3, 4)\)</span>
+的权值数组为 <span class="math inline">\(b = (1, 0, 2, 2)\)</span>。</p>
+<p>很明显，<span class="math inline">\(b\)</span> 的大小和 <span
+class="math inline">\(a\)</span> 的值域有关。</p>
+<p>若原数列值域过大，且重要的不是具体值而是值与值之间的相对大小关系，常离散化原数组后再建立权值数组。</p>
+<p>另外，权值数组是原数组无序性的一种表示：它重点描述数组的元素内容，忽略了数组的顺序，若两数组只是顺序不同，所含内容一致，则它们的权值数组相同。</p>
+<p>因此，对于给定数组的顺序不影响答案的问题，在权值数组的基础上思考一般更直观。</p>
+<p><strong>权值数组就是思考问题的角度从原数组的下标变成了原数组的值</strong>。</p>
+<h3
+id="应用1单点修改查询全局第k小">应用1：单点修改，查询全局第<code>k</code>小</h3>
+<p>运用权值树状数组，我们可以解决一些经典问题：</p>
+<h4 id="最长递增子序列的个数"><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/number-of-longest-increasing-subsequence/">673.
+最长递增子序列的个数</a></h4>
+<p>给你一个整数数组 <code>nums</code>
+，找到其中最长严格递增子序列的长度。</p>
+<p><strong>子序列</strong>
+是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。例如，<code>[3,6,2,7]</code>
+是数组 <code>[0,3,1,6,2,2,7]</code> 的子序列。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [10,9,2,5,3,7,101,18]</span><br><span class="line">输出：4</span><br><span class="line">解释：最长递增子序列是 [2,3,7,101]，因此长度为 4 。</span><br></pre></td></tr></table></figure>
+<h5 id="思路">思路</h5>
+<p>这题是<a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/longest-increasing-subsequence/">300.
+最长递增子序列</a>的变形题。</p>
+<p>从值域的角度考虑这道题。因为这道题只是求递增序列，所以我们只需要保留数组元素的相对大小关系即可。</p>
+<ul>
+<li>首先对数组值域进行离散化压缩。</li>
+<li>根据离散化后的值，建立树状数组<code>tree_</code>，其中<code>tree_[x]</code>存储以x结尾的最长递增子数组的长度和相应的数量。<code>query(x)</code>以1...x结尾的最长递增子数组的长度和相应的数量。</li>
+<li>遍历数组，进行查询和插入。</li>
+<li>答案就是<code>query(max)</code>中的数量。</li>
+</ul>
+<h4 id="平衡子序列的最大和"><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/maximum-balanced-subsequence-sum/">2926.
+平衡子序列的最大和</a></h4>
+<p>给你一个下标从 <strong>0</strong> 开始的整数数组 <code>nums</code>
+。</p>
+<p><code>nums</code> 一个长度为 <code>k</code> 的
+<strong>子序列</strong> 指的是选出 <code>k</code> 个
+<strong>下标</strong> <code>i0 &lt; i1 &lt; ... &lt; ik-1</code>
+，如果这个子序列满足以下条件，我们说它是 <strong>平衡的</strong> ：</p>
+<ul>
+<li>对于范围 <code>[1, k - 1]</code> 内的所有 <code>j</code> ，<span
+class="math inline">\(nums[i_j] - nums[i_{j-1}] &gt;= i_j -
+i_{j-1}\)</span> 都成立。</li>
+</ul>
+<p><code>nums</code> 长度为 <code>1</code> 的 <strong>子序列</strong>
+是平衡的。</p>
+<p>请你返回一个整数，表示 <code>nums</code> <strong>平衡</strong>
+子序列里面的 <strong>最大元素和</strong> 。</p>
+<p>一个数组的 <strong>子序列</strong>
+指的是从原数组中删除一些元素（<strong>也可能一个元素也不删除</strong>）后，剩余元素保持相对顺序得到的
+<strong>非空</strong> 新数组。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">输入：nums = [3,3,5,6]</span><br><span class="line">输出：14</span><br><span class="line">解释：这个例子中，选择子序列 [3,5,6] ，下标为 0 ，2 和 3 的元素被选中。</span><br><span class="line">nums[2] - nums[0] &gt;= 2 - 0 。</span><br><span class="line">nums[3] - nums[2] &gt;= 3 - 2 。</span><br><span class="line">所以，这是一个平衡子序列，且它的和是所有平衡子序列里最大的。</span><br><span class="line">包含下标 1 ，2 和 3 的子序列也是一个平衡的子序列。</span><br><span class="line">最大平衡子序列和为 14 。</span><br></pre></td></tr></table></figure>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= nums.length &lt;= 10^5</code></li>
+<li><code>-10^9 &lt;= nums[i] &lt;= 10^9</code></li>
+</ul>
+<h5 id="思路-1">思路</h5>
+<p>数组长度10e5，如果使用朴素的dp，要么超时间，要么超内存。</p>
+<p>观察题目，首先对<span class="math inline">\(nums[i_j] - nums[i_{j-1}]
+&gt;= i_j - i_{j-1}\)</span> 进行变形 ==&gt;&gt; <span
+class="math inline">\(nums[i_j] - i_j &gt;= nums[i_{j-1}] -
+i_{j-1}\)</span>。也就是我们需要找到满足这个条件的子序列的最大和。</p>
+<p>首先，对<code>nums[i] -  i</code>进行离散化，之后对离散化的值进行建树<code>tree_</code>，其中<code>tree_[x]</code>存储以x结尾的平衡子序列的最大和。<code>query(x)</code>返回以1...x结尾的最大的结果。</p>
+<p>对于离散化后的数组中的第i个元素x，首先查询结尾元素小于等于x的最大和，取最大和和0中的最大值，然后加上x对应的离散化之前的值+数组下标i，插入树状数组中。</p>
+<p>答案就是<code>query(max)</code>中的结果，max为离散化后的最大值。</p>
+<h3 id="应用2-全局逆序对全局二维偏序">应用2:
+全局逆序对（全局二维偏序）</h3>
+<h4 id="引入-1">引入</h4>
+<p>全局逆序对也可以用权值树状数组巧妙解决。问题是这样的：给定长度为<code>n</code>的序列
+<code>a</code>，求<code>a</code>中满足<code>i &lt; j</code>且
+<code>a[i] &gt; a[j]</code>的数对<code>(i, j)</code>的数量。</p>
+<p>该问题可离散化，如果原序列
+<code>a</code>值域过大，离散化后再建立权值数组<code>b</code>。</p>
+<p>我们考虑从<code>n</code>到<code>1</code>倒序枚举<code>i</code>，作为逆序对中第一个元素的索引，然后计算有多少个<code>j &gt; i</code>
+满足 <code>a[j] &lt; a[i]</code>，最后累计答案即可。</p>
+<p>事实上，我们只需要这样做（设当前 <code>a[i] = x</code>）：</p>
+<ul>
+<li>查询 <span class="math inline">\(b[1 \ldots x -
+1]\)</span>的前缀和，即为左端点为 a[i] 的逆序对数量。</li>
+<li>b[x] 自增 1；</li>
+</ul>
+<p>很显然，因为是倒序枚举，所以当枚举到<code>a[i]</code>时，树状数组中的元素所对应的原数组下标<code>j</code>一定大于<code>i</code>，且出现在
+$b[1 x-1] $中的元素一定比当前的<code>x = a[i]</code>小。</p>
+<p>接下来看几个相关题目。</p>
+<h4 id="lcr-170.-交易逆序对的总数"><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/shu-zu-zhong-de-ni-xu-dui-lcof/">LCR
+170. 交易逆序对的总数</a></h4>
+<p>在股票交易中，如果前一天的股价高于后一天的股价，则可以认为存在一个「交易逆序对」。请设计一个程序，输入一段时间内的股票交易记录
+<code>record</code>，返回其中存在的「交易逆序对」总数。</p>
+<p><strong>示例 1:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：record = [9, 7, 5, 4, 6]</span><br><span class="line">输出：8</span><br><span class="line">解释：交易中的逆序对为 (9, 7), (9, 5), (9, 4), (9, 6), (7, 5), (7, 4), (7, 6), (5, 4)。</span><br></pre></td></tr></table></figure>
+<h5 id="思路-2">思路</h5>
+<p>首先翻译题目，实际上题目希望我们求数组<code>record</code>中满足<code>i &lt; j</code>（前一天和后一天）且<code>record[i] &gt; record[j]</code>（股价关系）的数对<code>(i, j)</code>的数量。是标准的二维偏序问题，解决方案如上。</p>
+<h4 id="翻转对"><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/reverse-pairs/">493. 翻转对</a></h4>
+<p>给定一个数组 <code>nums</code> ，如果 <code>i &lt; j</code> 且
+<code>nums[i] &gt; 2*nums[j]</code> 我们就将 <code>(i, j)</code>
+称作一个<strong>重要翻转对</strong>。</p>
+<p>你需要返回给定数组中的重要翻转对的数量。</p>
+<p><strong>示例 :</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入: [1,3,2,3,1]</span><br><span class="line">输出: 2</span><br></pre></td></tr></table></figure>
+<h5 id="思路-3">思路</h5>
+<p>和上一题不同的是，因为除了大小关系外还需要满足<code>nums[i] &gt; 2 * nums[j]</code>，所以每次查询前离需要先在离散化数组中确定查询范围<code>y</code>
+，查询 <span class="math inline">\(b[1 \ldots y]\)</span>的前缀和。</p>
+<p>对于<code>x &gt; 2 * y</code>来说，给定y确定x范围，比给定x确定y范围简单（需x分类讨论为0、正数和负数），所以我们正序遍历<code>nums</code>，设当前
+<code>nums[i] = y</code>，每次在树状数组中查找原数组值大于<code>2 * y</code>的元素的个数。</p>
+<p>事实上，我们只需要这样做（设当前
+<code>a[i] = x</code>,离散化数组<code>temp</code>的大小为<code>m</code>）：</p>
+<ul>
+<li>在离散化数组<code>temp</code>中找到第一个满足<code>temp[a[i] - 1] * 2 &lt; temp[y]</code>的数组下标<code>y</code>。</li>
+<li>查询 <span class="math inline">\(b[y + 1 \ldots
+m]\)</span>的结果，即为右端点为 a[i] 的逆序对数量。</li>
+<li>b[x] 自增 1。</li>
+</ul>
+<p>需要注意的是，对于负数而言，如<code>-5 &gt; (-5 * 2)</code>，因此需要每次查询之后再更新树状数组。</p>
+<h4 id="满足不等式的数对数目"><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/number-of-pairs-satisfying-inequality/">2426.
+满足不等式的数对数目</a></h4>
+<h5 id="思路-4">思路</h5>
+<p>和493题如出一辙，同样的，由于不等式中有额外的diff信息（离散化后无法保证），因此在查询树状数组前，需要先通过离散化数组确认查询范围。</p>
+<h4 id="找到-alice-和-bob-可以相遇的建筑"><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/find-building-where-alice-and-bob-can-meet/">2940.
+找到 Alice 和 Bob 可以相遇的建筑</a></h4>
+<p>给你一个下标从 <strong>0</strong> 开始的正整数数组
+<code>heights</code> ，其中 <code>heights[i]</code> 表示第
+<code>i</code> 栋建筑的高度。</p>
+<p>如果一个人在建筑 <code>i</code> ，且存在 <code>i &lt; j</code> 的建筑
+<code>j</code> 满足 <code>heights[i] &lt; heights[j]</code>
+，那么这个人可以移动到建筑 <code>j</code> 。</p>
+<p>给你另外一个数组 <code>queries</code> ，其中
+<code>queries[i] = [ai, bi]</code> 。第 <code>i</code> 个查询中，Alice
+在建筑 <code>ai</code> ，Bob 在建筑 <code>bi</code> 。</p>
+<p>请你能返回一个数组 <code>ans</code> ，其中 <code>ans[i]</code> 是第
+<code>i</code> 个查询中，Alice 和 Bob 可以相遇的
+<strong>最左边的建筑</strong> 。如果对于查询 <code>i</code> ，Alice 和
+Bob 不能相遇，令 <code>ans[i]</code> 为 <code>-1</code> 。</p>
+<p><strong>示例 ：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">输入：heights = [6,4,8,5,2,7], queries = [[0,1],[0,3],[2,4],[3,4],[2,2]]</span><br><span class="line">输出：[2,5,-1,5,2]</span><br><span class="line">解释：第一个查询中，Alice 和 Bob 可以移动到建筑 2 ，因为 heights[0] &lt; heights[2] 且 heights[1] &lt; heights[2] 。</span><br><span class="line">第二个查询中，Alice 和 Bob 可以移动到建筑 5 ，因为 heights[0] &lt; heights[5] 且 heights[3] &lt; heights[5] 。</span><br><span class="line">第三个查询中，Alice 无法与 Bob 相遇，因为 Alice 不能移动到任何其他建筑。</span><br><span class="line">第四个查询中，Alice 和 Bob 可以移动到建筑 5 ，因为 heights[3] &lt; heights[5] 且 heights[4] &lt; heights[5] 。</span><br><span class="line">第五个查询中，Alice 和 Bob 已经在同一栋建筑中。</span><br><span class="line">对于 ans[i] != -1 ，ans[i] 是 Alice 和 Bob 可以相遇的建筑中最左边建筑的下标。</span><br><span class="line">对于 ans[i] == -1 ，不存在 Alice 和 Bob 可以相遇的建筑。</span><br></pre></td></tr></table></figure>
+<h5 id="思路-5">思路</h5>
+<p>对于查询<code>queries[i] = [ai, bi]</code> 来说，有两种情况：</p>
+<ol type="1">
+<li>如果Alice 和 Bob
+可以移动到对方的建筑或者已经在同一栋建筑中，则该次查询对应的答案为<code>max(ai,bi)</code>。</li>
+<li>否则，我们需要在数组中找到最小的下标<code>j</code>，且<code>j</code>满足<code>j &gt; max(ai,bi)</code>，且<code>heights[j] &gt; max(heights[ai], heights[bi])</code>。</li>
+</ol>
+<p>情况1很简单，我们接下来讲情况2怎么处理。</p>
+<p>这里我们采用<strong>树状数组+离线查询</strong>的方法。</p>
+<p>首先，以三元组<code>&#123;h, i, r&#125;</code>收集所有情况2的查询<code>queries[r]</code>，放入数组<code>nq</code>中，其中<code>h = max(heights[ar], heights[br]</code>，<code>i = max(ar,br)</code>，<code>r</code>为该查询在<code>queries</code>数组中的下标。</p>
+<p>接下来，将<code>heights</code>中的信息<code>heights[i]</code>以<code>&#123;h, i, -1&#125;</code>的形式放入数组<code>nq</code>中，其中<code>h = heights[i]</code>。</p>
+<p>收集信息之后，将<code>nq</code>中的元素按照<code>h</code>由大到小排序；如果<code>h</code>相同，则将查询操作排在前面。这样可以保证每次查询时，树状数组中的元素所对应的<code>h</code>都符合条件。</p>
+<p>那么如何设计树状数组呢？每次查询时，我们只需要考虑下标<code>i</code>(range
+:<code>[0, n - 1]</code>,<code>n = heights.size()</code>)，希望找到下标[i
++ 1 ... n -
+1]中已经出现过的最小的下标<code>j</code>。我们知道，树状数组的查询范围是<code>[1...x]</code>,最小值属于不可差分信息，也就是我们无法通过<code>query(n - 1) - query(i)</code>得到<code>[i + 1 ... n - 1]</code>中出现过的最小值。所以逆向思考，做一次映射，<strong>将<code>[i + 1 ... n - 1]</code>映射到<code>[1... n - i - 1]</code></strong>,也就是说，树状数组<code>[1...n - i - 1]</code>中记录着<code>[i + 1 ... n - 1]</code>已经出现过的最小元素<code>j</code>，即<code>query(n - 1 - i) = j</code>，这就是符合条件的答案。</p>
+<p>最后，树状数组初始化为<code>vector&lt;int&gt;(n + 1, 1e5)</code>，遍历并处理数组nq中的元素，设当前
+<code>nq[x] = &#123;h, i, r&#125;</code>,</p>
+<ul>
+<li>如果<code>r == -1</code>，那么将元素i放入树状数组，<code>modify(n - i, i)</code>。</li>
+<li>如果<code>r &gt;= 0</code>，查询树状数组，若结果不等于<code>1e5</code>，<code>res[r] = query(n - 1 - i)</code>；否则结果为<code>res[r] = -1</code>.</li>
+</ul>
+<h4 id="最大和查询"><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/maximum-sum-queries/">2736.
+最大和查询</a></h4>
+<p>给你两个长度为 <code>n</code> 、下标从 <strong>0</strong>
+开始的整数数组 <code>nums1</code> 和 <code>nums2</code>
+，另给你一个下标从 <strong>1</strong> 开始的二维数组
+<code>queries</code> ，其中 <code>queries[i] = [xi, yi]</code> 。</p>
+<p>对于第 <code>i</code> 个查询，在所有满足
+<code>nums1[j] &gt;= xi</code> 且 <code>nums2[j] &gt;= yi</code> 的下标
+<code>j</code> <code>(0 &lt;= j &lt; n)</code> 中，找出
+<code>nums1[j] + nums2[j]</code> 的 <strong>最大值</strong>
+，如果不存在满足条件的 <code>j</code> 则返回 <strong>-1</strong> 。</p>
+<p>返回数组 <code>answer</code> <em>，</em>其中 <code>answer[i]</code>
+是第 <code>i</code> 个查询的答案。</p>
+<p><strong>示例 ：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">输入：nums1 = [4,3,1,2], nums2 = [2,4,9,5], queries = [[4,1],[1,3],[2,5]]</span><br><span class="line">输出：[6,10,7]</span><br><span class="line">解释：</span><br><span class="line">对于第 1 个查询：xi = 4 且 yi = 1 ，可以选择下标 j = 0 ，此时 nums1[j] &gt;= 4 且 nums2[j] &gt;= 1 。nums1[j] + nums2[j] 等于 6 ，可以证明 6 是可以获得的最大值。</span><br><span class="line">对于第 2 个查询：xi = 1 且 yi = 3 ，可以选择下标 j = 2 ，此时 nums1[j] &gt;= 1 且 nums2[j] &gt;= 3 。nums1[j] + nums2[j] 等于 10 ，可以证明 10 是可以获得的最大值。</span><br><span class="line">对于第 3 个查询：xi = 2 且 yi = 5 ，可以选择下标 j = 3 ，此时 nums1[j] &gt;= 2 且 nums2[j] &gt;= 5 。nums1[j] + nums2[j] 等于 7 ，可以证明 7 是可以获得的最大值。</span><br><span class="line">因此，我们返回 [6,10,7] 。</span><br></pre></td></tr></table></figure>
+<h5 id="思路-6">思路</h5>
+<p>题目很好理解，如果将(xi,yi)理解成平面坐标，实际上就是找(xi,yi)右上方的点中(x
++ y)最大的那个点。</p>
+<p><strong>离线</strong>，<strong>按照nums1排序</strong>，<strong>按照nums2作为数组树状数组下标</strong>，每次更新和查询<code>[yi + 1...m]</code>中的数对和的最大值（需要对nums2离散化，并做<strong>映射<code>[m...(m + 1 - i)...1]</code>
+==&gt;&gt; <code>[1...i...m]</code></strong>，相当于维护后缀）。</p>
+<h4 id="相关阅读">相关阅读</h4>
+<p>https://zhuanlan.zhihu.com/p/112504092</p>
+<p>https://www.luogu.com.cn/blog/Littlefoolsblog/Fanwink-Tree</p>
+<p>https://www.luogu.com.cn/blog/wenge/xue-xi-bi-ji-pian-xu-wen-ti</p>
+<p>https://oi-wiki.org/ds/fenwick/#%E5%85%A8%E5%B1%80%E9%80%86%E5%BA%8F%E5%AF%B9%E5%85%A8%E5%B1%80%E4%BA%8C%E7%BB%B4%E5%81%8F%E5%BA%8F</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yuhang Zhang
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2023/11/20/%E6%A0%91%E7%8A%B6%E6%95%B0%E7%BB%84/" title="树状数组">https://zyh-eric.gitee.io/zyhjy/2023/11/20/树状数组/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/zyhjy/tags/offer/" rel="tag"><i class="fa fa-tag"></i> offer</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/11/13/%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8Bmakefile/" rel="prev" title="快速上手makefile">
+      <i class="fa fa-chevron-left"></i> 快速上手makefile
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81ODg3Ni8zNTMzOA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%91%E7%8A%B6%E6%95%B0%E7%BB%84-binary-indexed-tree"><span class="nav-number">1.</span> <span class="nav-text">树状数组 Binary Indexed Tree</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E5%85%A5"><span class="nav-number">1.1.</span> <span class="nav-text">引入</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#tips-%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%95%E7%82%B9%E4%BF%AE%E6%94%B9%E5%92%8C%E5%8C%BA%E9%97%B4%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.1.0.0.1.</span> <span class="nav-text">tips:
+什么是「单点修改」和「区间查询」？</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%92%E5%88%86%E5%8C%BA%E9%97%B4"><span class="nav-number">1.2.</span> <span class="nav-text">划分区间</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#tips-lowbit-%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.0.0.1.</span> <span class="nav-text">tips: lowbit 的原理</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E9%97%B4%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.3.</span> <span class="nav-text">区间查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%BA%E6%A0%91"><span class="nav-number">1.4.</span> <span class="nav-text">建树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-number">1.5.</span> <span class="nav-text">复杂度分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-number">1.6.</span> <span class="nav-text">代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A6%BB%E6%95%A3%E5%8C%96"><span class="nav-number">1.7.</span> <span class="nav-text">离散化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%83%E5%80%BC%E6%A0%91%E7%8A%B6%E6%95%B0%E7%BB%84"><span class="nav-number">1.8.</span> <span class="nav-text">权值树状数组</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%9D%83%E5%80%BC%E6%95%B0%E7%BB%84"><span class="nav-number">1.8.1.</span> <span class="nav-text">什么是权值数组？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A81%E5%8D%95%E7%82%B9%E4%BF%AE%E6%94%B9%E6%9F%A5%E8%AF%A2%E5%85%A8%E5%B1%80%E7%AC%ACk%E5%B0%8F"><span class="nav-number">1.8.2.</span> <span class="nav-text">应用1：单点修改，查询全局第k小</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E9%95%BF%E9%80%92%E5%A2%9E%E5%AD%90%E5%BA%8F%E5%88%97%E7%9A%84%E4%B8%AA%E6%95%B0"><span class="nav-number">1.8.2.1.</span> <span class="nav-text">673.
+最长递增子序列的个数</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">1.8.2.1.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%B3%E8%A1%A1%E5%AD%90%E5%BA%8F%E5%88%97%E7%9A%84%E6%9C%80%E5%A4%A7%E5%92%8C"><span class="nav-number">1.8.2.2.</span> <span class="nav-text">2926.
+平衡子序列的最大和</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="nav-number">1.8.2.2.1.</span> <span class="nav-text">思路</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A82-%E5%85%A8%E5%B1%80%E9%80%86%E5%BA%8F%E5%AF%B9%E5%85%A8%E5%B1%80%E4%BA%8C%E7%BB%B4%E5%81%8F%E5%BA%8F"><span class="nav-number">1.8.3.</span> <span class="nav-text">应用2:
+全局逆序对（全局二维偏序）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E5%85%A5-1"><span class="nav-number">1.8.3.1.</span> <span class="nav-text">引入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#lcr-170.-%E4%BA%A4%E6%98%93%E9%80%86%E5%BA%8F%E5%AF%B9%E7%9A%84%E6%80%BB%E6%95%B0"><span class="nav-number">1.8.3.2.</span> <span class="nav-text">LCR
+170. 交易逆序对的总数</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-2"><span class="nav-number">1.8.3.2.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BF%BB%E8%BD%AC%E5%AF%B9"><span class="nav-number">1.8.3.3.</span> <span class="nav-text">493. 翻转对</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-3"><span class="nav-number">1.8.3.3.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BB%A1%E8%B6%B3%E4%B8%8D%E7%AD%89%E5%BC%8F%E7%9A%84%E6%95%B0%E5%AF%B9%E6%95%B0%E7%9B%AE"><span class="nav-number">1.8.3.4.</span> <span class="nav-text">2426.
+满足不等式的数对数目</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-4"><span class="nav-number">1.8.3.4.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%BE%E5%88%B0-alice-%E5%92%8C-bob-%E5%8F%AF%E4%BB%A5%E7%9B%B8%E9%81%87%E7%9A%84%E5%BB%BA%E7%AD%91"><span class="nav-number">1.8.3.5.</span> <span class="nav-text">2940.
+找到 Alice 和 Bob 可以相遇的建筑</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-5"><span class="nav-number">1.8.3.5.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E5%92%8C%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.8.3.6.</span> <span class="nav-text">2736.
+最大和查询</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-6"><span class="nav-number">1.8.3.6.1.</span> <span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E9%98%85%E8%AF%BB"><span class="nav-number">1.8.3.7.</span> <span class="nav-text">相关阅读</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/zyhjy/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/zyhjy/archives/">
+        
+          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/zyhjy/categories/">
+          
+        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/zyhjy/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/zyhjy/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">407k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">11:19</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+
+<script src="/zyhjy/js/utils.js"></script>
+
+
+<script src="/zyhjy/js/schemes/pisces.js"></script>
+
+
+<script src="/zyhjy/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>

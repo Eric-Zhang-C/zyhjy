@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
+  <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/zyhjy/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="QEMU-gem5项目总结 记录一下我在PPI实验室的第一个完整项目。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="QEMU-gem5项目总结">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/10/24/QEMU-gem5%E9%A1%B9%E7%9B%AE%E6%80%BB%E7%BB%93/">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="QEMU-gem5项目总结 记录一下我在PPI实验室的第一个完整项目。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-24T14:15:07.000Z">
+<meta property="article:modified_time" content="2023-11-20T13:19:58.464Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="lab">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/10/24/QEMU-gem5%E9%A1%B9%E7%9B%AE%E6%80%BB%E7%BB%93/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>QEMU-gem5项目总结 | ZYHJY</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/zyhjy/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/zyhjy/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/zyhjy/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/zyhjy/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/zyhjy/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/10/24/QEMU-gem5%E9%A1%B9%E7%9B%AE%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          QEMU-gem5项目总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-10-24 22:15:07" itemprop="dateCreated datePublished" datetime="2023-10-24T22:15:07+08:00">2023-10-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-11-20 21:19:58" itemprop="dateModified" datetime="2023-11-20T21:19:58+08:00">2023-11-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/QEMU/" itemprop="url" rel="index"><span itemprop="name">QEMU</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/gem5/" itemprop="url" rel="index"><span itemprop="name">gem5</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="qemu-gem5项目总结">QEMU-gem5项目总结</h1>
+<p>记录一下我在PPI实验室的第一个完整项目。</p>
+<span id="more"></span>
+<h2 id="背景">1. 背景</h2>
+<h3 id="qemu">1.1 QEMU</h3>
+<p>QEMU是一个强大的功能模拟器。对QEMU而言，被模拟的平台被称为Guest，又称target；运行QEMU程序的平台称为Host。</p>
+<h4 id="qemu全系统模式">1.1.1 QEMU全系统模式</h4>
+<p><strong>QEMU全系统模式模拟了Guest OS需要的硬件，使得Guest
+OS可以在其中运行。</strong></p>
+<p>其中，全系统模式使用软件虚拟化技术实现了Guest机器的硬件设备（如CPU、Memory、IO等），为Guest
+OS提供了对应的ISA，使得完整的Guest OS可以运行在Host OS上。</p>
+<hr />
+<p><strong>指令集架构</strong>（Instruction Set
+Architecture，ISA）包含了基本数据类型,指令集,寄存器,寻址模式,存储体系,中断,异常处理以及外部I/O。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231028175144053.png"
+alt="image-20231028175144053" />
+<figcaption aria-hidden="true">image-20231028175144053</figcaption>
+</figure>
+<hr />
+<p>从Guest的视角来看，Guest代码运行在真实的Guest机器上；从Host视角来看，QEMU只是Host机器上诸多进程中的一个。那么，QEMU是怎么在Host机器上模拟Guset代码的执行呢？</p>
+<p>QEMU全系统模式模拟了一个完整的Guest
+CPU，这是一个软件模拟的CPU（virtual CPU， vCPU）。Guest
+CPU提供了与Guest平台一致的ISA，因此Guest指令可以看作是在vCPU上执行。</p>
+<p>那么QEMU如何帮助Guest CPU执行Guest指令？</p>
+<p>答案是DBT。我们知道Guest指令不能直接在Host机器上执行，因此QEMU通过DBT将Guest指令翻译成Host指令再执行。</p>
+<p>可以将Guest CPU看作是一个状态机，模拟Guest
+CPU其实就是模拟它的状态和状态转移，QEMU将这些状态保存在了Host机器的内存中。为了模拟Guest指令对vCPU所造成影响，DBT尽量用等价的Host指令来表示Guest指令所引发的状态转移：1）在执行一个BB之前，QEMU将需要使用的Guest
+CPU状态从内存中取出；2）执行DBT翻译后的BB指令；3）在执行一个BB之后，QEMU将被修改的Guest
+CPU状态写回内存。这样，QEMU作为Host机器上的进程，模拟执行了Guest指令，并维护了Guest
+CPU的状态。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231028175412436.png"
+alt="image-20231028175412436" />
+<figcaption aria-hidden="true">image-20231028175412436</figcaption>
+</figure>
+<h4 id="dbt动态二进制翻译">1.1.2 DBT(动态二进制翻译)</h4>
+<p>Guest指令不能直接执行，而是需要通过DBT翻译成Host指令再执行。</p>
+<p>DBT以BB(Basic
+Block,基本块)为粒度，将一个BB内的所有Guest指令翻译成Host指令。所谓BB，是指一段按顺序执行的代码块，在这段代码中除了最后一条指令，不会有其他改变控制流的指令（如bl,ret,call），也就是只有一个入口和出口的代码块。</p>
+<p>DBT的过程是这样的：</p>
+<ul>
+<li>QEMU通过一个翻译缓存来存储已经转换过的BB</li>
+<li>当Guest BB需要执行时，QEMU会先检查缓存中是否有对应的翻译好的Host
+BB</li>
+<li>如果有，QEMU就直接执行缓存中的Host BB</li>
+<li>如果没有，QEMU就会将Guest BB转换为TCG IR，然后再转换为Host
+BB，并存入缓存中，然后执行</li>
+</ul>
+<h4 id="内存虚拟化">1.1.3 内存虚拟化</h4>
+<p>Guest OS运行在QEMU中，它所管理的Guest Physical Address
+Space实际上是由QEMU提供的；而QEMU本身是Host机器上的一个进程，所以QEMU给Guest
+OS提供的Guest Physical Address Space实际上是Host Virtual Address
+Space的映射（二者往往只差一个offset，因为Guest Physical Address
+Space从0开始，而分配给Guest OS的Host Virtual Address
+Space的起始地址由Host
+OS决定；相应的，GPA与对应的HVA之间也只差一个offset）。</p>
+<p>这里一共涉及四种不同类型的地址，GVA(Guest Virtual Address), GPA(Guest
+Physical Address), HVA(Host Virtual Address), HPA(Host Physical
+Address)。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231029201344329.png"
+alt="image-20231029201344329" />
+<figcaption aria-hidden="true">image-20231029201344329</figcaption>
+</figure>
+<p>地址翻译的过程如下：</p>
+<ul>
+<li>QEMU通过TLB缓存GVA -&gt; HVA的映射</li>
+<li>当进行地址翻译时，首先查找TLB中是否有对应的条目</li>
+<li>如果有，则翻译完成，直接使用HVA；这一过程也称为quick path</li>
+<li>如果没有，则进行page
+walk，完成GVA-&gt;GPA-&gt;HVA的翻译，将GVA-&gt;HVA存入TLB，并在接下来使用HVA；这一过程也称为slow
+path</li>
+<li>当Host机器执行QEMU时，Host机器会将HVA翻译成HPA，就像其他在Host机器运行的进程一样</li>
+</ul>
+<h4 id="运行机制">1.1.4 运行机制</h4>
+<p>QEMU全系统模式启动时需加载内核(kernel)与文件系统镜像(file sysyem
+image)。具体来说，QEMU向Host OS申请一块Virtual Address Space作为Guest
+OS的Physical Address Space，将kernel与image载入Physical Address
+Space，使用DBT解释执行kernel与file sysyem代码，完成Guest OS的启动。</p>
+<p>Guest
+OS启动之后，可以在用户态执行Guest程序，具体方式仍为DBT解释执行。如果在用户态程序运行时发生中断、Trap、异常(如缺页异常、除零错误等)等，QEMU会切换到内核态，执行对应的内核指令处理相应事件，处理完成后将切回用户态继续运行程序。这里的用户程序和内核指令都是通过DBT解释执行的。</p>
+<h4 id="qemu的缺点">1.1.5 QEMU的缺点</h4>
+<h5 id="时间不准确">时间不准确</h5>
+<p>QEMU并没有模拟Guest机器的时钟，而是通过获取Host机器的时钟计算时间，这导致Guest程序运行时间与在真实Guest机器上相比有较大差距。QEMU本质上来说是一个功能模拟器，只模拟了Guest程序的正确执行，并不保证Guest程序的时序过程。</p>
+<h5 id="受限的cpu模型">受限的CPU模型</h5>
+<p>QEMU实际上模拟了顺序执行的CPU模型，不支持流水线、O3模型，自然也不会进行分支预测。</p>
+<h3 id="gem5">1.2 gem5</h3>
+<p>相比于QEMU，gem5模拟器更加全面，它<a
+target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Discrete-event_simulation">基于事件驱动模型</a>，同时模拟了功能模块和时序模块。在这里，我们同样将被模拟的平台被称为Guest；运行gem5程序的平台称为Host。</p>
+<h4 id="gem5全系统模式fs">1.2.1 gem5全系统模式(FS)</h4>
+<p>与QEMU的全系统模式相同，gem5全系统模式同样模拟了Guest机器的硬件设备（如CPU、Memory、IO等），为Guest
+OS提供了对应的ISA，使得完整的Guest
+OS可以运行在gem5提供的虚拟硬件平台上。</p>
+<p>gem5具有对多个ISA的模块化支持，目前支持Arm、x86、MIPS、Power、RISC-V、SPARC等。所有这些ISA都可以与gem5的任何CPU模型一起使用。gem5包括四种不同的CPU模型：Simple
+CPU模型、TimingSimple模型、In-Order模型和O3(out of order)模型。</p>
+<p>gem5中有两种不同的缓存系统：“Classic”和“Ruby”。Classic的特点是能够简单快速地搭建起缓存系统，但其牺牲了一定的真实性与可配置性。Ruby为内存子系统实现了详细的仿真模型，它可以建模包含或独占的缓存层次结构、各类缓存替换策略、缓存一致性协议实现、互连网络、DMA和内存控制器、定序器等。</p>
+<h4 id="解释执行">1.2.2 解释执行</h4>
+<p>gem5使用解释执行的方式模拟Guest指令的执行。</p>
+<p>以O3CPU为例，Guest指令在Fetch阶段被读取出来，然后根据Guset
+ISA进行解码，将解码后的指令信息储存在指令信息类对象中；指令对应的事件将在指令信息类对象到达特定的阶段被触发(如访存指令将在IEW阶段执行相应的访存操作)。</p>
+<h4 id="内存虚拟化-1">1.2.3 内存虚拟化</h4>
+<p>内存虚拟化的逻辑与QEMU相同，地址翻译同样完成GVA-&gt;GPA-&gt;HVA的翻译；不同的是，TLB中存储的是GVA-&gt;GPA的映射，而GPA-&gt;HVA的翻译由memory系统实现。</p>
+<h4 id="运行机制-1">1.2.4 运行机制</h4>
+<p>gem5初始化的时候，内核和文件系统都加载到gem5内存里了，所有指令都会走流水线处理；和QEMU处理内核代码的逻辑是一致的。</p>
+<p>在全系统模式下，gem5处理各种fault以及syscall分为三步：1）首先修改系统状态位和pc；2）读取内核代码进入流水线中执行；3）恢复系统状态位和pc。</p>
+<p>此外，remote
+gdb是辅助调试定位问题的，用户可以使用gdb检查整个内核的状态，也可以检查gem5内存中的数据是否符合预期。</p>
+<h4 id="gem5的缺点">1.2.5 gem5的缺点</h4>
+<h5 id="运行时间长">运行时间长</h5>
+<p>模拟相同的测试用例，gem5耗时平均是QEMU的30倍。</p>
+<h5 id="时序模块和功能模块紧耦合">时序模块和功能模块紧耦合</h5>
+<p>gem5采用事件驱动的模拟模型，其中功能模块和时序模块紧密耦合难以区分，使得开发人员难以扩展新的功能或添加新的时序事件。</p>
+<h2 id="项目设计">2. 项目设计</h2>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yuhang Zhang
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2023/10/24/QEMU-gem5%E9%A1%B9%E7%9B%AE%E6%80%BB%E7%BB%93/" title="QEMU-gem5项目总结">https://zyh-eric.gitee.io/zyhjy/2023/10/24/QEMU-gem5项目总结/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/zyhjy/tags/lab/" rel="tag"><i class="fa fa-tag"></i> lab</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/10/05/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91-TEA/" rel="prev" title="论文翻译:TEA">
+      <i class="fa fa-chevron-left"></i> 论文翻译:TEA
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/10/29/%E4%B8%80%E4%B8%AAdynamic-cast%E5%AF%BC%E8%87%B4%E7%9A%84seg-fault/" rel="next" title="一个dynamic_cast导致的seg fault">
+      一个dynamic_cast导致的seg fault <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81ODg3Ni8zNTMzOA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#qemu-gem5%E9%A1%B9%E7%9B%AE%E6%80%BB%E7%BB%93"><span class="nav-number">1.</span> <span class="nav-text">QEMU-gem5项目总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">1. 背景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#qemu"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1 QEMU</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#qemu%E5%85%A8%E7%B3%BB%E7%BB%9F%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">1.1.1 QEMU全系统模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dbt%E5%8A%A8%E6%80%81%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%BF%BB%E8%AF%91"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">1.1.2 DBT(动态二进制翻译)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">1.1.3 内存虚拟化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">1.1.4 运行机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#qemu%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="nav-number">1.1.1.5.</span> <span class="nav-text">1.1.5 QEMU的缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E4%B8%8D%E5%87%86%E7%A1%AE"><span class="nav-number">1.1.1.5.1.</span> <span class="nav-text">时间不准确</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%97%E9%99%90%E7%9A%84cpu%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.1.5.2.</span> <span class="nav-text">受限的CPU模型</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gem5"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.2 gem5</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#gem5%E5%85%A8%E7%B3%BB%E7%BB%9F%E6%A8%A1%E5%BC%8Ffs"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">1.2.1 gem5全系统模式(FS)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E9%87%8A%E6%89%A7%E8%A1%8C"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">1.2.2 解释执行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E8%99%9A%E6%8B%9F%E5%8C%96-1"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">1.2.3 内存虚拟化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6-1"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">1.2.4 运行机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gem5%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="nav-number">1.1.2.5.</span> <span class="nav-text">1.2.5 gem5的缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E9%97%B4%E9%95%BF"><span class="nav-number">1.1.2.5.1.</span> <span class="nav-text">运行时间长</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%97%B6%E5%BA%8F%E6%A8%A1%E5%9D%97%E5%92%8C%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%E7%B4%A7%E8%80%A6%E5%90%88"><span class="nav-number">1.1.2.5.2.</span> <span class="nav-text">时序模块和功能模块紧耦合</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.2.</span> <span class="nav-text">2. 项目设计</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/zyhjy/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/zyhjy/archives/">
+        
+          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/zyhjy/categories/">
+          
+        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/zyhjy/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/zyhjy/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">407k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">11:19</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+
+<script src="/zyhjy/js/utils.js"></script>
+
+
+<script src="/zyhjy/js/schemes/pisces.js"></script>
+
+
+<script src="/zyhjy/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>
