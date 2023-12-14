@@ -112,117 +112,6 @@ on how to get the most out of LLVM.</p>
       </categories>
   </entry>
   <entry>
-    <title>macOS teminal主题设置</title>
-    <url>/zyhjy/2022/05/26/mac-terminal/</url>
-    <content><![CDATA[<ul>
-<li>操作系统: <code>macOS Catalina version 10.15.3</code></li>
-<li>shell环境: <code>zsh</code></li>
-</ul>
-<h2 id="主题">主题</h2>
-<p>原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow
-Night，所以尝试一下。<br> 1. 下载<a
-href="https://github.com/chriskempson/tomorrow-theme/tree/master/OS%20X%20Terminal">Tomorrow
-Night git</a>需要的.terminal文件。 2. 导入<code>Terminal</code>: 1.
-shell &gt;&gt; 导入... <img src="/pics/2022-05-27-terminal.png"
-title="Import" alt="import" /> 2. 终端 &gt;&gt; 偏好设置 &gt;&gt;
-描述文件, 在左侧选择相应的theme。</p>
-<h2 id="oh-my-zsh">oh my zsh</h2>
-<h3 id="为什么要用-zsh">1. 为什么要用 Zsh</h3>
-<p>相比于默认的 Bash，Zsh 有更多的自定义选项，并支持扩展。因此 Zsh
-可以实现更强大的命令补全，命令高亮等一系列酷炫功能.<br>
-不过代价就是启动速度稍微有点慢（1秒左右，不过相比Bash还是慢了点），而且据说语法和标准
-Shell
-有点区别（至少我是在使用中完全没有碰到兼容性问题）。因此现在几乎所有的
-Linux / Unix 版本的默认 Shell 仍然是 Bash。<br></p>
-<h3 id="oh-my-zsh-1">2. oh my zsh</h3>
-<p>默认的 Zsh 配置有点麻烦。因此一个叫 robbyrussel 的用户在 GitHub
-上制作了一个配置文件 oh-my-zsh，这是目前为止最流行的 Zsh 配置：<a
-href="https://ohmyz.sh">oh my zsh官网</a><br> #### 安装 1.
-官网给出了两种安装方法：<br> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">$ sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br></pre></td></tr></table></figure>
-但是在mac上均会出错，试了网上各种方法均无效，原因未知：<br>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to raw.github.com:443 </span><br><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br><span class="line">--2022-05-27 16:15:36--  https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh</span><br><span class="line">正在解析主机 raw.github.com (raw.github.com)... 185.199.111.133, 185.199.110.133, 185.199.109.133, ...</span><br><span class="line">正在连接 raw.github.com (raw.github.com)|185.199.111.133|:443... 已连接。</span><br><span class="line">无法建立 SSL 连接</span><br></pre></td></tr></table></figure>
-其实我们仔细观察上面那个命令，只是去拿了一个.sh脚本然后执行，如果我们手动把它下载下来或者创建一份然后执行呢？
-2. 复制install.sh安装脚本内容<br> <a
-href="https://gitee.com/mirrors/oh-my-zsh/blob/master/tools/install.sh">oh
-my zsh on gitee</a>是oh my
-zsh这个项目在码云Gitee里的镜像仓库中具体安装脚本install.sh的位置，打开这个URL点击一键复制按钮将内容复制下来
-3. 新建脚本文件粘贴脚本内容<br> 在本地新建 install.sh
-文件，并将刚刚复制的内容粘贴进去 4. 添加执行权限并安装<br> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % chmod +x install.sh </span><br><span class="line">zyh@zyhs-MBP tools % sh -c ./install.sh</span><br><span class="line">Cloning Oh My Zsh...</span><br><span class="line">remote: Enumerating objects: 1295, done.</span><br><span class="line">remote: Counting objects: 100% (1295/1295), done.</span><br><span class="line">remote: Compressing objects: 100% (1249/1249), done.</span><br><span class="line">remote: Total 1295 (delta 26), reused 1253 (delta 26), pack-reused 0</span><br><span class="line">Receiving objects: 100% (1295/1295), 1.06 MiB | 4.90 MiB/s, done.</span><br><span class="line">Resolving deltas: 100% (26/26), done.</span><br><span class="line">From https://github.com/ohmyzsh/ohmyzsh</span><br><span class="line">...</span><br><span class="line">➜  tools </span><br></pre></td></tr></table></figure>
-注意到提示符变化了，安装成功。 5. 删除无用的安装脚本<br>
-<code>$ rm install.sh</code></p>
-<h4 id="主题配置">主题配置</h4>
-<p>你可能会觉得现在的主题已经超棒了，但是记得吗，我说过Zsh支持很多个性化配置和插件。现在，编辑<code>~/.zshrc</code>文件（比如用<code>Vim</code>或者<code>VSCode</code>），我们来尝试一下各种主题：<br>
-你会看到有一行<code>ZSH_THEME="robbyrussell"</code>，把它替换成<code>ZSH_THEME="agnoster"</code>。<br>
-然后回到终端，输入<code>source ~/.zshrc</code>，你会发现你的Zsh主题变了<br>
-现在你的主题名称是Agnoster，如果你觉得不太好看，你可以改。<br> 前往
-oh-my-zsh 的 Wiki 就可以看到大多数 oh-my-zsh
-的内置主题以及它们的截图。如果你看中的其中的一款，可以重复上面的步骤，编辑<code>~/.zshrc</code>，并更改<code>ZSH_THEME="xxx"</code>。<br>
-比如你看中了 ys 主题（我的最爱），你可以把 ZSH_THEME 改成
-"ys"，然后回到终端，执行 <code>source ~/.zshrc</code> 命令。<br> P.S.
-这些主题都保存在 <code>~/.oh-my-zsh/themes</code> 目录中<br></p>
-<h4 id="插件">插件</h4>
-<p>oh-my-zsh 的自带插件都储存在 <code>~/.oh-my-zsh/plugins</code>
-目录中，如果你希望安装一个插件，可以在 <code>~/.zshrc</code> 的
-<code>plugins=(xxx, xxx, ...)</code> 这一行里加入插件名称<br>
-如果你需要安装第三方插件和主题，你可以在 <code>~/.zshrc</code>
-的某一行（比如末尾）加入 <code>source /path/to/plugin</code><br>
-比如你希望添加一个 <code>zsh-syntax-highlighting</code> 插件<br>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">source ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh</span><br><span class="line"># 这里要根据你自己的输入目录，而不是抄我的，否则然并卵</span><br></pre></td></tr></table></figure></p>
-]]></content>
-      <categories>
-        <category>mac</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>mac使用brew update无反应,更新慢，断链等解决办法</title>
-    <url>/zyhjy/2022/05/27/mac%E4%BD%BF%E7%94%A8brew%20update%E6%97%A0%E5%8F%8D%E5%BA%94,%E6%9B%B4%E6%96%B0%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</url>
-    <content><![CDATA[<h2 id="问题">问题</h2>
-<p>由于国内某种特殊原因，我们访问很多repo源是有一定难度的，比如在Mac上非常好用的包管理软件Brew安装各种工具时发现居然报错，下载不了这，连接那又timeout，什么也安装不了，心肝迷茫和无助。<br>
-参考<a
-href="https://blog.csdn.net/weixin_36562804/article/details/107872131">brew
-docs</a>。<br></p>
-<p>https://www.jianshu.com/p/2dcfc3de4fa3</p>
-<h2 id="安装valgrind">安装valgrind</h2>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">brew remove valgrind # remove previous attempts at installing it (if any)</span><br><span class="line">brew tap LouisBrunner/valgrind</span><br><span class="line">brew install --HEAD LouisBrunner/valgrind/valgrind</span><br></pre></td></tr></table></figure>
-<h2 id="github-433">github 433</h2>
-<p>根据vpn端口设置代理</p>
-<p>https://stackoverflow.com/questions/48987512/ssl-connect-ssl-error-syscall-in-connection-to-github-com443</p>
-<p>https://gist.github.com/laispace/666dd7b27e9116faece6</p>
-<p>git config --global http.proxy http://127.0.0.1:62019</p>
-<h2 id="破解staruml">破解starUML</h2>
-<ol type="1">
-<li>安装npm brew install npm</li>
-<li>安装asar</li>
-</ol>
-<p>npm install asar -g</p>
-<ol start="3" type="1">
-<li>进入目录，解压文件app.asar</li>
-</ol>
-<p>cd /Applications/StarUML.app/Contents/Resources/ asar extract
-app.asar app</p>
-<ol start="4" type="1">
-<li>修改新生成的app目录下的lisence文件</li>
-</ol>
-<p>vim app/src/engine/license-manager.js</p>
-<ol start="5" type="1">
-<li>找到checkLicenseValidity()函数，125行开始的，原代码：</li>
-</ol>
-<p>checkLicenseValidity () { this.validate().then(() =&gt; {
-setStatus(this, true) }, () =&gt; { setStatus(this, false)
-UnregisteredDialog.showDialog() }) }</p>
-<p>修改为：</p>
-<p>checkLicenseValidity () { this.validate().then(() =&gt; {
-setStatus(this, true) }, () =&gt; { setStatus(this, true) }) }</p>
-<ol start="6" type="1">
-<li>打包覆盖原app.asar</li>
-</ol>
-<p>asar pack app app.asar</p>
-]]></content>
-      <categories>
-        <category>mac</category>
-      </categories>
-  </entry>
-  <entry>
     <title>绕开网页js脚本的若干方法</title>
     <url>/zyhjy/2022/05/27/%E7%BB%95%E5%BC%80%E7%BD%91%E9%A1%B5js%E8%84%9A%E6%9C%AC%E7%9A%84%E8%8B%A5%E5%B9%B2%E6%96%B9%E6%B3%95/</url>
     <content><![CDATA[<p>很多网站都会使用js限制用户进行复制、粘贴，本文列出一下绕开这些限制的方法。<br>
@@ -230,58 +119,6 @@ setStatus(this, true) }, () =&gt; { setStatus(this, true) }) }</p>
 ]]></content>
       <categories>
         <category>mac</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>LLVM安装!</title>
-    <url>/zyhjy/2022/05/30/llvm%20install/</url>
-    <content><![CDATA[<h2 id="简介">简介</h2>
-<ul>
-<li><p>mac
-OS系统并没有LLVM工具，但是安装Xcode之后能调用基本的LLVM编译命令如clang，而如果想要调用llc等命令的话只能下载并安装完整的LLVM工具。</p></li>
-<li><p>操作系统: <code>macOS Catalina version 10.15.3</code></p></li>
-</ul>
-<h2 id="安装">安装</h2>
-<ul>
-<li><code>brew install llvm</code>
-<code>llvm</code>会被安装在<code>/usr/local/opt/llvm</code>的路径下。<br>
-打开<code>～/.zshrc</code>:<br>
-<code>export PATH=/usr/local/opt/llvm/bin:$PATH</code><br>
-使用<code>source ~/.zshrc</code>使.<code>zshrc</code>文件文件生效<br></li>
-</ul>
-<p>输入<code>llvm-dis --version</code>测试<br></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">To use the bundled libc++ please add the following LDFLAGS:</span><br><span class="line">  LDFLAGS=&quot;-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib&quot;</span><br><span class="line"></span><br><span class="line">llvm is keg-only, which means it was not symlinked into /usr/local,</span><br><span class="line">because macOS already provides this software and installing another version in</span><br><span class="line">parallel can cause all kinds of trouble.</span><br><span class="line"></span><br><span class="line">If you need to have llvm first in your PATH, run:</span><br><span class="line">  echo &#x27;export PATH=&quot;/usr/local/opt/llvm/bin:$PATH&quot;&#x27; &gt;&gt; ~/.zshrc</span><br><span class="line"></span><br><span class="line">For compilers to find llvm you may need to set:</span><br><span class="line">  export LDFLAGS=&quot;-L/usr/local/opt/llvm/lib&quot;</span><br><span class="line">  export CPPFLAGS=&quot;-I/usr/local/opt/llvm/include&quot;</span><br></pre></td></tr></table></figure>
-<h2 id="使用">使用</h2>
-<h3 id="场景1">场景1</h3>
-<p>建立build目录并且在该目录下进行编译，注意LLVM禁止源码内编译（in-tree
-build is not supported） <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; cd /usr/local/opt/llvm</span><br><span class="line">&gt; mkdir build</span><br><span class="line">&gt; cd build</span><br><span class="line">&gt; cmake -G &quot;Unix Makefiles&quot; \</span><br><span class="line">  -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \</span><br><span class="line">  -DLLVM_BUILD_LLVM_DYLIB=ON \</span><br><span class="line">  --enable-optimized \</span><br><span class="line">  --enable-targets=host-only \</span><br><span class="line">  ../../llvm</span><br><span class="line">&gt; make</span><br></pre></td></tr></table></figure> -G = 指定生成编译器
--DCMAKE_BUILD_TYPE = 调试版本（Debug）或者发布版本（Release）
--DCMAKE_EXPORT_COMPILE_COMMANDS = 是否输出编译命令
--DLLVM_BUILD_LLVM_DYLIB = 是否添加libLLVM共享库 更多的编译项可以参考<a
-href="https://llvm.org/docs/CMake.html">LLVM compile
-docs</a>的编译文档。</p>
-<h3 id="场景2">场景2</h3>
-<p>创建一个C语言文件test.c <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">int main() &#123;</span><br><span class="line">  printf(&quot;hello world\n&quot;);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> - 编译生成可执行文件<br>
-<code>clang test.c -o test</code></p>
-<ul>
-<li><p>运行可执行文件<br> <code>test</code></p></li>
-<li><p>生成llvm字节码文件<br>
-<code>clang -O1 -emit-llvm test.c -c -o test.bc</code></p></li>
-<li><p>生成LLVM 的汇编代码 .ll 文件(可视化字节码文件)
-<code>clang -O1 -emit-llvm test.c -S -o test.ll</code></p></li>
-<li><p>运行字节码文件<br> <code>lli test.bc</code> 结果: "hello world"
-.ll文件也可以用lli来执行</p></li>
-<li><p>将 .bc 文件转化为 .ll 文件:
-<code>llvm-dis test.bc</code></p></li>
-<li><p>将 .ll 文件转化为 .bc 文件: <code>llvm-as test.ll</code></p></li>
-<li><p>编译字节码文件为汇编文件<br>
-<code>llc test.bc -o test.s</code></p></li>
-<li><p>将 .bc 或 .ll 文件转化为本机平台的汇编代码<br>
-<code>llc test.bc</code> <code>llc test.ll</code></p></li>
-</ul>
-]]></content>
-      <categories>
-        <category>llvm</category>
       </categories>
   </entry>
   <entry>
@@ -402,6 +239,107 @@ Code将自动使用clang-format工具格式化代码，根据您的设置进行�
       </categories>
   </entry>
   <entry>
+    <title>LLVM安装!</title>
+    <url>/zyhjy/2022/05/30/llvm%20install/</url>
+    <content><![CDATA[<h2 id="简介">简介</h2>
+<ul>
+<li><p>mac
+OS系统并没有LLVM工具，但是安装Xcode之后能调用基本的LLVM编译命令如clang，而如果想要调用llc等命令的话只能下载并安装完整的LLVM工具。</p></li>
+<li><p>操作系统: <code>macOS Catalina version 10.15.3</code></p></li>
+</ul>
+<h2 id="安装">安装</h2>
+<ul>
+<li><code>brew install llvm</code>
+<code>llvm</code>会被安装在<code>/usr/local/opt/llvm</code>的路径下。<br>
+打开<code>～/.zshrc</code>:<br>
+<code>export PATH=/usr/local/opt/llvm/bin:$PATH</code><br>
+使用<code>source ~/.zshrc</code>使.<code>zshrc</code>文件文件生效<br></li>
+</ul>
+<p>输入<code>llvm-dis --version</code>测试<br></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">To use the bundled libc++ please add the following LDFLAGS:</span><br><span class="line">  LDFLAGS=&quot;-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib&quot;</span><br><span class="line"></span><br><span class="line">llvm is keg-only, which means it was not symlinked into /usr/local,</span><br><span class="line">because macOS already provides this software and installing another version in</span><br><span class="line">parallel can cause all kinds of trouble.</span><br><span class="line"></span><br><span class="line">If you need to have llvm first in your PATH, run:</span><br><span class="line">  echo &#x27;export PATH=&quot;/usr/local/opt/llvm/bin:$PATH&quot;&#x27; &gt;&gt; ~/.zshrc</span><br><span class="line"></span><br><span class="line">For compilers to find llvm you may need to set:</span><br><span class="line">  export LDFLAGS=&quot;-L/usr/local/opt/llvm/lib&quot;</span><br><span class="line">  export CPPFLAGS=&quot;-I/usr/local/opt/llvm/include&quot;</span><br></pre></td></tr></table></figure>
+<h2 id="使用">使用</h2>
+<h3 id="场景1">场景1</h3>
+<p>建立build目录并且在该目录下进行编译，注意LLVM禁止源码内编译（in-tree
+build is not supported） <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; cd /usr/local/opt/llvm</span><br><span class="line">&gt; mkdir build</span><br><span class="line">&gt; cd build</span><br><span class="line">&gt; cmake -G &quot;Unix Makefiles&quot; \</span><br><span class="line">  -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \</span><br><span class="line">  -DLLVM_BUILD_LLVM_DYLIB=ON \</span><br><span class="line">  --enable-optimized \</span><br><span class="line">  --enable-targets=host-only \</span><br><span class="line">  ../../llvm</span><br><span class="line">&gt; make</span><br></pre></td></tr></table></figure> -G = 指定生成编译器
+-DCMAKE_BUILD_TYPE = 调试版本（Debug）或者发布版本（Release）
+-DCMAKE_EXPORT_COMPILE_COMMANDS = 是否输出编译命令
+-DLLVM_BUILD_LLVM_DYLIB = 是否添加libLLVM共享库 更多的编译项可以参考<a
+href="https://llvm.org/docs/CMake.html">LLVM compile
+docs</a>的编译文档。</p>
+<h3 id="场景2">场景2</h3>
+<p>创建一个C语言文件test.c <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">int main() &#123;</span><br><span class="line">  printf(&quot;hello world\n&quot;);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> - 编译生成可执行文件<br>
+<code>clang test.c -o test</code></p>
+<ul>
+<li><p>运行可执行文件<br> <code>test</code></p></li>
+<li><p>生成llvm字节码文件<br>
+<code>clang -O1 -emit-llvm test.c -c -o test.bc</code></p></li>
+<li><p>生成LLVM 的汇编代码 .ll 文件(可视化字节码文件)
+<code>clang -O1 -emit-llvm test.c -S -o test.ll</code></p></li>
+<li><p>运行字节码文件<br> <code>lli test.bc</code> 结果: "hello world"
+.ll文件也可以用lli来执行</p></li>
+<li><p>将 .bc 文件转化为 .ll 文件:
+<code>llvm-dis test.bc</code></p></li>
+<li><p>将 .ll 文件转化为 .bc 文件: <code>llvm-as test.ll</code></p></li>
+<li><p>编译字节码文件为汇编文件<br>
+<code>llc test.bc -o test.s</code></p></li>
+<li><p>将 .bc 或 .ll 文件转化为本机平台的汇编代码<br>
+<code>llc test.bc</code> <code>llc test.ll</code></p></li>
+</ul>
+]]></content>
+      <categories>
+        <category>llvm</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>mac使用brew update无反应,更新慢，断链等解决办法</title>
+    <url>/zyhjy/2022/05/27/mac%E4%BD%BF%E7%94%A8brew%20update%E6%97%A0%E5%8F%8D%E5%BA%94,%E6%9B%B4%E6%96%B0%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</url>
+    <content><![CDATA[<h2 id="问题">问题</h2>
+<p>由于国内某种特殊原因，我们访问很多repo源是有一定难度的，比如在Mac上非常好用的包管理软件Brew安装各种工具时发现居然报错，下载不了这，连接那又timeout，什么也安装不了，心肝迷茫和无助。<br>
+参考<a
+href="https://blog.csdn.net/weixin_36562804/article/details/107872131">brew
+docs</a>。<br></p>
+<p>https://www.jianshu.com/p/2dcfc3de4fa3</p>
+<h2 id="安装valgrind">安装valgrind</h2>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">brew remove valgrind # remove previous attempts at installing it (if any)</span><br><span class="line">brew tap LouisBrunner/valgrind</span><br><span class="line">brew install --HEAD LouisBrunner/valgrind/valgrind</span><br></pre></td></tr></table></figure>
+<h2 id="github-433">github 433</h2>
+<p>根据vpn端口设置代理</p>
+<p>https://stackoverflow.com/questions/48987512/ssl-connect-ssl-error-syscall-in-connection-to-github-com443</p>
+<p>https://gist.github.com/laispace/666dd7b27e9116faece6</p>
+<p>git config --global http.proxy http://127.0.0.1:62019</p>
+<h2 id="破解staruml">破解starUML</h2>
+<ol type="1">
+<li>安装npm brew install npm</li>
+<li>安装asar</li>
+</ol>
+<p>npm install asar -g</p>
+<ol start="3" type="1">
+<li>进入目录，解压文件app.asar</li>
+</ol>
+<p>cd /Applications/StarUML.app/Contents/Resources/ asar extract
+app.asar app</p>
+<ol start="4" type="1">
+<li>修改新生成的app目录下的lisence文件</li>
+</ol>
+<p>vim app/src/engine/license-manager.js</p>
+<ol start="5" type="1">
+<li>找到checkLicenseValidity()函数，125行开始的，原代码：</li>
+</ol>
+<p>checkLicenseValidity () { this.validate().then(() =&gt; {
+setStatus(this, true) }, () =&gt; { setStatus(this, false)
+UnregisteredDialog.showDialog() }) }</p>
+<p>修改为：</p>
+<p>checkLicenseValidity () { this.validate().then(() =&gt; {
+setStatus(this, true) }, () =&gt; { setStatus(this, true) }) }</p>
+<ol start="6" type="1">
+<li>打包覆盖原app.asar</li>
+</ol>
+<p>asar pack app app.asar</p>
+]]></content>
+      <categories>
+        <category>mac</category>
+      </categories>
+  </entry>
+  <entry>
     <title>git clone常见报错</title>
     <url>/zyhjy/2022/05/18/git-clone%E6%8A%A5%E9%94%99443/</url>
     <content><![CDATA[<ul>
@@ -423,6 +361,68 @@ config常用命令总结</a></h5>
 ]]></content>
       <categories>
         <category>git</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>macOS teminal主题设置</title>
+    <url>/zyhjy/2022/05/26/mac-terminal/</url>
+    <content><![CDATA[<ul>
+<li>操作系统: <code>macOS Catalina version 10.15.3</code></li>
+<li>shell环境: <code>zsh</code></li>
+</ul>
+<h2 id="主题">主题</h2>
+<p>原先terminal的主题看着很不舒服。在reddit上看到大家推荐使用Tomorrow
+Night，所以尝试一下。<br> 1. 下载<a
+href="https://github.com/chriskempson/tomorrow-theme/tree/master/OS%20X%20Terminal">Tomorrow
+Night git</a>需要的.terminal文件。 2. 导入<code>Terminal</code>: 1.
+shell &gt;&gt; 导入... <img src="/pics/2022-05-27-terminal.png"
+title="Import" alt="import" /> 2. 终端 &gt;&gt; 偏好设置 &gt;&gt;
+描述文件, 在左侧选择相应的theme。</p>
+<h2 id="oh-my-zsh">oh my zsh</h2>
+<h3 id="为什么要用-zsh">1. 为什么要用 Zsh</h3>
+<p>相比于默认的 Bash，Zsh 有更多的自定义选项，并支持扩展。因此 Zsh
+可以实现更强大的命令补全，命令高亮等一系列酷炫功能.<br>
+不过代价就是启动速度稍微有点慢（1秒左右，不过相比Bash还是慢了点），而且据说语法和标准
+Shell
+有点区别（至少我是在使用中完全没有碰到兼容性问题）。因此现在几乎所有的
+Linux / Unix 版本的默认 Shell 仍然是 Bash。<br></p>
+<h3 id="oh-my-zsh-1">2. oh my zsh</h3>
+<p>默认的 Zsh 配置有点麻烦。因此一个叫 robbyrussel 的用户在 GitHub
+上制作了一个配置文件 oh-my-zsh，这是目前为止最流行的 Zsh 配置：<a
+href="https://ohmyz.sh">oh my zsh官网</a><br> #### 安装 1.
+官网给出了两种安装方法：<br> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">$ sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br></pre></td></tr></table></figure>
+但是在mac上均会出错，试了网上各种方法均无效，原因未知：<br>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;</span><br><span class="line">curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to raw.github.com:443 </span><br><span class="line">zyh@zyhs-MBP tools % sh -c &quot;$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)&quot;</span><br><span class="line">--2022-05-27 16:15:36--  https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh</span><br><span class="line">正在解析主机 raw.github.com (raw.github.com)... 185.199.111.133, 185.199.110.133, 185.199.109.133, ...</span><br><span class="line">正在连接 raw.github.com (raw.github.com)|185.199.111.133|:443... 已连接。</span><br><span class="line">无法建立 SSL 连接</span><br></pre></td></tr></table></figure>
+其实我们仔细观察上面那个命令，只是去拿了一个.sh脚本然后执行，如果我们手动把它下载下来或者创建一份然后执行呢？
+2. 复制install.sh安装脚本内容<br> <a
+href="https://gitee.com/mirrors/oh-my-zsh/blob/master/tools/install.sh">oh
+my zsh on gitee</a>是oh my
+zsh这个项目在码云Gitee里的镜像仓库中具体安装脚本install.sh的位置，打开这个URL点击一键复制按钮将内容复制下来
+3. 新建脚本文件粘贴脚本内容<br> 在本地新建 install.sh
+文件，并将刚刚复制的内容粘贴进去 4. 添加执行权限并安装<br> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">zyh@zyhs-MBP tools % chmod +x install.sh </span><br><span class="line">zyh@zyhs-MBP tools % sh -c ./install.sh</span><br><span class="line">Cloning Oh My Zsh...</span><br><span class="line">remote: Enumerating objects: 1295, done.</span><br><span class="line">remote: Counting objects: 100% (1295/1295), done.</span><br><span class="line">remote: Compressing objects: 100% (1249/1249), done.</span><br><span class="line">remote: Total 1295 (delta 26), reused 1253 (delta 26), pack-reused 0</span><br><span class="line">Receiving objects: 100% (1295/1295), 1.06 MiB | 4.90 MiB/s, done.</span><br><span class="line">Resolving deltas: 100% (26/26), done.</span><br><span class="line">From https://github.com/ohmyzsh/ohmyzsh</span><br><span class="line">...</span><br><span class="line">➜  tools </span><br></pre></td></tr></table></figure>
+注意到提示符变化了，安装成功。 5. 删除无用的安装脚本<br>
+<code>$ rm install.sh</code></p>
+<h4 id="主题配置">主题配置</h4>
+<p>你可能会觉得现在的主题已经超棒了，但是记得吗，我说过Zsh支持很多个性化配置和插件。现在，编辑<code>~/.zshrc</code>文件（比如用<code>Vim</code>或者<code>VSCode</code>），我们来尝试一下各种主题：<br>
+你会看到有一行<code>ZSH_THEME="robbyrussell"</code>，把它替换成<code>ZSH_THEME="agnoster"</code>。<br>
+然后回到终端，输入<code>source ~/.zshrc</code>，你会发现你的Zsh主题变了<br>
+现在你的主题名称是Agnoster，如果你觉得不太好看，你可以改。<br> 前往
+oh-my-zsh 的 Wiki 就可以看到大多数 oh-my-zsh
+的内置主题以及它们的截图。如果你看中的其中的一款，可以重复上面的步骤，编辑<code>~/.zshrc</code>，并更改<code>ZSH_THEME="xxx"</code>。<br>
+比如你看中了 ys 主题（我的最爱），你可以把 ZSH_THEME 改成
+"ys"，然后回到终端，执行 <code>source ~/.zshrc</code> 命令。<br> P.S.
+这些主题都保存在 <code>~/.oh-my-zsh/themes</code> 目录中<br></p>
+<h4 id="插件">插件</h4>
+<p>oh-my-zsh 的自带插件都储存在 <code>~/.oh-my-zsh/plugins</code>
+目录中，如果你希望安装一个插件，可以在 <code>~/.zshrc</code> 的
+<code>plugins=(xxx, xxx, ...)</code> 这一行里加入插件名称<br>
+如果你需要安装第三方插件和主题，你可以在 <code>~/.zshrc</code>
+的某一行（比如末尾）加入 <code>source /path/to/plugin</code><br>
+比如你希望添加一个 <code>zsh-syntax-highlighting</code> 插件<br>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">source ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh</span><br><span class="line"># 这里要根据你自己的输入目录，而不是抄我的，否则然并卵</span><br></pre></td></tr></table></figure></p>
+]]></content>
+      <categories>
+        <category>mac</category>
       </categories>
   </entry>
   <entry>
@@ -1222,109 +1222,6 @@ reference</a>举例了所有声明，除此以外情况外的声明都是定义<
       </categories>
   </entry>
   <entry>
-    <title>C++型别推导</title>
-    <url>/zyhjy/2022/06/29/cpp%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC/</url>
-    <content><![CDATA[<ul>
-<li><code>auto</code></li>
-<li><code>decltype</code></li>
-</ul>
-<h1 id="模版型别推导">模版型别推导</h1>
-<h2 id="一般形式">一般形式:</h2>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(ParamType param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(expr);   <span class="comment">// 从expr推导T和ParamType的型别</span></span><br></pre></td></tr></table></figure>
-<h2
-id="情况一paramtype是指针或引用-但不是万能引用">情况一:<code>ParamType</code>是指针或引用,
-但不是万能引用:</h2>
-<ol type="1">
-<li>若<code>expr</code>具有引用型别, 先将引用部分忽略</li>
-<li><code>ParamType</code>和<code>expr</code>模式匹配 ==&gt;&gt;
-<code>T</code></li>
-</ol>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; const int, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; const int, ParamType -&gt; const int&amp;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>向持有<code>T&amp;</code>型别的模版传入<code>const</code>对象是安全的</li>
-</ul>
-<h2
-id="情况二paramtype是万能引用">情况二:<code>ParamType</code>是万能引用:</h2>
-<ol type="1">
-<li>如果<code>expr</code>是个左值:
-<ul>
-<li><code>ParamType</code>和<code>T</code>都会被推导为左值引用</li>
-</ul></li>
-<li>如果<code>expr</code>是个右值:
-<ul>
-<li>与情况一相同</li>
-</ul></li>
-</ol>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T&amp;&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; const int&amp;, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; const int&amp;, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(<span class="number">27</span>); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;&amp;</span></span><br></pre></td></tr></table></figure>
-<h2
-id="情况三paramtype既非指针也非引用">情况三:<code>ParamType</code>既非指针也非引用:</h2>
-<ul>
-<li>即按值传递,
-<code>param</code>是传入对象的副本，是<strong>全新对象</strong></li>
-</ul>
-<ol type="1">
-<li>若<code>expr</code>具有引用型别, 先将引用部分忽略</li>
-<li>若是<code>const</code>,<code>volatile</code>对象，也忽略之</li>
-</ol>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(<span class="number">27</span>); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* <span class="type">const</span> ptr = <span class="string">&quot;Fun&quot;</span>;</span><br><span class="line"><span class="built_in">f</span>(ptr); T -&gt; <span class="type">const</span> <span class="type">char</span>*, ParamType -&gt; <span class="type">const</span> <span class="type">char</span>*</span><br></pre></td></tr></table></figure>
-<h2 id="其他情形">其他情形:</h2>
-<h3 id="数组实参">数组实参</h3>
-<ul>
-<li>数组可退化成指针</li>
-<li>没有任何函数形参具有数组型别:
-<code>void myFunc(int param[]);</code>等价于<code>void myFunc(int param[]);</code></li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> name = <span class="string">&quot;J. P. Briggs&quot;</span>; <span class="comment">// name的型别是const char[13]</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* ptrToName = name; <span class="comment">// 数组退化成指针</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(name); <span class="comment">// T -&gt; const char*</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"><span class="built_in">f2</span>(name); <span class="comment">// T -&gt; const char [13], ParamType -&gt; const char (&amp;)[13]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 以编译器常量形式返回数组尺寸</span></span><br><span class="line"><span class="comment">// 形参未起名字</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T， std::<span class="type">size_t</span> N&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> std::<span class="type">size_t</span> <span class="title">arraySize</span><span class="params">(T (&amp;)[N])</span> <span class="keyword">noexcept</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> N;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="函数实参">函数实参</h3>
-<ul>
-<li>函数型别可退化成函数指针 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">someFunc</span><span class="params">(<span class="type">int</span>, <span class="type">double</span>)</span></span>; <span class="comment">// 型别为void(int, double)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f1</span><span class="params">(T param)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> name = <span class="string">&quot;J. P. Briggs&quot;</span>; <span class="comment">// name的型别是const char[13]</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* ptrToName = name; <span class="comment">// 数组退化成指针</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">f1</span>(someFunc); <span class="comment">// ParamType -&gt; void(*)(int, double)</span></span><br><span class="line"><span class="built_in">f2</span>(someFunc); <span class="comment">// ParamType -&gt; void(&amp;)(int, double)</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h1 id="auto-型别推导">auto 型别推导</h1>
-<ul>
-<li>与模板型别一模一样（除了一个例外情况）
-<ul>
-<li><code>auto</code>是模板中的<code>T</code></li>
-<li>变量的型别饰词是<code>ParamType</code> ## 例外情况: {}
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">auto</span> x3 = &#123;<span class="number">27</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">auto</span> x4 = &#123;<span class="number">27</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">auto</span> x5 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3.0</span>&#125;; <span class="comment">// Error! </span></span><br></pre></td></tr></table></figure></li>
-</ul></li>
-<li><code>auto</code> -&gt; <code>std::initializer_list</code>,
-所以x5必须被推导为<code>std::initializer_list&lt;T&gt;</code>,
-但<code>&#123;&#125;</code>内型别不统一,所以错误</li>
-<li>模板不接受大括号初始化表达式 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">auto</span> x = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;); <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="auto返回值">auto返回值</h2>
-<ul>
-<li>使用模版型别推导规则 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">createOnitList</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// Error!</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="lambda式中的auto形参">lambda式中的auto形参</h2>
-<ul>
-<li>使用模版型别推导规则 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">std::vector&lt;<span class="type">int</span>&gt; v;</span><br><span class="line"><span class="keyword">auto</span> resetV = </span><br><span class="line">    [&amp;v](<span class="type">const</span> <span class="keyword">auto</span>&amp; newValue) &#123;v = newValue;&#125; <span class="comment">// c++14</span></span><br><span class="line"><span class="built_in">resetV</span>(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;); <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h1 id="理解decltype">理解decltype</h1>
-<ul>
-<li>一般只会鹦鹉学舌 ## 实例</li>
-<li>目标:
-<ul>
-<li>实现一个函数，形参包括一个容器(支持<code>[]</code>)和一个下标</li>
-<li>并在返回下标操作结果前进行用户验证</li>
-<li>返回值型别与容器下标的返回值型别相同</li>
-</ul></li>
-<li>背景知识:
-<ul>
-<li>一般而言，含有型别T的对象的容器，其operator[]返回T&amp;</li>
-<li>std::vector(除std::vector<bool>外)均满足</li>
-</ul></li>
-<li>初步尝试:
-<ul>
-<li>能运作, 需改进 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container, <span class="keyword">typename</span> Index&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">authAndAccess</span><span class="params">(Container&amp; c, Index i)</span></span></span><br><span class="line"><span class="function">    -&gt; <span class="title">decltype</span><span class="params">(c[i])</span>  <span class="comment">/// 返回值型别尾序语法</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">authenticateUser</span>();</span><br><span class="line">    <span class="keyword">return</span> c[i];</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure></li>
-</ul></li>
-</ul>
-]]></content>
-      <categories>
-        <category>c++</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Effective C++(1)--让自己习惯C++</title>
     <url>/zyhjy/2022/07/16/Effective%20C++(1)/</url>
     <content><![CDATA[<h1 id="视c为一个语言联邦">01 视C++为一个语言联邦</h1>
@@ -1483,6 +1380,109 @@ static对象"的初始化次序并无明确定义
 <ul>
 <li>可以在程序的单线程启动阶段手工调用所有的reference-returning</li>
 </ul></li>
+</ul></li>
+</ul>
+]]></content>
+      <categories>
+        <category>c++</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>C++型别推导</title>
+    <url>/zyhjy/2022/06/29/cpp%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC/</url>
+    <content><![CDATA[<ul>
+<li><code>auto</code></li>
+<li><code>decltype</code></li>
+</ul>
+<h1 id="模版型别推导">模版型别推导</h1>
+<h2 id="一般形式">一般形式:</h2>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(ParamType param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(expr);   <span class="comment">// 从expr推导T和ParamType的型别</span></span><br></pre></td></tr></table></figure>
+<h2
+id="情况一paramtype是指针或引用-但不是万能引用">情况一:<code>ParamType</code>是指针或引用,
+但不是万能引用:</h2>
+<ol type="1">
+<li>若<code>expr</code>具有引用型别, 先将引用部分忽略</li>
+<li><code>ParamType</code>和<code>expr</code>模式匹配 ==&gt;&gt;
+<code>T</code></li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; const int, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; const int, ParamType -&gt; const int&amp;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>向持有<code>T&amp;</code>型别的模版传入<code>const</code>对象是安全的</li>
+</ul>
+<h2
+id="情况二paramtype是万能引用">情况二:<code>ParamType</code>是万能引用:</h2>
+<ol type="1">
+<li>如果<code>expr</code>是个左值:
+<ul>
+<li><code>ParamType</code>和<code>T</code>都会被推导为左值引用</li>
+</ul></li>
+<li>如果<code>expr</code>是个右值:
+<ul>
+<li>与情况一相同</li>
+</ul></li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T&amp;&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; const int&amp;, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; const int&amp;, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(<span class="number">27</span>); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;&amp;</span></span><br></pre></td></tr></table></figure>
+<h2
+id="情况三paramtype既非指针也非引用">情况三:<code>ParamType</code>既非指针也非引用:</h2>
+<ul>
+<li>即按值传递,
+<code>param</code>是传入对象的副本，是<strong>全新对象</strong></li>
+</ul>
+<ol type="1">
+<li>若<code>expr</code>具有引用型别, 先将引用部分忽略</li>
+<li>若是<code>const</code>,<code>volatile</code>对象，也忽略之</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(<span class="number">27</span>); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* <span class="type">const</span> ptr = <span class="string">&quot;Fun&quot;</span>;</span><br><span class="line"><span class="built_in">f</span>(ptr); T -&gt; <span class="type">const</span> <span class="type">char</span>*, ParamType -&gt; <span class="type">const</span> <span class="type">char</span>*</span><br></pre></td></tr></table></figure>
+<h2 id="其他情形">其他情形:</h2>
+<h3 id="数组实参">数组实参</h3>
+<ul>
+<li>数组可退化成指针</li>
+<li>没有任何函数形参具有数组型别:
+<code>void myFunc(int param[]);</code>等价于<code>void myFunc(int param[]);</code></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> name = <span class="string">&quot;J. P. Briggs&quot;</span>; <span class="comment">// name的型别是const char[13]</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* ptrToName = name; <span class="comment">// 数组退化成指针</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(name); <span class="comment">// T -&gt; const char*</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"><span class="built_in">f2</span>(name); <span class="comment">// T -&gt; const char [13], ParamType -&gt; const char (&amp;)[13]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 以编译器常量形式返回数组尺寸</span></span><br><span class="line"><span class="comment">// 形参未起名字</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T， std::<span class="type">size_t</span> N&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> std::<span class="type">size_t</span> <span class="title">arraySize</span><span class="params">(T (&amp;)[N])</span> <span class="keyword">noexcept</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> N;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="函数实参">函数实参</h3>
+<ul>
+<li>函数型别可退化成函数指针 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">someFunc</span><span class="params">(<span class="type">int</span>, <span class="type">double</span>)</span></span>; <span class="comment">// 型别为void(int, double)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f1</span><span class="params">(T param)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> name = <span class="string">&quot;J. P. Briggs&quot;</span>; <span class="comment">// name的型别是const char[13]</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* ptrToName = name; <span class="comment">// 数组退化成指针</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">f1</span>(someFunc); <span class="comment">// ParamType -&gt; void(*)(int, double)</span></span><br><span class="line"><span class="built_in">f2</span>(someFunc); <span class="comment">// ParamType -&gt; void(&amp;)(int, double)</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="auto-型别推导">auto 型别推导</h1>
+<ul>
+<li>与模板型别一模一样（除了一个例外情况）
+<ul>
+<li><code>auto</code>是模板中的<code>T</code></li>
+<li>变量的型别饰词是<code>ParamType</code> ## 例外情况: {}
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">auto</span> x3 = &#123;<span class="number">27</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">auto</span> x4 = &#123;<span class="number">27</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">auto</span> x5 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3.0</span>&#125;; <span class="comment">// Error! </span></span><br></pre></td></tr></table></figure></li>
+</ul></li>
+<li><code>auto</code> -&gt; <code>std::initializer_list</code>,
+所以x5必须被推导为<code>std::initializer_list&lt;T&gt;</code>,
+但<code>&#123;&#125;</code>内型别不统一,所以错误</li>
+<li>模板不接受大括号初始化表达式 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">auto</span> x = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;); <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="auto返回值">auto返回值</h2>
+<ul>
+<li>使用模版型别推导规则 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">createOnitList</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// Error!</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="lambda式中的auto形参">lambda式中的auto形参</h2>
+<ul>
+<li>使用模版型别推导规则 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">std::vector&lt;<span class="type">int</span>&gt; v;</span><br><span class="line"><span class="keyword">auto</span> resetV = </span><br><span class="line">    [&amp;v](<span class="type">const</span> <span class="keyword">auto</span>&amp; newValue) &#123;v = newValue;&#125; <span class="comment">// c++14</span></span><br><span class="line"><span class="built_in">resetV</span>(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;); <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="理解decltype">理解decltype</h1>
+<ul>
+<li>一般只会鹦鹉学舌 ## 实例</li>
+<li>目标:
+<ul>
+<li>实现一个函数，形参包括一个容器(支持<code>[]</code>)和一个下标</li>
+<li>并在返回下标操作结果前进行用户验证</li>
+<li>返回值型别与容器下标的返回值型别相同</li>
+</ul></li>
+<li>背景知识:
+<ul>
+<li>一般而言，含有型别T的对象的容器，其operator[]返回T&amp;</li>
+<li>std::vector(除std::vector<bool>外)均满足</li>
+</ul></li>
+<li>初步尝试:
+<ul>
+<li>能运作, 需改进 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container, <span class="keyword">typename</span> Index&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">authAndAccess</span><span class="params">(Container&amp; c, Index i)</span></span></span><br><span class="line"><span class="function">    -&gt; <span class="title">decltype</span><span class="params">(c[i])</span>  <span class="comment">/// 返回值型别尾序语法</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">authenticateUser</span>();</span><br><span class="line">    <span class="keyword">return</span> c[i];</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure></li>
 </ul></li>
 </ul>
 ]]></content>
@@ -3941,6 +3941,21 @@ parameters(非类型模板参数)造成的代码膨胀，往往可以消除，�
       </categories>
   </entry>
   <entry>
+    <title>CPU体系结构专业术语</title>
+    <url>/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/</url>
+    <content><![CDATA[<h1 id="mmiomemory-mapped-io">MMIO（Memory-Mapped I/O）</h1>
+<ul>
+<li><p>代表内存映射输入/输出。</p></li>
+<li><p>它是一种计算机系统中用于与外部设备进行通信的技术。在MMIO中，外部设备的寄存器或状态被映射到计算机的内存地址空间中的特定区域。通过读取或写入这些内存地址，计算机可以与外部设备进行数据交换和控制操作。</p></li>
+<li><p>MMIO的基本原理是通过在内存地址空间中保留一些特定的地址范围，让计算机能够直接访问外部设备的寄存器或状态。当计算机读取或写入这些地址时，数据被传递到或从外部设备进行处理。这种方式相对于使用专门的I/O指令进行输入/输出操作，提供了更简化和统一的编程界面。</p></li>
+<li><p>常见的MMIO设备包括网络接口卡、图形显示控制器、声卡、串口控制器等。通过使用MMIO技术，计算机可以通过内存访问方式与这些设备进行通信，从而实现数据传输、设备控制和信息交换等功能。</p></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Qemu</category>
+      </categories>
+  </entry>
+  <entry>
     <title></title>
     <url>/zyhjy/2023/04/12/Chiplets/</url>
     <content><![CDATA[<p>该论文讨论了系统级芯片（SoC）的复杂性和硅成本的增加促使将SoC分解为更小的“芯片块”。基于芯片块的SoC设计过程有望通过使用先进的封装技术将多个不同的芯片（例如CPU、GPU、内存、FPGA）紧密集成到一起来实现快速的SoC构建。然而，当将芯片块组装成单个SoC时，由于芯片块之间路由的复杂性增加，会出现正确性和性能问题。该论文提出了一种模块化但无死锁的路由方法，用于具有各种拓扑结构的基于芯片块的系统。</p>
@@ -4247,21 +4262,6 @@ VC技术创建与芯片在堆叠中的垂直位置相关联的单调VC排序；�
 基于芯片组的复杂SoCs的构建非常令人兴奋，因为它可以实现各种类型的系统，但这些系统必须易于设计和组装。当使用来自第三方硅IP供应商的黑盒芯片构建系统时，确保正确性变得更加具有挑战性和重要性。本文对基于芯片组的SoC设计方法论做出了重大贡献，重点是互连；然而，仍有其他有益的研究领域。如果系统中的不同芯片要具有高速缓存一致性，则必须设计一个正确运行并跨不同物理芯片扩展（以性能为准）的高速缓存一致性协议。虽然不是严格的正确性问题，但可能需要设计服务质量机制，以确保不同的芯片集成在一起“友好地协作”，特别是在实时组件（例如图形和音频）或更高级别的性能目标（例如数据中心服务级别协议）方面。</li>
 </ul>
 ]]></content>
-  </entry>
-  <entry>
-    <title>CPU体系结构专业术语</title>
-    <url>/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/</url>
-    <content><![CDATA[<h1 id="mmiomemory-mapped-io">MMIO（Memory-Mapped I/O）</h1>
-<ul>
-<li><p>代表内存映射输入/输出。</p></li>
-<li><p>它是一种计算机系统中用于与外部设备进行通信的技术。在MMIO中，外部设备的寄存器或状态被映射到计算机的内存地址空间中的特定区域。通过读取或写入这些内存地址，计算机可以与外部设备进行数据交换和控制操作。</p></li>
-<li><p>MMIO的基本原理是通过在内存地址空间中保留一些特定的地址范围，让计算机能够直接访问外部设备的寄存器或状态。当计算机读取或写入这些地址时，数据被传递到或从外部设备进行处理。这种方式相对于使用专门的I/O指令进行输入/输出操作，提供了更简化和统一的编程界面。</p></li>
-<li><p>常见的MMIO设备包括网络接口卡、图形显示控制器、声卡、串口控制器等。通过使用MMIO技术，计算机可以通过内存访问方式与这些设备进行通信，从而实现数据传输、设备控制和信息交换等功能。</p></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Qemu</category>
-      </categories>
   </entry>
   <entry>
     <title>Qemu TCG IR</title>
@@ -5217,6 +5217,141 @@ time）对齐执行时间，以防止“慢速”设备在现代硬件上运行�
       </categories>
   </entry>
   <entry>
+    <title>Qemu翻译器的内部机制</title>
+    <url>/zyhjy/2023/05/18/Qemu%E7%BF%BB%E8%AF%91%E6%B5%81%E7%A8%8B/</url>
+    <content><![CDATA[<h1 id="translator-internals-翻译器的内部机制">Translator Internals /
+翻译器的内部机制</h1>
+<ul>
+<li><p>QEMU是一个动态翻译器。</p></li>
+<li><p>当它首次遇到一段代码时，它会将其转换为宿主机指令集。</p></li>
+<li><p>通常，动态翻译器非常复杂且高度依赖于CPU。</p></li>
+<li><p>QEMU使用一些技巧使其相对容易进行移植和简化，同时实现良好的性能。</p></li>
+<li><p>QEMU的动态翻译后端称为TCG（Tiny Code Generator），见另一篇文章TCG
+IR。</p></li>
+<li><p>以下部分概述了QEMU动态翻译器的一些显著特点和实现细节。</p></li>
+</ul>
+<h1 id="cpu-state-optimisations-cpu状态优化">CPU state optimisations /
+CPU状态优化</h1>
+<ul>
+<li>目标CPU具有许多内部状态，这些状态会影响它们执行指令的方式。</li>
+<li>为了实现良好的速度，翻译阶段考虑到虚拟CPU的某些状态信息在其中不会改变。</li>
+<li>状态信息被记录在翻译块（Translation Block，TB）中。</li>
+<li>如果状态发生变化（例如特权级别），将生成一个新的TB，并且之前的TB将不再使用，直到状态与之前记录在先的TB中的状态匹配。</li>
+<li>对于CPU状态的其他方面也可以应用相同的思想。例如，在x86架构中，如果SS、DS和ES段具有零基址，那么翻译器甚至不会为段基址生成一个加法操作。</li>
+</ul>
+<h2 id="direct-block-chaining-直接块链接">Direct block chaining /
+直接块链接</h2>
+<ul>
+<li><p>在每个已执行的翻译的基本块之后，QEMU使用模拟的程序计数器（PC）和其他CPU状态信息（例如CS段基址）来找到下一个基本块。</p></li>
+<li><p>在简单且未经优化的形式中，这是通过退出当前的翻译块，经过翻译块的收尾处理，然后返回到主循环来完成的。</p></li>
+<li><p>在主循环中，QEMU寻找要执行的下一个翻译块，如果它尚未在内存中，则将其从客户体系结构翻译出来。</p></li>
+<li><p>然后，QEMU继续执行下一个翻译块，从序言开始，然后继续执行已翻译的指令。</p></li>
+<li><p>以这种方式退出翻译块将导致在执行其他指令之前重新评估<code>cpu_exec_interrupt()</code>回调函数。</p></li>
+<li><p>在发生可能解除中断屏蔽的任何CPU状态更改后，以这种方式退出是必需的。</p></li>
+<li><p>为了加速当新的模拟PC对应的翻译块已经可用的情况，QEMU具有机制允许直接链接多个翻译块，而无需返回到上述的主循环。这些机制包括：</p></li>
+</ul>
+<h3 id="lookup_and_goto_ptr"><code>lookup_and_goto_ptr</code></h3>
+<ul>
+<li>调用<code>tcg_gen_lookup_and_goto_ptr()</code>将生成对<code>helper_lookup_tb_ptr</code>的调用。</li>
+<li>该辅助函数将查找与当前CPU状态匹配的现有翻译块。</li>
+<li>如果目标翻译块可用，则返回其代码地址；否则返回JIT（即时编译）收尾部分的地址。</li>
+<li>在调用辅助函数之后，总是紧随着tcg
+<code>goto_ptr</code>指令，它会跳转到返回的地址。</li>
+<li>这样，我们要么跳转到下一个翻译块，要么返回到主循环。</li>
+</ul>
+<h3 id="goto_tb-exit_tb"><code>goto_tb + exit_tb</code></h3>
+<ul>
+<li><p>翻译代码通常通过以下步骤来实现分支：</p>
+<ol type="1">
+<li>调用<code>tcg_gen_goto_tb()</code>，并将跳转槽索引（0或1）作为参数传递。</li>
+<li>发出TCG指令来更新CPU状态，其中包括已假定为常量且主循环需要正确定位和执行下一个翻译块所需的信息。对于大多数客户机，这仅仅是分支目标的PC，但其他一些客户机可能会存储附加数据。在此步骤中更新的信息必须可以从<code>cpu_get_tb_cpu_state()</code>和<code>cpu_restore_state()</code>中推断出来。</li>
+<li>调用<code>tcg_gen_exit_tb()</code>，再次传递当前翻译块的地址和跳转槽索引。</li>
+</ol></li>
+<li><p>第1步<code>tcg_gen_goto_tb()</code>将生成一个<code>goto_tb</code>
+TCG指令，稍后会被翻译为跳转到与指定跳转槽相关联的地址。</p></li>
+<li><p>初始时，这是第2步的指令的地址，用于更新CPU状态信息。</p></li>
+<li><p>第3步<code>tcg_gen_exit_tb()</code>从当前翻译块退出，并返回由上一个执行的翻译块地址和跳转槽索引组成的标记指针。</p></li>
+<li><p>第一次执行整个序列时，第1步简单地跳转到第2步。</p></li>
+<li><p>然后，CPU状态信息会被更新，并从当前翻译块退出。</p></li>
+<li><p>结果，行为与前面在本节中描述的较少优化的形式非常相似。</p></li>
+<li><p>接下来，主循环使用当前CPU状态信息寻找要执行的下一个翻译块（如果尚未可用，则创建该翻译块），并在开始执行新翻译块的指令之前，通过将其跳转槽之一（在调用<code>tcg_gen_exit_tb()</code>时指定）与新翻译块的地址关联起来，来修补先前执行的翻译块。</p></li>
+<li><p>下一次执行这个先前的翻译块，并到达同样的<code>goto_tb</code>步骤时，它将已经被修补（假设目标翻译块仍然在内存中），并直接跳转到目标翻译块的第一条指令，而无需返回到主循环。</p></li>
+<li><p>要使用<code>goto_tb + exit_tb</code>机制，需要满足以下条件：</p>
+<ul>
+<li><p>CPU状态的更改必须是常量，例如直接分支而不是间接分支。</p></li>
+<li><p>直接分支不能跨越页边界。内存映射可能会改变，导致目标地址的代码发生变化。</p></li>
+</ul></li>
+<li><p>需要注意的是，在第3步（<code>tcg_gen_exit_tb()</code>）中，除了跳转槽索引之外，还返回了刚刚执行的翻译块的地址。</p></li>
+<li><p>这个地址对应于将要被修补的翻译块；如果该翻译块已经链接到其他翻译块，那么它可能与直接从主循环执行的翻译块不同。</p></li>
+<li><p>Note that, on step 3 (<code>tcg_gen_exit_tb()</code>), in
+addition to the jump slot index, the address of the TB just executed is
+also returned.</p></li>
+<li><p>This address corresponds to the TB that will be patched; it may
+be different than the one that was directly executed from the main loop
+if the latter had already been chained to other TBs.</p></li>
+</ul>
+<h2
+id="self-modifying-code-and-translated-code-invalidation-自修改代码和翻译代码失效">Self-modifying
+code and translated code invalidation / 自修改代码和翻译代码失效</h2>
+<ul>
+<li><p>在x86仿真中，自修改代码是一个特殊的挑战，因为当代码被修改时，应用程序不会向系统发出指示来使指令缓存失效。</p></li>
+<li><p>在用户模式仿真中，每当为基本块生成翻译代码时，会将主机页面标记为写保护（如果它尚未是只读）。</p></li>
+<li><p>然后，如果对该页面进行写访问，Linux会触发一个SEGV信号。</p></li>
+<li><p>然后，QEMU会使该页面中的所有翻译代码失效，并允许对该页面进行写访问。</p></li>
+<li><p>对于系统仿真，写保护是通过软件MMU实现的。</p></li>
+<li><p>通过维护一个链接列表来高效地进行正确的翻译代码失效，该列表包含在给定页面中的每个翻译块。</p></li>
+<li><p>还维护其他链接列表以撤消直接块链接。</p></li>
+<li><p>Correct translated code invalidation is done efficiently by
+maintaining a linked list of every translated block contained in a given
+page.</p></li>
+<li><p>Other linked lists are also maintained to undo direct block
+chaining.</p></li>
+<li><p>在RISC目标中，正确编写的软件使用内存屏障和缓存刷新，因此上述保护措施可能不是必需的。</p></li>
+<li><p>然而，QEMU仍然要求生成的代码始终与目标指令在内存中匹配，以便正确处理异常情况。</p></li>
+</ul>
+<h2 id="exception-support-异常支持">Exception support / 异常支持</h2>
+<ul>
+<li><p>在遇到诸如除零等异常时，会使用longjmp()函数。</p></li>
+<li><p>主机的SIGSEGV和SIGBUS信号处理程序用于获取无效的内存访问。</p></li>
+<li><p>QEMU保持了一个从主机程序计数器（PC）到目标程序计数器（PC）的映射，并根据异常点处的主机程序计数器查找异常发生的位置。</p></li>
+<li><p>在某些目标平台上，虚拟CPU状态的某些位直到翻译块结束之前才会刷新到内存中。</p></li>
+<li><p>这是为了保存内部仿真状态，该状态很少直接被程序访问，且在翻译块的执行过程中经常发生变化，例如x86上的条件码、SPARC上的延迟槽、Arm上的条件执行等。</p></li>
+<li><p>这些状态针对每个目标指令进行存储，并在发生异常时进行查找。</p></li>
+</ul>
+<h2 id="mmu-emulation-mmumemory-management-unit仿真">## MMU emulation /
+MMU（Memory Management Unit）仿真</h2>
+<ul>
+<li><p>在系统仿真中，QEMU使用软件MMU。</p></li>
+<li><p>在这种模式下，MMU会在每次内存访问时进行虚拟地址到物理地址的转换。</p></li>
+<li><p>为了加快转换速度并避免在MMU映射发生变化时每次都刷新已翻译的代码，QEMU使用地址转换缓存（TLB）。</p></li>
+<li><p>在QEMU中，所有缓存都是物理索引的，这意味着每个基本块都与其物理地址相关联。</p></li>
+<li><p>为了避免在MMU映射发生变化时使基本块链无效，只有当跳转目标与执行跳转的基本块共享同一页时，才会执行链式操作。</p></li>
+<li><p>MMU还可以区分RAM（随机存储器）和ROM（只读存储器）区域与MMIO（内存映射输入/输出）内存区域。</p></li>
+<li><p>对于RAM和ROM的访问速度更快，因为转换缓存还存储了来宾地址和主机内存之间的偏移量。</p></li>
+<li><p>而对MMIO内存区域的访问则调用C代码进行设备仿真。</p></li>
+<li><p>最后，MMU有助于跟踪脏页和被翻译块引用的页。</p></li>
+<li><p>这样可以有效地管理内存页面，并进行必要的操作，如脏页回写或内存页面回收。</p></li>
+</ul>
+<h2 id="profiling-jitted-code-对jit即时编译代码进行性能分析">Profiling
+JITted code / 对JIT（即时编译）代码进行性能分析</h2>
+<ul>
+<li><p>Linux的perf工具在处理JIT（即时编译）代码时会将其视为单个代码块，因为与主要代码不同，它无法使用调试信息将单个程序计数器样本与较大的函数关联起来。</p></li>
+<li><p>为了克服这个限制，可以使用<code>-perfmap</code>或<code>-jitdump</code>选项生成映射文件。</p></li>
+<li><p><code>-perfmap</code>是轻量级的，只生成客户机-主机映射关系。</p></li>
+<li><p><code>-jitdump</code>除此之外，还会保存JIT代码和客户机调试信息（如果有的话）；它的输出需要与<code>perf.data</code>文件集成，然后才能查看最终的报告。</p></li>
+<li><p>示例代码如下：</p></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">perf record $QEMU -perfmap $REMAINING_ARGS</span><br><span class="line">perf report</span><br><span class="line"></span><br><span class="line">perf record -k 1 $QEMU -jitdump $REMAINING_ARGS</span><br><span class="line">DEBUGINFOD_URLS= perf inject -j -i perf.data -o perf.data.jitted</span><br><span class="line">perf report -i perf.data.jitted</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>请注意，qemu-system仅为ELF格式的<code>-kernel</code>文件生成映射。</p></li>
+<li><p>使用这些命令和选项，可以将JIT代码的性能分析结果与perf工具的报告集成在一起，以便更好地理解和分析JIT代码的性能。这将帮助开发人员针对性地进行优化和改进，提高QEMU的性能。</p></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Qemu</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Qemu翻译实例--以arrch64 --&gt;&gt; x86-64为例</title>
     <url>/zyhjy/2023/02/07/Qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B--%E4%BB%A5arrch64%20--%3E%3E%20x86-64%E4%B8%BA%E4%BE%8B/</url>
     <content><![CDATA[<h1 id="qemu翻译实例--以arrch64----i386为例">Qemu翻译实例--以arrch64
@@ -5371,141 +5506,6 @@ page。注意! guest binary 有可能跨guest page，故这里有两个栏位。
 ]]></content>
       <categories>
         <category>linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Qemu翻译器的内部机制</title>
-    <url>/zyhjy/2023/05/18/Qemu%E7%BF%BB%E8%AF%91%E6%B5%81%E7%A8%8B/</url>
-    <content><![CDATA[<h1 id="translator-internals-翻译器的内部机制">Translator Internals /
-翻译器的内部机制</h1>
-<ul>
-<li><p>QEMU是一个动态翻译器。</p></li>
-<li><p>当它首次遇到一段代码时，它会将其转换为宿主机指令集。</p></li>
-<li><p>通常，动态翻译器非常复杂且高度依赖于CPU。</p></li>
-<li><p>QEMU使用一些技巧使其相对容易进行移植和简化，同时实现良好的性能。</p></li>
-<li><p>QEMU的动态翻译后端称为TCG（Tiny Code Generator），见另一篇文章TCG
-IR。</p></li>
-<li><p>以下部分概述了QEMU动态翻译器的一些显著特点和实现细节。</p></li>
-</ul>
-<h1 id="cpu-state-optimisations-cpu状态优化">CPU state optimisations /
-CPU状态优化</h1>
-<ul>
-<li>目标CPU具有许多内部状态，这些状态会影响它们执行指令的方式。</li>
-<li>为了实现良好的速度，翻译阶段考虑到虚拟CPU的某些状态信息在其中不会改变。</li>
-<li>状态信息被记录在翻译块（Translation Block，TB）中。</li>
-<li>如果状态发生变化（例如特权级别），将生成一个新的TB，并且之前的TB将不再使用，直到状态与之前记录在先的TB中的状态匹配。</li>
-<li>对于CPU状态的其他方面也可以应用相同的思想。例如，在x86架构中，如果SS、DS和ES段具有零基址，那么翻译器甚至不会为段基址生成一个加法操作。</li>
-</ul>
-<h2 id="direct-block-chaining-直接块链接">Direct block chaining /
-直接块链接</h2>
-<ul>
-<li><p>在每个已执行的翻译的基本块之后，QEMU使用模拟的程序计数器（PC）和其他CPU状态信息（例如CS段基址）来找到下一个基本块。</p></li>
-<li><p>在简单且未经优化的形式中，这是通过退出当前的翻译块，经过翻译块的收尾处理，然后返回到主循环来完成的。</p></li>
-<li><p>在主循环中，QEMU寻找要执行的下一个翻译块，如果它尚未在内存中，则将其从客户体系结构翻译出来。</p></li>
-<li><p>然后，QEMU继续执行下一个翻译块，从序言开始，然后继续执行已翻译的指令。</p></li>
-<li><p>以这种方式退出翻译块将导致在执行其他指令之前重新评估<code>cpu_exec_interrupt()</code>回调函数。</p></li>
-<li><p>在发生可能解除中断屏蔽的任何CPU状态更改后，以这种方式退出是必需的。</p></li>
-<li><p>为了加速当新的模拟PC对应的翻译块已经可用的情况，QEMU具有机制允许直接链接多个翻译块，而无需返回到上述的主循环。这些机制包括：</p></li>
-</ul>
-<h3 id="lookup_and_goto_ptr"><code>lookup_and_goto_ptr</code></h3>
-<ul>
-<li>调用<code>tcg_gen_lookup_and_goto_ptr()</code>将生成对<code>helper_lookup_tb_ptr</code>的调用。</li>
-<li>该辅助函数将查找与当前CPU状态匹配的现有翻译块。</li>
-<li>如果目标翻译块可用，则返回其代码地址；否则返回JIT（即时编译）收尾部分的地址。</li>
-<li>在调用辅助函数之后，总是紧随着tcg
-<code>goto_ptr</code>指令，它会跳转到返回的地址。</li>
-<li>这样，我们要么跳转到下一个翻译块，要么返回到主循环。</li>
-</ul>
-<h3 id="goto_tb-exit_tb"><code>goto_tb + exit_tb</code></h3>
-<ul>
-<li><p>翻译代码通常通过以下步骤来实现分支：</p>
-<ol type="1">
-<li>调用<code>tcg_gen_goto_tb()</code>，并将跳转槽索引（0或1）作为参数传递。</li>
-<li>发出TCG指令来更新CPU状态，其中包括已假定为常量且主循环需要正确定位和执行下一个翻译块所需的信息。对于大多数客户机，这仅仅是分支目标的PC，但其他一些客户机可能会存储附加数据。在此步骤中更新的信息必须可以从<code>cpu_get_tb_cpu_state()</code>和<code>cpu_restore_state()</code>中推断出来。</li>
-<li>调用<code>tcg_gen_exit_tb()</code>，再次传递当前翻译块的地址和跳转槽索引。</li>
-</ol></li>
-<li><p>第1步<code>tcg_gen_goto_tb()</code>将生成一个<code>goto_tb</code>
-TCG指令，稍后会被翻译为跳转到与指定跳转槽相关联的地址。</p></li>
-<li><p>初始时，这是第2步的指令的地址，用于更新CPU状态信息。</p></li>
-<li><p>第3步<code>tcg_gen_exit_tb()</code>从当前翻译块退出，并返回由上一个执行的翻译块地址和跳转槽索引组成的标记指针。</p></li>
-<li><p>第一次执行整个序列时，第1步简单地跳转到第2步。</p></li>
-<li><p>然后，CPU状态信息会被更新，并从当前翻译块退出。</p></li>
-<li><p>结果，行为与前面在本节中描述的较少优化的形式非常相似。</p></li>
-<li><p>接下来，主循环使用当前CPU状态信息寻找要执行的下一个翻译块（如果尚未可用，则创建该翻译块），并在开始执行新翻译块的指令之前，通过将其跳转槽之一（在调用<code>tcg_gen_exit_tb()</code>时指定）与新翻译块的地址关联起来，来修补先前执行的翻译块。</p></li>
-<li><p>下一次执行这个先前的翻译块，并到达同样的<code>goto_tb</code>步骤时，它将已经被修补（假设目标翻译块仍然在内存中），并直接跳转到目标翻译块的第一条指令，而无需返回到主循环。</p></li>
-<li><p>要使用<code>goto_tb + exit_tb</code>机制，需要满足以下条件：</p>
-<ul>
-<li><p>CPU状态的更改必须是常量，例如直接分支而不是间接分支。</p></li>
-<li><p>直接分支不能跨越页边界。内存映射可能会改变，导致目标地址的代码发生变化。</p></li>
-</ul></li>
-<li><p>需要注意的是，在第3步（<code>tcg_gen_exit_tb()</code>）中，除了跳转槽索引之外，还返回了刚刚执行的翻译块的地址。</p></li>
-<li><p>这个地址对应于将要被修补的翻译块；如果该翻译块已经链接到其他翻译块，那么它可能与直接从主循环执行的翻译块不同。</p></li>
-<li><p>Note that, on step 3 (<code>tcg_gen_exit_tb()</code>), in
-addition to the jump slot index, the address of the TB just executed is
-also returned.</p></li>
-<li><p>This address corresponds to the TB that will be patched; it may
-be different than the one that was directly executed from the main loop
-if the latter had already been chained to other TBs.</p></li>
-</ul>
-<h2
-id="self-modifying-code-and-translated-code-invalidation-自修改代码和翻译代码失效">Self-modifying
-code and translated code invalidation / 自修改代码和翻译代码失效</h2>
-<ul>
-<li><p>在x86仿真中，自修改代码是一个特殊的挑战，因为当代码被修改时，应用程序不会向系统发出指示来使指令缓存失效。</p></li>
-<li><p>在用户模式仿真中，每当为基本块生成翻译代码时，会将主机页面标记为写保护（如果它尚未是只读）。</p></li>
-<li><p>然后，如果对该页面进行写访问，Linux会触发一个SEGV信号。</p></li>
-<li><p>然后，QEMU会使该页面中的所有翻译代码失效，并允许对该页面进行写访问。</p></li>
-<li><p>对于系统仿真，写保护是通过软件MMU实现的。</p></li>
-<li><p>通过维护一个链接列表来高效地进行正确的翻译代码失效，该列表包含在给定页面中的每个翻译块。</p></li>
-<li><p>还维护其他链接列表以撤消直接块链接。</p></li>
-<li><p>Correct translated code invalidation is done efficiently by
-maintaining a linked list of every translated block contained in a given
-page.</p></li>
-<li><p>Other linked lists are also maintained to undo direct block
-chaining.</p></li>
-<li><p>在RISC目标中，正确编写的软件使用内存屏障和缓存刷新，因此上述保护措施可能不是必需的。</p></li>
-<li><p>然而，QEMU仍然要求生成的代码始终与目标指令在内存中匹配，以便正确处理异常情况。</p></li>
-</ul>
-<h2 id="exception-support-异常支持">Exception support / 异常支持</h2>
-<ul>
-<li><p>在遇到诸如除零等异常时，会使用longjmp()函数。</p></li>
-<li><p>主机的SIGSEGV和SIGBUS信号处理程序用于获取无效的内存访问。</p></li>
-<li><p>QEMU保持了一个从主机程序计数器（PC）到目标程序计数器（PC）的映射，并根据异常点处的主机程序计数器查找异常发生的位置。</p></li>
-<li><p>在某些目标平台上，虚拟CPU状态的某些位直到翻译块结束之前才会刷新到内存中。</p></li>
-<li><p>这是为了保存内部仿真状态，该状态很少直接被程序访问，且在翻译块的执行过程中经常发生变化，例如x86上的条件码、SPARC上的延迟槽、Arm上的条件执行等。</p></li>
-<li><p>这些状态针对每个目标指令进行存储，并在发生异常时进行查找。</p></li>
-</ul>
-<h2 id="mmu-emulation-mmumemory-management-unit仿真">## MMU emulation /
-MMU（Memory Management Unit）仿真</h2>
-<ul>
-<li><p>在系统仿真中，QEMU使用软件MMU。</p></li>
-<li><p>在这种模式下，MMU会在每次内存访问时进行虚拟地址到物理地址的转换。</p></li>
-<li><p>为了加快转换速度并避免在MMU映射发生变化时每次都刷新已翻译的代码，QEMU使用地址转换缓存（TLB）。</p></li>
-<li><p>在QEMU中，所有缓存都是物理索引的，这意味着每个基本块都与其物理地址相关联。</p></li>
-<li><p>为了避免在MMU映射发生变化时使基本块链无效，只有当跳转目标与执行跳转的基本块共享同一页时，才会执行链式操作。</p></li>
-<li><p>MMU还可以区分RAM（随机存储器）和ROM（只读存储器）区域与MMIO（内存映射输入/输出）内存区域。</p></li>
-<li><p>对于RAM和ROM的访问速度更快，因为转换缓存还存储了来宾地址和主机内存之间的偏移量。</p></li>
-<li><p>而对MMIO内存区域的访问则调用C代码进行设备仿真。</p></li>
-<li><p>最后，MMU有助于跟踪脏页和被翻译块引用的页。</p></li>
-<li><p>这样可以有效地管理内存页面，并进行必要的操作，如脏页回写或内存页面回收。</p></li>
-</ul>
-<h2 id="profiling-jitted-code-对jit即时编译代码进行性能分析">Profiling
-JITted code / 对JIT（即时编译）代码进行性能分析</h2>
-<ul>
-<li><p>Linux的perf工具在处理JIT（即时编译）代码时会将其视为单个代码块，因为与主要代码不同，它无法使用调试信息将单个程序计数器样本与较大的函数关联起来。</p></li>
-<li><p>为了克服这个限制，可以使用<code>-perfmap</code>或<code>-jitdump</code>选项生成映射文件。</p></li>
-<li><p><code>-perfmap</code>是轻量级的，只生成客户机-主机映射关系。</p></li>
-<li><p><code>-jitdump</code>除此之外，还会保存JIT代码和客户机调试信息（如果有的话）；它的输出需要与<code>perf.data</code>文件集成，然后才能查看最终的报告。</p></li>
-<li><p>示例代码如下：</p></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">perf record $QEMU -perfmap $REMAINING_ARGS</span><br><span class="line">perf report</span><br><span class="line"></span><br><span class="line">perf record -k 1 $QEMU -jitdump $REMAINING_ARGS</span><br><span class="line">DEBUGINFOD_URLS= perf inject -j -i perf.data -o perf.data.jitted</span><br><span class="line">perf report -i perf.data.jitted</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>请注意，qemu-system仅为ELF格式的<code>-kernel</code>文件生成映射。</p></li>
-<li><p>使用这些命令和选项，可以将JIT代码的性能分析结果与perf工具的报告集成在一起，以便更好地理解和分析JIT代码的性能。这将帮助开发人员针对性地进行优化和改进，提高QEMU的性能。</p></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Qemu</category>
       </categories>
   </entry>
   <entry>
@@ -7340,114 +7340,6 @@ Multi-Processing)操作的操作系统内核通常具有任务调度器，该调
       </categories>
   </entry>
   <entry>
-    <title>C++并发编程</title>
-    <url>/zyhjy/2023/06/04/C++%E4%BE%AF%E6%8D%B7STL%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h1 id="section"></h1>
-<p>标准库 &gt; STL</p>
-<h1 id="section-1"></h1>
-<p>STL六大组件</p>
-<p>allocator Adapters con it func container Iterator Alogrithms
-Functors</p>
-<h1 id="pointer-rebind的目的是什么">pointer rebind的目的是什么</h1>
-<p>在stl的list中有如下代码： <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_Alloc</span>&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">__list_imp</span></span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">    <span class="keyword">typedef</span> __list_node_base&lt;value_type, __void_pointer&gt;            __node_base;</span><br><span class="line">    <span class="keyword">typedef</span> __list_node&lt;value_type, __void_pointer&gt;                 __node;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-这里为什么要在node的类型参数中增加void pointer？</p>
-<p>并且在实际使用的时候 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_VoidPtr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__list_node_pointer_traits</span> &#123;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __node_pointer;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node_base&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __base_pointer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> 将void通过rebind转化成了
-__list_node&lt;_Tp, _VoidPtr&gt;的指针类型</p>
-<p>为何多此一举，不直接使用Nodeptr*呢</p>
-<h2 id="section-2"></h2>
-<p>The answer to this question comes from allocators, too. Let's take a
-look at how _Rebind_pointer_t is defined: <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Ptr</span>, <span class="keyword">class</span> <span class="title class_">_Ty</span>&gt;</span><br><span class="line"><span class="keyword">using</span> _Rebind_pointer_t = <span class="keyword">typename</span> pointer_traits&lt;_Ptr&gt;::<span class="keyword">template</span> rebind&lt;_Ty&gt;;</span><br></pre></td></tr></table></figure></p>
-<p>That is, we have</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Value_type</span>, <span class="keyword">class</span> <span class="title class_">_Voidptr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">_List_node</span> &#123;</span><br><span class="line">    <span class="keyword">using</span> _Nodeptr = <span class="keyword">typename</span> pointer_traits&lt;_Voidptr&gt;::<span class="keyword">template</span> rebind&lt;_List_node&gt;;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>_Voidptr也是不可或缺的，因为不知道_List_node的指针是什么类型，未必是简单的*_List_node可以概括的，所以需要一个基础类型的void指针，以此为基准将_Voidptr转化为_Nodeptr</p>
-<p>相当于使用_Voidptr的特化了指针萃取的行为，是必须的</p>
-<p>Now let's take a look at how _List_node is used: <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> _Node = _List_node&lt;_Ty, <span class="keyword">typename</span> _Alty_traits::void_pointer&gt;;</span><br></pre></td></tr></table></figure>
-Effectively, we rebind allocator's void_pointer to _List_node pointer.
-This trick is needed to support allocators that use fancy pointers
-internally.</p>
-<p>One such example can be found in Boost.Interprocess library. It has
-boost::interprocess::allocator:</p>
-<p>An STL compatible allocator that uses a segment manager as memory
-source. The internal pointer type will of the same type (raw, smart) as
-<code>typename SegmentManager::void_pointer</code> type. This allows
-placing the allocator in shared memory, memory mapped-files, etc...</p>
-<p>For example, we can write <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">namespace</span> bi = boost::interprocess;</span><br><span class="line"><span class="keyword">using</span> Allocator = bi::allocator&lt;<span class="type">int</span>, bi::managed_shared_memory::segment_manager&gt;;</span><br><span class="line"><span class="function">std::list&lt;<span class="type">int</span>, Allocator&gt; <span class="title">list</span><span class="params">(<span class="comment">/* allocator object */</span>)</span></span>;</span><br></pre></td></tr></table></figure> Now
-<code>std::allocator_traits&lt;decltype(list)::allocator_type&gt;::void_pointer</code>
-will be not <code>void*</code> as with default allocator, but
-<code>boost::interprocess::offset_ptr&lt;void, ...&gt;</code>. As a
-result, <code>_Nodeptr</code> will be not <code>_Nodeptr*</code>, but
-<code>boost::interprocess::offset_ptr&lt;_Nodeptr, ...&gt;</code>.</p>
-<p>https://stackoverflow.com/questions/65262899/what-is-the-purpose-of-pointer-rebind</p>
-]]></content>
-      <categories>
-        <category>C++</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>线段树</title>
-    <url>/zyhjy/2023/07/27/%E7%BA%BF%E6%AE%B5%E6%A0%91/</url>
-    <content><![CDATA[<h1 id="线段树">线段树</h1>
-<h3 id="引入">引入</h3>
-<p>树状数组是一种支持 <strong>区间修改</strong> 和
-<strong>区间查询</strong> 的的数据结构。</p>
-<h3 id="复杂度">复杂度</h3>
-<p>便于维护区间信息，可在<span
-class="math inline">\(O(logN)\)</span>的时间复杂度内完成修改/查询。</p>
-<span id="more"></span>
-<h3 id="说明">说明</h3>
-<p>线段树的实现是一个扁平数组<code>tree[]</code>，树上每个节点对应原数组<code>arr</code>上的一段区间，规定数组<strong>下标<code>1</code>为根节点(数组下标<code>0</code>不使用)，对应整个原数组区间</strong>。</p>
-<p>对于树上每个非叶子节点<code>tree[id]</code>,若其对应的区间是<code>[start, end]</code>,存储的值为该区间的特征(根据题目条件确定，一般为区间的和);</p>
-<p>则其左孩子为<code>tree[id * 2]</code>,若其对应的区间是<span
-class="math inline">\([start , \frac{start + end}{2}]\)</span>;</p>
-<p>则其右孩子为<code>tree[id * 2 + 1]</code>,若其对应的区间是<span
-class="math inline">\([\frac{start + end}{2} + 1， end]\)</span>.</p>
-<p>对于叶子结点，其对应区间为<code>[s,s]</code>，即原数组上的值<code>arr[s]</code>.</p>
-<p>易知树的深度为<span class="math inline">\(\lceil logN
-\rceil\)</span>，所以数组长度 <span class="math inline">\(&lt; 2^{\lceil
-logN \rceil + 1} &lt; 4n\)</span>。</p>
-<h3 id="懒惰标记">懒惰标记</h3>
-<p>线段树的最大优势就是处理区间修改/查询。</p>
-<p>每次修改都从根节点开始，自顶向下找到要求处理的区间（可能由多个区间上连续的节点组成），更新信息，并打上标记，<strong>标记意味着当前节点的子节点并未更新</strong>；此时不需要处理子区间的情况，即延迟处理，直到需要使用子区间时再对子区间更新（标记下放）。</p>
-<p>查询同理，从根节点开始，自顶向下找到要求处理的区间（可能由多个区间上连续的节点组成），求和，如果遇到标记需要下放，则完成下放操作。</p>
-<p>由此，区间修改/查询的时间复杂度为<span
-class="math inline">\(O(logN)\)</span>。</p>
-<h3 id="代码示例">代码示例</h3>
-<p>注：标记的类型以及<code>modify</code>函数根据题目条件适当修改。</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SegTree</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">   <span class="function"><span class="keyword">explicit</span> <span class="title">SegTree</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; arr)</span> : n_(arr.size()), tree_(n_ * <span class="number">4</span>, <span class="number">0</span>), tag_(n_ * <span class="number">4</span>, false), arr_(arr)</span></span><br><span class="line"><span class="function">   &#123;</span></span><br><span class="line">      <span class="built_in">build</span>(<span class="number">0</span>, n_ - <span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">void</span> <span class="title">modify</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r, <span class="type">bool</span> tag)</span> </span>&#123;</span><br><span class="line">      <span class="built_in">modify</span>(l, r, tag, <span class="number">0</span>, n_ - <span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">long</span> <span class="type">long</span> <span class="title">getsum</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">getsum</span>(l, r, <span class="number">0</span>, n_ - <span class="number">1</span>, <span class="number">1</span>);;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">   <span class="type">int</span> n_;</span><br><span class="line">   vector&lt;<span class="type">int</span>&gt; tree_;</span><br><span class="line">   vector&lt;<span class="type">bool</span>&gt; tag_;</span><br><span class="line">   vector&lt;<span class="type">int</span>&gt;&amp; arr_;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">void</span> <span class="title">build</span><span class="params">(<span class="type">int</span> start, <span class="type">int</span> end, <span class="type">int</span> cur)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (start == end) &#123;</span><br><span class="line">         tree_[cur] = arr_[start];</span><br><span class="line">         <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> mid = start + ((end - start) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">      <span class="built_in">build</span>(start, mid, cur * <span class="number">2</span>);</span><br><span class="line">      <span class="built_in">build</span>(mid + <span class="number">1</span>, end, cur * <span class="number">2</span> + <span class="number">1</span>);</span><br><span class="line">      tree_[cur] = tree_[cur * <span class="number">2</span>] + tree_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">void</span> <span class="title">modify</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r, <span class="type">bool</span> tag, <span class="type">int</span> start, <span class="type">int</span> end, <span class="type">int</span> cur)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= start &amp;&amp; end &lt;= r) &#123;</span><br><span class="line">         tag_[cur] = tag_[cur] ^ tag;</span><br><span class="line">         tree_[cur] = (end - start + <span class="number">1</span>) - tree_[cur];</span><br><span class="line">         <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> mid = start + ((end - start) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">      <span class="keyword">if</span> (tag_[cur]) &#123;</span><br><span class="line">         tree_[cur * <span class="number">2</span>] = (mid - start + <span class="number">1</span>) - tree_[cur * <span class="number">2</span>];</span><br><span class="line">         tree_[cur * <span class="number">2</span> + <span class="number">1</span>] = (end - mid) - tree_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur * <span class="number">2</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span>] ;</span><br><span class="line">         tag_[cur * <span class="number">2</span> + <span class="number">1</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur] = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= mid) &#123;</span><br><span class="line">         <span class="built_in">modify</span>(l, r, tag, start, mid, cur * <span class="number">2</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (r &gt; mid) &#123;</span><br><span class="line">         <span class="built_in">modify</span>(l, r, tag, mid + <span class="number">1</span>, end, cur * <span class="number">2</span> + <span class="number">1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      tree_[cur] = tree_[<span class="number">2</span> * cur] + tree_[<span class="number">2</span> * cur + <span class="number">1</span>];</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">int</span> <span class="title">getsum</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r, <span class="type">int</span> start, <span class="type">int</span> end, <span class="type">int</span> cur)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= start &amp;&amp; end &lt;= r) &#123;</span><br><span class="line">         <span class="keyword">return</span> tree_[cur];</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> mid = start + ((end - start) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">      <span class="keyword">if</span> (tag_[cur]) &#123;</span><br><span class="line">         <span class="comment">// 如果当前节点的懒标记非空,则更新当前节点两个子节点的值和懒标记值</span></span><br><span class="line">         tree_[cur * <span class="number">2</span>] = (mid - start + <span class="number">1</span>) - tree_[cur * <span class="number">2</span>];</span><br><span class="line">         tree_[cur * <span class="number">2</span> + <span class="number">1</span>] = (end - mid) - tree_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur * <span class="number">2</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span>] ;</span><br><span class="line">         tag_[cur * <span class="number">2</span> + <span class="number">1</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur] = <span class="literal">false</span>;                                <span class="comment">// 清空当前节点的标记</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> sum = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= mid) &#123;</span><br><span class="line">         sum += <span class="built_in">getsum</span>(l, r, start, mid, cur * <span class="number">2</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (r &gt; mid) &#123;</span><br><span class="line">         sum += <span class="built_in">getsum</span>(l, r, mid + <span class="number">1</span>, end, cur * <span class="number">2</span> + <span class="number">1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> sum;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="动态开点">动态开点</h3>
-<p>由于有些题目的区间过大（如<code>n=1e9</code>），我们无法直接使用空间大小固定为
-4×<em>n</em> 的常规线段树，而要采用「动态开点」的方式。</p>
-<p>为了节省空间，我们可以不一次性建好树，而是在最初只建立一个根结点代表整个区间。当我们需要访问某个子区间时，才建立代表这个区间的子结点。这样我们不再使用
-<code>2p</code> 和 <code>2p+1</code>代表 <code>p</code>
-结点的儿子，而是用 <code>ls</code>和
-<code>rs</code>记录儿子的编号。总之，动态开点线段树的核心思想就是：<strong>结点只有在有需要的时候才被创建</strong>。</p>
-<p>单次操作的时间复杂度是不变的，为 <span class="math inline">\({O(\log
-n)}\)</span>。由于每次操作都有可能创建并访问全新的一系列结点，因此
-<code>m</code>次单点操作后结点的数量规模是 <span
-class="math inline">\({O(m\log n)}\)</span>。最多也只需要 <span
-class="math inline">\({2n-1}\)</span> 个结点，没有浪费。</p>
-<p>如果出现超时，是由于cpp的多次new调用耗时，可以考虑使用简单的内存池优化。</p>
-<h3 id="相关题目">相关题目</h3>
-<ul>
-<li><a
-href="https://leetcode.cn/problems/handling-sum-queries-after-update/">leetcode[2569]更新数组后处理求和查询</a></li>
-<li><a href="https://leetcode.cn/problems/range-module/">leetcode715.
-Range 模块</a></li>
-</ul>
-<h3 id="参考文章">参考文章：</h3>
-<ul>
-<li><a href="https://oi-wiki.org/ds/seg/">洛谷</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>数据结构</category>
-        <category>算法题</category>
-      </categories>
-      <tags>
-        <tag>offer</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Topdown论文--ISPASS2014</title>
     <url>/zyhjy/2023/06/04/A%20Top-Down%20method%20for%20performance%20analysis%20and%20counters%20architecture/</url>
     <content><![CDATA[<h1 id="abstract">Abstract</h1>
@@ -7929,6 +7821,114 @@ Down分析方法：该方法可以识别关键的瓶颈，它简单、结构化�
       <tags>
         <tag>Paper</tag>
         <tag>Pre</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++并发编程</title>
+    <url>/zyhjy/2023/06/04/C++%E4%BE%AF%E6%8D%B7STL%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h1 id="section"></h1>
+<p>标准库 &gt; STL</p>
+<h1 id="section-1"></h1>
+<p>STL六大组件</p>
+<p>allocator Adapters con it func container Iterator Alogrithms
+Functors</p>
+<h1 id="pointer-rebind的目的是什么">pointer rebind的目的是什么</h1>
+<p>在stl的list中有如下代码： <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_Alloc</span>&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">__list_imp</span></span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">    <span class="keyword">typedef</span> __list_node_base&lt;value_type, __void_pointer&gt;            __node_base;</span><br><span class="line">    <span class="keyword">typedef</span> __list_node&lt;value_type, __void_pointer&gt;                 __node;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这里为什么要在node的类型参数中增加void pointer？</p>
+<p>并且在实际使用的时候 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Tp</span>, <span class="keyword">class</span> <span class="title class_">_VoidPtr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__list_node_pointer_traits</span> &#123;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __node_pointer;</span><br><span class="line">  <span class="keyword">typedef</span> <span class="keyword">typename</span> __rebind_pointer&lt;_VoidPtr, __list_node_base&lt;_Tp, _VoidPtr&gt; &gt;::type</span><br><span class="line">        __base_pointer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> 将void通过rebind转化成了
+__list_node&lt;_Tp, _VoidPtr&gt;的指针类型</p>
+<p>为何多此一举，不直接使用Nodeptr*呢</p>
+<h2 id="section-2"></h2>
+<p>The answer to this question comes from allocators, too. Let's take a
+look at how _Rebind_pointer_t is defined: <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Ptr</span>, <span class="keyword">class</span> <span class="title class_">_Ty</span>&gt;</span><br><span class="line"><span class="keyword">using</span> _Rebind_pointer_t = <span class="keyword">typename</span> pointer_traits&lt;_Ptr&gt;::<span class="keyword">template</span> rebind&lt;_Ty&gt;;</span><br></pre></td></tr></table></figure></p>
+<p>That is, we have</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">_Value_type</span>, <span class="keyword">class</span> <span class="title class_">_Voidptr</span>&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">_List_node</span> &#123;</span><br><span class="line">    <span class="keyword">using</span> _Nodeptr = <span class="keyword">typename</span> pointer_traits&lt;_Voidptr&gt;::<span class="keyword">template</span> rebind&lt;_List_node&gt;;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>_Voidptr也是不可或缺的，因为不知道_List_node的指针是什么类型，未必是简单的*_List_node可以概括的，所以需要一个基础类型的void指针，以此为基准将_Voidptr转化为_Nodeptr</p>
+<p>相当于使用_Voidptr的特化了指针萃取的行为，是必须的</p>
+<p>Now let's take a look at how _List_node is used: <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> _Node = _List_node&lt;_Ty, <span class="keyword">typename</span> _Alty_traits::void_pointer&gt;;</span><br></pre></td></tr></table></figure>
+Effectively, we rebind allocator's void_pointer to _List_node pointer.
+This trick is needed to support allocators that use fancy pointers
+internally.</p>
+<p>One such example can be found in Boost.Interprocess library. It has
+boost::interprocess::allocator:</p>
+<p>An STL compatible allocator that uses a segment manager as memory
+source. The internal pointer type will of the same type (raw, smart) as
+<code>typename SegmentManager::void_pointer</code> type. This allows
+placing the allocator in shared memory, memory mapped-files, etc...</p>
+<p>For example, we can write <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">namespace</span> bi = boost::interprocess;</span><br><span class="line"><span class="keyword">using</span> Allocator = bi::allocator&lt;<span class="type">int</span>, bi::managed_shared_memory::segment_manager&gt;;</span><br><span class="line"><span class="function">std::list&lt;<span class="type">int</span>, Allocator&gt; <span class="title">list</span><span class="params">(<span class="comment">/* allocator object */</span>)</span></span>;</span><br></pre></td></tr></table></figure> Now
+<code>std::allocator_traits&lt;decltype(list)::allocator_type&gt;::void_pointer</code>
+will be not <code>void*</code> as with default allocator, but
+<code>boost::interprocess::offset_ptr&lt;void, ...&gt;</code>. As a
+result, <code>_Nodeptr</code> will be not <code>_Nodeptr*</code>, but
+<code>boost::interprocess::offset_ptr&lt;_Nodeptr, ...&gt;</code>.</p>
+<p>https://stackoverflow.com/questions/65262899/what-is-the-purpose-of-pointer-rebind</p>
+]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>线段树</title>
+    <url>/zyhjy/2023/07/27/%E7%BA%BF%E6%AE%B5%E6%A0%91/</url>
+    <content><![CDATA[<h1 id="线段树">线段树</h1>
+<h3 id="引入">引入</h3>
+<p>树状数组是一种支持 <strong>区间修改</strong> 和
+<strong>区间查询</strong> 的的数据结构。</p>
+<h3 id="复杂度">复杂度</h3>
+<p>便于维护区间信息，可在<span
+class="math inline">\(O(logN)\)</span>的时间复杂度内完成修改/查询。</p>
+<span id="more"></span>
+<h3 id="说明">说明</h3>
+<p>线段树的实现是一个扁平数组<code>tree[]</code>，树上每个节点对应原数组<code>arr</code>上的一段区间，规定数组<strong>下标<code>1</code>为根节点(数组下标<code>0</code>不使用)，对应整个原数组区间</strong>。</p>
+<p>对于树上每个非叶子节点<code>tree[id]</code>,若其对应的区间是<code>[start, end]</code>,存储的值为该区间的特征(根据题目条件确定，一般为区间的和);</p>
+<p>则其左孩子为<code>tree[id * 2]</code>,若其对应的区间是<span
+class="math inline">\([start , \frac{start + end}{2}]\)</span>;</p>
+<p>则其右孩子为<code>tree[id * 2 + 1]</code>,若其对应的区间是<span
+class="math inline">\([\frac{start + end}{2} + 1， end]\)</span>.</p>
+<p>对于叶子结点，其对应区间为<code>[s,s]</code>，即原数组上的值<code>arr[s]</code>.</p>
+<p>易知树的深度为<span class="math inline">\(\lceil logN
+\rceil\)</span>，所以数组长度 <span class="math inline">\(&lt; 2^{\lceil
+logN \rceil + 1} &lt; 4n\)</span>。</p>
+<h3 id="懒惰标记">懒惰标记</h3>
+<p>线段树的最大优势就是处理区间修改/查询。</p>
+<p>每次修改都从根节点开始，自顶向下找到要求处理的区间（可能由多个区间上连续的节点组成），更新信息，并打上标记，<strong>标记意味着当前节点的子节点并未更新</strong>；此时不需要处理子区间的情况，即延迟处理，直到需要使用子区间时再对子区间更新（标记下放）。</p>
+<p>查询同理，从根节点开始，自顶向下找到要求处理的区间（可能由多个区间上连续的节点组成），求和，如果遇到标记需要下放，则完成下放操作。</p>
+<p>由此，区间修改/查询的时间复杂度为<span
+class="math inline">\(O(logN)\)</span>。</p>
+<h3 id="代码示例">代码示例</h3>
+<p>注：标记的类型以及<code>modify</code>函数根据题目条件适当修改。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SegTree</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">   <span class="function"><span class="keyword">explicit</span> <span class="title">SegTree</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; arr)</span> : n_(arr.size()), tree_(n_ * <span class="number">4</span>, <span class="number">0</span>), tag_(n_ * <span class="number">4</span>, false), arr_(arr)</span></span><br><span class="line"><span class="function">   &#123;</span></span><br><span class="line">      <span class="built_in">build</span>(<span class="number">0</span>, n_ - <span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">void</span> <span class="title">modify</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r, <span class="type">bool</span> tag)</span> </span>&#123;</span><br><span class="line">      <span class="built_in">modify</span>(l, r, tag, <span class="number">0</span>, n_ - <span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">long</span> <span class="type">long</span> <span class="title">getsum</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">getsum</span>(l, r, <span class="number">0</span>, n_ - <span class="number">1</span>, <span class="number">1</span>);;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">   <span class="type">int</span> n_;</span><br><span class="line">   vector&lt;<span class="type">int</span>&gt; tree_;</span><br><span class="line">   vector&lt;<span class="type">bool</span>&gt; tag_;</span><br><span class="line">   vector&lt;<span class="type">int</span>&gt;&amp; arr_;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">void</span> <span class="title">build</span><span class="params">(<span class="type">int</span> start, <span class="type">int</span> end, <span class="type">int</span> cur)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (start == end) &#123;</span><br><span class="line">         tree_[cur] = arr_[start];</span><br><span class="line">         <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> mid = start + ((end - start) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">      <span class="built_in">build</span>(start, mid, cur * <span class="number">2</span>);</span><br><span class="line">      <span class="built_in">build</span>(mid + <span class="number">1</span>, end, cur * <span class="number">2</span> + <span class="number">1</span>);</span><br><span class="line">      tree_[cur] = tree_[cur * <span class="number">2</span>] + tree_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">void</span> <span class="title">modify</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r, <span class="type">bool</span> tag, <span class="type">int</span> start, <span class="type">int</span> end, <span class="type">int</span> cur)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= start &amp;&amp; end &lt;= r) &#123;</span><br><span class="line">         tag_[cur] = tag_[cur] ^ tag;</span><br><span class="line">         tree_[cur] = (end - start + <span class="number">1</span>) - tree_[cur];</span><br><span class="line">         <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> mid = start + ((end - start) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">      <span class="keyword">if</span> (tag_[cur]) &#123;</span><br><span class="line">         tree_[cur * <span class="number">2</span>] = (mid - start + <span class="number">1</span>) - tree_[cur * <span class="number">2</span>];</span><br><span class="line">         tree_[cur * <span class="number">2</span> + <span class="number">1</span>] = (end - mid) - tree_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur * <span class="number">2</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span>] ;</span><br><span class="line">         tag_[cur * <span class="number">2</span> + <span class="number">1</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur] = <span class="literal">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= mid) &#123;</span><br><span class="line">         <span class="built_in">modify</span>(l, r, tag, start, mid, cur * <span class="number">2</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (r &gt; mid) &#123;</span><br><span class="line">         <span class="built_in">modify</span>(l, r, tag, mid + <span class="number">1</span>, end, cur * <span class="number">2</span> + <span class="number">1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      tree_[cur] = tree_[<span class="number">2</span> * cur] + tree_[<span class="number">2</span> * cur + <span class="number">1</span>];</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="type">int</span> <span class="title">getsum</span><span class="params">(<span class="type">int</span> l, <span class="type">int</span> r, <span class="type">int</span> start, <span class="type">int</span> end, <span class="type">int</span> cur)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= start &amp;&amp; end &lt;= r) &#123;</span><br><span class="line">         <span class="keyword">return</span> tree_[cur];</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> mid = start + ((end - start) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">      <span class="keyword">if</span> (tag_[cur]) &#123;</span><br><span class="line">         <span class="comment">// 如果当前节点的懒标记非空,则更新当前节点两个子节点的值和懒标记值</span></span><br><span class="line">         tree_[cur * <span class="number">2</span>] = (mid - start + <span class="number">1</span>) - tree_[cur * <span class="number">2</span>];</span><br><span class="line">         tree_[cur * <span class="number">2</span> + <span class="number">1</span>] = (end - mid) - tree_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur * <span class="number">2</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span>] ;</span><br><span class="line">         tag_[cur * <span class="number">2</span> + <span class="number">1</span>] = tag_[cur] ^ tag_[cur * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">         tag_[cur] = <span class="literal">false</span>;                                <span class="comment">// 清空当前节点的标记</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">int</span> sum = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">if</span> (l &lt;= mid) &#123;</span><br><span class="line">         sum += <span class="built_in">getsum</span>(l, r, start, mid, cur * <span class="number">2</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (r &gt; mid) &#123;</span><br><span class="line">         sum += <span class="built_in">getsum</span>(l, r, mid + <span class="number">1</span>, end, cur * <span class="number">2</span> + <span class="number">1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> sum;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="动态开点">动态开点</h3>
+<p>由于有些题目的区间过大（如<code>n=1e9</code>），我们无法直接使用空间大小固定为
+4×<em>n</em> 的常规线段树，而要采用「动态开点」的方式。</p>
+<p>为了节省空间，我们可以不一次性建好树，而是在最初只建立一个根结点代表整个区间。当我们需要访问某个子区间时，才建立代表这个区间的子结点。这样我们不再使用
+<code>2p</code> 和 <code>2p+1</code>代表 <code>p</code>
+结点的儿子，而是用 <code>ls</code>和
+<code>rs</code>记录儿子的编号。总之，动态开点线段树的核心思想就是：<strong>结点只有在有需要的时候才被创建</strong>。</p>
+<p>单次操作的时间复杂度是不变的，为 <span class="math inline">\({O(\log
+n)}\)</span>。由于每次操作都有可能创建并访问全新的一系列结点，因此
+<code>m</code>次单点操作后结点的数量规模是 <span
+class="math inline">\({O(m\log n)}\)</span>。最多也只需要 <span
+class="math inline">\({2n-1}\)</span> 个结点，没有浪费。</p>
+<p>如果出现超时，是由于cpp的多次new调用耗时，可以考虑使用简单的内存池优化。</p>
+<h3 id="相关题目">相关题目</h3>
+<ul>
+<li><a
+href="https://leetcode.cn/problems/handling-sum-queries-after-update/">leetcode[2569]更新数组后处理求和查询</a></li>
+<li><a href="https://leetcode.cn/problems/range-module/">leetcode715.
+Range 模块</a></li>
+</ul>
+<h3 id="参考文章">参考文章：</h3>
+<ul>
+<li><a href="https://oi-wiki.org/ds/seg/">洛谷</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>数据结构</category>
+        <category>算法题</category>
+      </categories>
+      <tags>
+        <tag>offer</tag>
       </tags>
   </entry>
   <entry>
@@ -10092,45 +10092,6 @@ alt="img" />
       </tags>
   </entry>
   <entry>
-    <title>图问题相关算法合集</title>
-    <url>/zyhjy/2023/08/23/%E5%9B%BE%E9%97%AE%E9%A2%98%E7%9B%B8%E5%85%B3%E7%AE%97%E6%B3%95%E5%90%88%E9%9B%86/</url>
-    <content><![CDATA[<h1 id="求无环图中的最长路径">求(无环)图中的最长路径</h1>
-<h2 id="算法">算法：</h2>
-<ol type="1">
-<li><p>以任意节点 <em>p</em>
-出现，利用广度优先搜索或者深度优先搜索找到以 <em>p</em>
-为起点的最长路径的终点 <em>x</em>；</p></li>
-<li><p>以节点 <em>x</em> 出发，找到以 <em>x</em> 为起点的最长路径的终点
-<em>y</em>；</p></li>
-<li><p><em>x</em> 到 <em>y</em> 之间的路径即为图中的最长路径。</p></li>
-</ol>
-<span id="more"></span>
-<h2 id="相关题目">相关题目</h2>
-<h3 id="leetcode-310.-最小高度树">Leetcode 310. 最小高度树</h3>
-<p><a href="https://leetcode.cn/problems/minimum-height-trees/">310.
-最小高度树</a></p>
-<h4 id="思路1bfs-dfs">思路1(BFS, DFS)</h4>
-<p>最小高度即图中最长路径的一半。找到最长路径路径的中间节点即为根节点。</p>
-<h4 id="思路2拓扑">思路2(拓扑)</h4>
-<ol type="1">
-<li>把题目输入的 <code>edges</code> 转换成邻接表。</li>
-<li>然后，我们从叶子节点开始，一层一层地删除叶子节点（每删除一层叶子节点，就会产生新的叶子节点），直到剩下的节点数小于等于
-2 个为止。之所以是 2 个而不是 1
-个，是因为如果输入的这幅图两边完全对称，可能出现两个节点都可以作为根节点的情况。</li>
-</ol>
-]]></content>
-      <categories>
-        <category>图</category>
-        <category>算法题</category>
-        <category>DP</category>
-        <category>BFS</category>
-        <category>DSF</category>
-      </categories>
-      <tags>
-        <tag>offer</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Lock-free Programming</title>
     <url>/zyhjy/2023/08/24/Lock-free-Programming/</url>
     <content><![CDATA[<h1 id="lock的问题">Lock的问题</h1>
@@ -10358,6 +10319,45 @@ href="https://preshing.com/20120612/an-introduction-to-lock-free-programming/">p
         <category>Concurrent</category>
         <category>数据结构</category>
         <category>算法题</category>
+      </categories>
+      <tags>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>图问题相关算法合集</title>
+    <url>/zyhjy/2023/08/23/%E5%9B%BE%E9%97%AE%E9%A2%98%E7%9B%B8%E5%85%B3%E7%AE%97%E6%B3%95%E5%90%88%E9%9B%86/</url>
+    <content><![CDATA[<h1 id="求无环图中的最长路径">求(无环)图中的最长路径</h1>
+<h2 id="算法">算法：</h2>
+<ol type="1">
+<li><p>以任意节点 <em>p</em>
+出现，利用广度优先搜索或者深度优先搜索找到以 <em>p</em>
+为起点的最长路径的终点 <em>x</em>；</p></li>
+<li><p>以节点 <em>x</em> 出发，找到以 <em>x</em> 为起点的最长路径的终点
+<em>y</em>；</p></li>
+<li><p><em>x</em> 到 <em>y</em> 之间的路径即为图中的最长路径。</p></li>
+</ol>
+<span id="more"></span>
+<h2 id="相关题目">相关题目</h2>
+<h3 id="leetcode-310.-最小高度树">Leetcode 310. 最小高度树</h3>
+<p><a href="https://leetcode.cn/problems/minimum-height-trees/">310.
+最小高度树</a></p>
+<h4 id="思路1bfs-dfs">思路1(BFS, DFS)</h4>
+<p>最小高度即图中最长路径的一半。找到最长路径路径的中间节点即为根节点。</p>
+<h4 id="思路2拓扑">思路2(拓扑)</h4>
+<ol type="1">
+<li>把题目输入的 <code>edges</code> 转换成邻接表。</li>
+<li>然后，我们从叶子节点开始，一层一层地删除叶子节点（每删除一层叶子节点，就会产生新的叶子节点），直到剩下的节点数小于等于
+2 个为止。之所以是 2 个而不是 1
+个，是因为如果输入的这幅图两边完全对称，可能出现两个节点都可以作为根节点的情况。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>图</category>
+        <category>算法题</category>
+        <category>DP</category>
+        <category>BFS</category>
+        <category>DSF</category>
       </categories>
       <tags>
         <tag>offer</tag>
