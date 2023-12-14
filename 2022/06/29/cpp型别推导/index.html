@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
@@ -147,6 +149,11 @@
         <li class="menu-item menu-item-archives">
 
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -475,8 +482,6 @@ id="情况三paramtype既非指针也非引用">情况三:<code>ParamType</code>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E7%89%88%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC"><span class="nav-number">1.</span> <span class="nav-text">模版型别推导</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E8%88%AC%E5%BD%A2%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">一般形式:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%83%85%E5%86%B5%E4%B8%80paramtype%E6%98%AF%E6%8C%87%E9%92%88%E6%88%96%E5%BC%95%E7%94%A8-%E4%BD%86%E4%B8%8D%E6%98%AF%E4%B8%87%E8%83%BD%E5%BC%95%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">情况一:ParamType是指针或引用,
-但不是万能引用:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%83%85%E5%86%B5%E4%BA%8Cparamtype%E6%98%AF%E4%B8%87%E8%83%BD%E5%BC%95%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">情况二:ParamType是万能引用:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%83%85%E5%86%B5%E4%B8%89paramtype%E6%97%A2%E9%9D%9E%E6%8C%87%E9%92%88%E4%B9%9F%E9%9D%9E%E5%BC%95%E7%94%A8"><span class="nav-number">1.4.</span> <span class="nav-text">情况三:ParamType既非指针也非引用:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%83%85%E5%BD%A2"><span class="nav-number">1.5.</span> <span class="nav-text">其他情形:</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E7%BB%84%E5%AE%9E%E5%8F%82"><span class="nav-number">1.5.1.</span> <span class="nav-text">数组实参</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%AE%9E%E5%8F%82"><span class="nav-number">1.5.2.</span> <span class="nav-text">函数实参</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#auto-%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC"><span class="nav-number">2.</span> <span class="nav-text">auto 型别推导</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#auto%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="nav-number">2.1.</span> <span class="nav-text">auto返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lambda%E5%BC%8F%E4%B8%AD%E7%9A%84auto%E5%BD%A2%E5%8F%82"><span class="nav-number">2.2.</span> <span class="nav-text">lambda式中的auto形参</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%90%86%E8%A7%A3decltype"><span class="nav-number">3.</span> <span class="nav-text">理解decltype</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -492,14 +497,14 @@ id="情况三paramtype既非指针也非引用">情况三:<code>ParamType</code>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -544,12 +549,12 @@ id="情况三paramtype既非指针也非引用">情况三:<code>ParamType</code>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">407k</span>
+    <span title="站点总字数">439k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:19</span>
+    <span title="站点阅读时长">12:11</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

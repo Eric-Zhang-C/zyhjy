@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
@@ -30,7 +32,7 @@
 <meta property="og:description" content="Curiously Recurring Template Pattern (CRTP) CRTP是指将派生类作为其基类的模板参数的技术。如： 12345678template&lt;typename Derived&gt;class CuriousBase &amp;#123;		...&amp;#125;;template&lt;typename T&gt;class CuriousTemplate : pub">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-09-21T13:59:25.000Z">
-<meta property="article:modified_time" content="2023-09-30T04:25:29.129Z">
+<meta property="article:modified_time" content="2023-11-20T13:24:20.191Z">
 <meta property="article:author" content="Yuhang Zhang">
 <meta property="article:tag" content="offer">
 <meta name="twitter:card" content="summary">
@@ -150,6 +152,11 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
+
+  </li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -235,7 +242,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-09-30 12:25:29" itemprop="dateModified" datetime="2023-09-30T12:25:29+08:00">2023-09-30</time>
+                <time title="修改时间：2023-11-20 21:24:20" itemprop="dateModified" datetime="2023-11-20T21:24:20+08:00">2023-11-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -291,6 +298,7 @@ Recurring Template Pattern (CRTP)</strong></h1>
 <p>最直接的想法，我们可以为每个class增加一个用于统计的静态变量count，构造时++，析构时--；但是这样做会产生大量重复代码，且可扩展性差。</p>
 <p>如果通过一个非CRTP的基类实现统计呢？会将各个类型的实例化数量混杂起来。</p>
 <p>而通过CRTP解决这个问题则非常的优雅(elegant):</p>
+<span id="more"></span>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> CountedType&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ObjectCounter</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">	<span class="keyword">inline</span> <span class="type">static</span> std::<span class="type">size_t</span> count&#123;<span class="number">0</span>&#125;;	<span class="comment">/// inline; C++17</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	<span class="comment">/// default constructor</span></span><br><span class="line">	<span class="built_in">ObjectCounter</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		++count;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/// copy constructor</span></span><br><span class="line">	<span class="built_in">ObjectCounter</span>(<span class="type">const</span> ObjectCounter&lt;CountedType&gt;&amp;)</span><br><span class="line">	&#123;</span><br><span class="line">		++count;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/// move constructor</span></span><br><span class="line">	<span class="built_in">ObjectCounter</span>(ObjectCounter&lt;CountedType&gt;&amp;&amp;)</span><br><span class="line">	&#123;</span><br><span class="line">		++count;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	~<span class="built_in">ObjectCounter</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		--count;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">// return number of existing objects</span></span><br><span class="line">	<span class="function"><span class="type">static</span> std::<span class="type">size_t</span> <span class="title">live</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> count;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>当我们想要统计某一个 class 的对象(未被销毁)数目时，只需要让其派生自
 ObjectCounter 即可.</p>
@@ -404,8 +412,6 @@ ObjectCounter 即可.</p>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#curiously-recurring-template-pattern-crtp"><span class="nav-number">1.</span> <span class="nav-text">Curiously
-Recurring Template Pattern (CRTP)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -421,14 +427,14 @@ Recurring Template Pattern (CRTP)</span></a><ol class="nav-child"><li class="nav
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -473,12 +479,12 @@ Recurring Template Pattern (CRTP)</span></a><ol class="nav-child"><li class="nav
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">407k</span>
+    <span title="站点总字数">439k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:19</span>
+    <span title="站点阅读时长">12:11</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

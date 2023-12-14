@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
@@ -147,6 +149,11 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
+
+  </li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -197,6 +204,961 @@
 
           <div class="content index posts-expand">
             
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/07/20/Effective%20C++(3)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/07/20/Effective%20C++(3)/" class="post-title-link" itemprop="url">Effective C++(3)--资源管理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-20 16:28:50" itemprop="dateCreated datePublished" datetime="2022-07-20T16:28:50+08:00">2022-07-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="ch3-资源管理">Ch3 资源管理</h1>
+<ul>
+<li>资源：使用后要还给系统</li>
+</ul>
+<h2 id="以对象管理资源">13 以对象管理资源</h2>
+<ul>
+<li>RAII （Resource Acquisition Is Initialization）</li>
+<li>把资源放入对象内，可倚赖C++析构函数自动调用机制确保函数被释放
+<ul>
+<li>如 auto_ptr， shared_ptr， heap_based</li>
+</ul></li>
+</ul>
+<h2 id="在资源管理类中小心copy行为">14 在资源管理类中小心copy行为</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">lock</span><span class="params">(Mutex* pm)</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">unlock</span><span class="params">(Mutex* pm)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Lock</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Lock</span><span class="params">(Mutex* pm)</span></span></span><br><span class="line"><span class="function">        : mutexPtr(pm)</span></span><br><span class="line"><span class="function">    &#123;</span> <span class="built_in">lock</span>(mutexPtr); &#125;</span><br><span class="line">    ~<span class="built_in">Lock</span>() &#123; <span class="built_in">unlock</span>(mutexPtr); &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Mutex* mutexPtr;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>当发生复制时，有两种选择：
+<ol type="1">
+<li>禁止复制 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Lock</span> : <span class="keyword">private</span> Uncopyable &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>对底部资源使用引用计数法
+<ul>
+<li>用shared_ptr替换Lock中的raw pointer</li>
+</ul></li>
+<li>复制底部资源</li>
+<li>转移底部资源所有权</li>
+</ol></li>
+</ul>
+<h2 id="在资源管理类中提供对原始资源的访问">15
+在资源管理类中提供对原始资源的访问</h2>
+<ul>
+<li>APIs往往有这样的需求
+<ul>
+<li>智能指针重载了operator-&gt;和operator*</li>
+</ul></li>
+<li>显式转换较为安全</li>
+<li>隐式转换对客户比较方便 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">FontHandle <span class="title">getFont</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">releaseFont</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Font</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Font</span><span class="params">(FontHandle fh)</span></span></span><br><span class="line"><span class="function">        : f(fh)</span></span><br><span class="line"><span class="function">    &#123;</span> &#125;</span><br><span class="line">    ~<span class="built_in">Font</span>() &#123; <span class="built_in">releaseFont</span>(f); &#125;</span><br><span class="line">    <span class="function">FontHandle <span class="title">get</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> f; &#125; <span class="comment">/// 显式转换函数</span></span><br><span class="line">    <span class="function"><span class="keyword">operator</span> <span class="title">FontHandle</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> f; &#125; <span class="comment">/// 隐式转换函数</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    FontHandle f;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="成对使用new和delete时要采用相同的形式">16
+成对使用new和delete时要采用相同的形式</h2>
+<ul>
+<li>new -- delete</li>
+<li>new [] -- delete []</li>
+<li>不要对数组形式做typedf</li>
+</ul>
+<h2 id="以独立语句将newed对象置入智能指针">17
+以独立语句将newed对象置入智能指针</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">priority</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">processWidget</span><span class="params">(std::shared_ptr&lt;Widget&gt; pw, <span class="type">int</span> priority)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">processWidget</span>(<span class="keyword">new</span> Widget, <span class="built_in">priority</span>()); <span class="comment">/// wrong! std::shared_ptr&lt;Widget&gt;的构造函数是explicit的，无法隐式转换</span></span><br><span class="line"><span class="built_in">processWidget</span>(std::<span class="built_in">shared_ptr</span>&lt;Widget&gt;(<span class="keyword">new</span> Widget), <span class="built_in">priority</span>()); <span class="comment">/// maybe resource leak! 假如执行顺序为 new --&gt; priority() --&gt; shared_ptr 并且 priority() 出错</span></span><br><span class="line"></span><br><span class="line"><span class="function">std::shared_ptr&lt;Widget&gt; <span class="title">pw</span><span class="params">(<span class="keyword">new</span> Widget)</span></span>;</span><br><span class="line"><span class="built_in">processWidget</span>(pw, <span class="built_in">priority</span>()); <span class="comment">/// ok, no leak!</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>编译器只在一条语句内拥有执行顺序的自由度</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/07/19/%E5%90%84%E7%A7%8Dlinux%E5%B0%8F%E6%8A%80%E5%B7%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/07/19/%E5%90%84%E7%A7%8Dlinux%E5%B0%8F%E6%8A%80%E5%B7%A7/" class="post-title-link" itemprop="url">各种linux小技巧</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-19 17:28:50" itemprop="dateCreated datePublished" datetime="2022-07-19T17:28:50+08:00">2022-07-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-09-22 20:36:40" itemprop="dateModified" datetime="2023-09-22T20:36:40+08:00">2023-09-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>10 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1
+id="已知pid已知fd号需要知道文件">已知PID，已知fd号，需要知道文件</h1>
+<ul>
+<li><code>ll /proc/[pid]/fd/</code></li>
+</ul>
+<h1 id="文件锁的情况">文件锁的情况</h1>
+<ul>
+<li><code>cat /proc/locks</code>
+<ul>
+<li>第一个是pid，:后是inode号</li>
+</ul></li>
+</ul>
+<h1 id="查看进程打开所有文件信息lsof">查看进程打开所有文件信息lsof</h1>
+<ul>
+<li><code>lsof -p [pid]</code></li>
+</ul>
+<h1 id="linux-error-code">linux error code</h1>
+<p>https://mariadb.com/kb/en/operating-system-error-codes/</p>
+<h1 id="反向删除文件">反向删除文件</h1>
+<ul>
+<li><code>xargs</code>:
+<ul>
+<li>根据这个命令的名字, 就可以知道它的含义了:<code>x</code>: transmit
+传递, <code>args</code>: 多个参数, 正是: 向命令(不能带多个参数的命令,
+如<code>rpm -e</code>)传递多个参数,
+循环遍历处理.<code>xargs</code>就相当于一个<code>for</code>循环.</li>
+</ul></li>
+<li>反向删除文件:
+<ul>
+<li><code>ls | grep -v 'install_falsh' | xargs rm -rf</code></li>
+</ul></li>
+</ul>
+<h1 id="linux怎么查看当前登录用户">linux怎么查看当前登录用户</h1>
+<ol type="1">
+<li>使用“w”命令，可以显示目前登入系统的用户信息；</li>
+<li>使用“who”命令，可以显示当前已登录的用户信息；</li>
+<li>使用“last”命令；</li>
+<li>使用“lastlog”命令</li>
+<li>使用“ac”命令。</li>
+</ol>
+<h1 id="查看时间和日期">查看时间和日期</h1>
+<ul>
+<li>命令: “date”</li>
+</ul>
+<h1 id="grep显示目标附近的几行">grep显示目标附近的几行</h1>
+<p>cat temp.txt | grep "Mis Predict! [commit]" -A9 -B1</p>
+<h1 id="linux查看文件夹多大">linux查看文件夹多大</h1>
+<ol type="1">
+<li><code>ls</code>
+<ul>
+<li><code>ls -ll</code>，会显示成字节大小，</li>
+<li><code>ls- lh</code>会以KB、MB等为单位进行显示，这样比较直观一些。</li>
+</ul></li>
+<li><code>du</code>
+<ul>
+<li><code>du -h --max-depth=1</code>，可以查看当前目录下各文件、文件夹的大小，这个比较实用。</li>
+<li><code>du -h –-max-depth=0 *</code>，可以只显示直接子目录文件及文件夹大小统计值。</li>
+<li>查询当前目录总大小可以使用<code>du -sh</code>，其中s代表统计汇总的意思，即只输出一个总和大小。
+<ul>
+<li>如果只想查看指定目录的总大小，可以使用du -sh 目录名称。</li>
+</ul></li>
+<li>对于指定文件夹也可以指定显示层次深度，如<code>du -h --max-depth=0 software/</code>及<code>du -h --max-depth=1 software/</code></li>
+</ul></li>
+</ol>
+<h1 id="scons编译">scons编译</h1>
+<ul>
+<li><p>scons：进行代码文件编译</p></li>
+<li><p>scons
+-Q：进行代码文件编译，不显示Scons内部操作打印的信息，只显示编译信息</p></li>
+<li><p>scons -c：清除编译中间文件和可执行文件</p></li>
+</ul>
+<h1 id="linux按照大小行数切割文件">Linux按照大小、行数切割文件</h1>
+<ul>
+<li>按照大小切割文件
+<ol type="1">
+<li>按照10k为大小切分：【 split -b 10k data.txt -d 】</li>
+<li>按照5M为大小切分：【 split -b 5M data.txt -d 】</li>
+</ol>
+<ul>
+<li>说明： -d 指定切割后的文件后缀名为数字</li>
+</ul></li>
+<li>按照行数据切割文件
+<ol type="1">
+<li>以100行作为基本单位切分data.txt文件
+<ul>
+<li><code>split -l 100 data.txt result.txt</code></li>
+<li>输出文件：result.txtab result.txtac…结尾以 aa ab ac…</li>
+</ul></li>
+<li>指定切割后的文件前缀名与后缀名
+<ul>
+<li><code>split -l 100 data.txt -d -a 4 data_</code></li>
+<li>说明：
+<ul>
+<li>1）-l 100：按100行切割</li>
+<li>2）data_：指定切割后的文件前缀名</li>
+<li>3）-d：指定切割后的文件后缀名为数字</li>
+<li>4）-a 4：指定切割后的文件后缀名数字的长度</li>
+</ul></li>
+</ul></li>
+</ol></li>
+</ul>
+<h1 id="linux-ls指令">Linux ls指令</h1>
+<ul>
+<li>文件大小以M为单位显示<code>ll -h</code></li>
+<li>根据最近更新顺序排列<code>ls -lrt</code></li>
+</ul>
+<h1 id="解压缩">解压缩</h1>
+<h2 id="解压.tar.bz2">解压<code>.tar.bz2</code></h2>
+<ul>
+<li><code>tar -jxvf 包名</code></li>
+<li><code>-j</code> ： 打包后用zip2压缩，生成.tar.bz2文件</li>
+<li><code>-x</code> ：解开一个打包文件</li>
+<li><code>-v</code> ：过程中显示包内各文件</li>
+<li><code>-f</code> ：使用文件名 后面只可以接文件名不可以加其他参数</li>
+</ul>
+<h1 id="查看cpu的核数">查看CPU的核数</h1>
+<h2 id="物理-cpu-的个数">物理 CPU 的个数</h2>
+<ul>
+<li>物理核心就是计算机上实际配置的 CPU 个数。</li>
+<li><code>wc -l</code> 是统计行数</li>
+<li><code>cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l</code></li>
+</ul>
+<h2 id="每个-cpu-的核数">每个 CPU 的核数</h2>
+<ul>
+<li>指 CPU 上集成的处理数据的 CPU 核心个数，单核指 CPU
+核心数一个，双核则指的是两个。</li>
+<li><code>uniq</code> 可以去重连续出现的相同记录</li>
+<li><code>cat /proc/cpuinfo | grep "cpu cores" | uniq</code></li>
+</ul>
+<h1 id="限制某进程的cpu占用率----cpulimit">限制某进程的CPU占用率 --
+CPULimit</h1>
+<ul>
+<li><code>-l</code> 限定CPU占据率0%~X00% X为CPU核数</li>
+<li><code>-v</code> 显现控制的统计信息</li>
+<li><code>-z</code>
+当被控制的程式退出的时候，CPULimit程式也跟着退出</li>
+<li><code>-i</code> 同时限定被控程式的子进程 #command</li>
+<li><code>-p</code> 被控程式的PID</li>
+<li><code>-e</code> 被控程式的程式称号</li>
+</ul>
+<h1 id="vim">VIM</h1>
+<h2 id="删除多行">删除多行</h2>
+<p>:3,5d
+https://blog.csdn.net/ayychiguoguo/article/details/124926240</p>
+<h1 id="交叉编译">交叉编译</h1>
+<ol type="1">
+<li>安装arm工具包</li>
+</ol>
+<ul>
+<li><code>apt install gcc-8-aarch64-linux-gnu</code></li>
+</ul>
+<ol start="2" type="1">
+<li>编译</li>
+</ol>
+<ul>
+<li>动态链接-默认
+<ul>
+<li><code>aarch64-linux-gnu-gcc-8 main.c</code></li>
+</ul></li>
+<li>静态链接
+<ul>
+<li><code>aarch64-linux-gnu-gcc-8 -static main.c</code></li>
+</ul></li>
+</ul>
+<h1 id="反汇编">反汇编</h1>
+<ol type="1">
+<li>arch64</li>
+</ol>
+<ul>
+<li><code>aarch64-linux-gnu-objdump -d a.out</code></li>
+</ul>
+<ol start="2" type="1">
+<li>host(x86)</li>
+</ol>
+<ul>
+<li><code>objdump -d a.out</code></li>
+</ul>
+<h1 id="查看文件类型">查看文件类型</h1>
+<ul>
+<li><code>file a.out</code>　</li>
+</ul>
+<h1 id="调整磁盘分区">调整磁盘分区</h1>
+<ol start="0" type="1">
+<li>查看当前系统的磁盘情况：
+<ul>
+<li><code>df -h</code> 查看当前系统的磁盘大小</li>
+<li><code>df -T</code> 查看当前系统的磁盘类型，
+以下为xfs类型磁盘扩容</li>
+</ul></li>
+<li>将home目录进行备份,备份完成后,卸载/home 目录
+<code>umount /home</code></li>
+<li>移除home目录对应的分区
+<code>lvremove /dev/mapper/centos-home</code></li>
+<li>扩展根目录分区大小 (我们这里扩展到300G)
+<code>lvextend -L 300G /dev/mapper/centos-root</code></li>
+<li>同步 <code>xfs_growfs /dev/mapper/centos-root</code></li>
+<li>查看硬盘分组 <code>pvs</code></li>
+<li>将剩余空间分给Home目录
+<code>lvcreate -l +100%Free -n home centos</code></li>
+<li>写入分区 <code>mkfs.xfs /dev/mapper/centos-home</code></li>
+<li>硬盘挂在 <code>mount /dev/mapper/centos-home /home</code></li>
+<li>查看结果 <code>df -h</code></li>
+</ol>
+<h1 id="yum换源">yum换源</h1>
+<ol type="1">
+<li>进入yum源配置文件 <code>cd /etc/yum.repos.d</code></li>
+<li>备份一下当前的源，以防出错后可以还原回来
+<code>mv ./CentOS-Base.repo ./CentOS-Base-repo.bak</code></li>
+<li>下载网易163的源<code>wget http://mirrors.163.com/.help/CentOS7-Base-163.repo</code>
+<ul>
+<li>我的机器在这一步遇到了问题，无法访问http，将http改为https</li>
+<li>把下载下来文件 CentOS7-Base-163.repo设置成为默认源
+<code>mv CentOS7-Base-163.repo CentOS-Base.repo</code></li>
+</ul></li>
+<li>清理一下旧包 <code>yum clean all</code></li>
+<li>生成缓存即可用163源了 <code>yum makecache</code></li>
+</ol>
+<ul>
+<li>我的机器在这一步遇到了问题，无法访问http: <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://mirrors.163.com/centos/7/os/x86_64/repodata/repomd.xml: [Errno 14] curl#7 - &quot;Failed connect to mirrors.163.com:80; 拒绝连接&quot;</span><br><span class="line">http://mirrors.163.com/centos/7/os/x86_64/repodata/repomd.xml: [Errno 14] curl#7 - &quot;Failed connect to mirrors.163.com:80; 拒绝连接&quot;</span><br><span class="line">http://mirrors.163.com/centos/7/os/x86_64/repodata/repomd.xml: [Errno 14] curl#7 - &quot;Failed connect to mirrors.163.com:80; 拒绝连接&quot;</span><br></pre></td></tr></table></figure></li>
+<li>解决方案: <code>vim CentOS-Base.repo</code>将http改成https</li>
+</ul>
+<h1 id="ubuntu换源">ubuntu换源</h1>
+<p>如果您想将 Ubuntu
+的软件源更改为清华大学镜像源，可以按照以下步骤进行操作：</p>
+<ol type="1">
+<li><p>打开终端：打开终端应用程序，以便在命令行中执行操作。</p></li>
+<li><p>备份原有源配置（可选）：在更改软件源之前，建议备份原有的源配置文件，以防意外发生。您可以使用以下命令将原有源配置文件复制到其他位置进行备份：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup</span><br></pre></td></tr></table></figure></li>
+<li><p>编辑源配置文件：使用文本编辑器打开源配置文件
+<code>/etc/apt/sources.list</code>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nano /etc/apt/sources.list</span><br></pre></td></tr></table></figure></li>
+<li><p>获取清华大学镜像源地址：访问清华大学 TUNA
+镜像源站点（https://mirrors.tuna.tsinghua.edu.cn/）或清华大学镜像源站点（https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/）查找可用的软件源地址。</p></li>
+<li><p>更新软件源地址：在编辑器中，将现有的软件源地址替换为清华大学镜像源的地址。根据您的
+Ubuntu 版本和软件源配置文件的格式，通常每个软件源地址占据一行。</p>
+<p>以清华大学 TUNA 镜像源为例，对于 Ubuntu 20.04 LTS（Focal
+Fossa）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse</span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse</span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse</span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse</span><br></pre></td></tr></table></figure>
+<p>对于其他 Ubuntu 版本，请将 <code>focal</code>
+替换为适合您版本的代号，例如 <code>bionic</code>（18.04 LTS）或
+<code>impish</code>（21.10）。</p></li>
+<li><p>保存更改：在编辑器中保存您对源配置文件的更改。</p></li>
+<li><p>更新软件源缓存：执行以下命令来更新软件源缓存：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br></pre></td></tr></table></figure></li>
+<li><p>完成：软件源已经更换为清华大学镜像源。您现在可以使用清华大学镜像源获取和安装软件包。</p></li>
+</ol>
+<p>请注意，清华大学镜像源是一种可靠和高速的镜像源选择，但它可能会因网络和地理位置而有所不同。如果您遇到问题，您可以恢复先前的源配置文件或尝试其他可用的软件源。</p>
+<p>实验室使用的源</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">deb https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse</span><br><span class="line">deb https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse</span><br><span class="line">deb https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse</span><br><span class="line">deb https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse</span><br><span class="line">deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-14 main</span><br><span class="line"># deb-src https://apt.llvm.org/bionic/ llvm-toolchain-bionic-14 main</span><br></pre></td></tr></table></figure>
+<h1 id="linux-批量杀死进程">Linux 批量杀死进程</h1>
+<p><code>ps -ef|grep GSM_run.py|grep -v grep|cut -c 9-15|xargs kill -9</code>
+- 命令说明 : 1. 管道符 "|"
+用来隔开两个命令，管道符左边命令的输出会作为管道符右边命令的输入。 2.
+<code>ps -ef</code> 是 查看所有进程,其中 <code>ps -aux</code>
+也是查看所有进程,不过两者以下区别： 1.
+<code>-ef</code>是<code>System V</code>展示风格，而<code>-aux</code>是<code>BSD</code>风格,Unix操作系统在操作风格上主要分为System
+V和BSD 2.
+<code>COMMADN</code>列如果过长，<code>-aux</code>会截断显示，而<code>-ef</code>不会
+3.
+<code>-aux</code>可以查看进程的CPU占用率和内存占用率，而<code>-ef</code>不能
+3. <code>grep GSM_run.py</code>
+列出含有关键字<code>GSM_run.py</code>的所有进程 4.
+<code>grep -v grep</code>是在列出的进程中去除含有关键字<code>grep</code>的进程
+5.
+<code>cut -c 9-15</code>是截取输入行的第9个字符到第15个字符，而这正好是进程号PID
+- 某些情况下 9-15 是 不够的 可以 写成 <code>awk '&#123;print $2&#125;'</code> 其
+表示 按空格分割取第二个元素，即取进程号
+PID。此时完整的命令为<code>ps -ef|grep GSM_run.py|grep -v grep|awk '&#123;print $2&#125;'|xargs kill -9</code>
+6. <code>xargs kill -9</code> -
+xargs命令把前面命令的输出结果（PID）作为<code>kill -9</code>命令的参数，并执行</p>
+<h1
+id="比较两个文件并找出它们之间不同的行">比较两个文件并找出它们之间不同的行</h1>
+<p>要比较两个文件并找出它们之间不同的行，可以使用<code>diff</code>命令。<code>diff</code>命令用于比较文件之间的差异，并显示不同之处。</p>
+<p>以下是使用<code>diff</code>命令比较两个文件并找出不同行的示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diff file1.txt file2.txt</span><br></pre></td></tr></table></figure>
+<p>上述命令将比较名为<code>file1.txt</code>和<code>file2.txt</code>的两个文件，并显示它们之间的差异。<code>diff</code>命令将显示出两个文件中不同的行，并用"&lt;"和"&gt;"符号标记它们。"&lt;"表示该行在第一个文件中出现，而"&gt;"表示该行在第二个文件中出现。</p>
+<p>如果只关注不同的行而不关心具体的差异内容，可以使用以下命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diff --brief file1.txt file2.txt</span><br></pre></td></tr></table></figure>
+<p>上述命令将仅显示文件之间的差异，并不显示具体的差异内容。</p>
+<p>请注意，<code>diff</code>命令还有其他选项和用法，可以根据需要进行调整。您可以使用<code>man diff</code>命令查看完整的<code>diff</code>命令文档和更多选项。</p>
+<h1
+id="要在ubuntu上安装clang-format您可以按照以下步骤进行操作">要在Ubuntu上安装Clang
+Format，您可以按照以下步骤进行操作：</h1>
+<ol type="1">
+<li><p>使用以下命令安装Clang和Clang Format： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt install clang</span><br><span class="line">sudo apt install clang-format</span><br></pre></td></tr></table></figure>
+这将更新软件包列表并安装Clang和Clang Format。</p></li>
+<li><p>安装完成后，您可以使用以下命令验证是否成功安装Clang Format：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang-format --version</span><br></pre></td></tr></table></figure> 如果安装成功，将显示Clang Format的版本信息。</p></li>
+</ol>
+<p>现在，您已经成功在Ubuntu上安装了Clang
+Format。您可以使用它来格式化C、C++和其他受支持的语言的源代码文件。</p>
+<h1 id="grep">grep</h1>
+<ol type="1">
+<li>或 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -E <span class="string">&#x27;123|abc&#x27;</span> filename  // 找出文件（filename）中包含123或者包含abc的行</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="ssh">ssh</h1>
+<ol type="1">
+<li>"permissions are too open"
+<ul>
+<li><code>chmod 600 ~/.ssh/id_rsa</code></li>
+</ul></li>
+</ol>
+<h1 id="perf">perf</h1>
+<p>ubuntu无法安装perf
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1844443</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/07/16/Effective%20C++(1)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/07/16/Effective%20C++(1)/" class="post-title-link" itemprop="url">Effective C++(1)--让自己习惯C++</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-16 16:28:50" itemprop="dateCreated datePublished" datetime="2022-07-16T16:28:50+08:00">2022-07-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="视c为一个语言联邦">01 视C++为一个语言联邦</h1>
+<ul>
+<li>C++ :
+多重范型编程语言(<code>multiparadigm programming language</code>)
+<ul>
+<li>过程形式(<code>procedural</code>)</li>
+<li>面向对象(<code>object-oriented</code>)</li>
+<li>函数形式(<code>functional</code>)</li>
+<li>泛型形式(<code>generic</code>)</li>
+<li>元编程形式(<code>metaprogramming</code>)</li>
+</ul></li>
+<li>语言联邦:
+<ul>
+<li>C(过程形式,函数形式)</li>
+<li>object-oriented C++</li>
+<li>Template C++(泛型形式,元编程)</li>
+<li>STL(template程序库)</li>
+</ul></li>
+</ul>
+<h1 id="尽量以constenuminline替换define">02
+尽量以const,enum,inline替换#define</h1>
+<ul>
+<li>宁可以编译器替换预处理器 ## 原因 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> ASPECT_RATIO 1.653</span></span><br></pre></td></tr></table></figure></li>
+<li>记号名称ASPECT_RATIO从未被编译器看见
+<ul>
+<li>在编译器处理源码之前被预处理器移走了</li>
+<li>记号名称ASPECT_RATIO未进入符号表</li>
+<li>相关的错误信息显示1.653而非ASPECT_RATIO</li>
+</ul></li>
+<li>解决办法 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">double</span> aspect_ratio <span class="number">1.653</span>;</span><br></pre></td></tr></table></figure> ## class的专属常量</li>
+<li>member</li>
+<li>为确保只有一份实体
+<ul>
+<li>static <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Class GamePlayer&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">static</span> <span class="type">const</span> <span class="type">int</span> NumTurns = <span class="number">5</span>;  <span class="comment">// 常量声明式</span></span><br><span class="line">    <span class="type">int</span> scores[NumTurns];   <span class="comment">// 使用该常量</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+<li>todo:
+<ul>
+<li>why it is declaration</li>
+</ul></li>
+<li>通常C++要求你对你所使用的东西提供一个定义式
+<ul>
+<li>例外:
+<ul>
+<li>class专属常量 &amp;&amp; static &amp;&amp; integral type(ints,
+chars, bools) -- 不取地址时无需定义式</li>
+</ul></li>
+<li>定义式: <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">int</span> GamePlayer::NumTurns;  <span class="comment">// definition</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>写在实现文件而非头文件</li>
+<li>由于常量声明时已经获得初值,此时无需再设初值</li>
+</ul></li>
+</ul></li>
+<li>#define毫无封装性
+<ul>
+<li>无法定义class专属常量</li>
+<li>在C++中不管宏是定义在类内部还是外部
+都当做外部，使用时不需要限定域运算--即宏是全局的</li>
+<li>https://blog.csdn.net/xiupong/article/details/119805554</li>
+</ul></li>
+</ul>
+<h2 id="enum-hack">enum hack</h2>
+<ul>
+<li>一个属于枚举类型的数值可以权充ints被使用 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Class GamePlayer&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">enum</span> &#123; NumTurns = <span class="number">5</span> &#125;;  <span class="comment">// 常量声明式</span></span><br><span class="line">    <span class="type">int</span> scores[NumTurns];   <span class="comment">// 使用该常量</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>enum类型不会被取地址
+<ul>
+<li>enum不会导致非必要的内存分配</li>
+<li>enum产生的常量是没有存储空间的，编译器编译后，只会成为汇编指令的立即数，也就是存在于_TEXT段</li>
+</ul></li>
+</ul>
+<h2
+id="使用template-inline函数取代替换宏函数">使用<code>template inline</code>函数取代替换宏函数</h2>
+<h1 id="尽可能使用const">03 尽可能使用const</h1>
+<ul>
+<li>将某些东西声明为const可帮助编译器侦测出错误用法。const可被施加于任何作用域内的对象、函数参数、函数返回类型、成员函数本体。</li>
+<li>编译器强制实施 bitwise
+constness，但你编写程序时应该使用“概念上的常量性”(conceptual
+constness)。</li>
+<li>当const和non-const成员函数有着实质等价的实现时，令non-const版本调用const版本可避免代码重复。</li>
+<li>const对象只能调用const成员函数 ## STL系根据指针塑模出来
+<ul>
+<li>迭代器类似T*</li>
+<li>声明迭代器为const类似<code>T* const</code></li>
+<li>const_iterator类似<code>const T*</code></li>
+</ul></li>
+</ul>
+<h2 id="const成员函数">const成员函数</h2>
+<ul>
+<li>两个成员函数如果只是常量性不同，可以被重载
+<ol type="1">
+<li>在c++中其实是有最⼩权限原则的，⾮const对象是可以调⽤const成员函数的。</li>
+<li>const成员函数是不能调⽤⾮const成员函数，只能通过强制或者定义mutable</li>
+<li>构造与析构函数不能定义为const成员函数，构造跟析构会对对象做修改</li>
+</ol></li>
+<li>bitwise constness vs logical constness
+<ul>
+<li>bitwise constness:
+<ul>
+<li>不改变对象内任何一个bit</li>
+<li>编译器检测不到修改指针成员变量所指的内容</li>
+</ul></li>
+<li>logical constness:
+<ul>
+<li>可以修改某些bit(在客户端侦测不到时)</li>
+<li><code>mutable</code> : 在const成员函数内变量仍有可能被修改</li>
+</ul></li>
+</ul></li>
+<li>在const和non-const成员函数中避免重复
+<ul>
+<li>使用non-const成员函数调用const成员函数(需要转型) <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TextBlock</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> &amp;<span class="keyword">operator</span>[](std::<span class="type">size_t</span> position) <span class="type">const</span></span><br><span class="line">    &#123; <span class="comment">//一如既往&#123;</span></span><br><span class="line">        <span class="keyword">return</span> text[position];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">char</span> &amp;<span class="keyword">operator</span>[](std::<span class="type">size_t</span> position) <span class="comment">//现在只调用const op[]</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">            <span class="built_in">const_cast</span>&lt;<span class="type">char</span> &amp;&gt;( <span class="comment">//将op[]返回值的const转除</span></span><br><span class="line">                <span class="built_in">static_cast</span>&lt;<span class="type">const</span> TextBlock &amp;&gt;(*<span class="keyword">this</span>) <span class="comment">//为*this加上const</span></span><br><span class="line">                [position] <span class="comment">//调用const op[]</span></span><br><span class="line">            );</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::string text;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>禁止使用const成员函数调用non-const成员函数</li>
+</ul></li>
+</ul>
+<h1 id="确定对象被使用前已经被初始化">04
+确定对象被使用前已经被初始化</h1>
+<ul>
+<li>C part of C++5
+<ul>
+<li>初始化 --&gt; 运行期成本</li>
+<li>不保证其内容被初始化，如array</li>
+</ul></li>
+<li>non-C part of C++
+<ul>
+<li>vector保证初始化(来自STL)</li>
+</ul></li>
+<li>在使用对象之前先将他初始化
+<ul>
+<li>内置类型
+<ul>
+<li>手工完成, 如int， pointer</li>
+</ul></li>
+<li>其他类型:
+<ul>
+<li>构造函数负责初始化
+<ul>
+<li>使用<code>member initialization list</code></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>编译单元
+<ul>
+<li>产出单一目标文件的源码</li>
+<li>单一源码文件 + #include files</li>
+</ul></li>
+<li>C++对"定义于不同编译单元内的non-local
+static对象"的初始化次序并无明确定义
+<ul>
+<li>Singleton :
+<ul>
+<li>以local static对象替换non-local static对象</li>
+<li>使用时返回local static对象的引用</li>
+</ul></li>
+<li>函数内的local static对象会在首次定义对象时被初始化</li>
+<li>单例会导致多线程下的不确定性
+<ul>
+<li>可以在程序的单线程启动阶段手工调用所有的reference-returning</li>
+</ul></li>
+</ul></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/06/29/cpp%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/06/29/cpp%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC/" class="post-title-link" itemprop="url">C++型别推导</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-29 22:49:50" itemprop="dateCreated datePublished" datetime="2022-06-29T22:49:50+08:00">2022-06-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li><code>auto</code></li>
+<li><code>decltype</code></li>
+</ul>
+<h1 id="模版型别推导">模版型别推导</h1>
+<h2 id="一般形式">一般形式:</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(ParamType param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(expr);   <span class="comment">// 从expr推导T和ParamType的型别</span></span><br></pre></td></tr></table></figure>
+<h2
+id="情况一paramtype是指针或引用-但不是万能引用">情况一:<code>ParamType</code>是指针或引用,
+但不是万能引用:</h2>
+<ol type="1">
+<li>若<code>expr</code>具有引用型别, 先将引用部分忽略</li>
+<li><code>ParamType</code>和<code>expr</code>模式匹配 ==&gt;&gt;
+<code>T</code></li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; const int, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; const int, ParamType -&gt; const int&amp;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>向持有<code>T&amp;</code>型别的模版传入<code>const</code>对象是安全的</li>
+</ul>
+<h2
+id="情况二paramtype是万能引用">情况二:<code>ParamType</code>是万能引用:</h2>
+<ol type="1">
+<li>如果<code>expr</code>是个左值:
+<ul>
+<li><code>ParamType</code>和<code>T</code>都会被推导为左值引用</li>
+</ul></li>
+<li>如果<code>expr</code>是个右值:
+<ul>
+<li>与情况一相同</li>
+</ul></li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T&amp;&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; const int&amp;, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; const int&amp;, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(<span class="number">27</span>); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;&amp;</span></span><br></pre></td></tr></table></figure>
+<h2
+id="情况三paramtype既非指针也非引用">情况三:<code>ParamType</code>既非指针也非引用:</h2>
+<ul>
+<li>即按值传递,
+<code>param</code>是传入对象的副本，是<strong>全新对象</strong></li>
+</ul>
+<ol type="1">
+<li>若<code>expr</code>具有引用型别, 先将引用部分忽略</li>
+<li>若是<code>const</code>,<code>volatile</code>对象，也忽略之</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(<span class="number">27</span>); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* <span class="type">const</span> ptr = <span class="string">&quot;Fun&quot;</span>;</span><br><span class="line"><span class="built_in">f</span>(ptr); T -&gt; <span class="type">const</span> <span class="type">char</span>*, ParamType -&gt; <span class="type">const</span> <span class="type">char</span>*</span><br></pre></td></tr></table></figure>
+<h2 id="其他情形">其他情形:</h2>
+<h3 id="数组实参">数组实参</h3>
+<ul>
+<li>数组可退化成指针</li>
+<li>没有任何函数形参具有数组型别:
+<code>void myFunc(int param[]);</code>等价于<code>void myFunc(int param[]);</code></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> name = <span class="string">&quot;J. P. Briggs&quot;</span>; <span class="comment">// name的型别是const char[13]</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* ptrToName = name; <span class="comment">// 数组退化成指针</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(name); <span class="comment">// T -&gt; const char*</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"><span class="built_in">f2</span>(name); <span class="comment">// T -&gt; const char [13], ParamType -&gt; const char (&amp;)[13]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 以编译器常量形式返回数组尺寸</span></span><br><span class="line"><span class="comment">// 形参未起名字</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T， std::<span class="type">size_t</span> N&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> std::<span class="type">size_t</span> <span class="title">arraySize</span><span class="params">(T (&amp;)[N])</span> <span class="keyword">noexcept</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> N;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="函数实参">函数实参</h3>
+<ul>
+<li>函数型别可退化成函数指针 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">someFunc</span><span class="params">(<span class="type">int</span>, <span class="type">double</span>)</span></span>; <span class="comment">// 型别为void(int, double)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f1</span><span class="params">(T param)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> name = <span class="string">&quot;J. P. Briggs&quot;</span>; <span class="comment">// name的型别是const char[13]</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* ptrToName = name; <span class="comment">// 数组退化成指针</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">f1</span>(someFunc); <span class="comment">// ParamType -&gt; void(*)(int, double)</span></span><br><span class="line"><span class="built_in">f2</span>(someFunc); <span class="comment">// ParamType -&gt; void(&amp;)(int, double)</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="auto-型别推导">auto 型别推导</h1>
+<ul>
+<li>与模板型别一模一样（除了一个例外情况）
+<ul>
+<li><code>auto</code>是模板中的<code>T</code></li>
+<li>变量的型别饰词是<code>ParamType</code> ## 例外情况: {}
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x3 = &#123;<span class="number">27</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">auto</span> x4 = &#123;<span class="number">27</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">auto</span> x5 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3.0</span>&#125;; <span class="comment">// Error! </span></span><br></pre></td></tr></table></figure></li>
+</ul></li>
+<li><code>auto</code> -&gt; <code>std::initializer_list</code>,
+所以x5必须被推导为<code>std::initializer_list&lt;T&gt;</code>,
+但<code>&#123;&#125;</code>内型别不统一,所以错误</li>
+<li>模板不接受大括号初始化表达式 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;); <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="auto返回值">auto返回值</h2>
+<ul>
+<li>使用模版型别推导规则 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">createOnitList</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// Error!</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="lambda式中的auto形参">lambda式中的auto形参</h2>
+<ul>
+<li>使用模版型别推导规则 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">std::vector&lt;<span class="type">int</span>&gt; v;</span><br><span class="line"><span class="keyword">auto</span> resetV = </span><br><span class="line">    [&amp;v](<span class="type">const</span> <span class="keyword">auto</span>&amp; newValue) &#123;v = newValue;&#125; <span class="comment">// c++14</span></span><br><span class="line"><span class="built_in">resetV</span>(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;); <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="理解decltype">理解decltype</h1>
+<ul>
+<li>一般只会鹦鹉学舌 ## 实例</li>
+<li>目标:
+<ul>
+<li>实现一个函数，形参包括一个容器(支持<code>[]</code>)和一个下标</li>
+<li>并在返回下标操作结果前进行用户验证</li>
+<li>返回值型别与容器下标的返回值型别相同</li>
+</ul></li>
+<li>背景知识:
+<ul>
+<li>一般而言，含有型别T的对象的容器，其operator[]返回T&amp;</li>
+<li>std::vector(除std::vector<bool>外)均满足</li>
+</ul></li>
+<li>初步尝试:
+<ul>
+<li>能运作, 需改进 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container, <span class="keyword">typename</span> Index&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">authAndAccess</span><span class="params">(Container&amp; c, Index i)</span></span></span><br><span class="line"><span class="function">    -&gt; <span class="title">decltype</span><span class="params">(c[i])</span>  <span class="comment">/// 返回值型别尾序语法</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">authenticateUser</span>();</span><br><span class="line">    <span class="keyword">return</span> c[i];</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure></li>
+</ul></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
   
   
@@ -1445,562 +2407,6 @@ docs</a>的编译文档。</p>
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/06/09/python3%E5%88%A9%E7%94%A8clang%E8%AF%AD%E6%B3%95%E6%A0%91%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/06/09/python3%E5%88%A9%E7%94%A8clang%E8%AF%AD%E6%B3%95%E6%A0%91%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">python3利用clang语法树识别文件中的函数</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-09 21:34:50" itemprop="dateCreated datePublished" datetime="2022-06-09T21:34:50+08:00">2022-06-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/python3-clang-AST/" itemprop="url" rel="index"><span itemprop="name">python3 clang AST</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>673</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="背景">背景</h1>
-<p>python3利用cindex库解析c文件时遇到空宏前缀、
-<code>#ifdef</code>作用域内函数无法识别的问题。</p>
-<h1 id="解决思路">解决思路</h1>
-<p>将c文件对应的<code>compile_commands.json</code>文件导入cindex库，然后解析。</p>
-<h1 id="具体步骤">具体步骤</h1>
-<ol type="1">
-<li><p>编译生成文件对应的<code>compile_commands.json</code>。
-公司里相关的项目没有用cmake,直接使用的make。
-这种情况比较好处理，make改为bear make即可。 具体见<a
-target="_blank" rel="noopener" href="https://github.com/rizsotto/Bear">bear工具</a></p></li>
-<li><p>cindex导入<code>compile_commands.json</code>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env python3</span><br><span class="line">from clang import cindex</span><br><span class="line"></span><br><span class="line">index = cindex.Index.create()</span><br><span class="line"># Step 1: load the compilation database</span><br><span class="line">compdb = cindex.CompilationDatabase.fromDirectory(your_cc.json_path)</span><br><span class="line"></span><br><span class="line"># Step 2: query compilation flags</span><br><span class="line">commands = compdb.getCompileCommands(you_target.c)</span><br><span class="line">file_args = []</span><br><span class="line">for command in commands:</span><br><span class="line">    for argument in command.arguments:</span><br><span class="line">        file_args.append(argument)</span><br><span class="line"></span><br><span class="line">translation_unit = index.parse(you_target.c, file_args[:-1]) # the last command it the target file self</span><br></pre></td></tr></table></figure></p></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/30/llvm%20install/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/05/30/llvm%20install/" class="post-title-link" itemprop="url">LLVM安装!</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-30 22:31:50" itemprop="dateCreated datePublished" datetime="2022-05-30T22:31:50+08:00">2022-05-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/llvm/" itemprop="url" rel="index"><span itemprop="name">llvm</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.8k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="简介">简介</h2>
-<ul>
-<li><p>mac
-OS系统并没有LLVM工具，但是安装Xcode之后能调用基本的LLVM编译命令如clang，而如果想要调用llc等命令的话只能下载并安装完整的LLVM工具。</p></li>
-<li><p>操作系统: <code>macOS Catalina version 10.15.3</code></p></li>
-</ul>
-<h2 id="安装">安装</h2>
-<ul>
-<li><code>brew install llvm</code>
-<code>llvm</code>会被安装在<code>/usr/local/opt/llvm</code>的路径下。<br>
-打开<code>～/.zshrc</code>:<br>
-<code>export PATH=/usr/local/opt/llvm/bin:$PATH</code><br>
-使用<code>source ~/.zshrc</code>使.<code>zshrc</code>文件文件生效<br></li>
-</ul>
-<p>输入<code>llvm-dis --version</code>测试<br></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">To use the bundled libc++ please add the following LDFLAGS:</span><br><span class="line">  LDFLAGS=&quot;-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib&quot;</span><br><span class="line"></span><br><span class="line">llvm is keg-only, which means it was not symlinked into /usr/local,</span><br><span class="line">because macOS already provides this software and installing another version in</span><br><span class="line">parallel can cause all kinds of trouble.</span><br><span class="line"></span><br><span class="line">If you need to have llvm first in your PATH, run:</span><br><span class="line">  echo &#x27;export PATH=&quot;/usr/local/opt/llvm/bin:$PATH&quot;&#x27; &gt;&gt; ~/.zshrc</span><br><span class="line"></span><br><span class="line">For compilers to find llvm you may need to set:</span><br><span class="line">  export LDFLAGS=&quot;-L/usr/local/opt/llvm/lib&quot;</span><br><span class="line">  export CPPFLAGS=&quot;-I/usr/local/opt/llvm/include&quot;</span><br></pre></td></tr></table></figure>
-<h2 id="使用">使用</h2>
-<h3 id="场景1">场景1</h3>
-<p>建立build目录并且在该目录下进行编译，注意LLVM禁止源码内编译（in-tree
-build is not supported） <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; cd /usr/local/opt/llvm</span><br><span class="line">&gt; mkdir build</span><br><span class="line">&gt; cd build</span><br><span class="line">&gt; cmake -G &quot;Unix Makefiles&quot; \</span><br><span class="line">  -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \</span><br><span class="line">  -DLLVM_BUILD_LLVM_DYLIB=ON \</span><br><span class="line">  --enable-optimized \</span><br><span class="line">  --enable-targets=host-only \</span><br><span class="line">  ../../llvm</span><br><span class="line">&gt; make</span><br></pre></td></tr></table></figure> -G = 指定生成编译器
--DCMAKE_BUILD_TYPE = 调试版本（Debug）或者发布版本（Release）
--DCMAKE_EXPORT_COMPILE_COMMANDS = 是否输出编译命令
--DLLVM_BUILD_LLVM_DYLIB = 是否添加libLLVM共享库 更多的编译项可以参考<a
-target="_blank" rel="noopener" href="https://llvm.org/docs/CMake.html">LLVM compile
-docs</a>的编译文档。</p>
-<h3 id="场景2">场景2</h3>
-<p>创建一个C语言文件test.c <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">int main() &#123;</span><br><span class="line">  printf(&quot;hello world\n&quot;);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> - 编译生成可执行文件<br>
-<code>clang test.c -o test</code></p>
-<ul>
-<li><p>运行可执行文件<br> <code>test</code></p></li>
-<li><p>生成llvm字节码文件<br>
-<code>clang -O1 -emit-llvm test.c -c -o test.bc</code></p></li>
-<li><p>生成LLVM 的汇编代码 .ll 文件(可视化字节码文件)
-<code>clang -O1 -emit-llvm test.c -S -o test.ll</code></p></li>
-<li><p>运行字节码文件<br> <code>lli test.bc</code> 结果: "hello world"
-.ll文件也可以用lli来执行</p></li>
-<li><p>将 .bc 文件转化为 .ll 文件:
-<code>llvm-dis test.bc</code></p></li>
-<li><p>将 .ll 文件转化为 .bc 文件: <code>llvm-as test.ll</code></p></li>
-<li><p>编译字节码文件为汇编文件<br>
-<code>llc test.bc -o test.s</code></p></li>
-<li><p>将 .bc 或 .ll 文件转化为本机平台的汇编代码<br>
-<code>llc test.bc</code> <code>llc test.ll</code></p></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/30/VSCode%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/05/30/VSCode%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/" class="post-title-link" itemprop="url">VSCode使用指南!</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-30 20:34:50" itemprop="dateCreated datePublished" datetime="2022-05-30T20:34:50+08:00">2022-05-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/VSCode/" itemprop="url" rel="index"><span itemprop="name">VSCode</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.4k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="必备开发插件">必备开发插件</h2>
-<ul>
-<li>TODO Tree<br>
-这个插件能帮你组织和管理<code>TODO</code>注释，你在代码中注释的带<code>TODO</code>的标签会统一在侧边栏显示出来，当然不限于<code>TODO</code>注释，可以自定义管理标签比如<code>FIXME</code>等，可以基于标签过滤和筛选。</li>
-<li>Bookmarks<br>
-「书签」这个插件的功能就和它名字一样直接，没错它就是一个你的源码书签，当我们看大工程源码的时候，往往需要在成千上万个源文件之间跳转，此时
-Bookmarks 能帮你方便的创建和管理书签，看到哪个位置想加个书签就按快捷键
-<code>command + option + K</code>
-，多按一次就是删除，不仅如此他还提供了在书签之前跳跃和查看管理的功能，更多功能可以自己体验</li>
-<li>Git Graph<br> 可视化Git仓库</li>
-<li>GitLens<br>
-它可以在文件中改动的位置后面直接显示出本次改动的提交信息，然后你可以直接通过显示的提交信息跳转到提交文件对比，其实还有其他丰富的功能.</li>
-<li>Bracket Pair Colorizer<br> 彩虹括号插件</li>
-<li>koroFileHeader<br>
-用于自动的插入头文件开头的说明和函数的说明。安装插件之后你只需要简单配置想要的格式，然后按下快捷键<code>Command + Option +i</code>即可自动即可自动生成这样一个模板。类似的对函数的说明注释模板，只需按下快捷键<code>Command + Option +t</code>即可完成</li>
-<li>shellman<br> 件是 Linux shell 脚本辅助工具。在 Linux
-下工作难免随手写一个脚本，这个插件能提供了便捷的shell script
-自动补全和联想等功能，提高你的脚本编写速度和准确性。</li>
-</ul>
-<h2 id="常用快捷键">常用快捷键</h2>
-<table>
-<thead>
-<tr class="header">
-<th>｜shortcut</th>
-<th>description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>cmd + U</td>
-<td>撤销光标上次操作</td>
-</tr>
-<tr class="even">
-<td>cmd+K cmd+0</td>
-<td>折叠所有代码块</td>
-</tr>
-<tr class="odd">
-<td>cmd+option+k</td>
-<td>增加/删除书签</td>
-</tr>
-<tr class="even">
-<td><code>Cmd + ,</code></td>
-<td>打开设置</td>
-</tr>
-</tbody>
-</table>
-<p>https://code.visualstudio.com/shortcuts/keyboard-shortcuts-macos.pdf</p>
-<ul>
-<li><p><code>Option + 上/下箭头</code>
-将该行代码与上一行或下一行替换。</p></li>
-<li><p><code>Command + 左/右箭头</code>
-前进或者后退到行末或行尾。</p></li>
-<li><p><code>Command + Shift + P</code>
-这个必须要放在第一位，这个命令是所有「命令之母」。这么说一点也不过分，它会打开
-VsCode
-命令窗口，在这个窗口下输入上述的插件名称就能知道这个插件支持哪些特性了，顺带还会说明特性快捷键。</p></li>
-<li><p><code>Command + P</code>
-文件查找。快速打开文件列表，输入关键字匹配文件，优先显示最新打开过的文件，方便的在指定文件之间跳转。</p></li>
-<li><p><code>F12</code>
-跳转到定义，这个没啥好说的，跳转到函数或符号的定义，这是高频操作。</p></li>
-<li><p><code>Option + F12</code>
-以预览方式在当前页面显示定义，都是查看定义，相对 <code>F12</code>
-的优点是不会跳出当前文件到定义文件</p></li>
-<li><p><code>Shift + F12</code> 查看光标所在函数或变量的引用，就像
-<code>Option + F12</code>
-一样以预览方式在当前文件打开引用的文件列表</p></li>
-<li><p><code>Command + Shift + O</code>
-查看当前文件的符号，可以用关键字过滤符号，当然你也可以在左侧的大纲视图中查找符号，不过大纲视图不能查找匹配符号，所以我更习惯用快捷键方式查找符号</p></li>
-</ul>
-<h2 id="代码格式">代码格式</h2>
-<p>要在VS Code中设置C++代码的格式，您可以按照以下步骤进行操作：</p>
-<ol type="1">
-<li><p>安装C/C++扩展：打开VS
-Code，点击左侧边栏中的扩展图标（四个方块的图标），搜索并安装"C/C++"扩展。安装完成后，重新启动VS
-Code。</p></li>
-<li><p>安装clang-format：为了格式化C++代码，我们将使用clang-format工具。您需要先安装clang-format。可以通过以下方法安装：</p>
-<ul>
-<li>Windows：可以使用Chocolatey包管理器，在命令提示符中运行<code>choco install llvm</code>来安装clang-format。</li>
-<li>macOS：可以使用Homebrew包管理器，在终端中运行<code>brew install llvm</code>来安装clang-format。</li>
-<li>Linux：在终端中使用适当的包管理器安装clang-format。</li>
-</ul></li>
-<li><p>配置VS
-Code设置：按下<code>Ctrl + ,</code>（或者在macOS上是<code>Cmd + ,</code>）打开VS
-Code的设置。</p></li>
-<li><p>配置<code>settings.json</code>：在设置面板中，找到"C/C++"，然后点击"Edit
-in
-settings.json"链接。这将打开一个名为<code>settings.json</code>的文件，其中包含C/C++扩展的设置。</p></li>
-<li><p>配置clang-format路径：在<code>settings.json</code>文件中，添加以下配置行，指定clang-format的路径。根据您的操作系统和clang-format的安装位置，将路径替换为正确的值。</p></li>
-</ol>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;C_Cpp: Clang_format_fallback Style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123; BasedOnStyle: Google , IndentWidth: 4, TabWidth: 4 &#125;&quot;</span></span><br><span class="line"><span class="attr">&quot;C_Cpp: Clang_format_path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/path/to/clang-format&quot;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>可执行文件， <code>which clang-format</code></li>
-</ul>
-<ol start="6" type="1">
-<li>配置自动格式化：为了使VS
-Code在保存文件时自动格式化代码，添加以下配置行到<code>settings.json</code>文件中：</li>
-</ol>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;editor.formatOnSave&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br></pre></td></tr></table></figure>
-<ol start="7" type="1">
-<li>自定义格式化选项（可选）：如果您想自定义C++代码的格式化选项，您可以添加一个<code>.clang-format</code>文件到您的项目根目录或您的用户主目录中。该文件指定了一系列格式化选项，例如缩进样式、换行规则等。您可以在<a
-target="_blank" rel="noopener" href="https://clang.llvm.org/docs/ClangFormatStyleOptions.html">clang-format文档</a>中找到所有可用选项的详细信息。在<code>.clang-format</code>文件中，您可以添加类似以下内容的配置：</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BasedOnStyle: Google</span><br><span class="line">IndentWidth: 4</span><br></pre></td></tr></table></figure>
-<ol start="8" type="1">
-<li>保存文件并应用设置：保存<code>settings.json</code>文件，并在VS
-Code中重新加载窗口以应用设置。</li>
-</ol>
-<p>现在，当您保存C++代码文件时，VS
-Code将自动使用clang-format工具格式化代码，根据您的设置进行缩进、换行等操作。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/27/mac%E4%BD%BF%E7%94%A8brew%20update%E6%97%A0%E5%8F%8D%E5%BA%94,%E6%9B%B4%E6%96%B0%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/05/27/mac%E4%BD%BF%E7%94%A8brew%20update%E6%97%A0%E5%8F%8D%E5%BA%94,%E6%9B%B4%E6%96%B0%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="post-title-link" itemprop="url">mac使用brew update无反应,更新慢，断链等解决办法</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-27 00:36:50" itemprop="dateCreated datePublished" datetime="2022-05-27T00:36:50+08:00">2022-05-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/mac/" itemprop="url" rel="index"><span itemprop="name">mac</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="问题">问题</h2>
-<p>由于国内某种特殊原因，我们访问很多repo源是有一定难度的，比如在Mac上非常好用的包管理软件Brew安装各种工具时发现居然报错，下载不了这，连接那又timeout，什么也安装不了，心肝迷茫和无助。<br>
-参考<a
-target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_36562804/article/details/107872131">brew
-docs</a>。<br></p>
-<p>https://www.jianshu.com/p/2dcfc3de4fa3</p>
-<h2 id="安装valgrind">安装valgrind</h2>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew remove valgrind # remove previous attempts at installing it (if any)</span><br><span class="line">brew tap LouisBrunner/valgrind</span><br><span class="line">brew install --HEAD LouisBrunner/valgrind/valgrind</span><br></pre></td></tr></table></figure>
-<h2 id="github-433">github 433</h2>
-<p>根据vpn端口设置代理</p>
-<p>https://stackoverflow.com/questions/48987512/ssl-connect-ssl-error-syscall-in-connection-to-github-com443</p>
-<p>https://gist.github.com/laispace/666dd7b27e9116faece6</p>
-<p>git config --global http.proxy http://127.0.0.1:62019</p>
-<h2 id="破解staruml">破解starUML</h2>
-<ol type="1">
-<li>安装npm brew install npm</li>
-<li>安装asar</li>
-</ol>
-<p>npm install asar -g</p>
-<ol start="3" type="1">
-<li>进入目录，解压文件app.asar</li>
-</ol>
-<p>cd /Applications/StarUML.app/Contents/Resources/ asar extract
-app.asar app</p>
-<ol start="4" type="1">
-<li>修改新生成的app目录下的lisence文件</li>
-</ol>
-<p>vim app/src/engine/license-manager.js</p>
-<ol start="5" type="1">
-<li>找到checkLicenseValidity()函数，125行开始的，原代码：</li>
-</ol>
-<p>checkLicenseValidity () { this.validate().then(() =&gt; {
-setStatus(this, true) }, () =&gt; { setStatus(this, false)
-UnregisteredDialog.showDialog() }) }</p>
-<p>修改为：</p>
-<p>checkLicenseValidity () { this.validate().then(() =&gt; {
-setStatus(this, true) }, () =&gt; { setStatus(this, true) }) }</p>
-<ol start="6" type="1">
-<li>打包覆盖原app.asar</li>
-</ol>
-<p>asar pack app app.asar</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2072,14 +2478,14 @@ setStatus(this, true) }, () =&gt; { setStatus(this, true) }) }</p>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -2124,12 +2530,12 @@ setStatus(this, true) }, () =&gt; { setStatus(this, true) }) }</p>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">407k</span>
+    <span title="站点总字数">439k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:19</span>
+    <span title="站点阅读时长">12:11</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
@@ -147,6 +149,11 @@
         <li class="menu-item menu-item-archives">
 
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -719,16 +726,6 @@ eg1： <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span cl
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A6%E5%80%BC%E5%92%8C%E5%8F%B3%E5%80%BC"><span class="nav-number">1.</span> <span class="nav-text">0. 左值和右值</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%96%E5%9C%B0%E5%9D%80%E5%92%8C%E5%BC%95%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">1. 取地址和引用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A6%E5%80%BC%E5%BC%95%E7%94%A8%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8%E5%92%8C%E4%B8%87%E8%83%BD%E5%BC%95%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">2. 左值引用、右值引用和万能引用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%87%E8%83%BD%E5%BC%95%E7%94%A8univesal-raferenceforwarding-raference"><span class="nav-number">3.1.</span> <span class="nav-text">万能引用(univesal
-raference)(forwarding raference)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF"><span class="nav-number">3.1.1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E5%8F%91%E5%B7%A6%E5%80%BC%E4%B8%BA%E5%B7%A6%E5%80%BC%E6%88%96%E5%8F%B3%E5%80%BC%E4%BE%9D%E8%B5%96%E4%BA%8E-t"><span class="nav-number">3.1.2.</span> <span class="nav-text">1 转发左值为左值或右值，依赖于
-T</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E5%8F%91%E5%8F%B3%E5%80%BC%E4%B8%BA%E5%8F%B3%E5%80%BC%E5%B9%B6%E7%A6%81%E6%AD%A2%E5%8F%B3%E5%80%BC%E7%9A%84%E8%BD%AC%E5%8F%91%E4%B8%BA%E5%B7%A6%E5%80%BC"><span class="nav-number">3.1.3.</span> <span class="nav-text">2
-转发右值为右值并禁止右值的转发为左值</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#cout%E6%8C%87%E5%AE%9A%E5%B0%8F%E6%95%B0%E7%82%B9%E8%BE%93%E5%87%BA%E4%BD%8D%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">3. cout指定小数点输出位数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%BB%E6%89%BE%E5%AE%B9%E5%99%A8%E5%86%85%E6%9C%80%E5%A4%A7%E5%85%83%E7%B4%A0"><span class="nav-number">5.</span> <span class="nav-text">4. 寻找容器内最大元素</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stdpriority_queue"><span class="nav-number">6.</span> <span class="nav-text">5. std::priority_queue</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#asserte"><span class="nav-number">7.</span> <span class="nav-text">6. assert(E)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stdadvance"><span class="nav-number">8.</span> <span class="nav-text">7. std::advance</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stdstring"><span class="nav-number">9.</span> <span class="nav-text">8. std::string</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">10.</span> <span class="nav-text">9. lambda表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E6%98%8E%E7%AC%A6%E9%9D%9E%E5%BF%85%E8%A6%81"><span class="nav-number">10.1.</span> <span class="nav-text">说明符（非必要）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%B9%E5%AE%B9%E5%99%A8%E8%BF%9B%E8%A1%8C%E6%B1%82%E5%92%8C-accumulate"><span class="nav-number">11.</span> <span class="nav-text">10. 对容器进行求和 &#x2F; accumulate</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E6%9D%BF%E7%9A%84%E7%89%B9%E5%8C%96"><span class="nav-number">12.</span> <span class="nav-text">11. 模板的特化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%81%8D%E5%8E%86%E5%8F%8C%E5%85%83%E7%B4%A0%E5%AE%B9%E5%99%A8"><span class="nav-number">13.</span> <span class="nav-text">12. 遍历双元素容器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E7%AE%97%E7%AC%A6%E4%BC%98%E5%85%88%E7%BA%A7"><span class="nav-number">14.</span> <span class="nav-text">13. 运算符优先级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#unique_ptr-%E4%B8%8E-unique_ptr-%E4%B9%8B%E9%97%B4%E6%97%A0%E6%B3%95%E7%9B%B4%E6%8E%A5%E8%BD%AC%E6%8D%A2%E5%BF%85%E9%A1%BB%E6%8A%8A%E5%8E%9F%E6%8C%87%E9%92%88%E5%8F%96%E5%87%BA%E6%9D%A5%E5%86%8D%E8%BF%9B%E8%A1%8C%E8%BD%AC%E6%8D%A2"><span class="nav-number">15.</span> <span class="nav-text">14.
-unique_ptr 与 unique_ptr
-之间无法直接转换，必须把原指针取出来再进行转换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dynamic_cast%E5%B9%B6%E4%B8%8D%E6%98%AFstd%E5%BA%93%E4%B8%AD%E7%9A%84%E9%83%A8%E4%BB%B6%E8%80%8C%E6%98%AFc%E5%85%B3%E9%94%AE%E5%AD%97%E6%89%80%E4%BB%A5%E5%BA%94%E8%AF%A5%E5%8E%BB%E6%8E%89std"><span class="nav-number">16.</span> <span class="nav-text">15.
-dynamic_cast并不是std库中的部件，而是C++关键字，所以应该去掉std</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#raii-resource-acquisition-is-initialization"><span class="nav-number">17.</span> <span class="nav-text">16. RAII (Resource
-Acquisition Is Initialization)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stdhash"><span class="nav-number">18.</span> <span class="nav-text">17 std::hash</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stdlist"><span class="nav-number">19.</span> <span class="nav-text">18 std::list</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF"><span class="nav-number">19.1.</span> <span class="nav-text">基本信息</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stdunderlying_type"><span class="nav-number">20.</span> <span class="nav-text">19. std::underlying_type</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A6%81%E7%94%A8class%E7%9A%84copy%E5%92%8Cmove-%E5%AE%8F"><span class="nav-number">21.</span> <span class="nav-text">20. 禁用class的copy和move-宏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%9B%E5%87%BA%E5%BC%82%E5%B8%B8%E5%B9%B6%E6%89%93%E5%8D%B0%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97-%E5%AE%8F"><span class="nav-number">22.</span> <span class="nav-text">21. 抛出异常并打印错误日志-宏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#timestamp"><span class="nav-number">23.</span> <span class="nav-text">22. timestamp</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#constexpr"><span class="nav-number">24.</span> <span class="nav-text">23. constexpr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#if"><span class="nav-number">25.</span> <span class="nav-text">24. if</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stdbind-%E5%92%8C-stdplaceholder"><span class="nav-number">26.</span> <span class="nav-text">25. std::bind 和
-std::placeholder</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#decltype"><span class="nav-number">27.</span> <span class="nav-text">26. decltype</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#unique-%E7%A7%BB%E9%99%A4%E5%AE%B9%E5%99%A8%E4%B8%AD%E7%9B%B8%E9%82%BB%E7%9A%84%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0"><span class="nav-number">28.</span> <span class="nav-text">27. unique
-移除容器中相邻的重复元素</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%81%E6%9C%89%E6%88%90%E5%91%98%E7%B1%BB"><span class="nav-number">28.1.</span> <span class="nav-text">28. 私有成员类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#crtp"><span class="nav-number">29.</span> <span class="nav-text">29. CRTP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ebco"><span class="nav-number">30.</span> <span class="nav-text">30 EBCO</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E5%85%AC%E7%BA%A6%E6%95%B0-%E4%B8%8E-%E6%9C%80%E5%B0%8F%E5%85%AC%E5%80%8D%E6%95%B0"><span class="nav-number">31.</span> <span class="nav-text">31. 最大公约数 与 最小公倍数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stdarray"><span class="nav-number">32.</span> <span class="nav-text">32 std::array</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#upper_bound"><span class="nav-number">33.</span> <span class="nav-text">33. upper_bound</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tail"><span class="nav-number">34.</span> <span class="nav-text">tail</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -744,14 +741,14 @@ std::placeholder</span></a></li><li class="nav-item nav-level-1"><a class="nav-l
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -796,12 +793,12 @@ std::placeholder</span></a></li><li class="nav-item nav-level-1"><a class="nav-l
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">407k</span>
+    <span title="站点总字数">439k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:19</span>
+    <span title="站点阅读时长">12:11</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

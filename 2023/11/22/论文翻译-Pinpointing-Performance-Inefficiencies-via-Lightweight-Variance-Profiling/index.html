@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
+  <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/zyhjy/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Pinpointing Performance Inefficiencies via Lightweight Variance Profiling ABSTRACT 不同调用实例之间的执行方差(Variance)通常是性能损失的指标。一方面，基于插桩的(instrumentation-based)工具可以在过程周围插入卡尺(calipers)并识别执行差异；然而，它们可能引入很高的开销。另一方面，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(论文翻译)Pinpointing Performance Inefficiencies via Lightweight Variance Profiling">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/11/22/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91-Pinpointing-Performance-Inefficiencies-via-Lightweight-Variance-Profiling/">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="Pinpointing Performance Inefficiencies via Lightweight Variance Profiling ABSTRACT 不同调用实例之间的执行方差(Variance)通常是性能损失的指标。一方面，基于插桩的(instrumentation-based)工具可以在过程周围插入卡尺(calipers)并识别执行差异；然而，它们可能引入很高的开销。另一方面，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-11-22T13:10:29.000Z">
+<meta property="article:modified_time" content="2023-11-28T07:13:05.097Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="Paper">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/11/22/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91-Pinpointing-Performance-Inefficiencies-via-Lightweight-Variance-Profiling/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>(论文翻译)Pinpointing Performance Inefficiencies via Lightweight Variance Profiling | ZYHJY</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/zyhjy/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/zyhjy/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/zyhjy/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/zyhjy/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/zyhjy/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/11/22/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91-Pinpointing-Performance-Inefficiencies-via-Lightweight-Variance-Profiling/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          (论文翻译)Pinpointing Performance Inefficiencies via Lightweight Variance Profiling
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-11-22 21:10:29" itemprop="dateCreated datePublished" datetime="2023-11-22T21:10:29+08:00">2023-11-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-11-28 15:13:05" itemprop="dateModified" datetime="2023-11-28T15:13:05+08:00">2023-11-28</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">性能分析</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>27 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1
+id="pinpointing-performance-inefficiencies-via-lightweight-variance-profiling">Pinpointing
+Performance Inefficiencies via Lightweight Variance Profiling</h1>
+<h2 id="abstract">ABSTRACT</h2>
+<p>不同调用实例之间的执行方差(Variance)通常是性能损失的指标。一方面，基于插桩的(instrumentation-based)工具可以在过程周围插入卡尺(calipers)并识别执行差异；然而，它们可能引入很高的开销。另一方面，基于采样的(sampling-based)工具不进行任何插桩并且开销较低；然而，它们不能将样本与过程的入口和退出同步。
+在本文中，我们提出了FVSampler，一种轻量级的基于采样的方差分析器。FVSampler结合硬件性能监控单元和硬件调试寄存器，对整个过程实例（从调用到返回）进行采样和监控，并在每个采样的过程实例中收集硬件指标。FVSampler通常只产生6%的运行时开销和可忽略的内存开销，使其适用于HPC规模的生产代码。我们用几个并行应用程序评估了FVSampler，并展示了其在确定执行差异方面的有效性。在FVSampler的指导下，我们调整了数据结构和算法，取得了显著的加速效果。</p>
+<span id="more"></span>
+<h2 id="introduction">1 INTRODUCTION</h2>
+<p>高性能计算（HPC）软件变得越来越复杂；它包括大量的源代码、复杂的控制和数据流、一系列组件库的层次结构以及不断增长的抽象层次。应用开发人员很容易在代码基础中嵌入性能低效，难以识别的问题。这种性能低效阻碍了软件充分利用系统容量。性能工具是定位性能瓶颈并指导代码优化的必要工具。</p>
+<p>应用程序开发者主要将代码视为函数（又称过程），这构成了功能的心理边界。当开发人员调查性能问题时，他们通常希望在函数级别的粒度上查看执行指标，这是很自然的。几乎所有性能工具都支持函数级别的归因；事实上，大多数工具还提供更细粒度的归因，例如循环或带有调用路径归因的语句。最近的研究方向之一是将过程实例级别的方差作为性能问题的主要原因，尤其是在企业云系统中的长尾延迟
+[16–18, 20,
+29]。本文着眼于HPC领域中的过程实例级别的执行差异。正如我们在第1.1节的引导示例和我们的评估部分中的几个案例研究中所展示的，方差在HPC领域中也是一个关切的问题。</p>
+<p>在对过程实例之间的方差进行分析之前，必须具备在过程的入口和退出周围放置监控卡尺的能力。这允许在相同执行中比较同一过程的两个或更多调用实例的指标。基于插桩的工具
+[6, 14, 19, 35, 40, 41, 48]
+可以利用过程实例级别的度量，因为插桩可以放置在过程的入口和退出；实际上，甚至可以更细粒度地放置，例如语句或指令。它们可以计算同一代码区域的任何调用实例消耗的资源，尽管开销可能不小（约为2倍）。</p>
+<p>另一方面，基于采样的工具 [1, 9, 11, 15, 31, 48, 59]
+使用硬件性能监控单元（PMU）或操作系统（OS）定时器支持的中断机制，将样本归因于代码区域，并根据在同一代码区域中采集的样本数量突出显示热点。期望PMU样本在过程实例的入口处精确传递，并且接下来的样本将在该过程实例的退出处精确传递，这是一种美好的想法，但对于几乎任何基于PMU或定时器的采样工具来说是不切实际的。每个样本都是时间点，一个样本不能与另一个样本进行数量上的比较。因此，在不同调用实例之间识别相同过程的执行差异似乎是不可能的。由于每个样本都在相同数量的预配置事件之后传递，因此两个样本之间的方差很小。此外，如果采样间隔大于过程本身的执行时间，基于采样的分析器中过程实例之间的方差就不具有统计学上的显著性。<em>总的来说，迄今为止，基于采样的工具无法将样本与过程边界同步</em>。</p>
+<p>【<strong>采样模拟无法判断对于同一个函数的两次采样而言，这两次采样是否属于同一次函数调用</strong>，是一次函数调用被采样两次，还是两次函数调用各采样一次？】</p>
+<p>测量过程调用实例之间的方差需要在过程入口和退出处启动和停止测量。在每个过程入口和退出处启动和停止测量的行为相当于插桩，这违背了轻量级采样的目的。因此，存在一个两难问题，我们如何既可以享受采样的低开销，又可以在过程实例边界处收集有意义的测量，以便我们可以比较相同过程的两个或更多调用之间的执行差异？我们要强调的是，我们关注的是在单个执行中相同过程的两个或更多执行实例之间的方差。然而，我们希望为程序执行的大量过程收集这样的方差，并且我们希望在单个分析会话中完成这个任务。</p>
+<p>【<strong>目标：只执行一次程序，分析多（每）个函数多次执行产生的方差。</strong>】</p>
+<p>我们在FVSampler中解决了上述问题，这是一种轻量级的基于采样的方差分析器，具有显示过程实例级别执行差异的能力。FVSampler使用PMUs对函数调用（入口）进行采样，然后使用调试寄存器拦截同一函数调用的返回（退出），并在这两个点之间测量指标。这些指标可以是任何支持的PMU事件，例如CPU周期、缓存未命中、能耗等。与许多分析器相比，FVSampler的关键区别在于它能够在没有插桩（源代码或二进制）和对程序的先验知识的情况下拦截函数调用和返回，这使其在生产环境中非常有用。在多个并行应用程序上进行的彻底评估表明，在每个采样的函数调用上量化方差为理解性能损失提供了新的途径；减轻方差的原因有助于提升性能。</p>
+<p>在本节的其余部分，我们首先描述一个引导示例，展示在HPC代码基础中识别执行方差带来独特的优化机会。然后，我们总结本文的贡献并概述论文的组织结构。</p>
+<h3 id="motivation">1.1 Motivation</h3>
+<p>NERSC-8 GTC
+[39]是一种粒子-在格点上(particle-in-cell)的代码，用于模拟燃烧等离子体中的湍流输运的回旋动力学粒子模拟。一项先前的研究
+[36]
+对GTC的分析显示，在（访问一个按顺序排列的粒子数组的）函数的不同调用实例中，缓存未命中显著变化，并随执行的进行而增加。通过源代码分析，我们注意到在程序启动时，所有粒子都按照格点顺序存储，这与访问顺序完全匹配，如图1a所示。然而，随着程序的继续，粒子会从一个格点移动到另一个格点，导致访问顺序和存储顺序不匹配（数据局部性丧失），如图1b和1c所示。周期性地按照格点顺序对粒子进行排序可以避免数据局部性的丧失，并将程序性能提高超过20％。然而，由于现有的基于采样的工具无法识别过程实例执行的差异，因为它们无法区分来自同一过程的两个样本是否属于该过程的相同实例，因此它们在优化GTC中的这一问题性过程方面提供了很少的帮助。基于插桩的工具可以通过对函数调用和返回进行插桩来显示过程实例的执行差异，尽管开销相当大。例如，当我们使用Intel
+Pin
+[35]通过插桩调用和返回指令来捕获GTC中的每个过程实例时，引入了5倍的运行时开销，甚至在启用调用路径收集时引入了8倍的运行时开销。编译时插桩可能会导致较低的开销，但将无法插桩库代码。</p>
+<p>【<strong>一个遍历链表的函数</strong>，但链表的空间局部性随着程序运行而丧失。】</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231122223732412.png"
+alt="image-20231122223732412" />
+<figcaption aria-hidden="true">image-20231122223732412</figcaption>
+</figure>
+<h3 id="contribution-summary">1.2 Contribution Summary</h3>
+<p>我们做出了以下的贡献：</p>
+<p>• 我们开发了一种技术，弥补了基于采样的工具中的一个关键缺失部分 —
+同步样本与过程边界，以监测整个过程实例。</p>
+<p>• 我们开发了一种轻量级的基于采样的方差分析器 — FVSampler —
+结合了通用CPU处理器中可用的PMUs和调试寄存器，用于在不需要代码插桩的情况下量化同一函数的不同调用之间的差异。</p>
+<p>• 我们解决了由于同时使用PMUs和有限数量的调试寄存器而引起的挑战。</p>
+<p>•
+我们展示了FVSampler监测完全优化、未经修改的二进制可执行文件，并提供丰富的信息来指导代码优化，如调用上下文、方差度量及其分布，以及源代码归属。</p>
+<p>•
+我们通过在FVSampler的指导下优化了几个并行应用程序，取得了显著的加速效果，证明了FVSampler的有效性。</p>
+<h3 id="paper-organization">1.3 Paper Organization</h3>
+<p>本文的其余部分组织如下。第2节回顾了相关工作并突出了FVSampler。第3节提供了理解FVSampler所需的背景知识。第4节重点介绍我们用于捕获函数入口和退出的方法。第5和第6节描述了FVSampler的设计和实现。第7节评估了FVSampler的开销并展示了几个案例研究。第8节总结了我们的结论并展望未来的工作。</p>
+<h2 id="related-work">2 RELATED WORK</h2>
+<p><strong><em>Tracing Tools</em></strong>（追踪工具）。HPCToolkit
+[1]、perf [31]、gprof [15]、Cray-PAT [11]、Intel VTune [9]、Oracle
+Solaris Studio [42]、OpenSpeedShop [47] 和 PGPROF [54]
+使用由PMUs或操作系统计时器支持的中断式采样技术对性能事件进行采样，并按时间顺序呈现它们。与FVSampler不同，这些工具不捕捉函数的入口和退出，也不能准确定位函数级别的方差。Intel
+Pin [35]、TAU [48]、Scalasca [14]、DynamoRio [6]、Valgrind [40] 和
+Dyninst [41]
+通过详尽或选择性的代码插桩显示过程级别的执行差异。与详尽的插桩相比，FVSampler在运行时和内存方面的开销都要低得多；与选择性插桩相比，选择性插桩需要知道研究中感兴趣的函数，而FVSampler不需要任何关于程序的先验知识。</p>
+<p><strong><em>Variance Diagnosis
+Tools</em></strong>（方差诊断工具）。X-Ray [4]
+通过使用动态二进制插桩来识别基本块级别的性能方差，以确定性能低效。Spectroscope
+[46]
+通过比较两个时间段（变化前和变化后的时间段）之间的请求流来诊断分布式系统中的性能变化。Yoon等人
+[60]
+结合异常检测和因果分析，在在线事务处理系统中检测个别交易的性能异常。VarianceFinder
+[45] 识别了相同调用路径下请求的性能方差。与这些方法不同，FVSampler
+专注于识别函数级别的方差。</p>
+<p>Szebenyi等人 [51]
+使用插桩拦截MPI例程，并在程序执行期间使用采样来对剩余代码进行分析。与之不同，FVSampler
+仅使用采样来对函数调用实例进行分析，并不区分库与主可执行文件。通过调用指令调用的任何函数都有可能成为被监控的潜在候选。</p>
+<p>VProfiler [19]
+是一种基于插桩的工具，也能够识别函数级别的方差。然而，在应用VProfiler于目标程序之前，用户必须手动注释感兴趣的代码区域。此外，VProfiler
+只能识别延迟方差。相比之下，FVSampler
+能够识别任何PMU事件的方差，比如CPU周期和缓存未命中。</p>
+<p>据我们所知，FVSampler是第一个用于研究HPC工作负载函数级别方差的非侵入式基于采样的工具。</p>
+<p><strong><em>Hardware Debug Register-assisted
+Tools</em></strong>硬件调试寄存器辅助工具。一些工具使用硬件调试寄存器来准确定位性能低效和正确性问题。然而，它们都无法量化执行方差。Erickson等人
+[13] 使用调试寄存器 [22, 37] 来检测Windows内核中的数据竞争。Jiang等人
+[21]
+将其扩展到Linux内核。他们对内存访问进行采样，并在采样的有效地址上设置监视点以检测冲突访问。他们使用代码断点拦截随机指令，并用它们来在一定时间窗口内监视内存访问。Liu等人开发了DoubleTake
+[33] 和CSOD
+[32]，它们使用调试寄存器来识别与内存相关的漏洞，如缓冲区溢出、释放后使用以及内存泄漏。Pesterev等人开发了DProf
+[43]，它结合了PMU和调试寄存器以构建运行时对象的数据流。DProf受到调试寄存器数量有限的限制；它需要运行程序多次以实现更高的覆盖率。Wen等人
+[57] 结合PMUs和调试寄存器来识别本机语言中的浪费内存操作。Su等人 [50]
+使用类似的技术在托管语言中识别浪费内存操作。Chabbi等人 [7]
+应用PMUs和调试寄存器来识别多线程或多进程执行中的伪共享。Wang等人 [55]
+应用PMUs和调试寄存器来测量重用距离以量化整个程序的数据局部性。</p>
+<p>与这些工具不同，FVSampler解决了一个不同的问题，并以不同的方式使用调试寄存器。</p>
+<p><strong><em>Software-based Return Address
+Interpretation</em></strong>基于软件的返回地址解释。Kasikci等人 [24]
+通过动态重写每个基本块的第一条指令，使用<code>int 3</code>断点指令触发陷阱，从而追踪冷代码。这种方法可以用来重写所有返回指令以捕捉函数退出。然而，这种二进制重写无法提供每个线程的断点。使用代码缓存维护本地断点可能会产生很高的开销。Arnold和Sweeney
+[3]
+通过用跳板（手工编写的代码片段的地址）替换函数返回地址来执行调用栈展开。当修改的函数返回时，首先将控制转移到跳板，然后再转回程序。这种软件方法也能拦截从同一函数调用返回。与这些方法不同，FVSampler使用硬件调试寄存器拦截从同一函数调用返回，并针对一个完全不同的问题
+—— 方差分析。</p>
+<h2 id="background">3 BACKGROUND</h2>
+<p><strong><em>硬件性能监控单元（PMU）</em></strong>。现代CPU公开可编程寄存器（也称为PMU），用于计算各种硬件事件，如已退役的指令、CPU周期和缓存未命中，等等。这些寄存器可以配置为采样模式：当硬件事件的阈值达到时，PMU触发一个溢出中断。分析器能够捕捉中断作为一个信号，即采样，并将采样时收集的指标归因于执行上下文。这些寄存器还可以配置为计数模式：用户可以在程序执行期间的任何时间从PMU中读取硬件事件的发生次数。PMU是每个CPU核心的，由操作系统在每个线程中进行虚拟化。</p>
+<p>英特尔提供了精确事件基础采样（PEBS）[8]，适用于Sandy-Bridge及其后续的处理器。PEBS可以捕获由于事件计数器溢出而导致的指令指针（IP）。</p>
+<p><strong><em>Hardware Debug
+Register</em></strong>硬件调试寄存器。硬件调试寄存器 [22, 37]
+允许在程序计数器（PC）达到地址（断点）或指令访问指定地址（监视点）时触发CPU执行的调试。可以编程调试寄存器以在各种条件下触发：访问地址、访问宽度和访问类型（仅写或读写）。调试寄存器的数量是有限的；x86处理器有四个调试寄存器，而PowerPC处理器有一个调试寄存器。</p>
+<p><strong><em>Linux
+perf_events</em></strong>。Linux提供了一个标准接口，通过perf_event_open系统调用
+[30]
+以及相关的ioctl系统调用来编程和采样PMUs，并监视调试寄存器。Linux内核可以向特定线程(该线程PMU事件计数器溢出或调试寄存器陷入)发送信号。PMU采样是由于事件计数器溢出而引起的CPU中断。监视点异常（也称为触发器）是由于访问受监视地址而引起的同步CPU陷入。PMU采样和监视点异常都通过Linux信号处理。用户代码可以在信号处理程序中提取PMU数据和执行上下文。</p>
+<h2 id="methodology">4 METHODOLOGY</h2>
+<p>PMU提供了精确的事件来采样调用和返回指令，然而，这并不足够 ——
+不能配置PMU样本以在函数入口处提供一个样本，然后在相同函数实例的返回时提供另一个样本。我们的解决方案是使用PMU仅对调用指令进行采样，并使用调试寄存器拦截与采样的调用指令匹配的函数返回。</p>
+<p>PMU提供中断的地方是在函数入口，即在调用者中执行调用指令后。此时，栈指针（在x86中是寄存器rsp）指向栈的顶部（M[rsp]），其中保存了调用者继续执行的返回地址（图2a）。被调用者在即将返回时访问此存储在栈上的返回地址。我们可以通过保护对此内存位置（M[rsp]）的访问来拦截从被调用者返回。我们使用调试寄存器来保护对M[rsp]的后续访问。当被调用者从M[rsp]中获取返回地址时，它触发一个读写监视点陷阱，如图2b所示。此外，在这两个时间点（调用时的PMU样本和返回时的监视点陷阱）调用的信号处理程序允许我们记录感兴趣的指标，而这两个时间点之间指标的差异可以归因于函数调用实例。总之，我们现在可以将采样与函数的开始和结束点同步，并且由于我们依赖于PMU样本，我们没有引入任何源代码或二进制插桩；在我们的样本中，具有统计学显著性的函数（即，具有高调用频率的函数）以很高的概率出现。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231123155000425.png"
+alt="image-20231123155000425" />
+<figcaption aria-hidden="true">image-20231123155000425</figcaption>
+</figure>
+<p>在达到最终设计之前，我们尝试了另外两种捕获函数退出的策略。这两种方法都使用调试寄存器作为断点（在指令执行时陷入），而不是监视点（在内存访问时陷入）。在第一种方法中，我们使用调试寄存器直接监视<strong><em>返回指令</em></strong>，例如，被调用者体内的retq；通过即时二进制分析获得返回指令。然而，一个函数通常有许多返回指令，但这种方法<strong>只能监视函数体中的四条返回指令</strong>，因为只有四个可用的调试寄存器。如果执行了未被监视的返回指令，则此方法将无法捕捉从函数中退出。在第二种方法中，我们使用调试寄存器监视<strong><em>返回地址</em></strong>
+——
+即在被调用者返回后执行的调用者中的指令的地址。然而，这种方法在递归函数中失败，因为<strong>递归调用的函数的不同实例都共享相同的返回地址</strong>。因此，我们最终采用了正确的方法，即监视包含函数调用的返回地址的栈位置。</p>
+<h2 id="design-and-implementation">5 DESIGN AND IMPLEMENTATION</h2>
+<p>图3显示了FVSampler如何使用PMU对函数调用进行采样，并使用调试寄存器拦截相同函数实例的返回的实现细节。<span
+class="math inline">\(\enclose{circle}{1}\)</span>FVSampler通过采样模式订阅精确的PMU调用事件，并通过perf_event接口为每个线程配置调试寄存器作为监视点。FVSampler还配置其他PMUs为计数模式，以监视用户指定的事件（例如，CPU周期、缓存未命中），用于方差指标。<span
+class="math inline">\(\enclose{circle}{2}\)</span>当PMU计数器在采样函数调用时溢出时，它触发一个中断。FVSampler处理中断信号，通过展开执行调用栈在中断处构建调用上下文，并读取用户指定的PMU计数器以获取它们的当前值（Vcall）。<span
+class="math inline">\(\enclose{circle}{3}\)</span>FVSampler获取在寄存器rsp中记录的栈地址M[rsp]，在M[rsp]处设置一个读写监视点3，并恢复程序执行。<span
+class="math inline">\(\enclose{circle}{4}\)</span>当返回指令4
+从M[rsp]读取返回地址时，它触发一个监视点陷阱。FVSampler处理陷阱信号并读取用户指定的PMU计数器以获取它们的当前值（Vret）。<span
+class="math inline">\(\enclose{circle}{5}\)</span>FVSampler记录Vret和Vcall之间的差异，这是当前函数实例中发生的性能事件的计数。FVSampler解除监视点并恢复程序执行，直到下一个PMU溢出。当信号处理程序代码正在执行时，我们停止所有PMU计数器，以便FVSampler的开销不计入用于调查的函数的收集指标中。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231123160546377.png"
+alt="image-20231123160546377" />
+<figcaption aria-hidden="true">image-20231123160546377</figcaption>
+</figure>
+<p>此方案假定函数调用是平坦的 ——
+在监视下一个函数实例之前，我们捕获每个函数实例的调用和返回。我们需要处理具有深度调用链的代码。</p>
+<h3 id="addressing-deep-call-chains">5.1 Addressing Deep Call
+Chains</h3>
+<p>硬件只提供了少量的调试寄存器，如果在之前设置的任何监视点陷阱之前PMU交付了新的样本，这将成为一个限制。为了更好地说明问题，考虑一个由三个函数组成的调用链：main()→funA()→funB()。假设PMU能够对funA()和funB()进行采样，而只有一个调试寄存器可用。第一个样本发生在main()调用funA()时，导致在保存funA()返回地址的栈地址上设置一个监视点。第二个样本发生在funA()调用funB()时。然而，由于先前设置的监视点仍然处于活动状态，因此无法监视保存funB()返回地址的栈地址。采用这种策略，在具有N个调试寄存器的系统中，最多可以同时监视N个函数实例。</p>
+<p>FVSampler通过以下观察来解决这个问题：被调用者总是在其调用者返回之前返回。因此，FVSampler维护一个栈S，用于保存被监视的活动栈地址。我们使用相同的调用链作为示例来说明我们的想法，如图4所示。在捕获对funA()调用的样本时，FVSampler在保存funA()返回地址的栈地址上设置一个监视点，因为有一个调试寄存器可用，如图4a所示。在捕获对funB()调用的下一个样本时，FVSampler解除监视点，将监视funA()的地址推送到栈S上，并重新配置调试寄存器以监视保存funB()返回地址的栈地址，如图4b所示。当funB()在执行过程中返回时，它触发一个监视点陷阱。FVSampler处理陷阱时，与方差指标一样，解除监视点，从S中弹出保存funA()返回地址的栈地址，并重新配置监视点以监视保存funA()返回地址的栈地址，如图4c所示。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231123161516404.png"
+alt="image-20231123161516404" />
+<figcaption aria-hidden="true">image-20231123161516404</figcaption>
+</figure>
+<p>通过这种方案，只需要一个调试寄存器来处理深度调用链，使得我们的技术在x86和PowerPC架构上都能广泛应用。</p>
+<h3 id="associating-with-calling-contexts">5.2 Associating with Calling
+Contexts</h3>
+<p>简单地将样本归因于相应的函数并不能提供开发者所需的见解。例如，将样本归因于一个常见的glibc函数，比如malloc()，提供的见解有限，因为它可以从复杂的应用程序中的许多地方调用。详细的归因要求提供完整的调用上下文：<code>main():line#→funA():line#→...→malloc():line#</code>。因此，FVSampler获取函数调用发生的地方的调用上下文。由于中断发生在函数调用之后，中断的调用上下文就在函数的入口处。在函数返回时，FVSampler不需要确定调用上下文，因为它与在函数调用时获得的相同。FVSampler使用一种即时的二进制分析技术
+[53]
+构建调用上下文，该技术通过合并共同前缀将调用上下文高效地保持为紧凑的调用上下文树
+[2]。</p>
+<h3 id="obtaining-variance-metrics">5.3 Obtaining Variance Metrics</h3>
+<p>FVSampler提供了两种呈现方差指标的选项。一种是绘制在给定调用上下文中从所有采样实例收集到的给定函数的指标。这种图表提供了最直观的方差视图，并能够展示方差模式（例如，第1.1节中描述的GTC中缓存未命中的增加）以进行优化操作。另一种是提供一种紧凑的视图，该视图计算从任何调用上下文中采样的给定函数的所有指标的均值、标准差和变异系数。这种紧凑的视图可以帮助用户快速定位需要进一步调查的有问题的函数。为了避免记录每个采样的函数实例的指标，我们利用了Welford的在线算法
+[58]。在本节中，我们简要描述这个算法；有关严格证明的详细信息可以在相关论文中找到
+[56]。</p>
+<p>当函数的第<span
+class="math inline">\(i^{th}\)</span>个样本发生时，通过以下方程计算方差度量(<span
+class="math inline">\(V_{1,...,i}\)</span>)在前i个样本中的均值(<span
+class="math inline">\(V_{1,...,i}\)</span>)、标准差(<span
+class="math inline">\(SD_{V_{1,...,i}}\)</span>)和变异系数(<span
+class="math inline">\(CV_{V_{1,...,i}}\)</span>)：</p>
+<p>略</p>
+<p>通过这些方程，我们可以看到对这些度量的计算具有增量的方式，无需记录所有样本。在本文中，我们采用变异系数度量来量化过程实例执行的差异。</p>
+<h3 id="discussions">5.4 Discussions</h3>
+<p><strong><em>处理并行性</em></strong>。FVSampler对MPI程序有效，因为它独立监控每个MPI进程。FVSampler也适用于多线程程序，因为每个线程的PMUs和调试寄存器由操作系统虚拟化。然而，FVSampler不处理用户级线程，其中函数调用和相应的返回在两个不同的操作系统线程上执行。解决用户级线程的问题需要来自运行时的最小支持
+— 用户级线程切换应保存和恢复调试寄存器状态。</p>
+<p><strong><em>处理<code>longjmp()</code></em></strong>。<code>setjmp()/longjmp()</code>提供了跨过程跳转，这与典型的调用约定有所偏离。FVSampler通过重载它们的调用来拦截它们。当longjmp()执行时，FVSampler解除活动监视点。FVSampler还清除了监视点栈S，因为我们不知道<code>longjmp()</code>跳转到哪个栈帧。</p>
+<hr />
+<p><code>setjmp()</code> 和 <code>longjmp()</code>
+是C语言标准库中的一对函数，用于实现非局部跳转，通常用于处理错误或异常情况。这对函数的工作原理涉及到栈的保存和恢复，但并不直接改变当前栈。</p>
+<ol type="1">
+<li><p><strong><code>setjmp()</code> 函数：</strong>
+它用于设置一个跳转点，将当前的程序状态保存到一个 <code>jmp_buf</code>
+数据结构中。<code>jmp_buf</code>
+是一个类型，通常是一个数组，用于存储当前程序的堆栈信息和寄存器状态。<code>setjmp()</code>
+返回0，表示成功设置跳转点。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;setjmp.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">setjmp</span><span class="params">(jmp_buf env)</span>;</span><br></pre></td></tr></table></figure></li>
+<li><p><strong><code>longjmp()</code> 函数：</strong> 它用于从
+<code>setjmp()</code> 设置的跳转点直接跳转回去，同时恢复到
+<code>setjmp()</code> 时保存的程序状态。<code>longjmp()</code>
+不是函数调用，而是一种跳转，因此它不会执行正常的函数返回操作。它接受一个
+<code>jmp_buf</code> 参数和一个非零的值，这个值会被传递给
+<code>setjmp()</code>，作为 <code>setjmp()</code> 的返回值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;setjmp.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">longjmp</span><span class="params">(jmp_buf env, <span class="type">int</span> val)</span>;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>在使用 <code>setjmp()</code> 和 <code>longjmp()</code>
+时，要小心处理资源，因为它们实现了一种非局部跳转，可能导致资源没有被正确释放。</p>
+<p>关于栈的改变，<code>longjmp()</code>
+并不是直接改变当前栈。它实际上是将栈恢复到 <code>setjmp()</code>
+时的状态，因为 <code>setjmp()</code>
+在调用时已经保存了当前栈的信息。这种非局部跳转的机制可以用于在错误处理时直接返回到程序的某个先前状态，而不需要逐级地执行函数调用的返回。</p>
+<hr />
+<p><strong><em>理解采样的限制</em></strong>。像任何基于采样的工具一样，FVSampler捕捉到具有统计显著性的函数（即具有高调用频率的函数），并且会错过一些不显著的函数。它满足对方差进行研究的需求，因为方差只对高调用频率的函数有意义。很少被调用的函数（例如<code>main()</code>）相对较不重要。FVSampler将错过一些通过调用指令调用的函数，例如通过内联或通过尾调用调用的函数。</p>
+<h2 id="usage-of-fvsampler">6 USAGE OF FVSAMPLER</h2>
+<h3 id="fvsamplers-workflow">6.1 FVSampler’s Workflow</h3>
+<p>FVSampler由三个组件组成：运行时分析器、事后分析器和图形用户界面(GUI)。运行时分析器接受经过完全优化的二进制可执行文件并收集性能分析，这已在第5节中进行了描述。事后分析器和GUI分析运行时分析，并将其与程序源代码关联，提供直观的指导。本节的其余部分将重点讨论事后分析器和GUI。</p>
+<p>事后分析器。由于运行时分析器生成每个线程的性能分析，因此分析器需要合并整个执行过程的性能分析。合并过程遵循以下规则：来自不同线程的同一函数的两个调用实例仅在它们具有相同的调用上下文时合并。所有指标也在线程之间进行了合并。对于来自不同进程的性能分析，方案类似。调用上下文分析可以将程序执行的分析扩展到大量的核心。合并的开销随着在被监视的程序中运行的线程和进程数量的增加而线性增长。FVSampler利用了降低树技术
+[52]
+来并行化合并过程。在我们研究的所有程序中，FVSampler在不到一分钟的时间内合并了每个线程的性能分析。</p>
+<p>图形用户界面(GUI)。GUI建立在现有的图形界面hpcviewer
+[38]之上，它允许按照以自顶向下和自底向上方式排序的受监视指标导航调用上下文和相应的源代码。此外，GUI提供了在时间轴上绘制任何采样函数执行变化的选项。第7.1节的图5显示了GUI的示例，我们将GUI的详细说明推迟到该部分。</p>
+<h3 id="fvsamplers-optimization-guidance">6.2 FVSampler’s Optimization
+Guidance</h3>
+<p>我们对函数的优化决策基于执行时间和方差（即变异系数指标），如表1所示。只有在执行时间和方差都很高的函数才值得进一步进行性能分析。在我们所有的案例研究中，我们调查一个函数，前提是它在整个程序中占用的CPU周期超过10%，并且具有超过20%的线程内方差或者10%的线程间方差。一旦FVSampler确定了一个有问题的函数，它就会在时间轴上绘制从该函数的所有采样实例收集到的指标。方差模式可以有效地指导独特的代码优化（例如，第7.1节）。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231123163147409.png"
+alt="image-20231123163147409" />
+<figcaption aria-hidden="true">image-20231123163147409</figcaption>
+</figure>
+<h2 id="evaluation">7 EVALUATION</h2>
+<p>我们在一台配备两个18核Intel Xeon E5-2699
+v3处理器（Haswell架构）的机器上评估了FVSampler，其频率为2.30GHz，运行Linux
+4.8.0操作系统。该机器拥有私有的32KB L1缓存、私有的256KB
+L2缓存、共享的40MB
+L3缓存和128GB主内存。FVSampler订阅了精确的性能监控单元（PMU）事件BR_INST_RETIRED.NEAR_CALL来采样调用指令。</p>
+<p>开销。运行时开销通过将使用FVSampler监控的程序的运行时与其本机执行的运行时之比来衡量。表2显示了FVSampler在两个HPC基准套件NERSC-8
+[39]和CORAL-2 [28]以及五个HPC基准程序LULESH-2 [23]、Sweep3D [26]、MASNUM
+[44]、Sequoia AMG2006 [27]和PARSEC-2.1 dedup
+[5]上的运行时开销。程序使用gcc-5.4.1 -O3进行编译，MASNUM使用icc-18.0.2
+-O3进行编译。MPI程序使用MPICH-3.0.4
+[25]进行编译。所有MPI程序以36个进程运行，所有OpenMP程序以36个线程运行，并固定在核心上。我们调整采样周期以确保每个线程每秒至少采集30个样本。我们使用PMU事件PERF_COUNT_HW_INSTRUCTIONS在计数模式下统计每个采样的函数实例执行的指令数。我们运行每个程序五次，并报告平均运行时开销。在表2中，我们可以看到FVSampler通常产生6%的运行时开销。FVSampler在分析短时程序（例如，&lt;
+1秒）时可能会产生更多开销，这是由于设置PMUs和调试寄存器的固定开销。表3分别显示了每个样本的开销和每个监视点陷阱的开销。我们可以看到，FVSampler通常每个样本产生44微秒的开销，每个监视点陷阱产生11微秒的开销。此外，FVSampler在所有这些程序中每个线程产生平均7MB的内存开销。这种低开销使得FVSampler适用于生产运行。</p>
+<p>案例研究。表4总结了FVSampler通过函数级执行变异分析发现的性能问题。所有程序都使用gcc-5.4.1
+-O3进行编译，并在单个节点上以36个线程运行，除了使用icc-18.0.2
+-O3编译的MASNUM，在集群上以36个MPI进程运行。我们通过整个程序的执行时间量化性能改进。在本节的其余部分，我们描述了FVSampler为用户提供的见解以及表4中每个程序的有问题函数的优化。</p>
+<h3 id="masnum">7.1 MASNUM</h3>
+<p>MASNUM
+[44]，是2016年ACM戈登贝尔奖的入围者之一，用于预测海洋表面波浪和气候变化。它使用Fortran编写并使用MPI进行并行化。我们在位于德克萨斯先进计算中心（TACC）的Stampede2集群上部署了FVSampler。Stampede2由4,200个Intel
+Xeon Phi 7250（Knights Landing）节点和1,736个Intel Xeon Platinum
+8160（SkyLake）节点组成。我们仅使用SkyLake节点来运行MASNUM。每个SkyLake节点包含两个时钟频率为2.10GHz的24核插槽和192GB
+DDR4主内存。鉴于MASNUM的默认输入大小，我们使用六个节点和总共36个MPI进程运行MASNUM。FVSampler报告称，在两个调用站点中调用了函数search()，占总CPU周期的27%。在search()中执行的指令数量的方差高达31%。通过FVSampler的GUI，在图5中突出显示了具有完整调用上下文的一个调用站点。GUI由三个窗格组成：顶部窗格显示程序源代码，左下窗格显示调用上下文，右下窗格显示度量指标。</p>
+<p>图6a显示了在一个MPI进程中在相同调用上下文中调用search()的不同实例中执行的指令数量。其他35个进程具有相似的模式（未显示）。在这个图中，我们做出了两个观察：（1）在不同调用search()的实例中执行的指令数量具有清晰的周期分布模式。
+（2）在每个间隔期内，指令数量逐渐增加，并且相邻调用中执行的指令数量相似，这表明相邻调用search()具有相似的工作负载。</p>
+<p>为了了解这种执行模式的根本原因，我们调查了search()的实现，如图5的顶部窗格所示。我们发现search()在循环中被调用，在每次调用中，它对给定的输入xx在不减的不变数组x上执行线性搜索（文件search.inc中的第8-12行），以确定xx的位置。进一步调查后，我们注意到输入xx具有良好的值局部性，即相邻调用search()中参数值相似。因此，在数组x中，需要与相邻调用中的xx进行比较的元素数量是相似的，这在图6a中显示为微小的水平条（意味着相邻调用中大致相同数量的指令）。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231123214600374.png"
+alt="image-20231123214600374" />
+<figcaption aria-hidden="true">image-20231123214600374</figcaption>
+</figure>
+<p>为了改进search()，我们将线性搜索替换为友好的局部性搜索。当当前搜索实例完成时，我们记忆输入xx的位置索引；在下一次搜索中，我们从先前记录的位置索引开始，并在数组x的起始和结束之间交替进行线性搜索。这种优化使整个程序加速了1.54倍，并将在search()中执行的指令数量的方差降低到2%，如图6b所示，比图6a中的情况要平坦得多。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231123214538213.png"
+alt="image-20231123214538213" />
+<figcaption aria-hidden="true">image-20231123214538213</figcaption>
+</figure>
+<p>值得注意的是，将线性搜索更改为二分搜索仅带来不到2%的性能提升。因为二分搜索虽然减少了执行的指令数量，但损害了数据局部性。</p>
+<h3 id="sequoia-amg2006">7.2 Sequoia AMG2006</h3>
+<p>略</p>
+<h3 id="nersc-8-minife">7.3 NERSC-8 MiniFE</h3>
+<p>略</p>
+<h3 id="parsec-2.1-dedup">7.4 PARSEC-2.1 dedup</h3>
+<p>PARSEC-2.1 dedup [5]
+通过去重技术对数据进行压缩。该程序使用C语言编写，并使用Pthreads进行并行化。在原生输入情况下，FVSampler报告称函数hashtable_search()
+占总CPU周期的11%。图11a显示了hashtable_search()
+在不同调用实例中L1D缓存缺失的方差。清单2展示了hashtable_search()的实现，该函数在一个循环中被调用（未显示）。在每次调用中，hashtable_search()
+在与哈希表条目关联的链表中搜索项目。通过进一步的调查，我们注意到只有约2%的哈希桶被占用，导致了过多的碰撞。由于不同的搜索项，链表遍历的长度可能不同，从而导致执行方差（以缓存缺失方式测量）。</p>
+<p>为了优化，可以通过在所有桶中均匀分布哈希键来改进哈希算法，以减少由于哈希碰撞而遍历链表时的方差。在这个案例研究中，我们采用了Curtsinger和Berger的方法
+[10]
+来平衡哈希键的分布，将hashtable_search()中L1D缓存缺失的方差从56%减少到16%，如图11b所示。整个程序获得了1.08倍的加速。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20231123214654641.png"
+alt="image-20231123214654641" />
+<figcaption aria-hidden="true">image-20231123214654641</figcaption>
+</figure>
+<h2 id="conclusions-and-future-work">8 CONCLUSIONS AND FUTURE WORK</h2>
+<p>本文介绍了FVSampler，一种用于高性能计算应用的轻量级方差分析器。FVSampler通过展示能够精确同步在过程边界处进行分析采样的能力，推动了采样分析器的技术发展。因此，FVSampler放弃了代码插桩，转而采用函数级别的监视。FVSampler利用硬件性能监测单元对函数调用进行采样，并使用硬件调试寄存器拦截相同函数调用实例的返回。FVSampler进一步收集每个采样函数实例中发生的性能事件，例如CPU周期、指令实例、缓存缺失，并计算相同函数的不同实例之间的方差指标。FVSampler能够准确定位线程内和线程间的方差，有助于分离复杂代码中的性能问题。FVSampler的运行时和内存开销较低，适用于生产高性能计算代码。在FVSampler的指导下，我们能够优化多个并行应用程序，实现高达1.96倍的加速。</p>
+<p>我们未来的方向是探索超过过程级别的执行方差。我们将研究一系列基本块的更细粒度，以及一系列过程的更粗粒度，以获得语义间隔。</p>
+<hr />
+<h1 id="演讲稿">演讲稿</h1>
+<p>小雅建议我把想说的内容写下来。</p>
+<p>为了分析方差，需要知道函数单次执行的信息，比如单次执行的时间，汇总之后可以计算出函数执行时间的方差，所以我们接下来的讨论都围绕如何获得函数单次执行的信息/时间。</p>
+<ol start="8" type="1">
+<li><p>为了测量函数运行期间所耗费资源的方差，我们首先要统计函数每次运行时间所耗费的资源。这需要我们在统计时可以准确关联函数的入口和出口。测量耗费资源的过程类似于查水表：首先在调用函数即函数入口处，抄水表，也就是记录当前的性能事件数；之后在函数返回即函数出口处，再抄一次水表，两次相减就是在函数调用期间用了多少水，或者说是触发了多少性能事件。</p></li>
+<li><p>为了将抄水表的行为和函数的入口/出口关联起来，之前的工作是使插桩的方法。插桩可以保证统计结果的准确性，但是插桩会带来较高的overhead。</p></li>
+<li><p>这篇文章希望找到overhead相对较低的方法，很自然的，我们可以想到，间隔一段时间执行一次统计过程，开销将会显著降低。这种间隔一段时间操作一次的方法就是采样统计。采样统计一般是说，根据采样次数将程序运行总时间划分成若干时间段，比如抽样一百次，程序的执行时间就分成了100段，其中10次抽样的时候程序都在执行A函数，那么我们认为A函数的执行总时间为10段，也就是A函数的执行时间占程序总耗时的10%。另外一个例子，张老师每个一个小时接一次水，接水的时候他会看看朝晖有没有认真工作，或者是在玩手机；如果张老师在接水的时候看见朝晖在玩手机，那么他就会认为朝晖在这一个小时内都在玩手机。很显然，这种方法很不精确，会冤枉人。大家都知道，朝晖是个好孩子，他就只玩了一分钟，就刚好被撞上了。所以说，采样模拟存在很大的误差。同时，采样统计可以用来分析函数在执行期间的总耗时，或者占总执行时间的比例，但是很难得到单次调用的时间，也就没办法计算每次调用时间的方差。如图，在这段时间一共触发了四次采样模拟，但是这四次采样调用并不能和函数的调用/返回关联，我们并不知道这连续两次采样结果进行合并，也不知道第二次采样应该和第一次还是第三次的结果合并。</p></li>
+<li><p>那么我们分析一下，如果想使用采样的方法分析方差，也就是需要用采样的方法获得函数单次执行的时间，应该具备哪些条件？首先，我们希望采样函数是随机，或者说间隔触发的，而不会像插桩一样每次都触发，这样可以降低overhead。其次，采样要能和函数的调用和返回关联，避免上一页提到的同一次函数调用的采样无法合并的问题，提高采样的准确性。</p></li>
+<li><p>这篇文章设计实现了FVSampler这样一个工具，是基于采样统计的函数执行方差检测工具。它是轻量级的，只有6%的时间开销和每线程7MB的内存开销。并且它与以往采样工具的不同之处在于，它可将采样与函数边界关联起来，保证了准确性。此外还有两个亮点，对于方差大的情况可以提供完整的调用栈辅助分析，并且可以测量函数执行期间多个指标的方差，比如时间、cache
+miss数、retired指令数等。</p></li>
+<li><p>接下来我们看看前面提到的方差分析的三个条件/困难是怎么解决的。论文采用了一个手段同时解决了随机采样和函数调用关联这两个难点。</p></li>
+<li><p>答案就是采用PMU，利用PMU监测函数的调用的功能，并将PMU设置成采样模式，周期性的，函数每调用N次就会触发一次采样。这样，采样模式解决了随机调用的问题，PMU监视函数调用解决了我们将采样与函数调用关联的问题。</p></li>
+<li><p>那么现在只剩最后一个问题，如何将采样与函数返回绑定？</p></li>
+<li><p>答案是触发采样之后，使用Debug Register截获函数返回。</p></li>
+<li><p>至此，我们就解决了采样统计在方差分析中遇到的三个难点。</p></li>
+<li><p>最后是总结，对于分析工具来说，准确性和overhead上有trade-off，既要又要是很难做的。这篇文章基于采样统计的方法，巧妙的利用硬件单元PMU和Debug
+Register关联采样与函数出入口，使得采样结果更加可靠，在尽可能保证精度的情况下，获得了更快的执行速度。</p></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yuhang Zhang
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2023/11/22/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91-Pinpointing-Performance-Inefficiencies-via-Lightweight-Variance-Profiling/" title="(论文翻译)Pinpointing Performance Inefficiencies via Lightweight Variance Profiling">https://zyh-eric.gitee.io/zyhjy/2023/11/22/论文翻译-Pinpointing-Performance-Inefficiencies-via-Lightweight-Variance-Profiling/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/zyhjy/tags/Paper/" rel="tag"><i class="fa fa-tag"></i> Paper</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/11/20/%E6%A0%91%E7%8A%B6%E6%95%B0%E7%BB%84/" rel="prev" title="树状数组">
+      <i class="fa fa-chevron-left"></i> 树状数组
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/12/02/Tarjan%E7%AE%97%E6%B3%95/" rel="next" title="Tarjan算法">
+      Tarjan算法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81ODg3Ni8zNTMzOA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/zyhjy/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/zyhjy/archives/">
+        
+          <span class="site-state-item-count">79</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/zyhjy/categories/">
+          
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/zyhjy/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/zyhjy/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">439k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">12:11</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+
+<script src="/zyhjy/js/utils.js"></script>
+
+
+<script src="/zyhjy/js/schemes/pisces.js"></script>
+
+
+<script src="/zyhjy/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>

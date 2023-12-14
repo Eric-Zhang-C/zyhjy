@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
@@ -147,6 +149,11 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
+
+  </li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -197,6 +204,562 @@
 
           <div class="content index posts-expand">
             
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/06/09/python3%E5%88%A9%E7%94%A8clang%E8%AF%AD%E6%B3%95%E6%A0%91%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/06/09/python3%E5%88%A9%E7%94%A8clang%E8%AF%AD%E6%B3%95%E6%A0%91%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">python3利用clang语法树识别文件中的函数</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-09 21:34:50" itemprop="dateCreated datePublished" datetime="2022-06-09T21:34:50+08:00">2022-06-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/python3-clang-AST/" itemprop="url" rel="index"><span itemprop="name">python3 clang AST</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>673</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="背景">背景</h1>
+<p>python3利用cindex库解析c文件时遇到空宏前缀、
+<code>#ifdef</code>作用域内函数无法识别的问题。</p>
+<h1 id="解决思路">解决思路</h1>
+<p>将c文件对应的<code>compile_commands.json</code>文件导入cindex库，然后解析。</p>
+<h1 id="具体步骤">具体步骤</h1>
+<ol type="1">
+<li><p>编译生成文件对应的<code>compile_commands.json</code>。
+公司里相关的项目没有用cmake,直接使用的make。
+这种情况比较好处理，make改为bear make即可。 具体见<a
+target="_blank" rel="noopener" href="https://github.com/rizsotto/Bear">bear工具</a></p></li>
+<li><p>cindex导入<code>compile_commands.json</code>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env python3</span><br><span class="line">from clang import cindex</span><br><span class="line"></span><br><span class="line">index = cindex.Index.create()</span><br><span class="line"># Step 1: load the compilation database</span><br><span class="line">compdb = cindex.CompilationDatabase.fromDirectory(your_cc.json_path)</span><br><span class="line"></span><br><span class="line"># Step 2: query compilation flags</span><br><span class="line">commands = compdb.getCompileCommands(you_target.c)</span><br><span class="line">file_args = []</span><br><span class="line">for command in commands:</span><br><span class="line">    for argument in command.arguments:</span><br><span class="line">        file_args.append(argument)</span><br><span class="line"></span><br><span class="line">translation_unit = index.parse(you_target.c, file_args[:-1]) # the last command it the target file self</span><br></pre></td></tr></table></figure></p></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/30/llvm%20install/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/05/30/llvm%20install/" class="post-title-link" itemprop="url">LLVM安装!</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-30 22:31:50" itemprop="dateCreated datePublished" datetime="2022-05-30T22:31:50+08:00">2022-05-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/llvm/" itemprop="url" rel="index"><span itemprop="name">llvm</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="简介">简介</h2>
+<ul>
+<li><p>mac
+OS系统并没有LLVM工具，但是安装Xcode之后能调用基本的LLVM编译命令如clang，而如果想要调用llc等命令的话只能下载并安装完整的LLVM工具。</p></li>
+<li><p>操作系统: <code>macOS Catalina version 10.15.3</code></p></li>
+</ul>
+<h2 id="安装">安装</h2>
+<ul>
+<li><code>brew install llvm</code>
+<code>llvm</code>会被安装在<code>/usr/local/opt/llvm</code>的路径下。<br>
+打开<code>～/.zshrc</code>:<br>
+<code>export PATH=/usr/local/opt/llvm/bin:$PATH</code><br>
+使用<code>source ~/.zshrc</code>使.<code>zshrc</code>文件文件生效<br></li>
+</ul>
+<p>输入<code>llvm-dis --version</code>测试<br></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">To use the bundled libc++ please add the following LDFLAGS:</span><br><span class="line">  LDFLAGS=&quot;-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib&quot;</span><br><span class="line"></span><br><span class="line">llvm is keg-only, which means it was not symlinked into /usr/local,</span><br><span class="line">because macOS already provides this software and installing another version in</span><br><span class="line">parallel can cause all kinds of trouble.</span><br><span class="line"></span><br><span class="line">If you need to have llvm first in your PATH, run:</span><br><span class="line">  echo &#x27;export PATH=&quot;/usr/local/opt/llvm/bin:$PATH&quot;&#x27; &gt;&gt; ~/.zshrc</span><br><span class="line"></span><br><span class="line">For compilers to find llvm you may need to set:</span><br><span class="line">  export LDFLAGS=&quot;-L/usr/local/opt/llvm/lib&quot;</span><br><span class="line">  export CPPFLAGS=&quot;-I/usr/local/opt/llvm/include&quot;</span><br></pre></td></tr></table></figure>
+<h2 id="使用">使用</h2>
+<h3 id="场景1">场景1</h3>
+<p>建立build目录并且在该目录下进行编译，注意LLVM禁止源码内编译（in-tree
+build is not supported） <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; cd /usr/local/opt/llvm</span><br><span class="line">&gt; mkdir build</span><br><span class="line">&gt; cd build</span><br><span class="line">&gt; cmake -G &quot;Unix Makefiles&quot; \</span><br><span class="line">  -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \</span><br><span class="line">  -DLLVM_BUILD_LLVM_DYLIB=ON \</span><br><span class="line">  --enable-optimized \</span><br><span class="line">  --enable-targets=host-only \</span><br><span class="line">  ../../llvm</span><br><span class="line">&gt; make</span><br></pre></td></tr></table></figure> -G = 指定生成编译器
+-DCMAKE_BUILD_TYPE = 调试版本（Debug）或者发布版本（Release）
+-DCMAKE_EXPORT_COMPILE_COMMANDS = 是否输出编译命令
+-DLLVM_BUILD_LLVM_DYLIB = 是否添加libLLVM共享库 更多的编译项可以参考<a
+target="_blank" rel="noopener" href="https://llvm.org/docs/CMake.html">LLVM compile
+docs</a>的编译文档。</p>
+<h3 id="场景2">场景2</h3>
+<p>创建一个C语言文件test.c <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">int main() &#123;</span><br><span class="line">  printf(&quot;hello world\n&quot;);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> - 编译生成可执行文件<br>
+<code>clang test.c -o test</code></p>
+<ul>
+<li><p>运行可执行文件<br> <code>test</code></p></li>
+<li><p>生成llvm字节码文件<br>
+<code>clang -O1 -emit-llvm test.c -c -o test.bc</code></p></li>
+<li><p>生成LLVM 的汇编代码 .ll 文件(可视化字节码文件)
+<code>clang -O1 -emit-llvm test.c -S -o test.ll</code></p></li>
+<li><p>运行字节码文件<br> <code>lli test.bc</code> 结果: "hello world"
+.ll文件也可以用lli来执行</p></li>
+<li><p>将 .bc 文件转化为 .ll 文件:
+<code>llvm-dis test.bc</code></p></li>
+<li><p>将 .ll 文件转化为 .bc 文件: <code>llvm-as test.ll</code></p></li>
+<li><p>编译字节码文件为汇编文件<br>
+<code>llc test.bc -o test.s</code></p></li>
+<li><p>将 .bc 或 .ll 文件转化为本机平台的汇编代码<br>
+<code>llc test.bc</code> <code>llc test.ll</code></p></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/30/VSCode%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/05/30/VSCode%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/" class="post-title-link" itemprop="url">VSCode使用指南!</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-30 20:34:50" itemprop="dateCreated datePublished" datetime="2022-05-30T20:34:50+08:00">2022-05-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/VSCode/" itemprop="url" rel="index"><span itemprop="name">VSCode</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="必备开发插件">必备开发插件</h2>
+<ul>
+<li>TODO Tree<br>
+这个插件能帮你组织和管理<code>TODO</code>注释，你在代码中注释的带<code>TODO</code>的标签会统一在侧边栏显示出来，当然不限于<code>TODO</code>注释，可以自定义管理标签比如<code>FIXME</code>等，可以基于标签过滤和筛选。</li>
+<li>Bookmarks<br>
+「书签」这个插件的功能就和它名字一样直接，没错它就是一个你的源码书签，当我们看大工程源码的时候，往往需要在成千上万个源文件之间跳转，此时
+Bookmarks 能帮你方便的创建和管理书签，看到哪个位置想加个书签就按快捷键
+<code>command + option + K</code>
+，多按一次就是删除，不仅如此他还提供了在书签之前跳跃和查看管理的功能，更多功能可以自己体验</li>
+<li>Git Graph<br> 可视化Git仓库</li>
+<li>GitLens<br>
+它可以在文件中改动的位置后面直接显示出本次改动的提交信息，然后你可以直接通过显示的提交信息跳转到提交文件对比，其实还有其他丰富的功能.</li>
+<li>Bracket Pair Colorizer<br> 彩虹括号插件</li>
+<li>koroFileHeader<br>
+用于自动的插入头文件开头的说明和函数的说明。安装插件之后你只需要简单配置想要的格式，然后按下快捷键<code>Command + Option +i</code>即可自动即可自动生成这样一个模板。类似的对函数的说明注释模板，只需按下快捷键<code>Command + Option +t</code>即可完成</li>
+<li>shellman<br> 件是 Linux shell 脚本辅助工具。在 Linux
+下工作难免随手写一个脚本，这个插件能提供了便捷的shell script
+自动补全和联想等功能，提高你的脚本编写速度和准确性。</li>
+</ul>
+<h2 id="常用快捷键">常用快捷键</h2>
+<table>
+<thead>
+<tr class="header">
+<th>｜shortcut</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>cmd + U</td>
+<td>撤销光标上次操作</td>
+</tr>
+<tr class="even">
+<td>cmd+K cmd+0</td>
+<td>折叠所有代码块</td>
+</tr>
+<tr class="odd">
+<td>cmd+option+k</td>
+<td>增加/删除书签</td>
+</tr>
+<tr class="even">
+<td><code>Cmd + ,</code></td>
+<td>打开设置</td>
+</tr>
+</tbody>
+</table>
+<p>https://code.visualstudio.com/shortcuts/keyboard-shortcuts-macos.pdf</p>
+<ul>
+<li><p><code>Option + 上/下箭头</code>
+将该行代码与上一行或下一行替换。</p></li>
+<li><p><code>Command + 左/右箭头</code>
+前进或者后退到行末或行尾。</p></li>
+<li><p><code>Command + Shift + P</code>
+这个必须要放在第一位，这个命令是所有「命令之母」。这么说一点也不过分，它会打开
+VsCode
+命令窗口，在这个窗口下输入上述的插件名称就能知道这个插件支持哪些特性了，顺带还会说明特性快捷键。</p></li>
+<li><p><code>Command + P</code>
+文件查找。快速打开文件列表，输入关键字匹配文件，优先显示最新打开过的文件，方便的在指定文件之间跳转。</p></li>
+<li><p><code>F12</code>
+跳转到定义，这个没啥好说的，跳转到函数或符号的定义，这是高频操作。</p></li>
+<li><p><code>Option + F12</code>
+以预览方式在当前页面显示定义，都是查看定义，相对 <code>F12</code>
+的优点是不会跳出当前文件到定义文件</p></li>
+<li><p><code>Shift + F12</code> 查看光标所在函数或变量的引用，就像
+<code>Option + F12</code>
+一样以预览方式在当前文件打开引用的文件列表</p></li>
+<li><p><code>Command + Shift + O</code>
+查看当前文件的符号，可以用关键字过滤符号，当然你也可以在左侧的大纲视图中查找符号，不过大纲视图不能查找匹配符号，所以我更习惯用快捷键方式查找符号</p></li>
+</ul>
+<h2 id="代码格式">代码格式</h2>
+<p>要在VS Code中设置C++代码的格式，您可以按照以下步骤进行操作：</p>
+<ol type="1">
+<li><p>安装C/C++扩展：打开VS
+Code，点击左侧边栏中的扩展图标（四个方块的图标），搜索并安装"C/C++"扩展。安装完成后，重新启动VS
+Code。</p></li>
+<li><p>安装clang-format：为了格式化C++代码，我们将使用clang-format工具。您需要先安装clang-format。可以通过以下方法安装：</p>
+<ul>
+<li>Windows：可以使用Chocolatey包管理器，在命令提示符中运行<code>choco install llvm</code>来安装clang-format。</li>
+<li>macOS：可以使用Homebrew包管理器，在终端中运行<code>brew install llvm</code>来安装clang-format。</li>
+<li>Linux：在终端中使用适当的包管理器安装clang-format。</li>
+</ul></li>
+<li><p>配置VS
+Code设置：按下<code>Ctrl + ,</code>（或者在macOS上是<code>Cmd + ,</code>）打开VS
+Code的设置。</p></li>
+<li><p>配置<code>settings.json</code>：在设置面板中，找到"C/C++"，然后点击"Edit
+in
+settings.json"链接。这将打开一个名为<code>settings.json</code>的文件，其中包含C/C++扩展的设置。</p></li>
+<li><p>配置clang-format路径：在<code>settings.json</code>文件中，添加以下配置行，指定clang-format的路径。根据您的操作系统和clang-format的安装位置，将路径替换为正确的值。</p></li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;C_Cpp: Clang_format_fallback Style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123; BasedOnStyle: Google , IndentWidth: 4, TabWidth: 4 &#125;&quot;</span></span><br><span class="line"><span class="attr">&quot;C_Cpp: Clang_format_path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/path/to/clang-format&quot;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>可执行文件， <code>which clang-format</code></li>
+</ul>
+<ol start="6" type="1">
+<li>配置自动格式化：为了使VS
+Code在保存文件时自动格式化代码，添加以下配置行到<code>settings.json</code>文件中：</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;editor.formatOnSave&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br></pre></td></tr></table></figure>
+<ol start="7" type="1">
+<li>自定义格式化选项（可选）：如果您想自定义C++代码的格式化选项，您可以添加一个<code>.clang-format</code>文件到您的项目根目录或您的用户主目录中。该文件指定了一系列格式化选项，例如缩进样式、换行规则等。您可以在<a
+target="_blank" rel="noopener" href="https://clang.llvm.org/docs/ClangFormatStyleOptions.html">clang-format文档</a>中找到所有可用选项的详细信息。在<code>.clang-format</code>文件中，您可以添加类似以下内容的配置：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BasedOnStyle: Google</span><br><span class="line">IndentWidth: 4</span><br></pre></td></tr></table></figure>
+<ol start="8" type="1">
+<li>保存文件并应用设置：保存<code>settings.json</code>文件，并在VS
+Code中重新加载窗口以应用设置。</li>
+</ol>
+<p>现在，当您保存C++代码文件时，VS
+Code将自动使用clang-format工具格式化代码，根据您的设置进行缩进、换行等操作。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/05/27/mac%E4%BD%BF%E7%94%A8brew%20update%E6%97%A0%E5%8F%8D%E5%BA%94,%E6%9B%B4%E6%96%B0%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/05/27/mac%E4%BD%BF%E7%94%A8brew%20update%E6%97%A0%E5%8F%8D%E5%BA%94,%E6%9B%B4%E6%96%B0%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="post-title-link" itemprop="url">mac使用brew update无反应,更新慢，断链等解决办法</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-27 00:36:50" itemprop="dateCreated datePublished" datetime="2022-05-27T00:36:50+08:00">2022-05-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/mac/" itemprop="url" rel="index"><span itemprop="name">mac</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="问题">问题</h2>
+<p>由于国内某种特殊原因，我们访问很多repo源是有一定难度的，比如在Mac上非常好用的包管理软件Brew安装各种工具时发现居然报错，下载不了这，连接那又timeout，什么也安装不了，心肝迷茫和无助。<br>
+参考<a
+target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_36562804/article/details/107872131">brew
+docs</a>。<br></p>
+<p>https://www.jianshu.com/p/2dcfc3de4fa3</p>
+<h2 id="安装valgrind">安装valgrind</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew remove valgrind # remove previous attempts at installing it (if any)</span><br><span class="line">brew tap LouisBrunner/valgrind</span><br><span class="line">brew install --HEAD LouisBrunner/valgrind/valgrind</span><br></pre></td></tr></table></figure>
+<h2 id="github-433">github 433</h2>
+<p>根据vpn端口设置代理</p>
+<p>https://stackoverflow.com/questions/48987512/ssl-connect-ssl-error-syscall-in-connection-to-github-com443</p>
+<p>https://gist.github.com/laispace/666dd7b27e9116faece6</p>
+<p>git config --global http.proxy http://127.0.0.1:62019</p>
+<h2 id="破解staruml">破解starUML</h2>
+<ol type="1">
+<li>安装npm brew install npm</li>
+<li>安装asar</li>
+</ol>
+<p>npm install asar -g</p>
+<ol start="3" type="1">
+<li>进入目录，解压文件app.asar</li>
+</ol>
+<p>cd /Applications/StarUML.app/Contents/Resources/ asar extract
+app.asar app</p>
+<ol start="4" type="1">
+<li>修改新生成的app目录下的lisence文件</li>
+</ol>
+<p>vim app/src/engine/license-manager.js</p>
+<ol start="5" type="1">
+<li>找到checkLicenseValidity()函数，125行开始的，原代码：</li>
+</ol>
+<p>checkLicenseValidity () { this.validate().then(() =&gt; {
+setStatus(this, true) }, () =&gt; { setStatus(this, false)
+UnregisteredDialog.showDialog() }) }</p>
+<p>修改为：</p>
+<p>checkLicenseValidity () { this.validate().then(() =&gt; {
+setStatus(this, true) }, () =&gt; { setStatus(this, true) }) }</p>
+<ol start="6" type="1">
+<li>打包覆盖原app.asar</li>
+</ol>
+<p>asar pack app app.asar</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
   
   
@@ -870,14 +1433,14 @@ config常用命令总结</a></h5>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -922,12 +1485,12 @@ config常用命令总结</a></h5>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">407k</span>
+    <span title="站点总字数">439k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:19</span>
+    <span title="站点阅读时长">12:11</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

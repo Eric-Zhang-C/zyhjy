@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
@@ -148,6 +150,11 @@
         <li class="menu-item menu-item-archives">
 
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -1054,21 +1061,6 @@ THP中需要84％。由3-叉结构引起的额外访问对性能影响相对较�
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#elastic-cuckoo-page-tables-rethinking-virtual-memory-translation-for-parallelism"><span class="nav-number">1.</span> <span class="nav-text">Elastic
-Cuckoo Page Tables: Rethinking Virtual Memory Translation for
-Parallelism</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.0.1.</span> <span class="nav-text">摘要</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">1.1.</span> <span class="nav-text">1 Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#tips-tlb-mmu-cache"><span class="nav-number">1.1.0.0.1.</span> <span class="nav-text">tips: TLB &amp;&amp; MMU Cache</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#background"><span class="nav-number">1.2.</span> <span class="nav-text">2 Background</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#radix-page-tables"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 Radix Page Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#struggles-with-emerging-workloads."><span class="nav-number">1.2.1.1.</span> <span class="nav-text">2.1.1 Struggles with
-Emerging Workloads.</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hashed-page-tables"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 Hashed Page Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#challenges-in-hashed-page-tables."><span class="nav-number">1.2.2.1.</span> <span class="nav-text">2.2.1 Challenges in Hashed
-Page Tables.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#drawbacks-of-a-single-global-hash-table."><span class="nav-number">1.2.2.2.</span> <span class="nav-text">2.2.2 Drawbacks of a
-Single Global Hash Table.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#resizing-hashed-page-tables."><span class="nav-number">1.2.2.3.</span> <span class="nav-text">2.2.3 Resizing Hashed Page
-Tables.</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cuckoo-hashing"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 Cuckoo Hashing</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rethinking-page-tables"><span class="nav-number">1.3.</span> <span class="nav-text">3. Rethinking Page Tables</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#elastic-cuckoo-hashing"><span class="nav-number">1.4.</span> <span class="nav-text">4. Elastic Cuckoo Hashing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#intuitive-operation"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1 Intuitive Operation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#cuckoo-hashing-1"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">Cuckoo Hashing</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#elastic-cuckoo-hashing-1"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">Elastic Cuckoo Hashing</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#tips"><span class="nav-number">1.4.1.2.1.</span> <span class="nav-text">tips：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#detailed-algorithms"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2 Detailed Algorithms</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#look-up."><span class="nav-number">1.4.2.1.</span> <span class="nav-text">Look-up.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#observation-1."><span class="nav-number">1.4.2.2.</span> <span class="nav-text">Observation 1.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#delete."><span class="nav-number">1.4.2.3.</span> <span class="nav-text">Delete.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#insert."><span class="nav-number">1.4.2.4.</span> <span class="nav-text">Insert.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hash-table-resize"><span class="nav-number">1.4.2.5.</span> <span class="nav-text">Hash Table Resize</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#elastic-cuckoo-page-table-design"><span class="nav-number">1.5.</span> <span class="nav-text">5 Elastic Cuckoo Page Table
-Design</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#elastic-cuckoo-page-table-organization"><span class="nav-number">1.5.1.</span> <span class="nav-text">5.1 Elastic Cuckoo Page
-Table Organization</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#page-table-entry"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">5.1.1 Page Table Entry</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#tips-1"><span class="nav-number">1.5.1.1.1.</span> <span class="nav-text">tips</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cuckoo-walk"><span class="nav-number">1.5.1.2.</span> <span class="nav-text">5.1.2 Cuckoo Walk</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cuckoo-walk-tables"><span class="nav-number">1.5.2.</span> <span class="nav-text">5.2 Cuckoo Walk Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#complete-walk"><span class="nav-number">1.5.2.0.1.</span> <span class="nav-text">Complete Walk:</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#partial-walk"><span class="nav-number">1.5.2.0.2.</span> <span class="nav-text">Partial Walk:</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#size-walk"><span class="nav-number">1.5.2.0.3.</span> <span class="nav-text">Size Walk:</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#direct-walk"><span class="nav-number">1.5.2.0.4.</span> <span class="nav-text">Direct Walk:</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cuckoo-walk-table-entries."><span class="nav-number">1.5.2.1.</span> <span class="nav-text">5.2.1 Cuckoo Walk Table
-Entries.</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cuckoo-walk-caches"><span class="nav-number">1.5.3.</span> <span class="nav-text">5.3 Cuckoo Walk Caches</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#implementation"><span class="nav-number">1.6.</span> <span class="nav-text">6 Implementation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#steps-of-a-page-translation"><span class="nav-number">1.6.1.</span> <span class="nav-text">6.1 Steps of a Page
-Translation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#concurrency-issues"><span class="nav-number">1.6.2.</span> <span class="nav-text">6.2 Concurrency Issues</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#evaluation-methodology"><span class="nav-number">1.7.</span> <span class="nav-text">7 Evaluation Methodology</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#modeled-architectures."><span class="nav-number">1.7.0.1.</span> <span class="nav-text">Modeled Architectures.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#modeling-infrastructure."><span class="nav-number">1.7.0.2.</span> <span class="nav-text">Modeling Infrastructure.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#workloads."><span class="nav-number">1.7.0.3.</span> <span class="nav-text">Workloads.</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#evaluation"><span class="nav-number">1.8.</span> <span class="nav-text">8 Evaluation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#elastic-cuckoo-hashing-characterization"><span class="nav-number">1.8.1.</span> <span class="nav-text">8.1 Elastic Cuckoo
-Hashing Characterization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#elastic-cuckoo-page-table-performance"><span class="nav-number">1.8.2.</span> <span class="nav-text">8.2 Elastic Cuckoo Page
-Table Performance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#elastic-cuckoo-page-table-characterization"><span class="nav-number">1.8.3.</span> <span class="nav-text">8.3 Elastic Cuckoo
-Page Table Characterization</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#mmu-and-cache-subsystem"><span class="nav-number">1.8.3.1.</span> <span class="nav-text">8.3.1 MMU and Cache Subsystem</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#types-ofwalks."><span class="nav-number">1.8.3.2.</span> <span class="nav-text">8.3.2 Types ofWalks.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#memory-consumption"><span class="nav-number">1.8.3.3.</span> <span class="nav-text">8.3.3 Memory Consumption</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#comparison-to-2-ary-cuckoo-page-tables."><span class="nav-number">1.8.3.4.</span> <span class="nav-text">8.3.4 Comparison to
-2-ary Cuckoo Page Tables.</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#other-related-work"><span class="nav-number">1.9.</span> <span class="nav-text">9 Other Related Work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion"><span class="nav-number">1.10.</span> <span class="nav-text">10 Conclusion</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -1084,14 +1076,14 @@ Page Table Characterization</span></a><ol class="nav-child"><li class="nav-item 
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -1136,12 +1128,12 @@ Page Table Characterization</span></a><ol class="nav-child"><li class="nav-item 
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">407k</span>
+    <span title="站点总字数">439k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:19</span>
+    <span title="站点阅读时长">12:11</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

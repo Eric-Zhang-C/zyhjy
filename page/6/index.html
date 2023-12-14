@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
@@ -147,6 +149,11 @@
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
+
+  </li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -197,6 +204,806 @@
 
           <div class="content index posts-expand">
             
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/11/13/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%E5%99%A8-TAGE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/11/13/%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%E5%99%A8-TAGE/" class="post-title-link" itemprop="url">分支预测器-TAGE</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-11-13 22:00:05" itemprop="dateCreated datePublished" datetime="2022-11-13T22:00:05+08:00">2022-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/CPU-pipeline/" itemprop="url" rel="index"><span itemprop="name">CPU pipeline</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>482</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="abstract">Abstract</h3>
+<ul>
+<li>conditional branch predicor
+<ul>
+<li>combine several predictions</li>
+<li>adder tree?</li>
+</ul></li>
+<li>文章实现了一个组合预测器
+<ul>
+<li>预测器的下标代表该预测器对应的history length ### 背景</li>
+</ul></li>
+<li>流水线运行的一个主要限制是：它们使用循序指令发射与执行的方式 ###
+思想</li>
+<li>动态调度 ### 乱序执行</li>
+<li>操作数可用时立即执行程序</li>
+<li>指令的循序发射以及乱序执行 ### 寄存器重命名</li>
+<li>在写结果时，先将计算结果写到CDB（公共数据总线）中。然后CDB上进行广播，看这个计算结果有没有作为是其他指令源操作数的。如果保留站发现有，就会更新保留站源操作数的值。这样就代替了流水线寄存器。
+### 循序提交</li>
+<li>引入ROB(重排缓冲区, Reorder Buffer)</li>
+<li>允许指令乱序执行，但必须循序提交</li>
+<li>支持分支预测
+<ul>
+<li>对于推测错误就很好处理了，
+<ul>
+<li>因为哪怕已经执行了分支之后的命令，由于之前的指令还没有执行完毕，分支之后的指令就无法提交，所以很容易的就程序计数器改为正确的分支地址，而不影响其他指令结果。</li>
+</ul></li>
+<li>预测错误的概率还是相对较低的，在Intel Core
+i7的分支预测器中错误预测率平均在5%以下</li>
+</ul></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/10/26/Docker%E4%BD%BF%E7%94%A8tips/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/10/26/Docker%E4%BD%BF%E7%94%A8tips/" class="post-title-link" itemprop="url">Docker使用Tips</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-10-26 16:28:50" itemprop="dateCreated datePublished" datetime="2022-10-26T16:28:50+08:00">2022-10-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/docker/" itemprop="url" rel="index"><span itemprop="name">docker</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="docker基本命令">docker基本命令</h1>
+<h2 id="查看docker占用空间">查看docker占用空间</h2>
+<pre><code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker system df</span><br></pre></td></tr></table></figure></code></pre>
+<h2 id="清理无用镜像缓存挂载数据">清理无用镜像、缓存、挂载数据：</h2>
+<ul>
+<li><code>docker system prune -a</code>
+<ul>
+<li>已停止的容器（container）</li>
+<li>未被任何容器所使用的卷（volume）</li>
+<li>未被任何容器所关联的网络（network）</li>
+<li>所有悬空镜像（image）</li>
+</ul></li>
+</ul>
+<h2 id="docker导出载入镜像库里的镜像">docker导出/载入镜像库里的镜像</h2>
+<pre><code>- `docker save -o qemu-gem5-o3.tar  qemu-gem5-o3:v2.0` REPOSITORY:TAG
+- 载入镜像`docker load &lt; images/qemu-gem5-o3.tar`</code></pre>
+<h1 id="其他">其他</h1>
+<h2 id="容器的磁盘占用">容器的磁盘占用</h2>
+<pre><code>- 每次创建一个容器时，都会有一些文件和目录被创建，
+    - 例如：`/var/lib/docker/containers/ID`目录，
+    - 如果容器使用了默认的日志模式，他的所有日志都会以JSON形式保存到此目录下。
+    - `/var/lib/docker/overlay2` 目录下含有容器的读写层，如果容器使用自己的文件系统保存了数据，那么就会写到此目录下。
+- 进入到/var/lib/docker/containers 目录下 通过 du -h --max-depth=1 查找大文件占用,发现这些文件中占用空间最大的是***-json.log**文件。而此文件的内容为docker生成的日志文件。
+- 然后可使用如下命令对该文件的内容进行清理：`cat /dev/null &gt; *-json.log`清理完成可不重启服务，
+    - 但如果允许建议重启一下docker服务。在此执行`df -h`命令之后，你会发现overlay2所占的磁盘空间已经减小。
+
+- 可以定期删除的地方，有3. ipch（可完全删除）</code></pre>
+<h2 id="vscode-server-no-space-left-on-device">vscode-server : No space
+left on device</h2>
+<ul>
+<li>删除diff和merged下的bin文件<code>rm -rf ~/.vscode-server/bin/*</code></li>
+</ul>
+<h2
+id="docker中使用了叫overlay2的层叠式结构">docker中使用了叫overlay2的层叠式结构，</h2>
+<ul>
+<li><p>为了简化存储，一个容器运行后会直接把镜像的存储状况作为容器的存储状况，然后针对容器运行产生的任何改动，都会在容器下相关目录中进行存储差分信息，也就是说一个容器中的存储情况由镜像原始存储情况和改动差分内容共同组成。</p></li>
+<li><p>以centos为例，docker的默认存储路径位于/var/lib/docker</p>
+<ul>
+<li>其中container文件夹保存着容器的相关信息，</li>
+<li>image保存着镜像的相关信息，overlay2保存着容器虚拟文件系统的相关信息。
+### overlay2中有diff目录和merged目录，</li>
+</ul></li>
+<li><p>diff中保存的就是差分信息</p></li>
+<li><p>merged是在容器运行时才会出现的存储情况集合，我们可以直接对差分信息进行修改，也可以在merged中进行修改，修改后的结果也会出现在diff中，同时容器内部也会直观的看到我们的修改内容</p></li>
+</ul>
+<p>docker exec -it
+f9922cef36973708172b909b7f3115248ebca48a359bef99c0051cd8c87ba89d bash
+docker run -it -v ~/FDU/PPI/2023spring:/home gem5-amd64-env</p>
+<h1 id="安装docker">安装docker</h1>
+<ul>
+<li>用国内 daocloud 一键安装命令：
+<code>curl -sSL https://get.daocloud.io/docker | sh</code></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/10/22/Effective%20C++(4)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/10/22/Effective%20C++(4)/" class="post-title-link" itemprop="url">Effective C++(4)--设计与声明</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-10-22 16:28:50" itemprop="dateCreated datePublished" datetime="2022-10-22T16:28:50+08:00">2022-10-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>12 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="让接口容易被正确使用不易被误用">18
+让接口容易被正确使用，不易被误用</h2>
+<h3 id="考虑用户可能犯怎样的错误">考虑用户可能犯怎样的错误</h3>
+<ul>
+<li>容易引起错误的做法 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Date</span>(<span class="type">int</span> month, <span class="type">int</span> day, <span class="type">int</span> year);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>wrapper types
+<ul>
+<li>enum不具备类型安全性，可被用作ints <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Day</span> &#123;</span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Day</span><span class="params">(<span class="type">int</span> d)</span></span></span><br><span class="line"><span class="function">    : val(d) &#123;</span>&#125;    </span><br><span class="line"><span class="type">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Date</span>(<span class="type">const</span> Month&amp; m, <span class="type">const</span> Day&amp; d, <span class="type">int</span> year);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">Date</span>(<span class="number">30</span>, <span class="number">3</span>, <span class="number">1995</span>); <span class="comment">/// wrong! 不正确的类型</span></span><br><span class="line"><span class="built_in">Date</span>(<span class="built_in">Day</span>(<span class="number">30</span>), <span class="built_in">Month</span>(<span class="number">3</span>), <span class="built_in">Year</span>(<span class="number">1995</span>)); <span class="comment">/// wrong! 不正确的类型</span></span><br><span class="line"><span class="built_in">Date</span>(<span class="built_in">Month</span>(<span class="number">3</span>), <span class="built_in">Day</span>(<span class="number">30</span>), <span class="built_in">Year</span>(<span class="number">1995</span>)); <span class="comment">/// OK! 类型正确</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Month</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">static</span> Month <span class="title">Jan</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="built_in">Month</span>(<span class="number">1</span>); &#125; <span class="comment">/// 每次调用都会触发一次构造函数</span></span><br><span class="line">    <span class="function"><span class="type">static</span> Month <span class="title">Feb</span><span class="params">()</span> </span>&#123; </span><br><span class="line">        <span class="type">static</span> <span class="keyword">auto</span> feb = <span class="built_in">Month</span>(<span class="number">2</span>);</span><br><span class="line">        <span class="keyword">return</span> feb; </span><br><span class="line">    &#125; <span class="comment">/// only call once</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">static</span> Month <span class="title">Dec</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="built_in">Month</span>(<span class="number">12</span>); &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Month</span><span class="params">(<span class="type">int</span> m)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">Date</span>(Month::<span class="built_in">Mar</span>(), <span class="built_in">Day</span>(<span class="number">30</span>), <span class="built_in">Year</span>(<span class="number">1995</span>));</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+</ul>
+<h3
+id="限制类型内什么事可做什么事不可做">限制类型内什么事可做，什么事不可做</h3>
+<pre><code>- 常见的限制是加上const</code></pre>
+<h3
+id="除非有好理由尽量使types的行为与内置类型一致">除非有好理由，尽量使types的行为与内置类型一致</h3>
+<pre><code>- 如ints，对a*b赋值不合法
+- STL基本一致</code></pre>
+<h3 id="消除客户的管理资源责任">消除客户的管理资源责任</h3>
+<ul>
+<li>例，工厂函数：返回智能指针
+<ul>
+<li><code>std::shared_ptr&lt;TimeKeeper&gt; getTimeKeeper();</code></li>
+</ul></li>
+<li><code>std::shared_ptr</code>允许指针被建立起来时指定一个资源释放函数（删除器，deleter）
+<ul>
+<li>auto_ptr不支持 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::shared_ptr&lt;TimeKeeper&gt; <span class="title">pTime</span><span class="params">(<span class="keyword">static_cast</span>&lt;TimeKeeper*&gt;(<span class="number">0</span>), getRidOfClock)</span></span>;</span><br><span class="line"><span class="comment">/// getRidOfClock是函数，删除器</span></span><br></pre></td></tr></table></figure></li>
+<li>避免了DLL问题</li>
+<li><code>std::shared_ptr</code>
+<ul>
+<li>是raw pointer两倍大（计数，删除器）</li>
+<li>以virtual形式调用删除器</li>
+<li>修改引用计数时线程同步化带来开销</li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 id="设计class犹如设计type">19 设计class犹如设计type</h2>
+<ul>
+<li>对象应该如何被创建和销毁
+<ul>
+<li>构造函数</li>
+<li>析构函数</li>
+<li>内存分配和释放函数
+<ul>
+<li>operator new</li>
+<li>operator new[]</li>
+<li>operator delete</li>
+<li>operator delete[]</li>
+</ul></li>
+</ul></li>
+<li>对象的初始化和赋值该有什么的差别
+<ul>
+<li>拷贝构造函数 和 拷贝赋值函数</li>
+</ul></li>
+<li>什么是新type的合法值</li>
+<li>新type需要配合inheritance graph吗</li>
+<li>新type需要什么样的转换
+<ul>
+<li>如果允许T1对象被隐式转换为T2，
+<ul>
+<li>则需要在class T1内实现operator T2</li>
+<li>或在class T2内实现一个non-explicit-one-argument的构造函数</li>
+</ul></li>
+</ul></li>
+<li>什么样的操作符和函数对新type是合理的</li>
+<li>什么样的标准函数应该驳回</li>
+<li>谁该去用新type
+<ul>
+<li>哪些成员为 pubulic protected private</li>
+<li>哪些class function为friends</li>
+</ul></li>
+<li>什么是新type的未声明接口</li>
+<li>新type有多么一般化
+<ul>
+<li>如果定义一整个types家族，考虑template</li>
+</ul></li>
+<li>真的需要一个新type吗
+<ul>
+<li>如果定义新的derived
+class只是为已有的class添加机能，考虑non-member函数或templates</li>
+</ul></li>
+</ul>
+<h2 id="prefer-pass-by-reference-to-const-to-pass-by-value">20 Prefer
+pass-by-reference-to-const to pass-by-value</h2>
+<ul>
+<li>前者效率高，且避免切割问题</li>
+<li>以上规则并不适用于内置类型，STL的迭代器和函数对象。
+<ul>
+<li>pass-by-value往往更合适</li>
+</ul></li>
+<li>对象小并不意味着copy构造函数不昂贵
+<ul>
+<li>许多对象如大多数STL容器，内含的东西只比指针多一些，但复制这种对象却包括复制那些指针指向的每一样东西</li>
+</ul></li>
+</ul>
+<h2 id="必须返回对象时别妄想返回其reference">21
+必须返回对象时，别妄想返回其reference</h2>
+<ul>
+<li>构造函数是必须承担的成本</li>
+</ul>
+<h2 id="将成员变量声明为private">22 将成员变量声明为private</h2>
+<ul>
+<li>为class提供充分实现弹性</li>
+<li><code>protected</code>成员变量的封装性并没有高过<code>public</code>成员变量
+<ul>
+<li><code>protected</code>成员变量的改变将会影响所有的<code>derived class</code></li>
+</ul></li>
+</ul>
+<h2 id="prefer-non-member-non-friend-fuctions-to-member-functions">23
+Prefer non-member non-friend fuctions to member functions</h2>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123;</span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearCache</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearHistory</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">removeCookies</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>许多用户想一次执行所有这些动作，那么哪种实现好呢？ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// member函数</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123;</span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearEverything</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// non-member函数，更好的实现</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">clearBrowser</span><span class="params">(WebBrowser&amp; wb)</span> </span>&#123;</span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line">    wb.<span class="built_in">clearCache</span>();</span><br><span class="line">    wb.<span class="built_in">clearHistory</span>();</span><br><span class="line">    wb.<span class="built_in">removeCookies</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><code>non-member</code>函数
+<ul>
+<li>可允许对WebBrowser相关机能有较大的包裹弹性，最终导致较低的编译相依度，增加WebBrowser的可延展性
+<ul>
+<li>通过namespace分割不同类别的功能，并可以向namespace中添加新的non-member函数扩充</li>
+</ul></li>
+<li>原因，该函数并不需要看到WebBrowser内部的成员变量</li>
+</ul></li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// non-member函数，一般的做法，将两者放在同一个namespace</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123; ... &#125;;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">clearBrowser</span><span class="params">(WebBrowser&amp; wb)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>namespace可跨越多个源码文件而classes不同，例如： <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webbrowser.h -- 这个头文件针对class WebBrowser自身及其核心机能</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">WebBrowser</span> &#123; ... &#125;;</span><br><span class="line">    ... <span class="comment">// 核心机能，例如所有客户都需要的non-member函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webbrowserbookmarks.h</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    ... <span class="comment">// 与书签相关的便利函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webbrowsercookies.h</span></span><br><span class="line"><span class="keyword">namespace</span> WebBrowserStuff &#123;</span><br><span class="line">    ... <span class="comment">// 与cookie相关的便利函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>这正是C++标准程序库的组织方式
+<ul>
+<li>std命名空间分散在许多头文件
+<ul>
+<li><vector>, <algorithm>, <memory> ...</li>
+</ul></li>
+<li>允许客户只对他们所用的一小部分系统形成编译相依
+<ul>
+<li>此方式并不适用于class成员函数，一个class必须整体定义，不能被分割为片段</li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 id="若所有参数皆需类型转换请为此采用non-member函数">24
+若所有参数皆需类型转换，请为此采用non-member函数</h2>
+<ul>
+<li>令class支持隐式转换通常是糟糕的主意
+<ul>
+<li>有例外，如建立在数值类型 ### 设计一个class表示有理数 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rational</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Rational</span>(<span class="type">int</span> numerator = <span class="number">0</span>,       <span class="comment">/// 构造函数刻意不为explicit</span></span><br><span class="line">             <span class="type">int</span> denominator = <span class="number">1</span>);    <span class="comment">/// 允许int-to-Rational隐式转换</span></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">numerator</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">denominator</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+#### Rational支持算术运算诸如加法、乘法</li>
+</ul></li>
+<li>member or non-member func？ ##### member函数 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Rational</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="type">const</span> Rational <span class="keyword">operator</span>* (<span class="type">const</span> Rational&amp; rhs) <span class="type">const</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>可以支持两个有理数相乘</li>
+<li>但是混合算术只有一半行得通,不满足交换律 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Rational <span class="title">oneHalf</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">result = oneHalf * <span class="number">2</span>;   <span class="comment">// good</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;   <span class="comment">// wrong</span></span><br></pre></td></tr></table></figure></li>
+<li>oneHalf是一个内含operator*的class的对象，所以编译器调用该函数</li>
+<li>然而整数2没有相应的class，也就是没有operator<em>成语函数；编译器会尝试寻找形如以下这般调用的non-member
+operator</em>(在命名空间或global作用域内): <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result = operator*(2, oneHalf);   // wrong,本例并不存在这样的函数，查找失败</span><br></pre></td></tr></table></figure></li>
+<li>第一种发生了隐式转换 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// result = oneHalf * 2;   // good, non-expicit构造函数</span></span><br><span class="line"><span class="comment">// 相当于</span></span><br><span class="line"><span class="function"><span class="type">const</span> Rational <span class="title">temp</span><span class="params">(<span class="number">2</span>)</span></span>;</span><br><span class="line">result = oneHalf * temp;</span><br></pre></td></tr></table></figure></li>
+<li>第二种无法触发non-expicit构造函数 ##### non-member函数</li>
+<li>允许编译器在每一个实惨上执行隐式类型转换 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> Rational <span class="keyword">operator</span>* (<span class="type">const</span> Rational&amp; lhs, <span class="type">const</span> Rational&amp; rhs) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Rational</span>(lhs.<span class="built_in">numerator</span>() * rhs.<span class="built_in">numerator</span>(), </span><br><span class="line">                    lhs.<span class="built_in">denominator</span>() * rhs.<span class="built_in">denominator</span>());</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">Rational <span class="title">oneHalf</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">result = oneHalf * <span class="number">2</span>;   <span class="comment">// ok</span></span><br><span class="line">result = <span class="number">2</span> * oneHalf;   <span class="comment">// ok</span></span><br></pre></td></tr></table></figure></li>
+<li>此处不需要成为friend函数 ##### --&gt;&gt; template class</li>
+<li>见条款46 ###
+如果需要为某个函数的所有参数(包括this指针所指的隐喻参数)进行类型转换，则该函数必须为non-member</li>
+</ul>
+<h1 id="考虑写出一个不抛异常的swap函数">25
+考虑写出一个不抛异常的swap函数</h1>
+<ul>
+<li>swap
+<ul>
+<li>STL的一部分</li>
+<li>异常安全性编程的脊柱(见条款29)</li>
+<li>处理自我赋值可能性的常见机制 ## 缺省情况下标准库的swap
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function">    <span class="type">void</span> <span class="title">swap</span><span class="params">(T&amp; a, T&amp; b)</span> </span>&#123;</span><br><span class="line">        <span class="function">T <span class="title">temp</span><span class="params">(a)</span></span>;</span><br><span class="line">        a = b;</span><br><span class="line">        b = a;</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+<li>只要T支持拷贝构造函数和拷贝赋值函数 ## pimpl手法 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">WidgetImpl</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> a, b, c;</span><br><span class="line">    std::vector&lt;<span class="type">double</span>&gt; v;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Widget</span>(<span class="type">const</span> Widget&amp; rhs);</span><br><span class="line">    Widget&amp; <span class="keyword">operator</span>=(<span class="type">const</span> Widget&amp; rhs) &#123; <span class="comment">/// 复制Widget时，复制其WidgetImpl对象</span></span><br><span class="line">        ...</span><br><span class="line">        *pImpl = *(rhs.pImpl);</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    WidgetImpl* pImpl;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>要置换Widget时，我们只需要置换起pImpl指针,但缺省算法调用还复制了三个WidgetImpl对象
+###
+我们希望告诉std::swap当Widgets被置换时应该做的是置换其内部的pImpl指针</li>
+<li>将std::swap针对Widget特化 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="keyword">template</span>&lt;&gt; <span class="comment">/// 表示它是std::swap的一个全特化</span></span><br><span class="line">    <span class="type">void</span> <span class="built_in">swap</span>&lt;Widget&gt;(Widget&amp; a, Widget&amp; b) &#123; <span class="comment">/// &#x27;&lt;Widget&gt;&#x27;表明“针对T是Widget”而设计</span></span><br><span class="line">        <span class="built_in">swap</span>(a.pImpl, b.pImpl);     <span class="comment">/// 无法通过编译, pImpl is private data</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>当一般性的swap template施行于Widgets上时便会启用这个版本</li>
+<li>通常我们不被允许改变std命名空间内的任何东西，但可以为标准template制造特化版本
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">const</span> Widget&amp; other)</span> </span>&#123; <span class="comment">/// 复制Widget时，复制其WidgetImpl对象</span></span><br><span class="line">        <span class="keyword">using</span> std::swap;</span><br><span class="line">        <span class="built_in">swap</span>(pImpl, other.pImpl);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="keyword">template</span>&lt;&gt; <span class="comment">/// 表示它是std::swap的一个全特化</span></span><br><span class="line">    <span class="type">void</span> <span class="built_in">swap</span>&lt;Widget&gt;(Widget&amp; a, Widget&amp; b) &#123; <span class="comment">/// &#x27;&lt;Widget&gt;&#x27;表明“针对T是Widget”而设计</span></span><br><span class="line">        a.<span class="built_in">swap</span>(b);     <span class="comment">/// OK!</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>该做法与STL容器具有一致性（public swap + std::swap特化版本） ##
+Widget与WidgetImpl都是template <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WidgetImpl</span> &#123;...&#125;;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;...&#125;;</span><br></pre></td></tr></table></figure> ### 偏特化</li>
+<li>放个swap成员函数与之前相同，但是像上述方法一样特化std::swap会遇上乱流
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(<span class="type">const</span> Widget&amp; other)</span> </span>&#123; </span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span><br><span class="line">    <span class="type">void</span> swap&lt;Widget&lt;T&gt;&gt;(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b) &#123; <span class="comment">/// 错误，不合法</span></span><br><span class="line">        a.<span class="built_in">swap</span>(b); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>C++只允许对<code>class template</code>偏特化，不允许对<code>function template</code>(<code>std::swap</code>)偏特化
+<ul>
+<li>全特化是所有的模板参数都被进行特化，偏特化也就是局部的参数特化</li>
+<li>此处只对Widget特化，没有特化T，所以为偏特化</li>
+</ul></li>
+</ul>
+<h3 id="重载1">重载(1)</h3>
+<ul>
+<li>当打算偏特化一个function
+template时，惯常做法是<code>添加一个重载版本</code> <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="comment">/// std::swap的重载版本</span></span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span></span><br><span class="line"><span class="function">    <span class="type">void</span> <span class="title">swap</span><span class="params">(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b)</span> </span>&#123; <span class="comment">/// 错误，不合法</span></span><br><span class="line">        a.<span class="built_in">swap</span>(b); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>一般而言行得通，但是std是个特殊的命名空间
+<ul>
+<li>客户可以全特化std内的template</li>
+<li>但不可添加新的template、class、function等任何东西</li>
+</ul></li>
+</ul></li>
+<li><h3 id="重载2">重载(2)</h3></li>
+<li>将<code>重载版本</code>放在新的命名空间 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> WidgetStuff &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Widget</span> &#123;...&#125;;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; </span></span><br><span class="line"><span class="function">    <span class="type">void</span> <span class="title">swap</span><span class="params">(Widget&lt;T&gt;&amp; a, Widget&lt;T&gt;&amp; b)</span> </span>&#123;</span><br><span class="line">        a.<span class="built_in">swap</span>(b); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>现在，如果想置换两个Widget对象因而调用swap，C++的名称查找法则(<code>name lookup rules</code>;<code>argument-dependent lookup</code>或<code>Koenig lookup</code>)会找到WidgetStuff空间内的swap</li>
+</ul>
+<h2 id="应该调用哪个swap">应该调用哪个swap?</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">doSomething</span><span class="params">(T&amp; obj1, T&amp; obj2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">using</span> std::swap;    <span class="comment">// 令std::swap在此函数内可用</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="built_in">swap</span>(obj1, obj2);   <span class="comment">// 为T型对象调用最佳swap版本</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>调用优先级(以T是Widget为例):
+<ol type="1">
+<li><code>WidgetStuff::swap</code></li>
+<li><code>template&lt;&gt; void swap&lt;Widget&gt;</code></li>
+<li><code>std::swap</code></li>
+</ol></li>
+</ul>
+<h2 id="总结">总结</h2>
+<h3
+id="如果swap的缺省实现代码提供足够的效率不需要额外做任何事">如果swap的缺省实现代码提供足够的效率，不需要额外做任何事</h3>
+<h3
+id="如果swap的缺省实现代码效率不足试着做以下事情">如果swap的缺省实现代码效率不足，试着做以下事情:</h3>
+<ol type="1">
+<li>提供一个public swap成员函数，高效置换
+<ul>
+<li>成员版的swap不可抛出异常
+<ul>
+<li>这是帮助class和class template提供强烈的异常安全保障</li>
+</ul></li>
+</ul></li>
+<li>在class或template所在命名空间内提供一个non-member
+swap，并调用上述成员函数</li>
+<li>如果正在编写class而非class
+template，为class特化std::swap,并调用成员函数</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/09/22/gem5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/09/22/gem5/" class="post-title-link" itemprop="url">Gem5</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-09-22 16:10:50" itemprop="dateCreated datePublished" datetime="2022-09-22T16:10:50+08:00">2022-09-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Gem5/" itemprop="url" rel="index"><span itemprop="name">Gem5</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>ROB</p>
+<p>Branch Misspeculation 时钟触发tick() 遍历所有线程（what is thread） -
+检查stall/squash 如果exe不在squash - IEW::executeInsts() - Check if
+branch prediction was correct, if not then we need to tell commit to
+squash in flight instructions. - squashDueToBranch</p>
+<p>build/ARM/gem5.opt configs/example/se.py
+--cmd=tests/test-progs/hello/bin/arm/linux/hello --cpu-type=O3CPU
+--caches --l1d_size=64kB --l1i_size=16kB /home/zyh/2022fall/gem5#
+build/X86/gem5.opt configs/example/se.py
+--cmd=tests/test-progs/hello/bin/x86/linux/hello --cpu-type=O3CPU
+--caches --l1d_size=64kB --l1i_size=16kB</p>
+<h1 id="fetch">Fetch</h1>
+<p>set(toIEW-&gt;commitInfo[tid].pc, fromIEW-&gt;pc[tid]);</p>
+<p>squash(*fromCommit-&gt;commitInfo[tid].pc,
+fromCommit-&gt;commitInfo[tid].doneSeqNum,
+fromCommit-&gt;commitInfo[tid].squashInst, tid);</p>
+<p>Fetch::doSquash（）</p>
+<p>set(pc[tid], new_pc); decoder[tid]-&gt;reset(); memReq[tid] = NULL;
+fetchStatus[tid] = Squashing; fetchQueue[tid].clear();</p>
+<p>cpu-&gt;removeInstsNotInROB(tid);</p>
+<pre><code>    squashInstIt(inst_it, tid);
+            (*instIt)-&gt;setSquashed();
+            removeList.push(instIt);</code></pre>
+<p>cpu的instList里存了所有当前在流水线中的指令(包括在ROB的)</p>
+<h1 id="commit">commit</h1>
+<p>rob-&gt;squash() Status[tid] = Squashing;</p>
+<h1 id="decode">decode</h1>
+<p>fromFetch-&gt;insts[i]-&gt;setSquashed();
+toFetch-&gt;decodeUnblock[tid] = 1;</p>
+<h1 id="rename">rename</h1>
+<p>toDecode-&gt;renameUnblock[tid] = 1; serializeInst[tid] = NULL;
+Status[tid] = Squashing; renameStatus[tid] = Squashing;</p>
+<h1 id="iew">iew</h1>
+<p>收到通知 IEW::checkSignalsAndUpdate - squash(tid);
+instQueue.squash(tid);
+ldstQueue.squash(fromCommit-&gt;commitInfo[tid].doneSeqNum, tid);
+emptyRenameInsts(tid);</p>
+<p>通知 set(toCommit-&gt;pc[tid], inst-&gt;pcState());
+inst-&gt;staticInst-&gt;advancePC(*toCommit-&gt;pc[tid]);</p>
+<pre><code>    toCommit-&gt;mispredictInst[tid] = inst;
+    toCommit-&gt;includeSquashInst[tid] = false;</code></pre>
+<p>加了一页cpu状态和thread状态，gem5这边thread状态是跟流水线相关的，之后cpustate统称为thread状态
+1、目标加一个当前整理gem5 cpu
+state的原因，是由于之前是FMTM紧耦合，现在FM到QEMU去了，希望看到misprediction的时候可以用cpustate但是不会提交修改其状态，qemu给其需要的错误路径，让TM这边可以有中间结果进行流转
+2、分支预测或cpu流水线流程执行的时候，相关cpu状态是copy备份了一份还是有更新把中间结果存到队列里？是否有ROB队列，其作用是什么？
+主要整理一下分支预测到分支预测结果出来前，这些中间结果是怎么流转的。(似乎没有备份，有队列来存后面回退)</p>
+<p>scoreboard 跟踪记录物理reg是否可使用 renameMap记录了idx-&gt;对应的reg
+Rename::renameDestRegs(const DynInstPtr &amp;inst, ThreadID
+tid)将inst-&gt;destRegIdx对应的reg的指针取出由inst保存，并将map中inst-&gt;destRegIdx对应的reg换成从freelist取出的reg
+指令执行后由forward恢复</p>
+<p>instruction’s view of the register file(s) -&gt; actual storage
+locations -
+类似虚拟内存到物理内存的映射，我们需要把指令视角下的寄存器映射到扁平化的物理内存上
+- 该部分工作由cpu完成， - ISA负责解码后的指令需要的寄存器(指令视角)
+,cpu将寄存器翻译成物理内存(寄存器) - %g1 --&gt; phy index[9]</p>
+<p>/// 使用直接映射的问题
+虚拟内存空间可能非常大（可能有间隙）并映射到较小的物理空间，
+或者它可能很小并映射到较大的物理空间，其中额外的空间用于其他时间使用的其他虚拟空间。
+您需要确保使用正确的尺寸（展平后）来调整表格的大小，因为这是可能的选择空间</p>
+<p>另一个棘手的部分来自我们在索引中添加偏移量以区分整数、浮点数和杂项。
+这些偏移在预展平世界中可能是一回事，但在展平后世界中需要是另一回事，以防止事物相互重叠而不会留下间隙。在这里很容易犯错，这也是我不喜欢这种抵消想法作为将不同类型分开的一种方式的原因之一。我宁愿看到一个二维索引，其中第二个坐标是寄存器类型。但在当今世界上，这是你必须跟踪的事情。</p>
+<p>gem5选择使用rename and map</p>
+<p>Relative
+相对寄存器索引是在机器指令中编码的索引。每类寄存器（整数、浮点等）都有一个单独的索引空间，从
+0
+开始。寄存器类由操作码隐含。因此，源寄存器字段中的值“1”可能意味着整数寄存器1（例如，“%r1”）或浮点寄存器1（例如，“%f1”），这取决于指令的类型</p>
+<p>Unified
+虽然相对寄存器索引有助于保持指令编码紧凑，但它们是模棱两可的，因此不便于管理依赖项等事情。为了避免这种歧义，解码器通过添加特定于类的偏移量将每个相对索引范围重新定位到唯一位置，将相对寄存器索引映射到统一的寄存器空间。整数寄存器未修改，并继续从零开始。浮点寄存器索引（至少）偏移整数寄存器的数量，以便第一个
+FP
+寄存器（例如，“%f0”）获得大于最后一个整数寄存器的统一索引。类似地，杂项（又名控制）寄存器映射到
+FP 寄存器索引空间的末尾</p>
+<p>Flattened
+统一的寄存器索引提供了对在执行中的给定点可作为指令操作数访问的所有寄存器的明确描述。不幸的是，由于某些
+ISA
+的复杂特性，它们并不总是明确地识别指令所引用的实际状态。例如，在具有寄存器窗口（尤其是
+SPARC）的 ISA
+中，特定的寄存器标识符（例如“%o0”）在“保存”或“恢复”操作后将引用与以前不同的寄存器。一些
+ISA 具有在正常操作中隐藏的寄存器，但在发生中断时（例如，ARM
+的特定于模式的寄存器）或在显式管理器控制下（例如，SPARC
+的“备用全局变量”）被映射到普通寄存器之上。</p>
+<p>我们通过维护一个扁平的寄存器空间来解决这个问题，该空间为每个唯一的寄存器存储位置提供不同的索引。例如，SPARC扁平寄存器空间的整数部分对全局变量和备用全局变量以及每个可用寄存器窗口都有不同的索引。从统一或相对寄存器索引转换为扁平寄存器索引的“扁平化”过程因
+ISA 而异。在某些 ISA
+上，映射是微不足道的，而另一些则使用表查找来进行转换。</p>
+<p>生成统一寄存器索引和扁平寄存器索引之间的一个关键区别是前者总是可以静态完成，而后者通常取决于动态处理器状态。也就是说，从相对索引到统一索引的转换仅取决于指令本身提供的上下文（这很方便，因为转换是在解码器中完成的）。相反，到扁平寄存器索引的映射可能取决于处理器状态，例如中断级别或
+SPARC 上的当前窗口指针。</p>
+<p>组合寄存器索引类型 尽管修改寄存器索引的典型过程是相对 -&gt; 统一
+-&gt; 扁平 ，但事实证明，相对与统一以及 扁平 与非 扁平
+是正交属性。相对与统一指示索引是相对于其寄存器类（整数、FP
+或杂项）的基址寄存器还是添加了其类的基址偏移量。扁平化与非扁平化表明索引是否已调整到帐户用于运行时上下文，例如寄存器窗口调整或备用寄存器文件模式。因此，相对扁平化的寄存器索引是其中已经考虑了运行时上下文，但仍相对于其类的基本偏移量表示的索引。</p>
+<p>一组特定于类的偏移量用于从相对索引生成统一索引，无论索引是扁平的还是非扁平的。因此，即使在使用扁平地址时，偏移量也必须足够大以分隔寄存器类。因此，非扁平的统一寄存器空间通常是不连续的。</p>
+<p>诸如 O3 之类的无序 CPU
+模型通过将这些架构寄存器（使用扁平寄存器索引）重命名为底层物理寄存器文件，增加了另一层复杂性</p>
+<p>静态工具 StaticInst 为二进制指令提供所有静态信息和方法。</p>
+<p>它包含以下信息/方法：</p>
+<p>指示它是哪种指令的标志（整数、浮点、分支、内存屏障等） 指令的 op 类
+源和目标寄存器的数量 使用的整数和 FP 寄存器的数量 将二进制指令解码为
+StaticInst 的方法 虚函数
+execute()，它定义了如何为指令采取特定的架构操作（例如读取
+r1、r2、添加它们并存储在 r3 中。） 处理启动和完成内存操作的虚函数
+用于将内存操作拆分为两个操作的模型分别执行地址计算和内存访问的虚拟函数
+反汇编指令的方法，以人类可读的格式打印出来。（例如 addq r1 r2 r3）
+它没有动态信息，例如指令的 PC 或源寄存器的值或结果。这允许将 StaticInst
+一对一映射到唯一的二进制机器指令。我们通过在 hash_map 中缓存二进制指令到
+StaticInst
+的映射来利用这一事实，允许我们只解码二进制指令一次，并在其余时间直接使用
+StaticInst。</p>
+<p>每条 ISA 指令都从 StaticInst 派生并实现自己的构造函数 execute()
+函数，如果是内存指令，则实现内存访问函数。有关如何指定这些 ISA
+指令的详细信息，请参阅 ISA_description_system。</p>
+<p>动力装置 DynInst
+用于保存有关指令的动态信息。这对于更详细的模型或无序模型是必要的，这两种模型都可能需要静态指令之外的额外信息才能正确执行指令。它存储的一些动态信息包括：</p>
+<p>指令的PC 源寄存器和目标寄存器的重命名寄存器索引 预测的下一代 PC
+指令结果 指令的线程号 正在执行指令的 CPU 指令是否被压缩 此外，DynInst
+提供了 ExecContext 接口。当 ISA 指令执行时，DynInst 作为 ExecContext
+传入，处理 ISA 对 CPU 状态的所有访问。</p>
+<p>详细的 CPU 模型可以从 DynInst 派生并创建自己的特定 DynInst
+子类，这些子类实现可能需要的任何其他状态或功能。有关此示例，请参见
+src/cpu/o3/alpha/dyn_inst.hh。</p>
+<p>decode收到squash信号后将该线程的，指令标记为Squashed，在随后的执行中，直接删除指令</p>
+<p>-- help 打印所有指令</p>
+<h1 id="ldmstm">ldmstm</h1>
+<ul>
+<li>arm32中使用，arm64已不再用</li>
+<li>load multiple registers
+<ul>
+<li>包括pc</li>
+<li>修改pc时被认为是控制指令</li>
+</ul></li>
+</ul>
+<h1 id="gem5执行所有指令时都会检查cc-reg">gem5执行所有指令时都会检查CC
+reg</h1>
+<ul>
+<li>如果不满足xc-&gt;setPredicate(false);
+<ul>
+<li>不会真正执行指令</li>
+</ul></li>
+<li>问： testPredicate(OptCondCodesNZ, CondCodesC, OptCondCodesV,
+condCode)是根据什么判断是否mis branch</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
   
   
@@ -1137,961 +1944,6 @@ class自身声明了virtual析构函数 - copy构造函数和copy assignment操�
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/07/20/Effective%20C++(3)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/07/20/Effective%20C++(3)/" class="post-title-link" itemprop="url">Effective C++(3)--资源管理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-20 16:28:50" itemprop="dateCreated datePublished" datetime="2022-07-20T16:28:50+08:00">2022-07-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.4k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="ch3-资源管理">Ch3 资源管理</h1>
-<ul>
-<li>资源：使用后要还给系统</li>
-</ul>
-<h2 id="以对象管理资源">13 以对象管理资源</h2>
-<ul>
-<li>RAII （Resource Acquisition Is Initialization）</li>
-<li>把资源放入对象内，可倚赖C++析构函数自动调用机制确保函数被释放
-<ul>
-<li>如 auto_ptr， shared_ptr， heap_based</li>
-</ul></li>
-</ul>
-<h2 id="在资源管理类中小心copy行为">14 在资源管理类中小心copy行为</h2>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">lock</span><span class="params">(Mutex* pm)</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">unlock</span><span class="params">(Mutex* pm)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Lock</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Lock</span><span class="params">(Mutex* pm)</span></span></span><br><span class="line"><span class="function">        : mutexPtr(pm)</span></span><br><span class="line"><span class="function">    &#123;</span> <span class="built_in">lock</span>(mutexPtr); &#125;</span><br><span class="line">    ~<span class="built_in">Lock</span>() &#123; <span class="built_in">unlock</span>(mutexPtr); &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Mutex* mutexPtr;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>当发生复制时，有两种选择：
-<ol type="1">
-<li>禁止复制 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Lock</span> : <span class="keyword">private</span> Uncopyable &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>对底部资源使用引用计数法
-<ul>
-<li>用shared_ptr替换Lock中的raw pointer</li>
-</ul></li>
-<li>复制底部资源</li>
-<li>转移底部资源所有权</li>
-</ol></li>
-</ul>
-<h2 id="在资源管理类中提供对原始资源的访问">15
-在资源管理类中提供对原始资源的访问</h2>
-<ul>
-<li>APIs往往有这样的需求
-<ul>
-<li>智能指针重载了operator-&gt;和operator*</li>
-</ul></li>
-<li>显式转换较为安全</li>
-<li>隐式转换对客户比较方便 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">FontHandle <span class="title">getFont</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">releaseFont</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Font</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Font</span><span class="params">(FontHandle fh)</span></span></span><br><span class="line"><span class="function">        : f(fh)</span></span><br><span class="line"><span class="function">    &#123;</span> &#125;</span><br><span class="line">    ~<span class="built_in">Font</span>() &#123; <span class="built_in">releaseFont</span>(f); &#125;</span><br><span class="line">    <span class="function">FontHandle <span class="title">get</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> f; &#125; <span class="comment">/// 显式转换函数</span></span><br><span class="line">    <span class="function"><span class="keyword">operator</span> <span class="title">FontHandle</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> f; &#125; <span class="comment">/// 隐式转换函数</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    FontHandle f;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="成对使用new和delete时要采用相同的形式">16
-成对使用new和delete时要采用相同的形式</h2>
-<ul>
-<li>new -- delete</li>
-<li>new [] -- delete []</li>
-<li>不要对数组形式做typedf</li>
-</ul>
-<h2 id="以独立语句将newed对象置入智能指针">17
-以独立语句将newed对象置入智能指针</h2>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">priority</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">processWidget</span><span class="params">(std::shared_ptr&lt;Widget&gt; pw, <span class="type">int</span> priority)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">processWidget</span>(<span class="keyword">new</span> Widget, <span class="built_in">priority</span>()); <span class="comment">/// wrong! std::shared_ptr&lt;Widget&gt;的构造函数是explicit的，无法隐式转换</span></span><br><span class="line"><span class="built_in">processWidget</span>(std::<span class="built_in">shared_ptr</span>&lt;Widget&gt;(<span class="keyword">new</span> Widget), <span class="built_in">priority</span>()); <span class="comment">/// maybe resource leak! 假如执行顺序为 new --&gt; priority() --&gt; shared_ptr 并且 priority() 出错</span></span><br><span class="line"></span><br><span class="line"><span class="function">std::shared_ptr&lt;Widget&gt; <span class="title">pw</span><span class="params">(<span class="keyword">new</span> Widget)</span></span>;</span><br><span class="line"><span class="built_in">processWidget</span>(pw, <span class="built_in">priority</span>()); <span class="comment">/// ok, no leak!</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>编译器只在一条语句内拥有执行顺序的自由度</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/07/19/%E5%90%84%E7%A7%8Dlinux%E5%B0%8F%E6%8A%80%E5%B7%A7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/07/19/%E5%90%84%E7%A7%8Dlinux%E5%B0%8F%E6%8A%80%E5%B7%A7/" class="post-title-link" itemprop="url">各种linux小技巧</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-19 17:28:50" itemprop="dateCreated datePublished" datetime="2022-07-19T17:28:50+08:00">2022-07-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-09-22 20:36:40" itemprop="dateModified" datetime="2023-09-22T20:36:40+08:00">2023-09-22</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>6.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>10 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1
-id="已知pid已知fd号需要知道文件">已知PID，已知fd号，需要知道文件</h1>
-<ul>
-<li><code>ll /proc/[pid]/fd/</code></li>
-</ul>
-<h1 id="文件锁的情况">文件锁的情况</h1>
-<ul>
-<li><code>cat /proc/locks</code>
-<ul>
-<li>第一个是pid，:后是inode号</li>
-</ul></li>
-</ul>
-<h1 id="查看进程打开所有文件信息lsof">查看进程打开所有文件信息lsof</h1>
-<ul>
-<li><code>lsof -p [pid]</code></li>
-</ul>
-<h1 id="linux-error-code">linux error code</h1>
-<p>https://mariadb.com/kb/en/operating-system-error-codes/</p>
-<h1 id="反向删除文件">反向删除文件</h1>
-<ul>
-<li><code>xargs</code>:
-<ul>
-<li>根据这个命令的名字, 就可以知道它的含义了:<code>x</code>: transmit
-传递, <code>args</code>: 多个参数, 正是: 向命令(不能带多个参数的命令,
-如<code>rpm -e</code>)传递多个参数,
-循环遍历处理.<code>xargs</code>就相当于一个<code>for</code>循环.</li>
-</ul></li>
-<li>反向删除文件:
-<ul>
-<li><code>ls | grep -v 'install_falsh' | xargs rm -rf</code></li>
-</ul></li>
-</ul>
-<h1 id="linux怎么查看当前登录用户">linux怎么查看当前登录用户</h1>
-<ol type="1">
-<li>使用“w”命令，可以显示目前登入系统的用户信息；</li>
-<li>使用“who”命令，可以显示当前已登录的用户信息；</li>
-<li>使用“last”命令；</li>
-<li>使用“lastlog”命令</li>
-<li>使用“ac”命令。</li>
-</ol>
-<h1 id="查看时间和日期">查看时间和日期</h1>
-<ul>
-<li>命令: “date”</li>
-</ul>
-<h1 id="grep显示目标附近的几行">grep显示目标附近的几行</h1>
-<p>cat temp.txt | grep "Mis Predict! [commit]" -A9 -B1</p>
-<h1 id="linux查看文件夹多大">linux查看文件夹多大</h1>
-<ol type="1">
-<li><code>ls</code>
-<ul>
-<li><code>ls -ll</code>，会显示成字节大小，</li>
-<li><code>ls- lh</code>会以KB、MB等为单位进行显示，这样比较直观一些。</li>
-</ul></li>
-<li><code>du</code>
-<ul>
-<li><code>du -h --max-depth=1</code>，可以查看当前目录下各文件、文件夹的大小，这个比较实用。</li>
-<li><code>du -h –-max-depth=0 *</code>，可以只显示直接子目录文件及文件夹大小统计值。</li>
-<li>查询当前目录总大小可以使用<code>du -sh</code>，其中s代表统计汇总的意思，即只输出一个总和大小。
-<ul>
-<li>如果只想查看指定目录的总大小，可以使用du -sh 目录名称。</li>
-</ul></li>
-<li>对于指定文件夹也可以指定显示层次深度，如<code>du -h --max-depth=0 software/</code>及<code>du -h --max-depth=1 software/</code></li>
-</ul></li>
-</ol>
-<h1 id="scons编译">scons编译</h1>
-<ul>
-<li><p>scons：进行代码文件编译</p></li>
-<li><p>scons
--Q：进行代码文件编译，不显示Scons内部操作打印的信息，只显示编译信息</p></li>
-<li><p>scons -c：清除编译中间文件和可执行文件</p></li>
-</ul>
-<h1 id="linux按照大小行数切割文件">Linux按照大小、行数切割文件</h1>
-<ul>
-<li>按照大小切割文件
-<ol type="1">
-<li>按照10k为大小切分：【 split -b 10k data.txt -d 】</li>
-<li>按照5M为大小切分：【 split -b 5M data.txt -d 】</li>
-</ol>
-<ul>
-<li>说明： -d 指定切割后的文件后缀名为数字</li>
-</ul></li>
-<li>按照行数据切割文件
-<ol type="1">
-<li>以100行作为基本单位切分data.txt文件
-<ul>
-<li><code>split -l 100 data.txt result.txt</code></li>
-<li>输出文件：result.txtab result.txtac…结尾以 aa ab ac…</li>
-</ul></li>
-<li>指定切割后的文件前缀名与后缀名
-<ul>
-<li><code>split -l 100 data.txt -d -a 4 data_</code></li>
-<li>说明：
-<ul>
-<li>1）-l 100：按100行切割</li>
-<li>2）data_：指定切割后的文件前缀名</li>
-<li>3）-d：指定切割后的文件后缀名为数字</li>
-<li>4）-a 4：指定切割后的文件后缀名数字的长度</li>
-</ul></li>
-</ul></li>
-</ol></li>
-</ul>
-<h1 id="linux-ls指令">Linux ls指令</h1>
-<ul>
-<li>文件大小以M为单位显示<code>ll -h</code></li>
-<li>根据最近更新顺序排列<code>ls -lrt</code></li>
-</ul>
-<h1 id="解压缩">解压缩</h1>
-<h2 id="解压.tar.bz2">解压<code>.tar.bz2</code></h2>
-<ul>
-<li><code>tar -jxvf 包名</code></li>
-<li><code>-j</code> ： 打包后用zip2压缩，生成.tar.bz2文件</li>
-<li><code>-x</code> ：解开一个打包文件</li>
-<li><code>-v</code> ：过程中显示包内各文件</li>
-<li><code>-f</code> ：使用文件名 后面只可以接文件名不可以加其他参数</li>
-</ul>
-<h1 id="查看cpu的核数">查看CPU的核数</h1>
-<h2 id="物理-cpu-的个数">物理 CPU 的个数</h2>
-<ul>
-<li>物理核心就是计算机上实际配置的 CPU 个数。</li>
-<li><code>wc -l</code> 是统计行数</li>
-<li><code>cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l</code></li>
-</ul>
-<h2 id="每个-cpu-的核数">每个 CPU 的核数</h2>
-<ul>
-<li>指 CPU 上集成的处理数据的 CPU 核心个数，单核指 CPU
-核心数一个，双核则指的是两个。</li>
-<li><code>uniq</code> 可以去重连续出现的相同记录</li>
-<li><code>cat /proc/cpuinfo | grep "cpu cores" | uniq</code></li>
-</ul>
-<h1 id="限制某进程的cpu占用率----cpulimit">限制某进程的CPU占用率 --
-CPULimit</h1>
-<ul>
-<li><code>-l</code> 限定CPU占据率0%~X00% X为CPU核数</li>
-<li><code>-v</code> 显现控制的统计信息</li>
-<li><code>-z</code>
-当被控制的程式退出的时候，CPULimit程式也跟着退出</li>
-<li><code>-i</code> 同时限定被控程式的子进程 #command</li>
-<li><code>-p</code> 被控程式的PID</li>
-<li><code>-e</code> 被控程式的程式称号</li>
-</ul>
-<h1 id="vim">VIM</h1>
-<h2 id="删除多行">删除多行</h2>
-<p>:3,5d
-https://blog.csdn.net/ayychiguoguo/article/details/124926240</p>
-<h1 id="交叉编译">交叉编译</h1>
-<ol type="1">
-<li>安装arm工具包</li>
-</ol>
-<ul>
-<li><code>apt install gcc-8-aarch64-linux-gnu</code></li>
-</ul>
-<ol start="2" type="1">
-<li>编译</li>
-</ol>
-<ul>
-<li>动态链接-默认
-<ul>
-<li><code>aarch64-linux-gnu-gcc-8 main.c</code></li>
-</ul></li>
-<li>静态链接
-<ul>
-<li><code>aarch64-linux-gnu-gcc-8 -static main.c</code></li>
-</ul></li>
-</ul>
-<h1 id="反汇编">反汇编</h1>
-<ol type="1">
-<li>arch64</li>
-</ol>
-<ul>
-<li><code>aarch64-linux-gnu-objdump -d a.out</code></li>
-</ul>
-<ol start="2" type="1">
-<li>host(x86)</li>
-</ol>
-<ul>
-<li><code>objdump -d a.out</code></li>
-</ul>
-<h1 id="查看文件类型">查看文件类型</h1>
-<ul>
-<li><code>file a.out</code>　</li>
-</ul>
-<h1 id="调整磁盘分区">调整磁盘分区</h1>
-<ol start="0" type="1">
-<li>查看当前系统的磁盘情况：
-<ul>
-<li><code>df -h</code> 查看当前系统的磁盘大小</li>
-<li><code>df -T</code> 查看当前系统的磁盘类型，
-以下为xfs类型磁盘扩容</li>
-</ul></li>
-<li>将home目录进行备份,备份完成后,卸载/home 目录
-<code>umount /home</code></li>
-<li>移除home目录对应的分区
-<code>lvremove /dev/mapper/centos-home</code></li>
-<li>扩展根目录分区大小 (我们这里扩展到300G)
-<code>lvextend -L 300G /dev/mapper/centos-root</code></li>
-<li>同步 <code>xfs_growfs /dev/mapper/centos-root</code></li>
-<li>查看硬盘分组 <code>pvs</code></li>
-<li>将剩余空间分给Home目录
-<code>lvcreate -l +100%Free -n home centos</code></li>
-<li>写入分区 <code>mkfs.xfs /dev/mapper/centos-home</code></li>
-<li>硬盘挂在 <code>mount /dev/mapper/centos-home /home</code></li>
-<li>查看结果 <code>df -h</code></li>
-</ol>
-<h1 id="yum换源">yum换源</h1>
-<ol type="1">
-<li>进入yum源配置文件 <code>cd /etc/yum.repos.d</code></li>
-<li>备份一下当前的源，以防出错后可以还原回来
-<code>mv ./CentOS-Base.repo ./CentOS-Base-repo.bak</code></li>
-<li>下载网易163的源<code>wget http://mirrors.163.com/.help/CentOS7-Base-163.repo</code>
-<ul>
-<li>我的机器在这一步遇到了问题，无法访问http，将http改为https</li>
-<li>把下载下来文件 CentOS7-Base-163.repo设置成为默认源
-<code>mv CentOS7-Base-163.repo CentOS-Base.repo</code></li>
-</ul></li>
-<li>清理一下旧包 <code>yum clean all</code></li>
-<li>生成缓存即可用163源了 <code>yum makecache</code></li>
-</ol>
-<ul>
-<li>我的机器在这一步遇到了问题，无法访问http: <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://mirrors.163.com/centos/7/os/x86_64/repodata/repomd.xml: [Errno 14] curl#7 - &quot;Failed connect to mirrors.163.com:80; 拒绝连接&quot;</span><br><span class="line">http://mirrors.163.com/centos/7/os/x86_64/repodata/repomd.xml: [Errno 14] curl#7 - &quot;Failed connect to mirrors.163.com:80; 拒绝连接&quot;</span><br><span class="line">http://mirrors.163.com/centos/7/os/x86_64/repodata/repomd.xml: [Errno 14] curl#7 - &quot;Failed connect to mirrors.163.com:80; 拒绝连接&quot;</span><br></pre></td></tr></table></figure></li>
-<li>解决方案: <code>vim CentOS-Base.repo</code>将http改成https</li>
-</ul>
-<h1 id="ubuntu换源">ubuntu换源</h1>
-<p>如果您想将 Ubuntu
-的软件源更改为清华大学镜像源，可以按照以下步骤进行操作：</p>
-<ol type="1">
-<li><p>打开终端：打开终端应用程序，以便在命令行中执行操作。</p></li>
-<li><p>备份原有源配置（可选）：在更改软件源之前，建议备份原有的源配置文件，以防意外发生。您可以使用以下命令将原有源配置文件复制到其他位置进行备份：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup</span><br></pre></td></tr></table></figure></li>
-<li><p>编辑源配置文件：使用文本编辑器打开源配置文件
-<code>/etc/apt/sources.list</code>。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nano /etc/apt/sources.list</span><br></pre></td></tr></table></figure></li>
-<li><p>获取清华大学镜像源地址：访问清华大学 TUNA
-镜像源站点（https://mirrors.tuna.tsinghua.edu.cn/）或清华大学镜像源站点（https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/）查找可用的软件源地址。</p></li>
-<li><p>更新软件源地址：在编辑器中，将现有的软件源地址替换为清华大学镜像源的地址。根据您的
-Ubuntu 版本和软件源配置文件的格式，通常每个软件源地址占据一行。</p>
-<p>以清华大学 TUNA 镜像源为例，对于 Ubuntu 20.04 LTS（Focal
-Fossa）：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse</span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse</span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse</span><br><span class="line">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse</span><br></pre></td></tr></table></figure>
-<p>对于其他 Ubuntu 版本，请将 <code>focal</code>
-替换为适合您版本的代号，例如 <code>bionic</code>（18.04 LTS）或
-<code>impish</code>（21.10）。</p></li>
-<li><p>保存更改：在编辑器中保存您对源配置文件的更改。</p></li>
-<li><p>更新软件源缓存：执行以下命令来更新软件源缓存：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br></pre></td></tr></table></figure></li>
-<li><p>完成：软件源已经更换为清华大学镜像源。您现在可以使用清华大学镜像源获取和安装软件包。</p></li>
-</ol>
-<p>请注意，清华大学镜像源是一种可靠和高速的镜像源选择，但它可能会因网络和地理位置而有所不同。如果您遇到问题，您可以恢复先前的源配置文件或尝试其他可用的软件源。</p>
-<p>实验室使用的源</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">deb https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse</span><br><span class="line">deb https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse</span><br><span class="line">deb https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse</span><br><span class="line">deb https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse</span><br><span class="line">deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-14 main</span><br><span class="line"># deb-src https://apt.llvm.org/bionic/ llvm-toolchain-bionic-14 main</span><br></pre></td></tr></table></figure>
-<h1 id="linux-批量杀死进程">Linux 批量杀死进程</h1>
-<p><code>ps -ef|grep GSM_run.py|grep -v grep|cut -c 9-15|xargs kill -9</code>
-- 命令说明 : 1. 管道符 "|"
-用来隔开两个命令，管道符左边命令的输出会作为管道符右边命令的输入。 2.
-<code>ps -ef</code> 是 查看所有进程,其中 <code>ps -aux</code>
-也是查看所有进程,不过两者以下区别： 1.
-<code>-ef</code>是<code>System V</code>展示风格，而<code>-aux</code>是<code>BSD</code>风格,Unix操作系统在操作风格上主要分为System
-V和BSD 2.
-<code>COMMADN</code>列如果过长，<code>-aux</code>会截断显示，而<code>-ef</code>不会
-3.
-<code>-aux</code>可以查看进程的CPU占用率和内存占用率，而<code>-ef</code>不能
-3. <code>grep GSM_run.py</code>
-列出含有关键字<code>GSM_run.py</code>的所有进程 4.
-<code>grep -v grep</code>是在列出的进程中去除含有关键字<code>grep</code>的进程
-5.
-<code>cut -c 9-15</code>是截取输入行的第9个字符到第15个字符，而这正好是进程号PID
-- 某些情况下 9-15 是 不够的 可以 写成 <code>awk '&#123;print $2&#125;'</code> 其
-表示 按空格分割取第二个元素，即取进程号
-PID。此时完整的命令为<code>ps -ef|grep GSM_run.py|grep -v grep|awk '&#123;print $2&#125;'|xargs kill -9</code>
-6. <code>xargs kill -9</code> -
-xargs命令把前面命令的输出结果（PID）作为<code>kill -9</code>命令的参数，并执行</p>
-<h1
-id="比较两个文件并找出它们之间不同的行">比较两个文件并找出它们之间不同的行</h1>
-<p>要比较两个文件并找出它们之间不同的行，可以使用<code>diff</code>命令。<code>diff</code>命令用于比较文件之间的差异，并显示不同之处。</p>
-<p>以下是使用<code>diff</code>命令比较两个文件并找出不同行的示例：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diff file1.txt file2.txt</span><br></pre></td></tr></table></figure>
-<p>上述命令将比较名为<code>file1.txt</code>和<code>file2.txt</code>的两个文件，并显示它们之间的差异。<code>diff</code>命令将显示出两个文件中不同的行，并用"&lt;"和"&gt;"符号标记它们。"&lt;"表示该行在第一个文件中出现，而"&gt;"表示该行在第二个文件中出现。</p>
-<p>如果只关注不同的行而不关心具体的差异内容，可以使用以下命令：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diff --brief file1.txt file2.txt</span><br></pre></td></tr></table></figure>
-<p>上述命令将仅显示文件之间的差异，并不显示具体的差异内容。</p>
-<p>请注意，<code>diff</code>命令还有其他选项和用法，可以根据需要进行调整。您可以使用<code>man diff</code>命令查看完整的<code>diff</code>命令文档和更多选项。</p>
-<h1
-id="要在ubuntu上安装clang-format您可以按照以下步骤进行操作">要在Ubuntu上安装Clang
-Format，您可以按照以下步骤进行操作：</h1>
-<ol type="1">
-<li><p>使用以下命令安装Clang和Clang Format： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt install clang</span><br><span class="line">sudo apt install clang-format</span><br></pre></td></tr></table></figure>
-这将更新软件包列表并安装Clang和Clang Format。</p></li>
-<li><p>安装完成后，您可以使用以下命令验证是否成功安装Clang Format：
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang-format --version</span><br></pre></td></tr></table></figure> 如果安装成功，将显示Clang Format的版本信息。</p></li>
-</ol>
-<p>现在，您已经成功在Ubuntu上安装了Clang
-Format。您可以使用它来格式化C、C++和其他受支持的语言的源代码文件。</p>
-<h1 id="grep">grep</h1>
-<ol type="1">
-<li>或 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -E <span class="string">&#x27;123|abc&#x27;</span> filename  // 找出文件（filename）中包含123或者包含abc的行</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h1 id="ssh">ssh</h1>
-<ol type="1">
-<li>"permissions are too open"
-<ul>
-<li><code>chmod 600 ~/.ssh/id_rsa</code></li>
-</ul></li>
-</ol>
-<h1 id="perf">perf</h1>
-<p>ubuntu无法安装perf
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1844443</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/07/16/Effective%20C++(1)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/07/16/Effective%20C++(1)/" class="post-title-link" itemprop="url">Effective C++(1)--让自己习惯C++</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-07-16 16:28:50" itemprop="dateCreated datePublished" datetime="2022-07-16T16:28:50+08:00">2022-07-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.6k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="视c为一个语言联邦">01 视C++为一个语言联邦</h1>
-<ul>
-<li>C++ :
-多重范型编程语言(<code>multiparadigm programming language</code>)
-<ul>
-<li>过程形式(<code>procedural</code>)</li>
-<li>面向对象(<code>object-oriented</code>)</li>
-<li>函数形式(<code>functional</code>)</li>
-<li>泛型形式(<code>generic</code>)</li>
-<li>元编程形式(<code>metaprogramming</code>)</li>
-</ul></li>
-<li>语言联邦:
-<ul>
-<li>C(过程形式,函数形式)</li>
-<li>object-oriented C++</li>
-<li>Template C++(泛型形式,元编程)</li>
-<li>STL(template程序库)</li>
-</ul></li>
-</ul>
-<h1 id="尽量以constenuminline替换define">02
-尽量以const,enum,inline替换#define</h1>
-<ul>
-<li>宁可以编译器替换预处理器 ## 原因 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> ASPECT_RATIO 1.653</span></span><br></pre></td></tr></table></figure></li>
-<li>记号名称ASPECT_RATIO从未被编译器看见
-<ul>
-<li>在编译器处理源码之前被预处理器移走了</li>
-<li>记号名称ASPECT_RATIO未进入符号表</li>
-<li>相关的错误信息显示1.653而非ASPECT_RATIO</li>
-</ul></li>
-<li>解决办法 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">double</span> aspect_ratio <span class="number">1.653</span>;</span><br></pre></td></tr></table></figure> ## class的专属常量</li>
-<li>member</li>
-<li>为确保只有一份实体
-<ul>
-<li>static <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Class GamePlayer&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">static</span> <span class="type">const</span> <span class="type">int</span> NumTurns = <span class="number">5</span>;  <span class="comment">// 常量声明式</span></span><br><span class="line">    <span class="type">int</span> scores[NumTurns];   <span class="comment">// 使用该常量</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul></li>
-<li>todo:
-<ul>
-<li>why it is declaration</li>
-</ul></li>
-<li>通常C++要求你对你所使用的东西提供一个定义式
-<ul>
-<li>例外:
-<ul>
-<li>class专属常量 &amp;&amp; static &amp;&amp; integral type(ints,
-chars, bools) -- 不取地址时无需定义式</li>
-</ul></li>
-<li>定义式: <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">int</span> GamePlayer::NumTurns;  <span class="comment">// definition</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>写在实现文件而非头文件</li>
-<li>由于常量声明时已经获得初值,此时无需再设初值</li>
-</ul></li>
-</ul></li>
-<li>#define毫无封装性
-<ul>
-<li>无法定义class专属常量</li>
-<li>在C++中不管宏是定义在类内部还是外部
-都当做外部，使用时不需要限定域运算--即宏是全局的</li>
-<li>https://blog.csdn.net/xiupong/article/details/119805554</li>
-</ul></li>
-</ul>
-<h2 id="enum-hack">enum hack</h2>
-<ul>
-<li>一个属于枚举类型的数值可以权充ints被使用 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Class GamePlayer&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">enum</span> &#123; NumTurns = <span class="number">5</span> &#125;;  <span class="comment">// 常量声明式</span></span><br><span class="line">    <span class="type">int</span> scores[NumTurns];   <span class="comment">// 使用该常量</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>enum类型不会被取地址
-<ul>
-<li>enum不会导致非必要的内存分配</li>
-<li>enum产生的常量是没有存储空间的，编译器编译后，只会成为汇编指令的立即数，也就是存在于_TEXT段</li>
-</ul></li>
-</ul>
-<h2
-id="使用template-inline函数取代替换宏函数">使用<code>template inline</code>函数取代替换宏函数</h2>
-<h1 id="尽可能使用const">03 尽可能使用const</h1>
-<ul>
-<li>将某些东西声明为const可帮助编译器侦测出错误用法。const可被施加于任何作用域内的对象、函数参数、函数返回类型、成员函数本体。</li>
-<li>编译器强制实施 bitwise
-constness，但你编写程序时应该使用“概念上的常量性”(conceptual
-constness)。</li>
-<li>当const和non-const成员函数有着实质等价的实现时，令non-const版本调用const版本可避免代码重复。</li>
-<li>const对象只能调用const成员函数 ## STL系根据指针塑模出来
-<ul>
-<li>迭代器类似T*</li>
-<li>声明迭代器为const类似<code>T* const</code></li>
-<li>const_iterator类似<code>const T*</code></li>
-</ul></li>
-</ul>
-<h2 id="const成员函数">const成员函数</h2>
-<ul>
-<li>两个成员函数如果只是常量性不同，可以被重载
-<ol type="1">
-<li>在c++中其实是有最⼩权限原则的，⾮const对象是可以调⽤const成员函数的。</li>
-<li>const成员函数是不能调⽤⾮const成员函数，只能通过强制或者定义mutable</li>
-<li>构造与析构函数不能定义为const成员函数，构造跟析构会对对象做修改</li>
-</ol></li>
-<li>bitwise constness vs logical constness
-<ul>
-<li>bitwise constness:
-<ul>
-<li>不改变对象内任何一个bit</li>
-<li>编译器检测不到修改指针成员变量所指的内容</li>
-</ul></li>
-<li>logical constness:
-<ul>
-<li>可以修改某些bit(在客户端侦测不到时)</li>
-<li><code>mutable</code> : 在const成员函数内变量仍有可能被修改</li>
-</ul></li>
-</ul></li>
-<li>在const和non-const成员函数中避免重复
-<ul>
-<li>使用non-const成员函数调用const成员函数(需要转型) <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TextBlock</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> &amp;<span class="keyword">operator</span>[](std::<span class="type">size_t</span> position) <span class="type">const</span></span><br><span class="line">    &#123; <span class="comment">//一如既往&#123;</span></span><br><span class="line">        <span class="keyword">return</span> text[position];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">char</span> &amp;<span class="keyword">operator</span>[](std::<span class="type">size_t</span> position) <span class="comment">//现在只调用const op[]</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">            <span class="built_in">const_cast</span>&lt;<span class="type">char</span> &amp;&gt;( <span class="comment">//将op[]返回值的const转除</span></span><br><span class="line">                <span class="built_in">static_cast</span>&lt;<span class="type">const</span> TextBlock &amp;&gt;(*<span class="keyword">this</span>) <span class="comment">//为*this加上const</span></span><br><span class="line">                [position] <span class="comment">//调用const op[]</span></span><br><span class="line">            );</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::string text;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>禁止使用const成员函数调用non-const成员函数</li>
-</ul></li>
-</ul>
-<h1 id="确定对象被使用前已经被初始化">04
-确定对象被使用前已经被初始化</h1>
-<ul>
-<li>C part of C++5
-<ul>
-<li>初始化 --&gt; 运行期成本</li>
-<li>不保证其内容被初始化，如array</li>
-</ul></li>
-<li>non-C part of C++
-<ul>
-<li>vector保证初始化(来自STL)</li>
-</ul></li>
-<li>在使用对象之前先将他初始化
-<ul>
-<li>内置类型
-<ul>
-<li>手工完成, 如int， pointer</li>
-</ul></li>
-<li>其他类型:
-<ul>
-<li>构造函数负责初始化
-<ul>
-<li>使用<code>member initialization list</code></li>
-</ul></li>
-</ul></li>
-</ul></li>
-<li>编译单元
-<ul>
-<li>产出单一目标文件的源码</li>
-<li>单一源码文件 + #include files</li>
-</ul></li>
-<li>C++对"定义于不同编译单元内的non-local
-static对象"的初始化次序并无明确定义
-<ul>
-<li>Singleton :
-<ul>
-<li>以local static对象替换non-local static对象</li>
-<li>使用时返回local static对象的引用</li>
-</ul></li>
-<li>函数内的local static对象会在首次定义对象时被初始化</li>
-<li>单例会导致多线程下的不确定性
-<ul>
-<li>可以在程序的单线程启动阶段手工调用所有的reference-returning</li>
-</ul></li>
-</ul></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/06/29/cpp%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/06/29/cpp%E5%9E%8B%E5%88%AB%E6%8E%A8%E5%AF%BC/" class="post-title-link" itemprop="url">C++型别推导</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-29 22:49:50" itemprop="dateCreated datePublished" datetime="2022-06-29T22:49:50+08:00">2022-06-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>5 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li><code>auto</code></li>
-<li><code>decltype</code></li>
-</ul>
-<h1 id="模版型别推导">模版型别推导</h1>
-<h2 id="一般形式">一般形式:</h2>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(ParamType param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(expr);   <span class="comment">// 从expr推导T和ParamType的型别</span></span><br></pre></td></tr></table></figure>
-<h2
-id="情况一paramtype是指针或引用-但不是万能引用">情况一:<code>ParamType</code>是指针或引用,
-但不是万能引用:</h2>
-<ol type="1">
-<li>若<code>expr</code>具有引用型别, 先将引用部分忽略</li>
-<li><code>ParamType</code>和<code>expr</code>模式匹配 ==&gt;&gt;
-<code>T</code></li>
-</ol>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; const int, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; const int, ParamType -&gt; const int&amp;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>向持有<code>T&amp;</code>型别的模版传入<code>const</code>对象是安全的</li>
-</ul>
-<h2
-id="情况二paramtype是万能引用">情况二:<code>ParamType</code>是万能引用:</h2>
-<ol type="1">
-<li>如果<code>expr</code>是个左值:
-<ul>
-<li><code>ParamType</code>和<code>T</code>都会被推导为左值引用</li>
-</ul></li>
-<li>如果<code>expr</code>是个右值:
-<ul>
-<li>与情况一相同</li>
-</ul></li>
-</ol>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T&amp;&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; const int&amp;, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; const int&amp;, ParamType -&gt; const int&amp;</span></span><br><span class="line"><span class="built_in">f</span>(<span class="number">27</span>); <span class="comment">// T -&gt; int, ParamType -&gt; int&amp;&amp;</span></span><br></pre></td></tr></table></figure>
-<h2
-id="情况三paramtype既非指针也非引用">情况三:<code>ParamType</code>既非指针也非引用:</h2>
-<ul>
-<li>即按值传递,
-<code>param</code>是传入对象的副本，是<strong>全新对象</strong></li>
-</ul>
-<ol type="1">
-<li>若<code>expr</code>具有引用型别, 先将引用部分忽略</li>
-<li>若是<code>const</code>,<code>volatile</code>对象，也忽略之</li>
-</ol>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">27</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> cx = x;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span>&amp; rx = x;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(x); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(cx); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(rx); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"><span class="built_in">f</span>(<span class="number">27</span>); <span class="comment">// T -&gt; int, ParamType -&gt; int</span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* <span class="type">const</span> ptr = <span class="string">&quot;Fun&quot;</span>;</span><br><span class="line"><span class="built_in">f</span>(ptr); T -&gt; <span class="type">const</span> <span class="type">char</span>*, ParamType -&gt; <span class="type">const</span> <span class="type">char</span>*</span><br></pre></td></tr></table></figure>
-<h2 id="其他情形">其他情形:</h2>
-<h3 id="数组实参">数组实参</h3>
-<ul>
-<li>数组可退化成指针</li>
-<li>没有任何函数形参具有数组型别:
-<code>void myFunc(int param[]);</code>等价于<code>void myFunc(int param[]);</code></li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> name = <span class="string">&quot;J. P. Briggs&quot;</span>; <span class="comment">// name的型别是const char[13]</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* ptrToName = name; <span class="comment">// 数组退化成指针</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(name); <span class="comment">// T -&gt; const char*</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"><span class="built_in">f2</span>(name); <span class="comment">// T -&gt; const char [13], ParamType -&gt; const char (&amp;)[13]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 以编译器常量形式返回数组尺寸</span></span><br><span class="line"><span class="comment">// 形参未起名字</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T， std::<span class="type">size_t</span> N&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> std::<span class="type">size_t</span> <span class="title">arraySize</span><span class="params">(T (&amp;)[N])</span> <span class="keyword">noexcept</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> N;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="函数实参">函数实参</h3>
-<ul>
-<li>函数型别可退化成函数指针 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">someFunc</span><span class="params">(<span class="type">int</span>, <span class="type">double</span>)</span></span>; <span class="comment">// 型别为void(int, double)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f1</span><span class="params">(T param)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f2</span><span class="params">(T&amp; param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> name = <span class="string">&quot;J. P. Briggs&quot;</span>; <span class="comment">// name的型别是const char[13]</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* ptrToName = name; <span class="comment">// 数组退化成指针</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">f1</span>(someFunc); <span class="comment">// ParamType -&gt; void(*)(int, double)</span></span><br><span class="line"><span class="built_in">f2</span>(someFunc); <span class="comment">// ParamType -&gt; void(&amp;)(int, double)</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h1 id="auto-型别推导">auto 型别推导</h1>
-<ul>
-<li>与模板型别一模一样（除了一个例外情况）
-<ul>
-<li><code>auto</code>是模板中的<code>T</code></li>
-<li>变量的型别饰词是<code>ParamType</code> ## 例外情况: {}
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x3 = &#123;<span class="number">27</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">auto</span> x4 = &#123;<span class="number">27</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"><span class="keyword">auto</span> x5 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3.0</span>&#125;; <span class="comment">// Error! </span></span><br></pre></td></tr></table></figure></li>
-</ul></li>
-<li><code>auto</code> -&gt; <code>std::initializer_list</code>,
-所以x5必须被推导为<code>std::initializer_list&lt;T&gt;</code>,
-但<code>&#123;&#125;</code>内型别不统一,所以错误</li>
-<li>模板不接受大括号初始化表达式 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> x = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// T -&gt; std::initializer_list&lt;int&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(T param)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">f</span>(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;); <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="auto返回值">auto返回值</h2>
-<ul>
-<li>使用模版型别推导规则 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">createOnitList</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// Error!</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="lambda式中的auto形参">lambda式中的auto形参</h2>
-<ul>
-<li>使用模版型别推导规则 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">std::vector&lt;<span class="type">int</span>&gt; v;</span><br><span class="line"><span class="keyword">auto</span> resetV = </span><br><span class="line">    [&amp;v](<span class="type">const</span> <span class="keyword">auto</span>&amp; newValue) &#123;v = newValue;&#125; <span class="comment">// c++14</span></span><br><span class="line"><span class="built_in">resetV</span>(&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;); <span class="comment">// Error!</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h1 id="理解decltype">理解decltype</h1>
-<ul>
-<li>一般只会鹦鹉学舌 ## 实例</li>
-<li>目标:
-<ul>
-<li>实现一个函数，形参包括一个容器(支持<code>[]</code>)和一个下标</li>
-<li>并在返回下标操作结果前进行用户验证</li>
-<li>返回值型别与容器下标的返回值型别相同</li>
-</ul></li>
-<li>背景知识:
-<ul>
-<li>一般而言，含有型别T的对象的容器，其operator[]返回T&amp;</li>
-<li>std::vector(除std::vector<bool>外)均满足</li>
-</ul></li>
-<li>初步尝试:
-<ul>
-<li>能运作, 需改进 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Container, <span class="keyword">typename</span> Index&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">authAndAccess</span><span class="params">(Container&amp; c, Index i)</span></span></span><br><span class="line"><span class="function">    -&gt; <span class="title">decltype</span><span class="params">(c[i])</span>  <span class="comment">/// 返回值型别尾序语法</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">authenticateUser</span>();</span><br><span class="line">    <span class="keyword">return</span> c[i];</span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure></li>
-</ul></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2163,14 +2015,14 @@ id="情况三paramtype既非指针也非引用">情况三:<code>ParamType</code>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -2215,12 +2067,12 @@ id="情况三paramtype既非指针也非引用">情况三:<code>ParamType</code>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">407k</span>
+    <span title="站点总字数">439k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:19</span>
+    <span title="站点阅读时长">12:11</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

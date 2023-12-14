@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
@@ -147,6 +149,11 @@
         <li class="menu-item menu-item-archives">
 
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -634,8 +641,6 @@ section on examining page tables</a>.</p>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#osoperating-system"><span class="nav-number">1.</span> <span class="nav-text">OS(Operating System)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#component"><span class="nav-number">1.1.</span> <span class="nav-text">component</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kernel"><span class="nav-number">2.</span> <span class="nav-text">kernel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#what-the-kernel-does"><span class="nav-number">2.1.</span> <span class="nav-text">What the kernel does</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#load-a-kernel-image"><span class="nav-number">2.2.</span> <span class="nav-text">load a kernel image</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#image"><span class="nav-number">3.</span> <span class="nav-text">image</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#kernel-image"><span class="nav-number">3.1.</span> <span class="nav-text">kernel image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#disk-image"><span class="nav-number">3.2.</span> <span class="nav-text">disk image</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#docker-image"><span class="nav-number">3.3.</span> <span class="nav-text">docker image</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kernel%E4%B8%8Eos%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">4.</span> <span class="nav-text">kernel与OS的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#difference-between-operating-system-and-kernel"><span class="nav-number">4.1.</span> <span class="nav-text">Difference
-between Operating System and Kernel:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#linux-kernel%E4%B8%8Eubuntu%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">4.2.</span> <span class="nav-text">linux kernel与ubuntu的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ubuntu-kernel"><span class="nav-number">4.2.1.</span> <span class="nav-text">ubuntu kernel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mac-kernel"><span class="nav-number">4.2.2.</span> <span class="nav-text">mac kernel</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8Bkernel%E4%BF%A1%E6%81%AF"><span class="nav-number">4.3.</span> <span class="nav-text">查看kernel信息</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mmu"><span class="nav-number">5.</span> <span class="nav-text">MMU</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -651,14 +656,14 @@ between Operating System and Kernel:</span></a></li><li class="nav-item nav-leve
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -703,12 +708,12 @@ between Operating System and Kernel:</span></a></li><li class="nav-item nav-leve
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">407k</span>
+    <span title="站点总字数">439k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:19</span>
+    <span title="站点阅读时长">12:11</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
@@ -147,6 +149,11 @@
         <li class="menu-item menu-item-archives">
 
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -1276,11 +1283,6 @@ CPU状态的部分，例如整数寄存器和条件码。</p></li>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#tcg-intermediate-representation-tcgtiny-code-generator%E4%B8%AD%E9%97%B4%E8%A1%A8%E7%A4%BA"><span class="nav-number">1.</span> <span class="nav-text">TCG
-Intermediate Representation &#x2F; TCG（Tiny Code Generator）中间表示</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction-%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">Introduction &#x2F; 介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#definitions-%E5%AE%9A%E4%B9%89"><span class="nav-number">1.2.</span> <span class="nav-text">Definitions &#x2F; 定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#basic-blocks-%E5%9F%BA%E6%9C%AC%E5%9D%97"><span class="nav-number">1.3.</span> <span class="nav-text">Basic Blocks &#x2F; 基本块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#operations-%E6%93%8D%E4%BD%9C"><span class="nav-number">1.4.</span> <span class="nav-text">Operations &#x2F; 操作</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#variables"><span class="nav-number">2.</span> <span class="nav-text">Variables</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#types"><span class="nav-number">3.</span> <span class="nav-text">Types</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#helpers-%E8%BE%85%E5%8A%A9%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.</span> <span class="nav-text">Helpers &#x2F; 辅助函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#code-optimizations"><span class="nav-number">3.2.</span> <span class="nav-text">Code Optimizations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#instruction-reference"><span class="nav-number">3.3.</span> <span class="nav-text">Instruction Reference</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#function-call"><span class="nav-number">3.3.1.</span> <span class="nav-text">Function call</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jumpslabels"><span class="nav-number">3.3.2.</span> <span class="nav-text">Jumps&#x2F;Labels</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#arithmetic"><span class="nav-number">3.3.3.</span> <span class="nav-text">Arithmetic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#logical"><span class="nav-number">3.3.4.</span> <span class="nav-text">Logical</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shiftsrotates"><span class="nav-number">3.3.5.</span> <span class="nav-text">Shifts&#x2F;Rotates</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#misc"><span class="nav-number">3.3.6.</span> <span class="nav-text">Misc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#conditional-moves"><span class="nav-number">3.3.7.</span> <span class="nav-text">Conditional moves</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#type-conversions"><span class="nav-number">3.3.8.</span> <span class="nav-text">Type conversions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#loadstore"><span class="nav-number">3.3.9.</span> <span class="nav-text">Load&#x2F;Store</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#multiword-arithmetic-support"><span class="nav-number">3.3.10.</span> <span class="nav-text">Multiword arithmetic support</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memory-barrier-support"><span class="nav-number">3.3.11.</span> <span class="nav-text">Memory Barrier support</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bit-guest-on-32-bit-host-support"><span class="nav-number">3.3.12.</span> <span class="nav-text">64-bit guest on 32-bit host
-support</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#qemu-specific-operations"><span class="nav-number">3.3.13.</span> <span class="nav-text">QEMU specific operations</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#host-vector-operations"><span class="nav-number">3.4.</span> <span class="nav-text">Host vector operations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#backend-%E5%90%8E%E7%AB%AF"><span class="nav-number">3.5.</span> <span class="nav-text">Backend &#x2F; 后端</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#assumptions-%E5%81%87%E8%AE%BE"><span class="nav-number">3.5.1.</span> <span class="nav-text">Assumptions &#x2F; 假设</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#constraints-%E9%99%90%E5%88%B6"><span class="nav-number">3.5.2.</span> <span class="nav-text">Constraints &#x2F; 限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#function-call-assumptions-%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%9A%84%E5%81%87%E8%AE%BE"><span class="nav-number">3.5.3.</span> <span class="nav-text">Function call
-assumptions &#x2F; 函数调用的假设</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#recommended-coding-rules-for-best-performance"><span class="nav-number">3.6.</span> <span class="nav-text">Recommended
-coding rules for best performance</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -1296,14 +1298,14 @@ coding rules for best performance</span></a></li></ol></li></ol></div>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -1348,12 +1350,12 @@ coding rules for best performance</span></a></li></ol></li></ol></div>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">407k</span>
+    <span title="站点总字数">439k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:19</span>
+    <span title="站点阅读时长">12:11</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

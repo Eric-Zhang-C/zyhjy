@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
@@ -148,6 +150,11 @@
         <li class="menu-item menu-item-archives">
 
     <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -542,11 +549,6 @@ EmulationPageTable::map()</p>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#gem5-o3cpu-guidelines"><span class="nav-number">1.</span> <span class="nav-text">gem5 O3CPU guidelines</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#interaction-of-cpu-model-with-other-parts-of-gem5"><span class="nav-number">1.1.</span> <span class="nav-text">Interaction
-of CPU model with other parts of gem5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fetch"><span class="nav-number">1.2.</span> <span class="nav-text">fetch</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#fetchdecoder%E4%B8%8Emacro-opmicro-op"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.
-fetch::decoder与macro op、micro op</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#inrom"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. inRom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fetchdecoder%E4%B8%8Epcoffset"><span class="nav-number">1.2.3.</span> <span class="nav-text">3.
-fetch::decoder与pcOffset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pcmask"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. pcMask()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fetchdecodermorebytes"><span class="nav-number">1.2.5.</span> <span class="nav-text">5.
-fetch::decoder::moreBytes()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#blkoffset"><span class="nav-number">1.2.6.</span> <span class="nav-text">6. blkOffset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fetchfetchcacheline"><span class="nav-number">1.2.7.</span> <span class="nav-text">7. Fetch::fetchCacheLine</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#gem5-add-l3-cache"><span class="nav-number">2.</span> <span class="nav-text">gem5 add L3 cache</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%A9%E7%90%86%E9%A1%B5%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">物理页分配流程</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -562,14 +564,14 @@ fetch::decoder::moreBytes()</span></a></li><li class="nav-item nav-level-3"><a c
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -614,12 +616,12 @@ fetch::decoder::moreBytes()</span></a></li><li class="nav-item nav-level-3"><a c
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">407k</span>
+    <span title="站点总字数">439k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:19</span>
+    <span title="站点阅读时长">12:11</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
