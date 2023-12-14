@@ -802,8 +802,8 @@ Down分析方法：该方法可以识别关键的瓶颈，它简单、结构化�
       <i class="fa fa-chevron-left"></i> Arrch64 CPU Structure
     </a></div>
       <div class="post-nav-item">
-    <a href="/zyhjy/2023/06/04/C++%E4%BE%AF%E6%8D%B7STL%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" rel="next" title="C++并发编程">
-      C++并发编程 <i class="fa fa-chevron-right"></i>
+    <a href="/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="next" title="笔记：C++ Concurrency in Action 2ed">
+      笔记：C++ Concurrency in Action 2ed <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -868,6 +868,14 @@ Down分析方法：该方法可以识别关键的瓶颈，它简单、结构化�
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#abstract"><span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#s1"><span class="nav-text">S1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section2-background"><span class="nav-text">Section2 Background</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-3.top-down-analysis"><span class="nav-text">SECTION 3.Top-Down Analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#top-level-breakdown"><span class="nav-text">3.2. Top Level Breakdown</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#frontend-bound-category"><span class="nav-text">3.3. Frontend Bound Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bad-speculation-category"><span class="nav-text">3.4. Bad Speculation Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#retiring-category"><span class="nav-text">3.5. Retiring Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#backend-bound-category"><span class="nav-text">3.6. Backend Bound Category</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#memory-bound-breakdown-within-backend"><span class="nav-text">3.7. Memory Bound
+Breakdown (within backend)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-4.counters-architecture"><span class="nav-text">SECTION 4.Counters
+Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#top-down-events"><span class="nav-text">4.1. Top-Down Events</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#top-down-metrics"><span class="nav-text">4.2. Top-Down Metrics</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-5.results"><span class="nav-text">SECTION 5.Results</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#spec-cpu2006-1c"><span class="nav-text">5.1. SPEC CPU2006 1C</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spec-cpu2006-4c"><span class="nav-text">5.2. SPEC CPU2006 4C</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#microarchitectures-comparison"><span class="nav-text">5.3. Microarchitectures
+Comparison</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#server-workloads"><span class="nav-text">5.4. Server Workloads</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#case-study-1-matrix-multiply"><span class="nav-text">5.5. Case Study 1:
+Matrix-Multiply</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#case-study-2-false-sharing"><span class="nav-text">5.6. Case Study 2: False
+Sharing</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#case-study-3-software-prefetch"><span class="nav-text">5.7. Case Study 3: Software
+Prefetch</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-6.related-work"><span class="nav-text">SECTION 6.Related Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-7.summary-and-future-work"><span class="nav-text">SECTION 7.Summary and Future
+Work</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#appendix-1"><span class="nav-text">10. Appendix 1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pre"><span class="nav-text">PRE</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section"><span class="nav-text">1.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A8%E6%9C%BA"><span class="nav-text">2. 动机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-1"><span class="nav-text">3</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-2"><span class="nav-text">4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-3"><span class="nav-text">5</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%91%E6%88%98"><span class="nav-text">6 挑战</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-4"><span class="nav-text">7</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-5"><span class="nav-text">8</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-6"><span class="nav-text">9</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-7"><span class="nav-text">12</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-8"><span class="nav-text">13</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-9"><span class="nav-text">14</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-10"><span class="nav-text">15</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-11"><span class="nav-text">16</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-12"><span class="nav-text">17</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-13"><span class="nav-text">18</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#section-14"><span class="nav-text">19</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -883,7 +891,7 @@ Down分析方法：该方法可以识别关键的瓶颈，它简单、结构化�
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">79</span>
+          <span class="site-state-item-count">80</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -940,7 +948,7 @@ Down分析方法：该方法可以识别关键的瓶颈，它简单、结构化�
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">12:11</span>
+    <span title="站点阅读时长">12:12</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

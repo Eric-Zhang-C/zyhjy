@@ -706,6 +706,24 @@ alt="image-20230802144500427" />
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#memory-efficient-hashed-page-tables"><span class="nav-text">Memory-Efficient Hashed
+Page Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-text">摘要</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips"><span class="nav-text">tips:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-text">1. INTRODUCTION</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#background"><span class="nav-text">2. BACKGROUND</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a.-limitations-of-radix-tree-page-tables"><span class="nav-text">A. Limitations of
+Radix-Tree Page Tables</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b.-hashed-page-tables"><span class="nav-text">B. Hashed Page Tables</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#challenges-of-hashed-page-tables."><span class="nav-text">Challenges of Hashed Page
+Tables.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#making-hashed-page-tables-compelling."><span class="nav-text">Making Hashed Page Tables
+Compelling.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mechanics-of-an-hpt-upsize."><span class="nav-text">Mechanics of an HPT Upsize.</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motivation-for-improving-hpts"><span class="nav-text">3. MOTIVATION FOR IMPROVING
+HPTS</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-1"><span class="nav-text">tips:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#designing-memory-efficient-hpts"><span class="nav-text">4. DESIGNING MEMORY-EFFICIENT
+HPTS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a.-logical-to-physical-l2p-table"><span class="nav-text">A. Logical to Physical
+(L2P) Table</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-2"><span class="nav-text">tips</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b.-dynamically-changing-chunk-sizes"><span class="nav-text">B. Dynamically Changing
+Chunk Sizes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#c.-in-place-page-table-resizing"><span class="nav-text">C. In-place Page Table
+Resizing</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-3"><span class="nav-text">tips</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-4"><span class="nav-text">tips</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#detailed-rehash-algorithm."><span class="nav-text">Detailed Rehash Algorithm.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#other-operations."><span class="nav-text">Other Operations.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#interaction-between-resizing-and-changing-chunk-sizes."><span class="nav-text">Interaction
+between Resizing and Changing Chunk Sizes.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#d.-per-way-resizing"><span class="nav-text">D. Per-way Resizing</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#deciding-which-way-to-upsize-or-downsize."><span class="nav-text">Deciding Which Way to
+Upsize or Downsize.</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#deciding-where-to-insert-an-element."><span class="nav-text">Deciding Where to Insert
+an Element.</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#e.-reducing-hpt-size-reduces-memory-contiguity"><span class="nav-text">E. Reducing
+HPT Size Reduces Memory Contiguity</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#v.-me-hpt-implementation-aspects"><span class="nav-text">V. ME-HPT IMPLEMENTATION
+ASPECTS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a.-l2p-table-entry-stealing"><span class="nav-text">A. L2P Table Entry
+Stealing</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-5"><span class="nav-text">tips</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b.-chosen-chunk-sizes"><span class="nav-text">B. Chosen Chunk Sizes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#c.-scalability-of-l2p-tables-with-changing-chunks"><span class="nav-text">C.
+Scalability of L2P Tables with Changing Chunks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#d.-hiding-the-access-to-the-l2p-table"><span class="nav-text">D. Hiding the Access
+to the L2P Table</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tips-6"><span class="nav-text">tips</span></a></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -721,7 +739,7 @@ alt="image-20230802144500427" />
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">79</span>
+          <span class="site-state-item-count">80</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -778,7 +796,7 @@ alt="image-20230802144500427" />
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">12:11</span>
+    <span title="站点阅读时长">12:12</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

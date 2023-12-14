@@ -208,6 +208,142 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/07/20/Effective%20C++(2)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2022/07/20/Effective%20C++(2)/" class="post-title-link" itemprop="url">Effective C++(05-12)--构造 析构 赋值运算</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-20 16:28:50" itemprop="dateCreated datePublished" datetime="2022-07-20T16:28:50+08:00">2022-07-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="了解c默默编写并调用哪些函数">05
+了解C++默默编写并调用哪些函数</h1>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Empty</span> &#123;&#125;;</span><br></pre></td></tr></table></figure>
+<p>等价于: <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Empty</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Empty</span>() &#123;...&#125; <span class="comment">//default构造函数</span></span><br><span class="line">    <span class="built_in">Empty</span>(<span class="type">const</span> Empty&amp; rhs) &#123;...&#125; <span class="comment">//copy构造函数</span></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Empty</span>() &#123;...&#125; <span class="comment">//析构函数</span></span><br><span class="line">    Empty&amp; <span class="keyword">operator</span>=(<span class="type">const</span> Empty&amp; rhs) &#123;...&#125; <span class="comment">//copy assignment操作符</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure> - 唯有这些函数被调用时，编译器才会被创建出来 -
+下面代码造成上述表示每个函数被编译器产出: <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Empty e1;       <span class="comment">//default构造函数</span></span><br><span class="line">                <span class="comment">//析构函数</span></span><br><span class="line"><span class="function">Empty <span class="title">e2</span><span class="params">(e1)</span></span>;   <span class="comment">//copy构造函数</span></span><br><span class="line">e2 = e1;        <span class="comment">//copy assignment操作符</span></span><br></pre></td></tr></table></figure> -
+编译器产出的析构函数是non-virtual, 除非类的base
+class自身声明了virtual析构函数 - copy构造函数和copy assignment操作符: -
+编译器创建的版本只是拷贝non-static对象 -
+如果类声明了一个构造函数，编译器将不会创建default构造函数 -
+编译器拒绝生成copy assignment操作符的情况: - 类内含reference成员 -
+内含const成员 - base class将copy assignment操作符声明为private</p>
+<h1 id="若不想使用编译器自动生成的函数就该明确拒绝">06
+若不想使用编译器自动生成的函数，就该明确拒绝</h1>
+<pre><code>- `class XX : private Uncopyable &#123;`
+- `= delete`</code></pre>
+<h1 id="为多态基类声明virtual析构函数">07
+为多态基类声明virtual析构函数</h1>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TimeKeeper</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">TimerKeeper</span>();</span><br><span class="line">    ~<span class="built_in">TimerKeeper</span>();</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AtomicClock</span> : <span class="keyword">public</span> TimeKeeper &#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WaterClock</span> : <span class="keyword">public</span> TimeKeeper &#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WristClock</span> : <span class="keyword">public</span> TimeKeeper &#123;...&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 工厂函数：返回base指针，指向derived对象</span></span><br><span class="line"><span class="function">TimeKeeper* <span class="title">getTimeKeeper</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>防止derived指针以基类指针调用析构函数时仅析构基类部分</li>
+<li>如果不想要多态，应避免使用virtual析构函数</li>
+<li>可用final声明类不可被继承</li>
+</ul>
+<h1 id="别让异常逃离析构函数">08 别让异常逃离析构函数</h1>
+<pre><code>- try ... catch
+- 可提供普通函数而非在析构函数中执行该操作</code></pre>
+<h1 id="绝不在构造和析构函数中使用virtual函数">09
+绝不在构造和析构函数中使用virtual函数</h1>
+<pre><code>- 此时调用不会下沉到派生函数</code></pre>
+<h1 id="令operate返回一个reference-to-this">10
+令operate返回一个reference to *this</h1>
+<pre><code>- stl遵循，string，vector，complex，shared_ptr
+- `=`, `+=`</code></pre>
+<h1 id="在operate处理自我赋值">11 在operate=处理自我赋值</h1>
+<pre><code>- 类型：资源管理对象
+- 方法：
+    - 证同测试
+        - `if (this == &amp;rhs) return *this;`
+        - 引入了新的控制流，有成本
+    - copy and swap
+        - 复制也存在开销</code></pre>
+<h1 id="复制对象时勿忘其每一个成分">12 复制对象时勿忘其每一个成分</h1>
+<pre><code>- 函数：
+    - copy构造函数
+    - copy assignment操作符
+    - 两个函数的相互调用无意义，可将公共部分单独提出成一个函数
+- 内容：
+    - local成员变量
+    - 调用base classes内的copying函数</code></pre>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/07/20/Effective%20C++(3)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2273,140 +2409,6 @@ checkout后之前本地commit的内容消失</h2>
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/06/09/%E5%9C%A8llvm%E7%BC%96%E5%86%99pass/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/06/09/%E5%9C%A8llvm%E7%BC%96%E5%86%99pass/" class="post-title-link" itemprop="url">在LLVM中使用PASS!</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-09 22:19:50" itemprop="dateCreated datePublished" datetime="2022-06-09T22:19:50+08:00">2022-06-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/llvm-pass/" itemprop="url" rel="index"><span itemprop="name">llvm pass</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.4k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="pass简介">pass简介</h1>
-<ul>
-<li>LLVM
-的pass框架是LLVM系统的一个很重要的部分。LLVM的优化和转换工作就是由多个pass来一起完成的。类似流水线操作一样，每个pass完成特定的优化工作。
-要想真正发挥LLVM的威力，掌握pass是不可或缺的一环。LLVM中pass架构的可重用性和可控制性都非常好，这允许用户自己开发pass或者关闭一些默认提供的pass。</li>
-<li>pass分为两类, 一类是分析(analysis)pass, 负责收集信息共其它pass使用,
-辅助调试或使程序可视化; 另一类是转换(transform)pass, 改变程序的dataflow
-/ controlflow. LLVM中实现了几十种优化pass, 其中许多pass运行不止一次.
-analysis pass存放在lib/Analysis下, transform
-pass存放在lib/Transforms下.</li>
-</ul>
-<h1 id="hello-world"><code>Hello World</code></h1>
-<ul>
-<li>我的<code>llvm</code>安装在<code>/usr/local/opt/llvm</code>的路径下。<br></li>
-</ul>
-<p>打开<code>～/.zshrc</code>:<br>
-<code>export PATH=/usr/local/opt/llvm/bin:$PATH</code><br>
-使用<code>source ~/.zshrc</code>使.<code>zshrc</code>文件文件生效<br></p>
-<p>输入<code>llvm-dis --version</code>测试<br></p>
-<h2 id="使用">使用</h2>
-<h3 id="场景1">场景1</h3>
-<p>建立build目录并且在该目录下进行编译，注意LLVM禁止源码内编译（in-tree
-build is not supported） <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; cd /usr/local/opt/llvm</span><br><span class="line">&gt; mkdir build</span><br><span class="line">&gt; cd build</span><br><span class="line">&gt; cmake -G &quot;Unix Makefiles&quot; \</span><br><span class="line">  -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \</span><br><span class="line">  -DLLVM_BUILD_LLVM_DYLIB=ON \</span><br><span class="line">  --enable-optimized \</span><br><span class="line">  --enable-targets=host-only \</span><br><span class="line">  ../../llvm</span><br><span class="line">&gt; make</span><br></pre></td></tr></table></figure> -G = 指定生成编译器
--DCMAKE_BUILD_TYPE = 调试版本（Debug）或者发布版本（Release）
--DCMAKE_EXPORT_COMPILE_COMMANDS = 是否输出编译命令
--DLLVM_BUILD_LLVM_DYLIB = 是否添加libLLVM共享库 更多的编译项可以参考<a
-target="_blank" rel="noopener" href="https://llvm.org/docs/CMake.html">LLVM compile
-docs</a>的编译文档。</p>
-<h3 id="场景2">场景2</h3>
-<p>创建一个C语言文件test.c <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">int main() &#123;</span><br><span class="line">  printf(&quot;hello world\n&quot;);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> - 编译生成可执行文件<br>
-<code>clang test.c -o test</code></p>
-<ul>
-<li><p>运行可执行文件<br> <code>test</code></p></li>
-<li><p>生成llvm字节码文件<br>
-<code>clang -O1 -emit-llvm test.c -c -o test.bc</code></p></li>
-<li><p>生成LLVM 的汇编代码 .ll 文件(可视化字节码文件)
-<code>clang -O1 -emit-llvm test.c -S -o test.ll</code></p></li>
-<li><p>运行字节码文件<br> <code>lli test.bc</code> 结果: "hello world"
-.ll文件也可以用lli来执行</p></li>
-<li><p>将 .bc 文件转化为 .ll 文件:
-<code>llvm-dis test.bc</code></p></li>
-<li><p>将 .ll 文件转化为 .bc 文件: <code>llvm-as test.ll</code></p></li>
-<li><p>编译字节码文件为汇编文件<br>
-<code>llc test.bc -o test.s</code></p></li>
-<li><p>将 .bc 或 .ll 文件转化为本机平台的汇编代码<br>
-<code>llc test.bc</code> <code>llc test.ll</code></p></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2478,7 +2480,7 @@ docs</a>的编译文档。</p>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">79</span>
+          <span class="site-state-item-count">80</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -2535,7 +2537,7 @@ docs</a>的编译文档。</p>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">12:11</span>
+    <span title="站点阅读时长">12:12</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

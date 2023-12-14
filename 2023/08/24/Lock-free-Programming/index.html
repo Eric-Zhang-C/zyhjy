@@ -250,11 +250,11 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/Concurrent/" itemprop="url" rel="index"><span itemprop="name">Concurrent</span></a>
+                  <a href="/zyhjy/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
                 </span>
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
+                  <a href="/zyhjy/categories/Concurrent/" itemprop="url" rel="index"><span itemprop="name">Concurrent</span></a>
                 </span>
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -619,6 +619,12 @@ target="_blank" rel="noopener" href="https://preshing.com/20120612/an-introducti
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#lock%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-text">Lock的问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lock-free-programming%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B"><span class="nav-text">Lock-free
+Programming(无锁编程)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#what-is-it"><span class="nav-text">what is it</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86"><span class="nav-text">无锁编程相关知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#atomic-read-modify-write-operations"><span class="nav-text">Atomic Read-Modify-Write
+Operations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#compare-and-swap-loops"><span class="nav-text">Compare-And-Swap Loops</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#aba-problem"><span class="nav-text">ABA problem</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sequential-consistency"><span class="nav-text">Sequential Consistency</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#cvolatile%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-text">C++volatile关键字</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memory-ordering"><span class="nav-text">Memory Ordering</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#different-processors-have-different-memory-models"><span class="nav-text">Different
+Processors Have Different Memory Models</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5"><span class="nav-text">代码实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lock-free-stack"><span class="nav-text">lock-free stack</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#simple-lock-free-stack-structures"><span class="nav-text">simple lock-free stack
+structures</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#lock-free-stacks-aba-problem"><span class="nav-text">lock-free stack&#39;s ABA problem</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#solution"><span class="nav-text">solution</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lock-free-circular-queue"><span class="nav-text">lock-free circular queue</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#stdmemory_order"><span class="nav-text">std::memory_order</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B%E5%BA%94%E7%94%A8"><span class="nav-text">无锁编程应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#lock-free-memory-allocation"><span class="nav-text">Lock-Free Memory
+Allocation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-text">思路</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rcu"><span class="nav-text">RCU</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-text">无锁编程的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-text">Reference</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -634,7 +640,7 @@ target="_blank" rel="noopener" href="https://preshing.com/20120612/an-introducti
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">79</span>
+          <span class="site-state-item-count">80</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -691,7 +697,7 @@ target="_blank" rel="noopener" href="https://preshing.com/20120612/an-introducti
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">12:11</span>
+    <span title="站点阅读时长">12:12</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
