@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
+  <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/zyhjy/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="javac编译流程介绍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="javac编译流程">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2024/01/16/javac/">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="javac编译流程介绍">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-01-16T13:39:51.000Z">
+<meta property="article:modified_time" content="2024-03-22T13:55:35.830Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="lab">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2024/01/16/javac/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>javac编译流程 | ZYHJY</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/zyhjy/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/zyhjy/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/zyhjy/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/zyhjy/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/zyhjy/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2024/01/16/javac/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          javac编译流程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-01-16 21:39:51" itemprop="dateCreated datePublished" datetime="2024-01-16T21:39:51+08:00">2024-01-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-22 21:55:35" itemprop="dateModified" datetime="2024-03-22T21:55:35+08:00">2024-03-22</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>9 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="javac编译流程介绍">javac编译流程介绍</h1>
+<span id="more"></span>
+<p>在<code>src/jdk.compiler/share/classes/com/sun/tools/javac</code>目录下</p>
+<p><code>Main.java</code>
+是<code>javac</code>程序的主入口，它实际上调用<code>main/Main.java</code>执行具体任务：</p>
+<ol type="1">
+<li>解析命令行参数</li>
+<li>初始化编译环境</li>
+</ol>
+<p>细节在函数
+<code>public Result compile(String[] argv, Context context)</code>中。</p>
+<p>之后调用<code>com/sun/tools/javac/main/JavaCompiler.java</code>进行下一步工作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">JavaCompiler</span> <span class="variable">comp</span> <span class="operator">=</span> JavaCompiler.instance(context);</span><br><span class="line">comp.compile(args.getFileObjects(), args.getClassNames(), <span class="literal">null</span>, List.nil());</span><br></pre></td></tr></table></figure>
+<p>这个函数是<code>javac</code>编译器的主要方法，负责编译一组文件并执行编译过程。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">compile</span><span class="params">(Collection&lt;JavaFileObject&gt; sourceFileObjects,</span></span><br><span class="line"><span class="params">                        Collection&lt;String&gt; classnames,</span></span><br><span class="line"><span class="params">                        Iterable&lt;? extends Processor&gt; processors,</span></span><br><span class="line"><span class="params">                        Collection&lt;String&gt; addModules)</span></span><br></pre></td></tr></table></figure>
+<ol type="1">
+<li><p>参数解析和初始化：函数首先解析传入的参数，包括源文件对象、类名、注解处理器等，并进行一些必要的初始化操作。</p></li>
+<li><p>处理注解：通过调用<code>initProcessAnnotations</code>方法，处理传入的注解处理器和相关信息。这一步骤用于初始化注解处理器并进行相关的处理。</p></li>
+<li><p>添加额外的模块：根据<strong><em>传入的额外Module（模块）信息</em></strong>，将其添加到编译器的模块列表中。这些额外模块将在模块解析过程中使用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">modules.addExtraAddModules(moduleName);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr />
+<h3
+id="在java中module模块package包和class类之间是什么关系">在Java中，Module（模块）、Package（包）和Class（类）之间是什么关系？</h3>
+<ol type="1">
+<li><p>Package（包）：包是一种组织和命名类和接口的机制。它用于将相关的类和接口放置在一起，并提供命名空间以避免命名冲突。包是Java中的基本组织单元，类和接口通常被组织在包中。</p></li>
+<li><p>Class（类）：类是Java中的基本构建块，它定义了对象的属性和行为。类是面向对象编程的核心概念，它可以包含字段（属性）和方法（行为），并可以被实例化为对象。类提供了定义对象的模板。</p></li>
+<li><p>Module（模块）：模块是Java
+9及其之后版本引入的概念，用于组织和封装代码。模块提供了一种更强大的封装单元，它可以包含多个包和类，并定义了模块之间的依赖关系。模块可以指定对外暴露的公共接口，并控制对内部实现的访问权限。</p></li>
+</ol>
+<p>模块是一种更高级的组织单元，它可以包含多个包和类。一个模块可以跨多个包，因此可以将相关的包和类组织在一个逻辑单元中。模块提供了更加严格的访问控制，可以控制包和类的可见性和访问权限。模块还可以指定依赖关系，明确声明其依赖的其他模块。</p>
+<p>总结： - Class（类）是定义对象属性和行为的基本构建块。 -
+Package（包）是组织和命名类和接口的机制。 -
+Module（模块）是一种更高级的组织单元，可以包含多个包和类，并提供严格的访问控制和依赖管理。</p>
+<hr />
+<ol start="4" type="1">
+<li>解析和处理源文件：调用一系列方法，包括<code>parseFiles</code>、<code>initModules</code>、<code>enterTrees</code>等，对源文件进行解析和处理。这一步骤包括词法分析、语法分析、符号解析，以及相关的类型检查等。</li>
+</ol>
+<hr />
+<h3 id="在-java-中注解annotations是什么">在 Java
+中，注解（Annotations）是什么？</h3>
+<p>在 Java
+中，注解（Annotations）是一种元数据（metadata）形式，用于在源代码中添加特定的标记和信息。注解可以应用于类、方法、字段和其他程序元素，以提供关于程序结构、行为和约束的附加信息。它们不直接影响程序的执行，但可以被编译器、工具和框架用于静态分析、代码生成和运行时处理。</p>
+<p>以下是注解的一些特点和用途：</p>
+<ol type="1">
+<li><p>元数据：注解本身不会改变代码的含义，而是为代码添加附加信息和标记。它们可以用于记录作者、版本号、版权信息等。</p></li>
+<li><p>编译时处理：在编译过程中，编译器可以扫描和处理注解，进行静态检查、生成代码或生成其他元数据文件。例如，常见的注解处理器可以根据注解生成辅助代码、配置文件或文档。</p></li>
+<li><p>运行时处理：有些注解可以在运行时被反射机制读取和处理。这样，程序可以在运行时根据注解信息做出相应的处理和决策。</p></li>
+<li><p>内置注解：Java 提供了一些内置的注解，如
+<code>@Override</code>、<code>@Deprecated</code> 和
+<code>@SuppressWarnings</code>
+等。这些注解有特定的语义和行为，并由编译器或工具进行处理。</p></li>
+<li><p>自定义注解：Java 还允许开发者定义自己的注解。通过使用
+<code>@interface</code>
+关键字，开发者可以定义新的注解类型，并指定注解的属性、保留策略和目标元素。</p></li>
+</ol>
+<p>注解在 Java 中被广泛应用于各种场景，包括测试框架（如
+JUnit）、依赖注入框架（如 Spring）、持久化框架（如
+Hibernate）等。使用注解可以提供更多的编译时和运行时的信息，从而增强代码的可读性、维护性和扩展性。</p>
+<hr />
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">processAnnotations(</span><br><span class="line">               enterTrees(</span><br><span class="line">                       stopIfError(CompileState.ENTER,</span><br><span class="line">                               initModules(stopIfError(CompileState.ENTER, parseFiles(sourceFileObjects))))</span><br><span class="line">               ),</span><br><span class="line">               classnames</span><br><span class="line">           );</span><br></pre></td></tr></table></figure>
+<p><code>parseFiles</code>解析源文件并构建抽象语法树（AST）。</p>
+<p><code>initModules</code> 方法用于初始化模块系统（Module
+System）。</p>
+<p>在 <code>com.sun.tools.javac.main.JavaCompiler</code>
+类中，<code>initModules</code> 方法用于初始化模块系统（Module
+System）。该方法完成以下工作：</p>
+<ol type="1">
+<li><p>模块路径处理：<code>initModules</code>
+方法首先处理模块路径。它会解析和验证用户指定的模块路径，包括命令行参数中的模块路径和编译器选项中的模块路径。</p></li>
+<li><p>模块图构建：通过解析模块路径中的模块和模块描述文件，<code>initModules</code>
+方法构建模块图（Module
+Graph）。模块图表示模块之间的依赖关系和可访问性。</p></li>
+<li><p>模块分析和验证：<code>initModules</code>
+方法对模块图进行分析和验证。它会检查模块之间的依赖关系是否合法，并验证模块的声明、导出、开放和使用等约束条件。</p></li>
+<li><p>模块系统初始化：<code>initModules</code>
+方法对编译器的模块系统进行初始化。它会创建并配置
+<code>com.sun.tools.javac.comp.Modules</code>
+类的实例，该类负责处理模块相关的操作和查询。</p></li>
+<li><p>模块路径和模块源文件处理：在模块系统初始化后，<code>initModules</code>
+方法会处理模块路径中的模块源文件。它将这些源文件解析为模块声明，并进行相应的模块分析和验证。</p></li>
+<li><p>模块的依赖分析：<code>initModules</code>
+方法会分析模块之间的依赖关系，确定模块的加载顺序和可见性，以确保模块的正确编译和链接。</p></li>
+</ol>
+<p>通过完成以上工作，<code>initModules</code>
+方法为编译器建立了一个有效的模块系统，使编译器能够理解和处理模块化的
+Java
+代码。模块系统提供了模块间的隔离、依赖管理和访问控制，为编译器提供了更精确和可靠的编译环境。</p>
+<p><code>enterTrees</code>
+方法用于处理抽象语法树（AST）的进入阶段，进行语义分析。</p>
+<ol start="4" type="1">
+<li>生成字节码：根据编译策略，调用<code>desugar</code>、<code>flow</code>、<code>attribute</code>和<code>generate</code>等方法，生成中间表示形式（IR）和最终的字节码。这一步骤包括对语法树的修改、数据流分析、优化等操作。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">generate(desugar(flow(attribute(todo))));</span><br></pre></td></tr></table></figure>
+<p><code>Attr</code> 类负责属性（Attribute）处理。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public void attrib(Env&lt;AttrContext&gt; env) &#123;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public void postAttr(JCTree tree) &#123;</span><br></pre></td></tr></table></figure>
+<p><code>flow.analyzeTree(env, localMake);</code></p>
+<p><code>Flow</code> 类负责流分析（Flow Analysis），它完成以下工作：</p>
+<ol type="1">
+<li>变量初始化检查：<code>Flow</code>
+类检查局部变量和实例变量是否在使用之前被正确初始化。它分析代码路径，确保变量在使用之前都经过了初始化赋值。</li>
+<li>变量引用解析：<code>Flow</code>
+类解析变量引用，确定变量的声明和作用域。它跟踪变量的引用和赋值，确保变量的引用遵循正确的作用域规则。</li>
+<li>空指针检查：<code>Flow</code> 类进行空指针检查，防止在可能为 null
+的地方进行引用操作。它分析代码路径，检查可能导致空指针异常的地方，并发出警告或错误。</li>
+<li>类型检查：<code>Flow</code>
+类执行更细粒度的类型检查，包括方法调用、操作符应用等。它根据变量的类型信息，检查代码中的类型一致性和语义正确性。</li>
+<li>异常分析：<code>Flow</code>
+类进行异常分析，确定代码中可能抛出的异常类型和异常处理的正确性。它分析方法调用、异常处理块等，确保异常处理的一致性和正确性。</li>
+<li>控制流分析：<code>Flow</code>
+类进行控制流分析，确定代码的执行路径和可能的分支。它分析条件语句、循环语句、分支语句等，提供关于代码执行流程的信息。</li>
+<li>数据流分析：<code>Flow</code>
+类进行数据流分析，追踪变量的赋值和使用，提供变量在代码中的数据流信息。它用于优化和检测未使用的变量等。</li>
+</ol>
+<p>通过以上工作，<code>Flow</code>
+类为编译器提供了更丰富的语义信息和分析结果。它确保代码的正确性、安全性和一致性，为编译器的后续阶段（如代码生成、优化）提供了基础。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">desugar</span><span class="params">(<span class="keyword">final</span> Env&lt;AttrContext&gt; env, Queue&lt;Pair&lt;Env&lt;AttrContext&gt;, JCClassDecl&gt;&gt; results)</span> &#123;</span><br></pre></td></tr></table></figure>
+<p>在编程语言编译器中，"desugar" 是指将高级语法糖（syntactic
+sugar）转换为低级的、更基本的语法结构的过程。在 Java 编译器中，"desugar"
+的过程由多个步骤组成，它完成以下工作：</p>
+<ol type="1">
+<li><p>Lambda 表达式转换：Lambda 表达式是 Java 8
+引入的语法糖，它简化了匿名内部类的写法。"Desugar" 过程将 Lambda
+表达式转换为匿名内部类的形式，以便后续的处理和生成字节码。</p></li>
+<li><p>方法引用转换：方法引用是 Java 8
+中的另一种语法糖，它提供了一种简单的方式来引用已有的方法。"Desugar"
+过程将方法引用转换为等效的 Lambda 表达式或方法调用。</p></li>
+<li><p>增强的 for 循环转换：增强的 for 循环（foreach）是 Java 5
+引入的语法糖，用于遍历集合或数组。"Desugar" 过程将增强的 for
+循环转换为普通的 for 循环，以便更底层的处理。</p></li>
+<li><p>Try-with-resources 转换：Try-with-resources 是 Java 7
+引入的语法糖，用于自动管理资源的关闭。"Desugar" 过程将
+Try-with-resources 转换为等效的 try-catch-finally
+块，确保资源的正确释放。</p></li>
+<li><p>Diamond 操作符转换：Diamond 操作符是 Java 7
+引入的语法糖，用于简化泛型的实例化。"Desugar" 过程将 Diamond
+操作符转换为显式的泛型类型参数，以确保类型安全和兼容性。</p></li>
+<li><p>其他语法转换：除了上述常见的语法糖转换之外，"desugar"
+过程还可能包括其他语法的转换，如字符串连接操作符的转换、自动装箱与拆箱的转换等。</p></li>
+</ol>
+<p>总体而言，"desugar"
+过程将高级的语法糖转换为更基本的语法结构，以便后续的编译器处理和代码生成。这个过程确保代码的语法符合底层的语言规范，同时保持代码的功能和语义不变。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">generate</span><span class="params">(Queue&lt;Pair&lt;Env&lt;AttrContext&gt;, JCClassDecl&gt;&gt; queue, Queue&lt;JavaFileObject&gt; results)</span> &#123;</span><br></pre></td></tr></table></figure>
+<p><code>generate</code>
+方法根据编译器选项，遍历类队列，针对每个类进行源文件或类文件的生成过程。</p>
+<ol start="5" type="1">
+<li>结束和清理：根据编译过程中的情况，输出编译结果、报告警告和错误信息，并进行必要的清理操作</li>
+</ol>
+<h1 id="build">build</h1>
+<ol type="1">
+<li><p><a
+target="_blank" rel="noopener" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/openjdk/jdk/master/doc/building.html#running-configure">Run
+configure</a>:</p>
+<p><code>bash configure</code></p>
+<p>If <code>configure</code> fails due to missing dependencies (to
+either the <a
+target="_blank" rel="noopener" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/openjdk/jdk/master/doc/building.html#native-compiler-toolchain-requirements">toolchain</a>,
+<a
+target="_blank" rel="noopener" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/openjdk/jdk/master/doc/building.html#build-tools-requirements">build
+tools</a>, <a
+target="_blank" rel="noopener" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/openjdk/jdk/master/doc/building.html#external-library-requirements">external
+libraries</a> or the <a
+target="_blank" rel="noopener" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/openjdk/jdk/master/doc/building.html#boot-jdk-requirements">boot
+JDK</a>), most of the time it prints a suggestion on how to resolve the
+situation on your platform. Follow the instructions, and try running
+<code>bash configure</code> again.</p></li>
+<li><p><a
+target="_blank" rel="noopener" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/openjdk/jdk/master/doc/building.html#running-make">Run
+make</a>: <code>make images</code></p></li>
+<li><p>Verify your newly built JDK:
+<code>./build/*/images/jdk/bin/java -version</code></p></li>
+<li><p><a
+target="_blank" rel="noopener" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/openjdk/jdk/master/doc/building.html#running-tests">Run
+basic tests</a>: <code>make test-tier1</code></p></li>
+</ol>
+<p>apt install jtreg</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yuhang Zhang
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2024/01/16/javac/" title="javac编译流程">https://zyh-eric.gitee.io/zyhjy/2024/01/16/javac/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/zyhjy/tags/lab/" rel="tag"><i class="fa fa-tag"></i> lab</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/zyhjy/2024/01/09/bitmask/" rel="prev" title="(算法)状态压缩动态规划">
+      <i class="fa fa-chevron-left"></i> (算法)状态压缩动态规划
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/zyhjy/2024/03/22/doubly/" rel="next" title="(算法)倍增">
+      (算法)倍增 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <style>
+        #taboola-livere { display: none;}
+    </style>
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81ODg3Ni8zNTMzOA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#javac%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B%E4%BB%8B%E7%BB%8D"><span class="nav-text">javac编译流程介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8java%E4%B8%ADmodule%E6%A8%A1%E5%9D%97package%E5%8C%85%E5%92%8Cclass%E7%B1%BB%E4%B9%8B%E9%97%B4%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB"><span class="nav-text">在Java中，Module（模块）、Package（包）和Class（类）之间是什么关系？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8-java-%E4%B8%AD%E6%B3%A8%E8%A7%A3annotations%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-text">在 Java
+中，注解（Annotations）是什么？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#build"><span class="nav-text">build</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/zyhjy/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/zyhjy/archives/">
+        
+          <span class="site-state-item-count">85</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/zyhjy/categories/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/zyhjy/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/zyhjy/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">469k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">13:02</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+
+<script src="/zyhjy/js/utils.js"></script>
+
+
+<script src="/zyhjy/js/schemes/pisces.js"></script>
+
+
+<script src="/zyhjy/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>

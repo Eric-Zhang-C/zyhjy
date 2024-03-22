@@ -208,7 +208,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/08/02/Elastic-Cuckoo-Page-Tables-Rethinking-Virtual-Memory-Translation-for-Parallelism/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
@@ -222,7 +222,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" class="post-title-link" itemprop="url">笔记：C++ Concurrency in Action 2ed</a>
+            <a href="/zyhjy/2023/08/02/Elastic-Cuckoo-Page-Tables-Rethinking-Virtual-Memory-Translation-for-Parallelism/" class="post-title-link" itemprop="url">Elastic Cuckoo Page Tables: Rethinking Virtual Memory Translation for Parallelism</a>
         </h2>
 
         <div class="post-meta">
@@ -232,14 +232,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2023-06-04 11:06:00" itemprop="dateCreated datePublished" datetime="2023-06-04T11:06:00+08:00">2023-06-04</time>
+              <time title="创建时间：2023-08-02 00:00:00" itemprop="dateCreated datePublished" datetime="2023-08-02T00:00:00+08:00">2023-08-02</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-11-11 21:45:25" itemprop="dateModified" datetime="2023-11-11T21:45:25+08:00">2023-11-11</time>
+                <time title="修改时间：2023-08-08 07:34:46" itemprop="dateModified" datetime="2023-08-08T07:34:46+08:00">2023-08-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,11 +247,19 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                  <a href="/zyhjy/categories/%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">体系结构</span></a>
                 </span>
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/Concurrent/" itemprop="url" rel="index"><span itemprop="name">Concurrent</span></a>
+                  <a href="/zyhjy/categories/Virtual-memory/" itemprop="url" rel="index"><span itemprop="name">Virtual memory</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Page-tables/" itemprop="url" rel="index"><span itemprop="name">Page tables</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Page-tables/Hashed-page-tables/" itemprop="url" rel="index"><span itemprop="name">Hashed page tables</span></a>
                 </span>
             </span>
 
@@ -261,14 +269,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>34k</span>
+              <span>25k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>57 分钟</span>
+              <span>42 分钟</span>
             </span>
 
         </div>
@@ -280,27 +288,440 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="第一章-并发与并行">第一章 并发与并行</h1>
-<h2
-id="并发concurrent与并行parallel">并发（Concurrent）与并行（Parallel）</h2>
-<p>并发：多个程序按照时间片轮转轮流执行，通常是指在一个core上。</p>
-<p>并行：多个core同时执行多个程序。</p>
-<h2 id="为什么要使用并发">为什么要使用并发</h2>
-<ol type="1">
-<li>分离独立模块之间的逻辑：每个线程负责独立事物，不用实现切换逻辑（利用CPU调度自动切换）
-<ul>
-<li>例：DVD播放界面和用户操作界面</li>
-</ul></li>
-<li>利用现代CPU的多核架构带来的并行性</li>
-</ol>
+          <h1
+id="elastic-cuckoo-page-tables-rethinking-virtual-memory-translation-for-parallelism">Elastic
+Cuckoo Page Tables: Rethinking Virtual Memory Translation for
+Parallelism</h1>
+<p><strong>ASPLOS 2020 Best Paper Award.</strong> <a
+target="_blank" rel="noopener" href="http://iacoma.cs.uiuc.edu/iacoma-papers/PRES/present_asplos20.pdf">slides</a>
+<a
+target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=BIvpGx-znlk&amp;list=PLsLWHLZB96VeVp3IVzvSH58ttVz_Anr7H&amp;index=68&amp;t=0s">video</a></p>
+<h3 id="摘要">摘要</h3>
+<p>新兴的内存密集型工作负载的内存需求前所未有地增长，这使得虚拟内存转换成为主要的性能瓶颈。为了解决这个问题，本文引入了Elastic
+Cuckoo Page
+Tables，这是一种新颖的页表设计，将传统的多级基数页表使用的顺序指针追踪操作转化为完全并行的查找。由此产生的设计首次利用内存级并行性进行地址转换。Elastic
+cuckoo page tables使用Elastic Cuckoo
+Hashing，这是一种支持高效页表调整的cuckoo hashing的新型扩展。Elastic
+cuckoo page
+tables有效地解决了哈希冲突，提供了进程私有的页表，支持多个页面大小和进程之间的页面共享，并根据应用程序要求动态调整页表大小。</p>
+<p>我们通过对一个包含图分析、生物信息学、高性能计算和系统工作负载的8核处理器进行全系统模拟来评估Elastic
+cuckoo page tables。相比传统的基数页表，Elastic cuckoo page
+tables将地址转换开销平均降低了41%。结果是应用程序执行速度提高了3-18%。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/#more" rel="contents">
+              <a class="btn" href="/zyhjy/2023/08/02/Elastic-Cuckoo-Page-Tables-Rethinking-Virtual-Memory-Translation-for-Parallelism/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
           <!--/noindex-->
         
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/07/31/Memory-Efficient-Hashed-Page-Tables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/07/31/Memory-Efficient-Hashed-Page-Tables/" class="post-title-link" itemprop="url">Memory-Efficient Hashed Page Tables</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-07-31 13:42:37" itemprop="dateCreated datePublished" datetime="2023-07-31T13:42:37+08:00">2023-07-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-02 16:15:52" itemprop="dateModified" datetime="2023-08-02T16:15:52+08:00">2023-08-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">体系结构</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Virtual-memory/" itemprop="url" rel="index"><span itemprop="name">Virtual memory</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Page-tables/" itemprop="url" rel="index"><span itemprop="name">Page tables</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Page-tables/Hashed-page-tables/" itemprop="url" rel="index"><span itemprop="name">Hashed page tables</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>27 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="memory-efficient-hashed-page-tables">Memory-Efficient Hashed
+Page Tables</h1>
+<p>该论文工作基于<em>Elastic Cuckoo Page Tables: Rethinking Virtual
+Memory Translation for Parallelism</em>展开。</p>
+<h3 id="摘要">摘要</h3>
+<p>传统的基数树页表在可扩展性方面存在挑战，因为在TLB（转换后备缓冲器）未命中后，地址转换可能需要多次连续的内存访问。另一种选择是哈希页表（HPTs），在这种情况下，概念上地址转换只需要一次内存访问。传统上，由于处理冲突的成本高和其他限制，HPTs一直被回避。尽管最近的进展使得HPTs变得引人注目，HPT设计中的一个主要问题依然是它们对相当连续(
+substantial <em>contiguous</em>)的物理内存的需求。</p>
+<p>本文解决了这个问题。为了最小化HPTs对连续内存的需求，它引入了<em>逻辑到物理表</em>（<em>Logical
+to Physical (L2P)
+Table</em>）和<em>动态变化块大小</em>(<em>Dynamically-Changing Chunk
+Sizes</em>)的使用。这些技术将HPTs分解成不连续的物理内存块。此外，本文还介绍了两种最小化HPTs总内存需求的技术，间接地降低内存的连续性需求。这些技术是<em>原地页表调整(</em>In-place
+Page Table Resizing<em>)和逐路调整(</em>Per-way
+Resizing<em>)。我们称这个完整的设计为</em>内存高效*的HPTs（ME-HPTs）。与最先进的HPTs相比，ME-HPTs:
+(i) 平均减少了92%的连续内存分配需求，(ii)
+平均提高了8.9%的性能。对于两个最要求的工作负载，连续内存需求从64MB减少到1MB。此外，与最先进的基数树页表相比，ME-HPTs
+在平均速度上实现了1.23倍的加速（不使用大页面）和1.28倍的加速（使用大页面）。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/zyhjy/2023/07/31/Memory-Efficient-Hashed-Page-Tables/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/07/29/STL%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/07/29/STL%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">STL学习笔记</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-07-29 17:26:37" itemprop="dateCreated datePublished" datetime="2023-07-29T17:26:37+08:00">2023-07-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-04 20:26:47" itemprop="dateModified" datetime="2023-12-04T20:26:47+08:00">2023-12-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/C/STL/" itemprop="url" rel="index"><span itemprop="name">STL</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="stl实现细节">STL实现细节</h1>
+<p>以下内容基于LLVM8的STL实现</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/zyhjy/2023/07/29/STL%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/07/27/%E7%BA%BF%E6%AE%B5%E6%A0%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/07/27/%E7%BA%BF%E6%AE%B5%E6%A0%91/" class="post-title-link" itemprop="url">线段树</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-07-27 17:20:37" itemprop="dateCreated datePublished" datetime="2023-07-27T17:20:37+08:00">2023-07-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-11-20 20:19:39" itemprop="dateModified" datetime="2023-11-20T20:19:39+08:00">2023-11-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E7%AE%97%E6%B3%95%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">算法题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="线段树">线段树</h1>
+<h3 id="引入">引入</h3>
+<p>树状数组是一种支持 <strong>区间修改</strong> 和
+<strong>区间查询</strong> 的的数据结构。</p>
+<h3 id="复杂度">复杂度</h3>
+<p>便于维护区间信息，可在<span
+class="math inline">\(O(logN)\)</span>的时间复杂度内完成修改/查询。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/zyhjy/2023/07/27/%E7%BA%BF%E6%AE%B5%E6%A0%91/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/06/06/gmock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/06/06/gmock/" class="post-title-link" itemprop="url">未命名</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-06-06 00:00:00" itemprop="dateCreated datePublished" datetime="2023-06-06T00:00:00+08:00">2023-06-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:27:45" itemprop="dateModified" datetime="2023-07-30T18:27:45+08:00">2023-07-30</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>61</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>DISABLED_可以禁用测试 TEST(StarterTest, DISABLED_TrieNodeInsertTest)
+{</p>
+
       
     </div>
 
@@ -442,6 +863,117 @@ result, <code>_Nodeptr</code> will be not <code>_Nodeptr*</code>, but
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" class="post-title-link" itemprop="url">笔记：C++ Concurrency in Action 2ed</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-06-04 11:06:00" itemprop="dateCreated datePublished" datetime="2023-06-04T11:06:00+08:00">2023-06-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-11-11 21:45:25" itemprop="dateModified" datetime="2023-11-11T21:45:25+08:00">2023-11-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Concurrent/" itemprop="url" rel="index"><span itemprop="name">Concurrent</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>34k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>57 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="第一章-并发与并行">第一章 并发与并行</h1>
+<h2
+id="并发concurrent与并行parallel">并发（Concurrent）与并行（Parallel）</h2>
+<p>并发：多个程序按照时间片轮转轮流执行，通常是指在一个core上。</p>
+<p>并行：多个core同时执行多个程序。</p>
+<h2 id="为什么要使用并发">为什么要使用并发</h2>
+<ol type="1">
+<li>分离独立模块之间的逻辑：每个线程负责独立事物，不用实现切换逻辑（利用CPU调度自动切换）
+<ul>
+<li>例：DVD播放界面和用户操作界面</li>
+</ul></li>
+<li>利用现代CPU的多核架构带来的并行性</li>
+</ol>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/zyhjy/2023/06/04/C++%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/06/04/A%20Top-Down%20method%20for%20performance%20analysis%20and%20counters%20architecture/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -538,403 +1070,6 @@ PMU 中。 它是全面的——对预定义的性能问题集没有限制。
             </div>
           <!--/noindex-->
         
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/19/Arrch64%20CPU%E6%8C%87%E4%BB%A4%E9%9B%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2023/05/19/Arrch64%20CPU%E6%8C%87%E4%BB%A4%E9%9B%86/" class="post-title-link" itemprop="url">Arrch64 CPU Structure</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-05-19 21:03:50" itemprop="dateCreated datePublished" datetime="2023-05-19T21:03:50+08:00">2023-05-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>9.5k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>16 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="qemu-arrch64中的常用寄存器">0. Qemu Arrch64中的常用寄存器</h1>
-<table>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Size</th>
-<th>Description</th>
-<th>Alias</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>WZR</td>
-<td>32 bits</td>
-<td>Zero register</td>
-<td></td>
-</tr>
-<tr class="even">
-<td>XZR</td>
-<td>64 bits</td>
-<td>Zero register</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>FP</td>
-<td>64 bits</td>
-<td>Current stack pointer</td>
-<td>X29</td>
-</tr>
-<tr class="even">
-<td>LR</td>
-<td>64 bits</td>
-<td>Current stack pointer</td>
-<td>X30</td>
-</tr>
-<tr class="odd">
-<td>SP</td>
-<td>64 bits</td>
-<td>Current stack pointer</td>
-<td>X31</td>
-</tr>
-<tr class="even">
-<td>PC</td>
-<td>64 bits</td>
-<td>Program counter</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h1
-id="an-introduction-to-the-armv8-instruction-sets-armv8指令集简介">1. An
-Introduction to the ARMv8 Instruction Sets / ARMv8指令集简介</h1>
-<p>ARMv8架构引入的最重要的变化之一是增加了64位指令集。这个指令集与现有的32位指令集架构相辅相成。这个增加使得可以访问64位宽整数寄存器和数据操作，并且能够使用64位大小的内存指针。这些新指令被称为A64指令，运行在AArch64执行状态下。ARMv8还包括原始的ARM指令集，现在称为A32指令集，以及Thumb
-(T32)指令集。A32和T32都在AArch32状态下执行，与ARMv7保持向后兼容。</p>
-<p>尽管ARMv8-A与32位ARM体系结构保持向后兼容，但A64指令集与旧的指令集架构是独立的并且编码方式不同。A64添加了一些额外的功能，同时去除了可能限制高性能实现速度或能量效率的其他特性。ARMv8架构还对32位指令集(A32和T32)进行了一些增强。然而，使用这些功能的代码与旧的ARMv7实现不兼容。然而，A64指令集中的指令操作码仍然是32位长，而不是64位。</p>
-<p>寻求更详细的A64汇编语言描述的程序员还可以参考ARM编译器armasm参考指南v6.01。</p>
-<h2 id="the-armv8-instruction-sets">The ARMv8 instruction sets</h2>
-<p>新的A64指令集与现有的A32指令集相似。指令长度为32位，具有类似的语法。</p>
-<p>在AArch64状态下，引入了一种新的指令集供内核使用。遵循命名约定，并反映64位操作，该指令集称为：<strong>A64</strong>
-A64提供了与AArch32或ARMv7中的A32和T32指令集类似的功能。新的A64指令集的设计带来了几个改进：
-#### 一致的编码方案
-A32中一些指令的晚期添加导致编码方案的一些不一致性。例如，LDR和STR对半字节的支持在编码上与主流的字节和字传输指令稍有不同。结果是寻址模式稍有不同。</p>
-<h4 id="广泛的常量范围">广泛的常量范围</h4>
-<p>A64指令提供了广泛的常量选项，每个选项都适用于特定指令类型的要求。 -
-算术指令通常接受12位立即数常量。 -
-逻辑指令通常接受32位或64位常量，其编码具有一定的限制。 -
-MOV指令接受16位立即数，可以移动到任何16位边界。 -
-地址生成指令适用于与4KB页面大小对齐的地址。</p>
-<p>对于用于位操作指令的常量，存在稍微复杂的规则。然而，位字段操作指令可以在源操作数或目标操作数中处理任何连续的位序列。</p>
-<p>A64提供了灵活的常量，但是编码这些常量，甚至确定特定常量是否可以在特定上下文中合法编码，可能并不简单。</p>
-<h4 id="数据类型更容易处理">数据类型更容易处理</h4>
-<p>A64天然支持64位有符号和无符号数据类型，提供更简洁和高效的操作64位整数的方法。这对于提供64位整数的所有语言，如C或Java，都是有利的。</p>
-<h4 id="长偏移量">长偏移量</h4>
-<p>A64指令通常提供更长的偏移量，用于<em>PC相对分支和偏移寻址</em>。</p>
-<p>增加的分支范围使得管理交叉段跳转更容易。动态生成的代码通常放置在堆上，因此实际上可以位于任何位置。运行时系统通过增加分支范围更容易管理这个过程，并且需要的修复次数更少。</p>
-<p>字面池（嵌入在代码流中的字面数据块）的需求一直是ARM指令集的特性。这在A64中仍然存在。然而，更大的PC相对加载偏移量在字面池的管理方面提供了很大帮助，使得每个编译单元可以使用一个字面池。这消除了在长代码序列中为多个池制造位置的需要。</p>
-<h4 id="指针">指针</h4>
-<p>在AArch64中，指针是64位的，这允许更大的虚拟内存寻址，并提供更大的地址映射自由度。然而，使用64位指针确实会带来一些成本。相同的代码片段在使用64位指针时通常使用更多内存，而不是32位指针。每个指针都存储在内存中，需要8字节而不是4字节。这听起来可能微不足道，但可能累积到显著的性能损失。此外，由于转向64位的内存空间增加使用，可能导致<em>缓存命中的访问次数下降</em>。缓存命中的下降可能会降低性能。</p>
-<p>某些语言可以使用压缩指针来解决性能问题，例如Java。</p>
-<h4 id="条件构造代替it块">条件构造代替IT块</h4>
-<p>IT块是T32的一个有用特性，可以实现避免对未执行指令周围进行短程前向分支的高效序列。然而，它们有时对硬件的高效处理具有一定困难。A64移除了这些块，并用条件指令（如CSEL或条件选择和CINC或条件递增）替换它们。这些条件构造更直观和更容易处理，无需特殊情况。</p>
-<h4 id="移位和旋转行为更直观">移位和旋转行为更直观</h4>
-<p>A32或T32的移位和旋转行为并不总是与高级语言预期的行为相匹配。</p>
-<p>ARMv7提供了一个可用于数据处理指令的位移器。然而，指定移位类型和移位量需要一定数量的操作码位，这些位可以在其他地方使用。</p>
-<p>因此，A64指令删除了很少使用的选项，并添加了新的显式指令来执行更复杂的移位操作。</p>
-<h4 id="代码生成">代码生成</h4>
-<p>在静态和动态生成常见算术函数的代码时，A32和T32通常需要不同的指令或指令序列。这是为了处理不同的数据类型。A64中这些操作更加一致，因此更容易生成在不同大小数据类型上进行简单操作的常见序列。</p>
-<p>例如，在T32中，相同的指令可以具有不同的编码，具体取决于使用的寄存器（低寄存器还是高寄存器）。</p>
-<p>A64指令集编码更加规则和合理。因此，与T32相比，A64汇编器通常需要更少的代码行数。</p>
-<h4 id="固定长度指令">固定长度指令</h4>
-<p>所有A64指令的长度都相同，而T32是一种可变长度指令集。这使得管理和跟踪生成的代码序列更容易，特别是对动态代码生成器有影响。</p>
-<h4 id="三个操作数更好地映射">三个操作数更好地映射</h4>
-<p>A32通常保留了用于数据处理操作的真正的三个操作数结构。而T32则包含大量的双操作数指令格式，这在生成代码时稍微不够灵活。A64坚持使用一致的三个操作数语法，进一步增加了指令集的规则性和统一性，有利于编译器。</p>
-<h3 id="cc-inline-assembly">C/C++ inline assembly</h3>
-<p>在C和C++中，你可以使用<code>asm</code>关键字来包含内联汇编代码。它允许你直接在C或C++函数中嵌入汇编代码。以下是一个示例：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> i, <span class="type">int</span> j)</span> &#123;</span><br><span class="line">  <span class="type">int</span> res = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">asm</span> (</span><br><span class="line">    <span class="string">&quot;ADD %w[result], %w[input_i], %w[input_j]&quot;</span></span><br><span class="line">    : [result] <span class="string">&quot;=r&quot;</span> (res)</span><br><span class="line">    : [input_i] <span class="string">&quot;r&quot;</span> (i), [input_j] <span class="string">&quot;r&quot;</span> (j)</span><br><span class="line">  );</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  <span class="type">int</span> a = <span class="number">1</span>;</span><br><span class="line">  <span class="type">int</span> b = <span class="number">2</span>;</span><br><span class="line">  <span class="type">int</span> c = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  c = add(a, b);</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Result of %d + %d = %d\n&quot;</span>, a, b, c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>asm</code>内联汇编语句的一般形式如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">asm</span>(code [: output_operand_list [: input_operand_list [: clobber_list]]]);</span><br></pre></td></tr></table></figure>
-<p>以下是各个组成部分的说明：</p>
-<ul>
-<li><code>code</code>表示汇编代码本身。在示例中，它是<code>"ADD %[result], %[input_i], %[input_j]"</code>。</li>
-<li><code>output_operand_list</code>是一个可选的以逗号分隔的输出操作数列表。每个操作数由方括号中的符号名称、约束字符串和括号中的C表达式组成。</li>
-<li><code>input_operand_list</code>是一个可选的以逗号分隔的输入操作数列表。输入操作数使用与输出操作数相同的语法。</li>
-<li><code>clobber_list</code>是一个可选的被破坏的寄存器或其他值的列表。</li>
-</ul>
-<p>当在C/C++和汇编代码之间调用函数时，你必须遵循AAPCS64规则。</p>
-<p>更多信息，请参考：<a
-target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html#Using-Assembly-Language-with-C">https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html#Using-Assembly-Language-with-C</a>。</p>
-<h1 id="the-a64-instruction-set">2. The A64 instruction set</h1>
-<p>尽管大多数应用级程序员在日常工作中不需要频繁编写汇编代码，但在某些情况下，了解汇编语言仍然具有重要价值。汇编代码在需要高度优化的情况下特别有用，例如编写编译器或使用C等高级语言无法直接访问的低级特性时。</p>
-<p>在开发引导代码、设备驱动程序或操作系统时，可能需要使用汇编代码。这些领域通常需要对硬件有精细控制，并要求代码执行效率高。在这些情况下，使用汇编语言编写特定代码部分可以提高性能，并提供对硬件资源的低级访问能力。</p>
-<p>此外，在调试C程序时，理解汇编代码变得至关重要。分析汇编指令与相应的C语句之间的映射有助于识别问题并优化代码。能够阅读汇编代码可以增强程序员理解和排查复杂软件行为的能力。</p>
-<p>虽然汇编语言对大多数程序员来说不是主要工具，但在性能、低级控制和调试效率至关重要的专门领域中，汇编语言的重要性凸显出来。</p>
-<h2 id="instruction-mnemonics-指令助记符">Instruction mnemonics /
-指令助记符</h2>
-<p>A64汇编语言中使用了指令助记符的重载，根据操作数寄存器名称的不同形式来区分不同的指令。例如，下面的ADD指令具有不同的编码，但您只需要记住一个助记符，汇编器会根据操作数自动选择正确的编码。
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ADD W0, W1, W2             // 添加32位寄存器</span><br><span class="line"></span><br><span class="line">ADD X0, X1, X2             // 添加64位寄存器</span><br><span class="line"></span><br><span class="line">ADD X0, X1, W2, SXTW       // 将符号扩展的32位寄存器添加到64位扩展寄存器</span><br><span class="line"></span><br><span class="line">ADD X0, X1, #42            // 添加立即数到64位寄存器</span><br><span class="line"></span><br><span class="line">ADD V0.8H, V1.8H, V2.8H    // NEON中的16位逐个通道添加，共8个通道</span><br></pre></td></tr></table></figure></p>
-<h2 id="data-processing-instructions-数据处理指令">Data processing
-instructions / 数据处理指令</h2>
-<p>数据处理指令是处理器的基本算术和逻辑操作，操作的对象是通用寄存器中的值，或者一个寄存器和一个立即值。乘法和除法指令可以看作是这些指令的特殊情况。</p>
-<p>数据处理指令大多使用一个目标寄存器和两个源操作数。一般格式可以认为是指令，后面是操作数，如下所示：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Instruction Rd, Rn, Operand2</span><br></pre></td></tr></table></figure>
-<p>第二个操作数可以是一个寄存器、一个修改后的寄存器或一个立即值。使用 R
-表示它可以是 X 寄存器或 W 寄存器。</p>
-<p>数据处理操作包括：</p>
-<ul>
-<li>算术和逻辑操作。</li>
-<li>移动和移位操作。</li>
-<li>符号扩展和零扩展指令。</li>
-<li>位和位域操作。</li>
-<li>有条件的比较和数据处理操作。</li>
-</ul>
-<h2 id="memory-access-instructions-访存指令">Memory access instructions
-/ 访存指令</h2>
-<p>和之前的所有ARM处理器一样，ARMv8架构也是一种加载/存储（Load/Store）架构。这意味着没有数据处理指令直接在内存中操作数据。数据首先必须加载到寄存器中，进行修改，然后再存储到内存中。程序必须指定一个地址、要传输的数据大小以及一个源或目标寄存器。还有其他的加载和存储指令提供了进一步的选项，比如非临时的加载/存储、加载/存储互斥和获取/释放。</p>
-<p>内存指令可以以非对齐的方式访问普通内存（参见<a
-target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Memory-Ordering?lang=en">内存排序</a>）。但这在独占访问、加载获取或存储释放变体中是不支持的。如果不希望进行非对齐访问，可以配置为出错。</p>
-<h3
-id="specifying-the-address-for-a-load-or-store-instruction">Specifying
-the address for a Load or Store instruction</h3>
-<p>在A64中，用于加载（Load）或存储（Store）指令的地址指定方式与A32和T32类似。虽然存在一些额外的限制和新特性，但对于熟悉A32或T32的人来说，A64提供的地址指定方式应该不会让人感到意外。</p>
-<p>在A64中，地址操作数的基础寄存器必须始终是一个X寄存器。然而，有几条指令支持零扩展（zero-extension）或符号扩展（sign-extension），以便可以将32位偏移量作为W寄存器提供。</p>
-<h4 id="a.-写回修饰符writeback-modifier">a. 写回修饰符（Writeback
-Modifier）（!）</h4>
-<p>在ARM汇编语言中，<code>STP</code>（Store
-Pair）指令的尾部的感叹号（!）是一个存储修饰符，称为写回修饰符（Writeback
-Modifier）。</p>
-<p><code>STP</code>指令用于将一对寄存器的数据存储到内存中。写回修饰符（!）用于指示指令是否应该将存储操作后的更新地址写回到基地址寄存器。如果使用了感叹号（!），则表示在存储数据后，将基地址寄存器进行更新，以便指向下一个存储操作的地址。</p>
-<p>以下是一个示例，展示了带有写回修饰符（!）的<code>STP</code>指令的使用：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">STP X0, X1, [SP, #16]!</span><br></pre></td></tr></table></figure>
-<p>上述指令将X0和X1寄存器的数据存储到内存地址为(SP +
-16)的位置。同时，由于感叹号（!）的存在，指令执行后，SP寄存器的值会被更新，指向下一个存储操作的地址。</p>
-<p>需要注意的是，如果不使用写回修饰符（!），则基地址寄存器的值不会被修改，即不会进行写回操作。这样，下一次的存储操作将使用原始的基地址进行。</p>
-<p>写回修饰符（!）的使用可以方便地在一条指令中实现连续的存储操作，同时更新基地址寄存器，而无需额外的指令来更新寄存器的值。</p>
-<h4 id="b.-offset-modes">b. Offset modes</h4>
-<ol type="1">
-<li>有一个64位的基址寄存器（base register）</li>
-<li>将一个立即数 / 寄存器值 /
-修改后的寄存器值加到64位的基址寄存器上，这个加上的数就是offset</li>
-<li>eg: <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LDR X0, [X1, X2, LSL #3] // LSL和#3之间没有逗号</span><br></pre></td></tr></table></figure></li>
-</ol>
-<ul>
-<li>load from [X1 + (X2 &lt;&lt; 3)]</li>
-<li>lsl : logic shift left</li>
-</ul>
-<h4 id="c.-index-modes">c. Index modes</h4>
-<p>索引模式（Index modes）与偏移模式（Offset
-modes）类似，但它们还会更新基础寄存器。其语法与A32和T32相同，但操作的集合更为限制。通常，只能为索引模式提供立即偏移量（immediate
-offsets）。</p>
-<p>索引模式有两个变体：前索引模式（pre-index
-modes）在访问内存之前应用偏移量，而后索引模式（post-index
-modes）在访问内存之后应用偏移量。</p>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Example instruction</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>LDR X0, [X1, #8]!</td>
-<td>Pre-index: Update X1 first (to X1 + #8), then load from the new
-address</td>
-</tr>
-<tr class="even">
-<td>LDR X0, [X1], #8</td>
-<td>Post-index: Load from the unmodified address in X1 first, then
-update X1 (to X1 + #8)</td>
-</tr>
-<tr class="odd">
-<td>STP X0, X1, [SP, #-16]!</td>
-<td>Push X0 and X1 to the stack. sp is modified</td>
-</tr>
-<tr class="even">
-<td>LDP X0, X1, [SP], #16</td>
-<td>Pop X0 and X1 off the stack. sp is modified</td>
-</tr>
-</tbody>
-</table>
-<p>These options map cleanly onto some common C operations:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A C example showing accesses that a compiler is likely to generate.</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">example_strcpy</span><span class="params">(<span class="type">char</span> * dst, <span class="type">const</span> <span class="type">char</span> * src)</span> </span><br><span class="line">&#123;</span><br><span class="line"><span class="type">char</span> c;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    c = *(src++);             <span class="comment">// LDRB W2, [X1], #1</span></span><br><span class="line">    *(dst++) = c;             <span class="comment">// STRB W2, [X0], #1</span></span><br><span class="line">    &#125; <span class="keyword">while</span> (c != <span class="string">&#x27;\0&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="pc-relative-modes-load-literal">PC-relative modes
-(load-literal)</h4>
-<p>A64引入了另一种专门用于访问<strong>字面池（literal
-pools）</strong>的寻址模式，称为PC相对模式（PC-relative
-modes）。字面池是嵌入在指令流中的数据块。这些池不会被执行，但可以通过PC相对内存地址从周围的代码中访问它们的数据。字面池通常用于编码无法适应简单的立即数移动指令的常量值。</p>
-<p>在A32和T32中，PC可以像通用寄存器一样读取，因此只需将PC指定为基础寄存器即可访问字面池。</p>
-<p>在A64中，PC通常是不可访问的，但是有一种特殊的寻址模式（仅适用于加载指令）可以访问PC相对地址。这种专用的寻址模式的范围比A32和T32中的PC相对加载要大得多，因此字面池可以被更稀疏地定位。</p>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Example instruction</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>LDR W0, &lt;label&gt;</td>
-<td>Load 4 bytes from &lt;label&gt; into W0</td>
-</tr>
-<tr class="even">
-<td>LDR X0, &lt;label&gt;</td>
-<td>Load 8 bytes from &lt;label&gt; into X0</td>
-</tr>
-<tr class="odd">
-<td>LDRSW X0, &lt;label&gt;</td>
-<td>Load 4 bytes from &lt;label&gt; and sign-extend into X0</td>
-</tr>
-<tr class="even">
-<td>LDR S0, &lt;label&gt;</td>
-<td>Load 4 bytes from &lt;label&gt; into S0</td>
-</tr>
-<tr class="odd">
-<td>LDR D0, &lt;label&gt;</td>
-<td>Load 8 bytes from &lt;label&gt; into D0</td>
-</tr>
-<tr class="even">
-<td>LDR Q0, &lt;label&gt;</td>
-<td>Load 16 bytes from &lt;label&gt; into Q0</td>
-</tr>
-</tbody>
-</table>
-<p>Note: &lt;label&gt; must be 4-byte-aligned for all variants.</p>
-<h3 id="unprivileged-access">Unprivileged access</h3>
-<p>A64
-LDTR和STTR指令执行非特权的加载（Load）或存储（Store）操作（请参阅ARMv8-A架构参考手册中的LDTR和STTR）：
-- 在EL0、EL2或EL3级别下，它们的行为类似于普通的加载或存储指令。 -
-当在EL1级别下执行时，它们的行为类似于在EL0特权级别下执行。</p>
-<p>这些指令与A32 LDRT和STRT指令是等效的。</p>
-<h3
-id="non-temporal-load-and-store-pair-非暂态non-temporal加载和存储">Non-temporal
-load and store pair / 非暂态（non-temporal）加载和存储</h3>
-<p>在ARMv8架构中引入了非暂态（non-temporal）加载和存储的概念。这些概念体现在LDNP和STNP指令中，它们用于读取或写入一对寄存器值。同时，它们向内存系统发出提示，表明对该数据进行缓存是无益的。这个提示并不禁止内存系统的活动，比如地址的缓存、预加载或者聚集。然而，它表明进行缓存不太可能提高性能。一个典型的用例可能是流式数据处理，但需要注意的是，有效地使用这些指令需要针对具体微架构的特定方法。</p>
-<p>非暂态加载和存储放宽了内存排序要求。在上述例子中，LDNP指令可能在前面的LDR指令之前执行，这可能导致从不确定的X0地址读取数据。
-For example: <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LDR X0, [X3]</span><br><span class="line">LDNP X2, X1, [X0]      // Xo may not be loaded when the instruction executes!</span><br></pre></td></tr></table></figure> 为了纠正上述问题，需要使用显式的加载屏障：
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LDR X0, [X3]</span><br><span class="line">DMB nshld</span><br><span class="line">LDNP X2, X1, [X0]</span><br></pre></td></tr></table></figure>
-通过引入加载屏障，可以确保在LDNP指令执行之前先加载X0的值，从而避免了不确定的读取。这样，非暂态加载和存储指令才能够在程序中被正确使用。</p>
-<h3 id="memory-access-atomicity">Memory access atomicity</h3>
-<p>对齐的内存访问使用单个通用寄存器可以保证原子性。使用对齐的内存地址进行的一对通用寄存器的加载对（load
-pair）和存储对（store
-pair）指令可以保证作为两个独立的原子访问。非对齐访问不是原子的，因为通常需要进行两次独立的访问。此外，浮点数和SIMD（单指令多数据）内存访问不能保证原子性。</p>
-<h3 id="memory-barrier-and-fence-instructions">Memory barrier and fence
-instructions</h3>
-<p>ARMv7和ARMv8都支持不同类型的内存屏障操作。这些操作在<a
-target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Memory-Ordering?lang=en">Memory
-Ordering</a>中有更详细的描述：</p>
-<p>数据内存屏障（Data Memory
-Barrier，DMB）：在继续执行后续访问之前，强制使程序顺序中较早的所有内存访问对全局可见。</p>
-<p>数据同步屏障（Data Synchronization
-Barrier，DSB）：在程序继续执行之前，完成所有待处理的加载和存储、缓存维护指令以及TLB维护指令。DSB的行为类似于DMB，但具有附加属性。</p>
-<p>指令同步屏障（Instruction Synchronization
-Barrier，ISB）：该指令刷新CPU流水线和预取缓冲区，导致ISB之后的指令从缓存或内存中获取（或重新获取）。</p>
-<p>ARMv8引入了单向栅栏（one-sided fences），这与Release
-Consistency模型相关。这些栅栏被称为Load-Acquire（LDAR）和Store-Release（STLR），它们是基于地址的同步原语（见<a
-target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Memory-Ordering?lang=en">One-way
-barriers</a>）。这两个操作可以配对形成一个完整的栅栏。这些指令仅支持基址寄存器寻址，不支持偏移量或其他类型的索引寻址。</p>
-<h3 id="synchronization-primitives">Synchronization primitives</h3>
-<p>ARMv7-A和ARMv8-A架构都支持独占内存访问。在A64中，这是通过Load/Store
-exclusive（LDXR/STXR）指令对实现的。</p>
-<p>LDXR指令从内存地址加载一个值，并尝试在该地址上默默地获取独占锁。然后，Store-Exclusive指令只有在成功获取并持有锁时才会将新值写入该位置。LDXR/STXR配对用于构建标准的同步原语，例如自旋锁。还提供了一对配对的LDXRP和STXRP指令，以允许原子更新跨越两个寄存器的位置。可用的选项包括字节、半字、字和双字。与Load
-Acquire/Store
-Release配对一样，只支持基址寄存器寻址，没有任何偏移量。</p>
-<p>CLREX指令用于清除监视器，但与ARMv7不同，异常的进入或返回也会清除监视器。监视器也可能被意外地清除，例如由于缓存逐出或与应用程序无直接关联的其他原因。在配对的LDXR和STXR指令之间，软件必须避免任何显式的内存访问、系统控制寄存器更新或缓存维护指令。</p>
-<p>此外，还有一对独占的Load Acquire/Store
-Release指令，称为LDAXR和STLXR。详见<a
-target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Multi-core-processors/Multi-processing-systems/Synchronization?lang=en">同步</a>部分。</p>
-<h2 id="flow-control">Flow control</h2>
-<p>A64指令集提供了多种不同类型的分支指令（参见表<a
-target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/The-A64-instruction-set/Flow-control?lang=en">6.12</a>）。对于简单的相对分支，即从当前地址偏移的分支，使用B指令。<em>无条件的简单相对分支可以向前或向后分支到距离当前程序计数器位置最多128MB的位置</em>。<em>有条件的简单相对分支，在B后附加条件码，其范围较小，为±1MB</em>。</p>
-<p>对于需要将返回地址存储在链接寄存器（X30）中的子程序调用，使用BL指令。它没有条件版本。<em>BL的行为类似于B指令，同时额外存储返回地址，即BL指令后一条指令的地址，到寄存器X30中</em>。</p>
-<h2 id="system-control-and-other-instructions-系统控制和其他指令">System
-control and other instructions / 系统控制和其他指令</h2>
-<p>A64指令集包含与以下内容相关的指令： - 异常处理。 - 系统寄存器访问。 -
-调试。 - 提示指令，在许多系统中具有电源管理应用。</p>
-<h3 id="exception-handling-instructions">Exception handling
-instructions</h3>
-<p>有三条异常处理指令，其目的是引发异常。这些指令用于调用在操作系统中运行在更高异常级别的代码（EL1），虚拟机监控程序（EL2）或安全监控程序（EL3）：
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SVC #imm16   // 监管者调用，允许应用程序调用内核（EL1）。</span><br><span class="line"></span><br><span class="line">HVC #imm16   // 虚拟机监控程序调用，允许操作系统代码调用虚拟机监控程序（EL2）。</span><br><span class="line"></span><br><span class="line">SMC #imm16   // 安全监控程序调用，允许操作系统或虚拟机监控程序调用安全监控程序（EL3）。</span><br></pre></td></tr></table></figure>
-立即值将在异常综合寄存器中提供给处理程序。这与ARMv7不同，ARMv7需要通过读取调用指令的操作码来确定立即值。详细信息请参阅<a
-target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/AArch64-Exception-Handling?lang=en">AArch64异常处理</a>。</p>
-<p>要从异常返回，请使用ERET指令。此指令通过将SPSR_ELn复制到PSTATE并跳转到ELR_ELn中保存的返回地址来恢复处理器状态。</p>
-
       
     </div>
 
@@ -1901,7 +2036,7 @@ Multi-Processing)操作的操作系统内核通常具有任务调度器，该调
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/19/Arrch64%20MMU/">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/19/Arrch64%20CPU%E6%8C%87%E4%BB%A4%E9%9B%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
@@ -1915,7 +2050,7 @@ Multi-Processing)操作的操作系统内核通常具有任务调度器，该调
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/zyhjy/2023/05/19/Arrch64%20MMU/" class="post-title-link" itemprop="url">Arrch64 CPU Structure</a>
+            <a href="/zyhjy/2023/05/19/Arrch64%20CPU%E6%8C%87%E4%BB%A4%E9%9B%86/" class="post-title-link" itemprop="url">Arrch64 CPU Structure</a>
         </h2>
 
         <div class="post-meta">
@@ -1925,7 +2060,7 @@ Multi-Processing)操作的操作系统内核通常具有任务调度器，该调
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2023-05-19 20:45:50" itemprop="dateCreated datePublished" datetime="2023-05-19T20:45:50+08:00">2023-05-19</time>
+              <time title="创建时间：2023-05-19 21:03:50" itemprop="dateCreated datePublished" datetime="2023-05-19T21:03:50+08:00">2023-05-19</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
@@ -1950,14 +2085,14 @@ Multi-Processing)操作的操作系统内核通常具有任务调度器，该调
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>4k</span>
+              <span>9.5k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>7 分钟</span>
+              <span>16 分钟</span>
             </span>
 
         </div>
@@ -1969,763 +2104,178 @@ Multi-Processing)操作的操作系统内核通常具有任务调度器，该调
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="the-memory-management-unit">The Memory Management Unit</h1>
-<p>内存管理单元（Memory Management
-Unit，MMU）的一个重要功能是使系统能够运行多个任务，这些任务作为独立的程序在它们自己的私有虚拟内存空间中运行。它们不需要知道系统的物理内存映射，也就是硬件实际使用的地址，或者其他可能同时执行的程序。</p>
-<p>您可以为每个程序使用相同的虚拟内存地址空间。即使物理内存是碎片化的，您也可以使用连续的虚拟内存映射。这个虚拟地址空间与系统中实际的物理内存映射是分离的。您可以编写、编译和链接应用程序以在虚拟内存空间中运行。</p>
-<p><a
-target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit?lang=en#BABBEBII">图12.2</a>展示了一个示例系统，说明了内存的虚拟视图和物理视图。在单个系统中，不同的处理器和设备可能具有不同的虚拟和物理地址映射。操作系统会对MMU进行编程，以在这两个内存视图之间进行转换。</p>
-<p>为了实现这一点，在虚拟内存系统中的硬件必须提供地址转换，即将处理器发出的虚拟地址转换为主内存中的物理地址。</p>
-<p>虚拟地址是您、编译器和链接器在将代码放入内存时使用的地址。物理地址是实际硬件系统使用的地址。</p>
-<p>MMU使用虚拟地址的最高有效位来索引翻译表中的条目，并确定正在访问的块。MMU将代码和数据的虚拟地址转换为实际系统中的物理地址。这种转换是在硬件中自动进行的，并且对应用程序是透明的。除了地址转换之外，MMU还控制每个内存区域的内存访问权限、内存排序和缓存策略。</p>
-<h2 id="the-translation-lookaside-buffer">The Translation Lookaside
-Buffer</h2>
-<p>Translation Lookaside Buffer
-(TLB)是MMU中最近访问的页面转换的高速缓存。对于处理器执行的每个内存访问，MMU都会检查TLB中是否缓存了相应的转换。如果请求的地址转换在TLB中命中，地址的转换结果将立即可用。</p>
-<p>每个TLB条目通常不仅包含物理地址和虚拟地址，还包括诸如内存类型、缓存策略、访问权限、地址空间ID（ASID）和虚拟机ID（VMID）等属性。如果TLB中没有包含处理器发出的虚拟地址的有效转换，即TLB未命中，就会执行外部的转换表查找或遍历。MMU内的专用硬件使其能够读取内存中的转换表。新加载的转换结果可以被缓存到TLB中，以备后续使用，如果转换表的遍历过程不会导致页面错误。TLB的具体结构在不同的ARM处理器实现之间会有所不同。</p>
-<p>如果操作系统修改了可能缓存在TLB中的转换条目，那么操作系统有责任使这些过时的TLB条目失效。</p>
-<h2
-id="separation-of-kernel-and-application-virtual-address-spaces">Separation
-of kernel and application Virtual Address spaces</h2>
-<p>操作系统通常会同时运行多个应用程序或任务。每个应用程序都有自己独特的转换表集合，并且内核在切换上下文时会从一个转换表切换到另一个。然而，大部分内存系统只被内核使用，并具有固定的虚拟到物理地址映射，其中转换表条目很少改变。ARMv8架构提供了一些功能来有效地处理这一要求。</p>
-<p>转换表的基地址在Translation Table Base Registers
-(TTBR0_EL1)和(TTBR1_EL1)中指定。当VA的高位全为0时，选择TTBR0指向的转换表。当VA的高位全部设置为1时，选择TTBR1指向的转换表。您可以启用VA标记以排除检查过程中的前8位。</p>
-<p>处理器从指令获取或数据访问的虚拟地址是64位。然而，在48位物理地址内存映射中，您必须同时映射上述两个定义的区域。</p>
-<p>EL2和EL3都有一个TTBR0，但没有TTBR1。这意味着：</p>
-<p>如果EL2正在使用AArch64，它只能使用范围为0x0至0x0000FFFF_FFFFFFFF的虚拟地址。</p>
-<p>如果EL3正在使用AArch64，它只能使用范围为0x0至0x0000FFFF_FFFFFFFF的虚拟地址。</p>
-<p><a
-target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit/Separation-of-kernel-and-application-Virtual-Address-spaces?lang=en#CDDFFEJB">图12.4</a>显示了内核空间如何映射到内存的最高有效区域，每个应用程序关联的虚拟地址空间映射到内存的最低有效区域。然而，这两者都映射到一个更小的物理地址空间。</p>
-<p>TCR_EL1是转换控制寄存器，它定义了需要进行检查的最高有效位的确切数量。TCR_EL1包含了大小字段T0SZ[5:0]和T1SZ[5:0]。字段中的整数表示必须是全0或全1的最高有效位的数量。这些字段有指定的最小和最大值，这些值随着颗粒大小和起始表级别的不同而变化。因此，在所有系统中，您必须始终使用两个转换表，并且至少需要两个转换表。即使是一个没有操作系统的简单裸机系统，也需要一个包含错误条目的小型上层表。</p>
-<h2 id="context-switching-上下文切换">Context switching 上下文切换</h2>
-<p>实现ARMv8-A架构的处理器通常用于运行具有许多并发应用程序或任务的复杂操作系统的系统中。每个进程在物理内存中都有自己独特的转换表。当一个应用程序启动时，操作系统会为其分配一组转换表条目，将应用程序使用的代码和数据映射到物理内存。这些表可以随后由内核进行修改，例如映射额外的空间，并在应用程序不再运行时被删除。</p>
-<p>因此，内存系统中可能存在多个任务。内核调度程序定期将执行从一个任务转移至另一个任务。这被称为上下文切换，要求内核保存与进程关联的所有执行状态，并恢复要运行的进程的状态。内核还切换转换表条目到下一个要运行的进程的条目。当前未运行的任务的内存完全受到正在运行的任务的保护。</p>
-<p>实际上需要保存和恢复的内容因不同操作系统而异，但通常进程上下文切换包括保存或恢复以下一些或全部元素：
-- 通用寄存器 X0-X30。 - 高级SIMD和浮点寄存器 V0-V31。 - 一些状态寄存器。
-- TTBR0_EL1 和 TTBR0。 - 线程进程ID（TPIDxxx）寄存器。 -
-地址空间ID（ASID）。</p>
-<p>对于EL0和EL1，有两个转换表。TTBR0_EL1为虚拟地址空间底部（通常是应用程序空间）提供转换，而TTBR1_EL1覆盖虚拟地址空间的顶部（通常是内核空间）。这种分割意味着操作系统映射不必复制到每个任务的转换表中。</p>
-<p>转换表条目包含一个非全局（nG）位。如果nG位设置为特定页面，则与特定任务或应用程序相关联。如果该位标记为0，则条目是全局的，适用于所有任务。</p>
-<p>对于非全局条目，在更新TLB并将条目标记为非全局时，除了常规转换信息之外，还在TLB条目中存储一个值。该值称为地址空间ID（ASID），由操作系统分配给每个单独的任务。仅当当前ASID与存储在条目中的ASID匹配时，后续的TLB查找才与该条目匹配。这允许多个有效的TLB条目存在于标记为非全局的特定页面中，但具有不同的ASID值。换句话说，我们在上下文切换时不一定需要刷新TLB。</p>
-<p>在AArch64中，ASID值可以指定为8位或16位的值，由TCR_EL1.AS位控制。当前ASID值在TTBR0_EL1或TTBR1_EL1中指定。TCR_EL1控制哪个TTBR持有ASID，但通常是TTBR0_EL1，因为它对应应用程序空间。</p>
-<p>注意 -
-将当前ASID值存储在转换表寄存器中意味着您可以在一条指令中原子地修改转换表和ASID。与ARMv7-A架构相比，这简化了更改表和ASID的过程。</p>
-<p>此外，ARMv8-A架构提供了用于操作系统软件的线程ID寄存器。这些寄存器在硬件上没有特殊意义，通常由线程库用作每个线程数据的基指针。这通常称为线程本地存储（TLS）。例如，pthread库使用了这个特性，并包括以下寄存器：
-- 用户读写线程ID寄存器（TPIDR_EL0）。 -
-用户只读线程ID寄存器（TPIDRRO_EL0）。 -
-线程ID寄存器，仅特权访问（TPIDR_EL1）。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="type">uint64_t</span> c14_cntfrq; <span class="comment">/* Counter Frequency register */</span></span><br><span class="line">        <span class="type">uint64_t</span> c14_cntkctl; <span class="comment">/* Timer Control register */</span></span><br><span class="line">        <span class="type">uint32_t</span> cnthctl_el2; <span class="comment">/* Counter/Timer Hyp Control register */</span></span><br><span class="line">        <span class="type">uint64_t</span> cntvoff_el2; <span class="comment">/* Counter Virtual Offset register */</span></span><br><span class="line">        ARMGenericTimer c14_timer[NUM_GTIMERS];</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        <span class="comment">/* Stores the architectural value of the counter *the last time it was</span></span><br><span class="line"><span class="comment">         * updated* by pmccntr_op_start. Accesses should always be surrounded</span></span><br><span class="line"><span class="comment">         * by pmccntr_op_start/pmccntr_op_finish to guarantee the latest</span></span><br><span class="line"><span class="comment">         * architecturally-correct value is being read/set.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">uint64_t</span> c15_ccnt;</span><br><span class="line">        <span class="comment">/* Stores the delta between the architectural value and the underlying</span></span><br><span class="line"><span class="comment">         * cycle count during normal operation. It is used to update c15_ccnt</span></span><br><span class="line"><span class="comment">         * to be the correct architectural value before accesses. During</span></span><br><span class="line"><span class="comment">         * accesses, c15_ccnt_delta contains the underlying count being used</span></span><br><span class="line"><span class="comment">         * for the access, after which it reverts to the delta value in</span></span><br><span class="line"><span class="comment">         * pmccntr_op_finish.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">uint64_t</span> c15_ccnt_delta;</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevcntr[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevcntr_delta[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevtyper[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> pmccfiltr_el0; <span class="comment">/* Performance Monitor Filter Register */</span></span><br><span class="line">    &#125; cp15;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/Qemu%20TCG%20IR/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2023/05/18/Qemu%20TCG%20IR/" class="post-title-link" itemprop="url">Qemu TCG IR</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-05-18 20:46:50" itemprop="dateCreated datePublished" datetime="2023-05-18T20:46:50+08:00">2023-05-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>16k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>26 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1
-id="tcg-intermediate-representation-tcgtiny-code-generator中间表示">TCG
-Intermediate Representation / TCG（Tiny Code Generator）中间表示</h1>
-<h2 id="introduction-介绍">Introduction / 介绍</h2>
+          <h1 id="qemu-arrch64中的常用寄存器">0. Qemu Arrch64中的常用寄存器</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Size</th>
+<th>Description</th>
+<th>Alias</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>WZR</td>
+<td>32 bits</td>
+<td>Zero register</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>XZR</td>
+<td>64 bits</td>
+<td>Zero register</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>FP</td>
+<td>64 bits</td>
+<td>Current stack pointer</td>
+<td>X29</td>
+</tr>
+<tr class="even">
+<td>LR</td>
+<td>64 bits</td>
+<td>Current stack pointer</td>
+<td>X30</td>
+</tr>
+<tr class="odd">
+<td>SP</td>
+<td>64 bits</td>
+<td>Current stack pointer</td>
+<td>X31</td>
+</tr>
+<tr class="even">
+<td>PC</td>
+<td>64 bits</td>
+<td>Program counter</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h1
+id="an-introduction-to-the-armv8-instruction-sets-armv8指令集简介">1. An
+Introduction to the ARMv8 Instruction Sets / ARMv8指令集简介</h1>
+<p>ARMv8架构引入的最重要的变化之一是增加了64位指令集。这个指令集与现有的32位指令集架构相辅相成。这个增加使得可以访问64位宽整数寄存器和数据操作，并且能够使用64位大小的内存指针。这些新指令被称为A64指令，运行在AArch64执行状态下。ARMv8还包括原始的ARM指令集，现在称为A32指令集，以及Thumb
+(T32)指令集。A32和T32都在AArch32状态下执行，与ARMv7保持向后兼容。</p>
+<p>尽管ARMv8-A与32位ARM体系结构保持向后兼容，但A64指令集与旧的指令集架构是独立的并且编码方式不同。A64添加了一些额外的功能，同时去除了可能限制高性能实现速度或能量效率的其他特性。ARMv8架构还对32位指令集(A32和T32)进行了一些增强。然而，使用这些功能的代码与旧的ARMv7实现不兼容。然而，A64指令集中的指令操作码仍然是32位长，而不是64位。</p>
+<p>寻求更详细的A64汇编语言描述的程序员还可以参考ARM编译器armasm参考指南v6.01。</p>
+<h2 id="the-armv8-instruction-sets">The ARMv8 instruction sets</h2>
+<p>新的A64指令集与现有的A32指令集相似。指令长度为32位，具有类似的语法。</p>
+<p>在AArch64状态下，引入了一种新的指令集供内核使用。遵循命名约定，并反映64位操作，该指令集称为：<strong>A64</strong>
+A64提供了与AArch32或ARMv7中的A32和T32指令集类似的功能。新的A64指令集的设计带来了几个改进：
+#### 一致的编码方案
+A32中一些指令的晚期添加导致编码方案的一些不一致性。例如，LDR和STR对半字节的支持在编码上与主流的字节和字传输指令稍有不同。结果是寻址模式稍有不同。</p>
+<h4 id="广泛的常量范围">广泛的常量范围</h4>
+<p>A64指令提供了广泛的常量选项，每个选项都适用于特定指令类型的要求。 -
+算术指令通常接受12位立即数常量。 -
+逻辑指令通常接受32位或64位常量，其编码具有一定的限制。 -
+MOV指令接受16位立即数，可以移动到任何16位边界。 -
+地址生成指令适用于与4KB页面大小对齐的地址。</p>
+<p>对于用于位操作指令的常量，存在稍微复杂的规则。然而，位字段操作指令可以在源操作数或目标操作数中处理任何连续的位序列。</p>
+<p>A64提供了灵活的常量，但是编码这些常量，甚至确定特定常量是否可以在特定上下文中合法编码，可能并不简单。</p>
+<h4 id="数据类型更容易处理">数据类型更容易处理</h4>
+<p>A64天然支持64位有符号和无符号数据类型，提供更简洁和高效的操作64位整数的方法。这对于提供64位整数的所有语言，如C或Java，都是有利的。</p>
+<h4 id="长偏移量">长偏移量</h4>
+<p>A64指令通常提供更长的偏移量，用于<em>PC相对分支和偏移寻址</em>。</p>
+<p>增加的分支范围使得管理交叉段跳转更容易。动态生成的代码通常放置在堆上，因此实际上可以位于任何位置。运行时系统通过增加分支范围更容易管理这个过程，并且需要的修复次数更少。</p>
+<p>字面池（嵌入在代码流中的字面数据块）的需求一直是ARM指令集的特性。这在A64中仍然存在。然而，更大的PC相对加载偏移量在字面池的管理方面提供了很大帮助，使得每个编译单元可以使用一个字面池。这消除了在长代码序列中为多个池制造位置的需要。</p>
+<h4 id="指针">指针</h4>
+<p>在AArch64中，指针是64位的，这允许更大的虚拟内存寻址，并提供更大的地址映射自由度。然而，使用64位指针确实会带来一些成本。相同的代码片段在使用64位指针时通常使用更多内存，而不是32位指针。每个指针都存储在内存中，需要8字节而不是4字节。这听起来可能微不足道，但可能累积到显著的性能损失。此外，由于转向64位的内存空间增加使用，可能导致<em>缓存命中的访问次数下降</em>。缓存命中的下降可能会降低性能。</p>
+<p>某些语言可以使用压缩指针来解决性能问题，例如Java。</p>
+<h4 id="条件构造代替it块">条件构造代替IT块</h4>
+<p>IT块是T32的一个有用特性，可以实现避免对未执行指令周围进行短程前向分支的高效序列。然而，它们有时对硬件的高效处理具有一定困难。A64移除了这些块，并用条件指令（如CSEL或条件选择和CINC或条件递增）替换它们。这些条件构造更直观和更容易处理，无需特殊情况。</p>
+<h4 id="移位和旋转行为更直观">移位和旋转行为更直观</h4>
+<p>A32或T32的移位和旋转行为并不总是与高级语言预期的行为相匹配。</p>
+<p>ARMv7提供了一个可用于数据处理指令的位移器。然而，指定移位类型和移位量需要一定数量的操作码位，这些位可以在其他地方使用。</p>
+<p>因此，A64指令删除了很少使用的选项，并添加了新的显式指令来执行更复杂的移位操作。</p>
+<h4 id="代码生成">代码生成</h4>
+<p>在静态和动态生成常见算术函数的代码时，A32和T32通常需要不同的指令或指令序列。这是为了处理不同的数据类型。A64中这些操作更加一致，因此更容易生成在不同大小数据类型上进行简单操作的常见序列。</p>
+<p>例如，在T32中，相同的指令可以具有不同的编码，具体取决于使用的寄存器（低寄存器还是高寄存器）。</p>
+<p>A64指令集编码更加规则和合理。因此，与T32相比，A64汇编器通常需要更少的代码行数。</p>
+<h4 id="固定长度指令">固定长度指令</h4>
+<p>所有A64指令的长度都相同，而T32是一种可变长度指令集。这使得管理和跟踪生成的代码序列更容易，特别是对动态代码生成器有影响。</p>
+<h4 id="三个操作数更好地映射">三个操作数更好地映射</h4>
+<p>A32通常保留了用于数据处理操作的真正的三个操作数结构。而T32则包含大量的双操作数指令格式，这在生成代码时稍微不够灵活。A64坚持使用一致的三个操作数语法，进一步增加了指令集的规则性和统一性，有利于编译器。</p>
+<h3 id="cc-inline-assembly">C/C++ inline assembly</h3>
+<p>在C和C++中，你可以使用<code>asm</code>关键字来包含内联汇编代码。它允许你直接在C或C++函数中嵌入汇编代码。以下是一个示例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> i, <span class="type">int</span> j)</span> &#123;</span><br><span class="line">  <span class="type">int</span> res = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">asm</span> (</span><br><span class="line">    <span class="string">&quot;ADD %w[result], %w[input_i], %w[input_j]&quot;</span></span><br><span class="line">    : [result] <span class="string">&quot;=r&quot;</span> (res)</span><br><span class="line">    : [input_i] <span class="string">&quot;r&quot;</span> (i), [input_j] <span class="string">&quot;r&quot;</span> (j)</span><br><span class="line">  );</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  <span class="type">int</span> a = <span class="number">1</span>;</span><br><span class="line">  <span class="type">int</span> b = <span class="number">2</span>;</span><br><span class="line">  <span class="type">int</span> c = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  c = add(a, b);</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Result of %d + %d = %d\n&quot;</span>, a, b, c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>asm</code>内联汇编语句的一般形式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">asm</span>(code [: output_operand_list [: input_operand_list [: clobber_list]]]);</span><br></pre></td></tr></table></figure>
+<p>以下是各个组成部分的说明：</p>
 <ul>
-<li>TCG（Tiny Code
-Generator）最初是作为一个C编译器的通用后端而开始的。它经过简化后用于QEMU。</li>
-<li>它还源于由Paul Brook编写的QOP代码生成器。</li>
+<li><code>code</code>表示汇编代码本身。在示例中，它是<code>"ADD %[result], %[input_i], %[input_j]"</code>。</li>
+<li><code>output_operand_list</code>是一个可选的以逗号分隔的输出操作数列表。每个操作数由方括号中的符号名称、约束字符串和括号中的C表达式组成。</li>
+<li><code>input_operand_list</code>是一个可选的以逗号分隔的输入操作数列表。输入操作数使用与输出操作数相同的语法。</li>
+<li><code>clobber_list</code>是一个可选的被破坏的寄存器或其他值的列表。</li>
 </ul>
-<h2 id="definitions-定义">Definitions / 定义</h2>
+<p>当在C/C++和汇编代码之间调用函数时，你必须遵循AAPCS64规则。</p>
+<p>更多信息，请参考：<a
+target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html#Using-Assembly-Language-with-C">https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html#Using-Assembly-Language-with-C</a>。</p>
+<h1 id="the-a64-instruction-set">2. The A64 instruction set</h1>
+<p>尽管大多数应用级程序员在日常工作中不需要频繁编写汇编代码，但在某些情况下，了解汇编语言仍然具有重要价值。汇编代码在需要高度优化的情况下特别有用，例如编写编译器或使用C等高级语言无法直接访问的低级特性时。</p>
+<p>在开发引导代码、设备驱动程序或操作系统时，可能需要使用汇编代码。这些领域通常需要对硬件有精细控制，并要求代码执行效率高。在这些情况下，使用汇编语言编写特定代码部分可以提高性能，并提供对硬件资源的低级访问能力。</p>
+<p>此外，在调试C程序时，理解汇编代码变得至关重要。分析汇编指令与相应的C语句之间的映射有助于识别问题并优化代码。能够阅读汇编代码可以增强程序员理解和排查复杂软件行为的能力。</p>
+<p>虽然汇编语言对大多数程序员来说不是主要工具，但在性能、低级控制和调试效率至关重要的专门领域中，汇编语言的重要性凸显出来。</p>
+<h2 id="instruction-mnemonics-指令助记符">Instruction mnemonics /
+指令助记符</h2>
+<p>A64汇编语言中使用了指令助记符的重载，根据操作数寄存器名称的不同形式来区分不同的指令。例如，下面的ADD指令具有不同的编码，但您只需要记住一个助记符，汇编器会根据操作数自动选择正确的编码。
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ADD W0, W1, W2             // 添加32位寄存器</span><br><span class="line"></span><br><span class="line">ADD X0, X1, X2             // 添加64位寄存器</span><br><span class="line"></span><br><span class="line">ADD X0, X1, W2, SXTW       // 将符号扩展的32位寄存器添加到64位扩展寄存器</span><br><span class="line"></span><br><span class="line">ADD X0, X1, #42            // 添加立即数到64位寄存器</span><br><span class="line"></span><br><span class="line">ADD V0.8H, V1.8H, V2.8H    // NEON中的16位逐个通道添加，共8个通道</span><br></pre></td></tr></table></figure></p>
+<h2 id="data-processing-instructions-数据处理指令">Data processing
+instructions / 数据处理指令</h2>
+<p>数据处理指令是处理器的基本算术和逻辑操作，操作的对象是通用寄存器中的值，或者一个寄存器和一个立即值。乘法和除法指令可以看作是这些指令的特殊情况。</p>
+<p>数据处理指令大多使用一个目标寄存器和两个源操作数。一般格式可以认为是指令，后面是操作数，如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Instruction Rd, Rn, Operand2</span><br></pre></td></tr></table></figure>
+<p>第二个操作数可以是一个寄存器、一个修改后的寄存器或一个立即值。使用 R
+表示它可以是 X 寄存器或 W 寄存器。</p>
+<p>数据处理操作包括：</p>
 <ul>
-<li><p>TCG的<em>目标</em>是我们生成代码的架构。</p></li>
-<li><p>它当然不同于QEMU的"目标"，QEMU的目标是被模拟的架构。</p></li>
-<li><p>当TCG作为一个用于交叉编译的通用C后端开始时，假设TCG的目标可能与主机不同，尽管对于QEMU来说永远不会是这种情况。</p></li>
-<li><p>在这个文档中，我们使用<em>guest</em>来指定我们正在模拟的架构；<em>target</em>始终指的是TCG的目标，也就是我们运行QEMU的机器。</p></li>
-<li><p>具有<em>未定义行为</em>的操作可能导致崩溃。</p></li>
-<li><p>具有<em>未指定行为</em>的操作不会崩溃。然而，结果可能是多种可能性之一，因此可能被视为<em>未定义的结果</em>。</p></li>
+<li>算术和逻辑操作。</li>
+<li>移动和移位操作。</li>
+<li>符号扩展和零扩展指令。</li>
+<li>位和位域操作。</li>
+<li>有条件的比较和数据处理操作。</li>
 </ul>
-<h2 id="basic-blocks-基本块">Basic Blocks / 基本块</h2>
+<h2 id="memory-access-instructions-访存指令">Memory access instructions
+/ 访存指令</h2>
+<p>和之前的所有ARM处理器一样，ARMv8架构也是一种加载/存储（Load/Store）架构。这意味着没有数据处理指令直接在内存中操作数据。数据首先必须加载到寄存器中，进行修改，然后再存储到内存中。程序必须指定一个地址、要传输的数据大小以及一个源或目标寄存器。还有其他的加载和存储指令提供了进一步的选项，比如非临时的加载/存储、加载/存储互斥和获取/释放。</p>
+<p>内存指令可以以非对齐的方式访问普通内存（参见<a
+target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Memory-Ordering?lang=en">内存排序</a>）。但这在独占访问、加载获取或存储释放变体中是不支持的。如果不希望进行非对齐访问，可以配置为出错。</p>
+<h3
+id="specifying-the-address-for-a-load-or-store-instruction">Specifying
+the address for a Load or Store instruction</h3>
+<p>在A64中，用于加载（Load）或存储（Store）指令的地址指定方式与A32和T32类似。虽然存在一些额外的限制和新特性，但对于熟悉A32或T32的人来说，A64提供的地址指定方式应该不会让人感到意外。</p>
+<p>在A64中，地址操作数的基础寄存器必须始终是一个X寄存器。然而，有几条指令支持零扩展（zero-extension）或符号扩展（sign-extension），以便可以将32位偏移量作为W寄存器提供。</p>
+<h4 id="a.-写回修饰符writeback-modifier">a. 写回修饰符（Writeback
+Modifier）（!）</h4>
+<p>在ARM汇编语言中，<code>STP</code>（Store
+Pair）指令的尾部的感叹号（!）是一个存储修饰符，称为写回修饰符（Writeback
+Modifier）。</p>
+<p><code>STP</code>指令用于将一对寄存器的数据存储到内存中。写回修饰符（!）用于指示指令是否应该将存储操作后的更新地址写回到基地址寄存器。如果使用了感叹号（!），则表示在存储数据后，将基地址寄存器进行更新，以便指向下一个存储操作的地址。</p>
+<p>以下是一个示例，展示了带有写回修饰符（!）的<code>STP</code>指令的使用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">STP X0, X1, [SP, #16]!</span><br></pre></td></tr></table></figure>
+<p>上述指令将X0和X1寄存器的数据存储到内存地址为(SP +
+16)的位置。同时，由于感叹号（!）的存在，指令执行后，SP寄存器的值会被更新，指向下一个存储操作的地址。</p>
+<p>需要注意的是，如果不使用写回修饰符（!），则基地址寄存器的值不会被修改，即不会进行写回操作。这样，下一次的存储操作将使用原始的基地址进行。</p>
+<p>写回修饰符（!）的使用可以方便地在一条指令中实现连续的存储操作，同时更新基地址寄存器，而无需额外的指令来更新寄存器的值。</p>
+<h4 id="b.-offset-modes">b. Offset modes</h4>
+<ol type="1">
+<li>有一个64位的基址寄存器（base register）</li>
+<li>将一个立即数 / 寄存器值 /
+修改后的寄存器值加到64位的基址寄存器上，这个加上的数就是offset</li>
+<li>eg: <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LDR X0, [X1, X2, LSL #3] // LSL和#3之间没有逗号</span><br></pre></td></tr></table></figure></li>
+</ol>
 <ul>
-<li><p>TCG的<em>基本块</em>是一个单入口、多出口的区域，对应于一系列指令，并以标签或任何跳转指令结尾。</p></li>
-<li><p>TCG的<em>扩展基本块</em>是一个单入口、多出口的区域，对应于一系列指令，并以标签或无条件跳转指令结尾。</p></li>
-<li><p>具体来说，扩展基本块是由零个或多个条件跳转指令的顺序连接起来的一系列基本块。</p></li>
+<li>load from [X1 + (X2 &lt;&lt; 3)]</li>
+<li>lsl : logic shift left</li>
 </ul>
-<h2 id="operations-操作">Operations / 操作</h2>
-<ul>
-<li><p>在TCG中，TCG指令或操作（ops）作用于TCG变量，它们都具有强类型。</p></li>
-<li><p>每个指令都有固定数量的输出变量操作数、输入变量操作数和常量操作数。</p></li>
-<li><p>向量指令具有指定向量中元素大小的字段。需要注意的例外是调用指令，它具有可变数量的输出和输入。</p></li>
-<li><p>在文本形式中，输出操作数通常首先出现，然后是输入操作数，最后是常量操作数。</p></li>
-<li><p>指令名称中包含输出类型。</p></li>
-<li><p>常量以'$'前缀表示。</p></li>
-<li><p>例如：</p></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_i32 t0, t1, t2    /* (t0 &lt;- t1 + t2) */</span><br></pre></td></tr></table></figure>
-<ul>
-<li>上述示例中，<code>add_i32</code>表示整数相加的指令，<code>t0</code>是输出变量，<code>t1</code>和<code>t2</code>是输入变量。指令执行后，<code>t0</code>的值将等于<code>t1</code>和<code>t2</code>的和。</li>
-</ul>
-<h1 id="variables">Variables</h1>
-<ul>
-<li><p><code>TEMP_FIXED</code></p>
-<p>There is one TCG <em>fixed global</em> variable,
-<code>cpu_env</code>, which is live in all translation blocks, and holds
-a pointer to <code>CPUArchState</code>. This variable is held in a host
-cpu register at all times in all translation blocks.</p></li>
-<li><p><code>TEMP_GLOBAL</code></p>
-<p>A TCG <em>global</em> is a variable which is live in all translation
-blocks, and corresponds to memory location that is within
-<code>CPUArchState</code>. These may be specified as an offset from
-<code>cpu_env</code>, in which case they are called <em>direct
-globals</em>, or may be specified as an offset from a direct global, in
-which case they are called <em>indirect globals</em>. Even indirect
-globals should still reference memory within <code>CPUArchState</code>.
-All TCG globals are defined during <code>TCGCPUOps.initialize</code>,
-before any translation blocks are generated.</p></li>
-<li><p><code>TEMP_CONST</code></p>
-<p>A TCG <em>constant</em> is a variable which is live throughout the
-entire translation block, and contains a constant value. These variables
-are allocated on demand during translation and are hashed so that there
-is exactly one variable holding a given value.</p></li>
-<li><p><code>TEMP_TB</code></p>
-<p>A TCG <em>translation block temporary</em> is a variable which is
-live throughout the entire translation block, but dies on any exit.
-These temporaries are allocated explicitly during translation.</p></li>
-<li><p><code>TEMP_EBB</code></p>
-<p>A TCG <em>extended basic block temporary</em> is a variable which is
-live throughout an extended basic block, but dies on any exit. These
-temporaries are allocated explicitly during translation.</p></li>
-</ul>
-<h1 id="types">Types</h1>
-<ul>
-<li><p><code>TCG_TYPE_I32</code></p>
-<p>A 32-bit integer.</p></li>
-<li><p><code>TCG_TYPE_I64</code></p>
-<p>A 64-bit integer. For 32-bit hosts, such variables are split into a
-pair of variables with <code>type=TCG_TYPE_I32</code> and
-<code>base_type=TCG_TYPE_I64</code>. The <code>temp_subindex</code> for
-each indicates where it falls within the host-endian
-representation.</p></li>
-<li><p><code>TCG_TYPE_PTR</code></p>
-<p>An alias for <code>TCG_TYPE_I32</code> or <code>TCG_TYPE_I64</code>,
-depending on the size of a pointer for the host.</p></li>
-<li><p><code>TCG_TYPE_REG</code></p>
-<p>An alias for <code>TCG_TYPE_I32</code> or <code>TCG_TYPE_I64</code>,
-depending on the size of the integer registers for the host. This may be
-larger than <code>TCG_TYPE_PTR</code> depending on the host
-ABI.</p></li>
-<li><p><code>TCG_TYPE_I128</code></p>
-<p>A 128-bit integer. For all hosts, such variables are split into a
-number of variables with <code>type=TCG_TYPE_REG</code> and
-<code>base_type=TCG_TYPE_I128</code>. The <code>temp_subindex</code> for
-each indicates where it falls within the host-endian
-representation.</p></li>
-<li><p><code>TCG_TYPE_V64</code></p>
-<p>A 64-bit vector. This type is valid only if the TCG target sets
-<code>TCG_TARGET_HAS_v64</code>.</p></li>
-<li><p><code>TCG_TYPE_V128</code></p>
-<p>A 128-bit vector. This type is valid only if the TCG target sets
-<code>TCG_TARGET_HAS_v128</code>.</p></li>
-<li><p><code>TCG_TYPE_V256</code></p>
-<p>A 256-bit vector. This type is valid only if the TCG target sets
-<code>TCG_TARGET_HAS_v256</code>.</p></li>
-</ul>
-<h2 id="helpers-辅助函数">Helpers / 辅助函数</h2>
-<ul>
-<li><p>在TCG中，辅助函数（helpers）通过在特定于客户机的<code>helper.h</code>中注册，并处理生成<code>tcg_gen_helper_*</code>函数。</p></li>
-<li><p>借助这些函数，可以调用接受i32、i64、i128或指针类型的函数。</p></li>
-<li><p>默认情况下，在调用辅助函数之前，所有全局变量都会存储在其规范位置上。</p></li>
-<li><p>默认情况下，辅助函数允许修改CPU状态（包括由tcg全局变量表示的状态）或引发异常。</p></li>
-<li><p>可以使用以下函数修饰符来覆盖默认行为：</p>
-<ul>
-<li><code>TCG_CALL_NO_WRITE_GLOBALS</code>
-<ul>
-<li>辅助函数不会修改任何全局变量，但可能会读取它们。</li>
-<li>在调用辅助函数之前，全局变量将保存在其规范位置，但在调用后不需要重新加载。</li>
-</ul></li>
-<li><code>TCG_CALL_NO_READ_GLOBALS</code>
-<ul>
-<li>辅助函数不会直接或通过异常读取全局变量。</li>
-<li>在调用辅助函数之前，它们将不会保存到其规范位置。</li>
-<li>这意味着它隐含了<code>TCG_CALL_NO_WRITE_GLOBALS</code>。</li>
-</ul></li>
-<li><code>TCG_CALL_NO_SIDE_EFFECTS</code>
-<ul>
-<li>如果没有使用返回值，则可以删除对辅助函数的调用。这意味着它不能修改任何CPU状态，也不能引发异常。</li>
-</ul></li>
-</ul></li>
-</ul>
-<h2 id="code-optimizations">Code Optimizations</h2>
-<ul>
-<li><p>在生成指令时，可以依赖至少以下优化：</p>
-<ul>
-<li>单个指令会进行简化，例如： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and_i32 t0, t0, $0xffffffff</span><br></pre></td></tr></table></figure> 会被抑制。</li>
-</ul></li>
-<li><p>在基本块级别进行寄存器活跃性分析。</p></li>
-<li><p>这些信息用于消除从一个无用变量到另一个无用变量的移动操作。</p></li>
-<li><p>还可以用于删除计算无用结果的指令。</p></li>
-<li><p>这对于QEMU中的条件代码优化特别有用。</p>
-<ul>
-<li>在下面的示例中： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">add_i32 t0, t1, t2</span><br><span class="line">add_i32 t0, t0, $1</span><br><span class="line">mov_i32 t0, $1</span><br></pre></td></tr></table></figure> 只会保留最后一条指令。</li>
-</ul></li>
-</ul>
-<h2 id="instruction-reference">Instruction Reference</h2>
-<h3 id="function-call">Function call</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>call <em><ret></em> <em><params></em> ptr</p></li>
-<li><div class="line-block"> call function 'ptr' (pointer type)<br />
-<br />
- <em><ret></em> optional 32 bit or 64 bit return value<br />
- <em><params></em> optional 32 bit or 64 bit parameters</div></li>
-</ul></li>
-</ul>
-<h3 id="jumpslabels">Jumps/Labels</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>set_label $label</p></li>
-<li><div class="line-block">Define label 'label' at the current program
-point.</div></li>
-</ul></li>
-<li><ul>
-<li><p>br $label</p></li>
-<li><div class="line-block">Jump to label.</div></li>
-</ul></li>
-<li><ul>
-<li><p>brcond_i32/i64 <em>t0</em>, <em>t1</em>, <em>cond</em>,
-<em>label</em></p></li>
-<li><div class="line-block">Conditional jump if <em>t0</em>
-<em>cond</em> <em>t1</em> is true. <em>cond</em> can be:<br />
-<br />
-  <code>TCG_COND_EQ</code><br />
-  <code>TCG_COND_NE</code><br />
-  <code>TCG_COND_LT /* signed */</code><br />
-  <code>TCG_COND_GE /* signed */</code><br />
-  <code>TCG_COND_LE /* signed */</code><br />
-  <code>TCG_COND_GT /* signed */</code><br />
-  <code>TCG_COND_LTU /* unsigned */</code><br />
-  <code>TCG_COND_GEU /* unsigned */</code><br />
-  <code>TCG_COND_LEU /* unsigned */</code><br />
-  <code>TCG_COND_GTU /* unsigned */</code></div></li>
-</ul></li>
-</ul>
-<h3 id="arithmetic">Arithmetic</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>add_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> +
-<em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>sub_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> -
-<em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>neg_i32/i64 <em>t0</em>, <em>t1</em></p></li>
-<li><div class="line-block"><em>t0</em> = -<em>t1</em> (two's
-complement)</div></li>
-</ul></li>
-<li><ul>
-<li><p>mul_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> *
-<em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>div_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> / <em>t2</em>
-(signed)<br />
-Undefined behavior if division by zero or overflow.</div></li>
-</ul></li>
-<li><ul>
-<li><p>divu_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> / <em>t2</em>
-(unsigned)<br />
-Undefined behavior if division by zero.</div></li>
-</ul></li>
-<li><ul>
-<li><p>rem_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> % <em>t2</em>
-(signed)<br />
-Undefined behavior if division by zero or overflow.</div></li>
-</ul></li>
-<li><ul>
-<li><p>remu_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> % <em>t2</em>
-(unsigned)<br />
-Undefined behavior if division by zero.</div></li>
-</ul></li>
-</ul>
-<h3 id="logical">Logical</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>and_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> &amp;
-<em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>or_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> |
-<em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>xor_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> ^
-<em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>not_i32/i64 <em>t0</em>, <em>t1</em></p></li>
-<li><div class="line-block"><em>t0</em> = ~ <em>t1</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>andc_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> &amp;
-~ <em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>eqv_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = ~(<em>t1</em> ^ <em>t2</em>),
-or equivalently, <em>t0</em> = <em>t1</em> ^ ~ <em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>nand_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = ~(<em>t1</em> &amp;
-<em>t2</em>)</div></li>
-</ul></li>
-<li><ul>
-<li><p>nor_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = ~(<em>t1</em> |
-<em>t2</em>)</div></li>
-</ul></li>
-<li><ul>
-<li><p>orc_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> |
-~ <em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>clz_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> ? clz(<em>t1</em>)
-: <em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>ctz_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> ? ctz(<em>t1</em>)
-: <em>t2</em></div></li>
-</ul></li>
-<li><ul>
-<li><p>ctpop_i32/i64 <em>t0</em>, <em>t1</em></p></li>
-<li><div class="line-block"><em>t0</em> = number of bits set in
-<em>t1</em><br />
-<br />
-With <em>ctpop</em> short for "count population", matching<br />
-the function name used in
-<code>include/qemu/host-utils.h</code>.</div></li>
-</ul></li>
-</ul>
-<h3 id="shiftsrotates">Shifts/Rotates</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>shl_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> &lt;&lt;
-<em>t2</em><br />
-Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
-64)</div></li>
-</ul></li>
-<li><ul>
-<li><p>shr_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> &gt;&gt;
-<em>t2</em> (unsigned)<br />
-Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
-64)</div></li>
-</ul></li>
-<li><ul>
-<li><p>sar_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em> &gt;&gt;
-<em>t2</em> (signed)<br />
-Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
-64)</div></li>
-</ul></li>
-<li><ul>
-<li><p>rotl_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block">Rotation of <em>t2</em> bits to the
-left<br />
-Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
-64)</div></li>
-</ul></li>
-<li><ul>
-<li><p>rotr_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block">Rotation of <em>t2</em> bits to the
-right.<br />
-Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
-64)</div></li>
-</ul></li>
-</ul>
-<h3 id="misc">Misc</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>mov_i32/i64 <em>t0</em>, <em>t1</em></p></li>
-<li><div class="line-block"><em>t0</em> = <em>t1</em><br />
-Move <em>t1</em> to <em>t0</em> (both operands must have the same
-type).</div></li>
-</ul></li>
-<li><ul>
-<li><p>ext8s_i32/i64 <em>t0</em>, <em>t1</em></p>
-<p>ext8u_i32/i64 <em>t0</em>, <em>t1</em></p>
-<p>ext16s_i32/i64 <em>t0</em>, <em>t1</em></p>
-<p>ext16u_i32/i64 <em>t0</em>, <em>t1</em></p>
-<p>ext32s_i64 <em>t0</em>, <em>t1</em></p>
-<p>ext32u_i64 <em>t0</em>, <em>t1</em></p></li>
-<li><div class="line-block">8, 16 or 32 bit sign/zero extension (both
-operands must have the same type)</div></li>
-</ul></li>
-<li><ul>
-<li><p>bswap16_i32/i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p></li>
-<li><div class="line-block">16 bit byte swap on the low bits of a 32/64
-bit input.<br />
-<br />
-If <em>flags</em> &amp; <code>TCG_BSWAP_IZ</code>, then <em>t1</em> is
-known to be zero-extended from bit 15.<br />
-If <em>flags</em> &amp; <code>TCG_BSWAP_OZ</code>, then <em>t0</em> will
-be zero-extended from bit 15.<br />
-If <em>flags</em> &amp; <code>TCG_BSWAP_OS</code>, then <em>t0</em> will
-be sign-extended from bit 15.<br />
-<br />
-If neither <code>TCG_BSWAP_OZ</code> nor <code>TCG_BSWAP_OS</code> are
-set, then the bits of <em>t0</em> above bit 15 may contain any
-value.</div></li>
-</ul></li>
-<li><ul>
-<li><p>bswap32_i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p></li>
-<li><div class="line-block">32 bit byte swap on a 64-bit value. The
-flags are the same as for bswap16, except they apply from bit 31 instead
-of bit 15.</div></li>
-</ul></li>
-<li><ul>
-<li><p>bswap32_i32 <em>t0</em>, <em>t1</em>, <em>flags</em></p>
-<p>bswap64_i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p></li>
-<li><div class="line-block">32/64 bit byte swap. The flags are ignored,
-but still present for consistency with the other bswap
-opcodes.</div></li>
-</ul></li>
-<li><ul>
-<li><p>discard_i32/i64 <em>t0</em></p></li>
-<li><div class="line-block">Indicate that the value of <em>t0</em> won't
-be used later. It is useful to force dead code elimination.</div></li>
-</ul></li>
-<li><ul>
-<li><p>deposit_i32/i64 <em>dest</em>, <em>t1</em>, <em>t2</em>,
-<em>pos</em>, <em>len</em></p></li>
-<li><div class="line-block">Deposit <em>t2</em> as a bitfield into
-<em>t1</em>, placing the result in <em>dest</em>.<br />
-<br />
-The bitfield is described by <em>pos</em>/<em>len</em>, which are
-immediate values:<br />
-<br />
-    <em>len</em> - the length of the bitfield<br />
-    <em>pos</em> - the position of the first bit, counting from the
-LSB<br />
-<br />
-For example, "deposit_i32 dest, t1, t2, 8, 4" indicates a 4-bit field at
-bit 8. This operation would be equivalent to<br />
-<br />
-    <em>dest</em> = (<em>t1</em> &amp; ~0x0f00) | ((<em>t2</em> &lt;&lt;
-8) &amp; 0x0f00)</div></li>
-</ul></li>
-<li><ul>
-<li><p>extract_i32/i64 <em>dest</em>, <em>t1</em>, <em>pos</em>,
-<em>len</em></p>
-<p>sextract_i32/i64 <em>dest</em>, <em>t1</em>, <em>pos</em>,
-<em>len</em></p></li>
-<li><div class="line-block">Extract a bitfield from <em>t1</em>, placing
-the result in <em>dest</em>.<br />
-<br />
-The bitfield is described by <em>pos</em>/<em>len</em>, which are
-immediate values, as above for deposit. For extract_<em>, the result
-will be extended to the left with zeros; for sextract_</em>, the result
-will be extended to the left with copies of the bitfield sign bit at
-<em>pos</em> + <em>len</em> - 1.<br />
-<br />
-For example, "sextract_i32 dest, t1, 8, 4" indicates a 4-bit field at
-bit 8. This operation would be equivalent to<br />
-<br />
-   <em>dest</em> = (<em>t1</em> &lt;&lt; 20) &gt;&gt; 28<br />
-<br />
-(using an arithmetic right shift).</div></li>
-</ul></li>
-<li><ul>
-<li><p>extract2_i32/i64 <em>dest</em>, <em>t1</em>, <em>t2</em>,
-<em>pos</em></p></li>
-<li><div class="line-block">For N = {32,64}, extract an N-bit quantity
-from the concatenation of <em>t2</em>:<em>t1</em>, beginning at
-<em>pos</em>. The tcg_gen_extract2_{i32,i64} expander accepts 0 &lt;=
-<em>pos</em> &lt;= N as inputs. The backend code generator will not see
-either 0 or N as inputs for these opcodes.</div></li>
-</ul></li>
-<li><ul>
-<li><p>extrl_i64_i32 <em>t0</em>, <em>t1</em></p></li>
-<li><div class="line-block">For 64-bit hosts only, extract the low
-32-bits of input <em>t1</em> and place it into 32-bit output
-<em>t0</em>. Depending on the host, this may be a simple move, or may
-require additional canonicalization.</div></li>
-</ul></li>
-<li><ul>
-<li><p>extrh_i64_i32 <em>t0</em>, <em>t1</em></p></li>
-<li><div class="line-block">For 64-bit hosts only, extract the high
-32-bits of input <em>t1</em> and place it into 32-bit output
-<em>t0</em>. Depending on the host, this may be a simple shift, or may
-require additional canonicalization.</div></li>
-</ul></li>
-</ul>
-<h3 id="conditional-moves">Conditional moves</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>setcond_i32/i64 <em>dest</em>, <em>t1</em>, <em>t2</em>,
-<em>cond</em></p></li>
-<li><div class="line-block"><em>dest</em> = (<em>t1</em> <em>cond</em>
-<em>t2</em>)<br />
-<br />
-Set <em>dest</em> to 1 if (<em>t1</em> <em>cond</em> <em>t2</em>) is
-true, otherwise set to 0.</div></li>
-</ul></li>
-<li><ul>
-<li><p>movcond_i32/i64 <em>dest</em>, <em>c1</em>, <em>c2</em>,
-<em>v1</em>, <em>v2</em>, <em>cond</em></p></li>
-<li><div class="line-block"><em>dest</em> = (<em>c1</em> <em>cond</em>
-<em>c2</em> ? <em>v1</em> : <em>v2</em>)<br />
-<br />
-Set <em>dest</em> to <em>v1</em> if (<em>c1</em> <em>cond</em>
-<em>c2</em>) is true, otherwise set to <em>v2</em>.</div></li>
-</ul></li>
-</ul>
-<h3 id="type-conversions">Type conversions</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>ext_i32_i64 <em>t0</em>, <em>t1</em></p></li>
-<li><div class="line-block">Convert <em>t1</em> (32 bit) to <em>t0</em>
-(64 bit) and does sign extension</div></li>
-</ul></li>
-<li><ul>
-<li><p>extu_i32_i64 <em>t0</em>, <em>t1</em></p></li>
-<li><div class="line-block">Convert <em>t1</em> (32 bit) to <em>t0</em>
-(64 bit) and does zero extension</div></li>
-</ul></li>
-<li><ul>
-<li><p>trunc_i64_i32 <em>t0</em>, <em>t1</em></p></li>
-<li><div class="line-block">Truncate <em>t1</em> (64 bit) to <em>t0</em>
-(32 bit)</div></li>
-</ul></li>
-<li><ul>
-<li><p>concat_i32_i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block">Construct <em>t0</em> (64-bit) taking the
-low half from <em>t1</em> (32 bit) and the high half from <em>t2</em>
-(32 bit).</div></li>
-</ul></li>
-<li><ul>
-<li><p>concat32_i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block">Construct <em>t0</em> (64-bit) taking the
-low half from <em>t1</em> (64 bit) and the high half from <em>t2</em>
-(64 bit).</div></li>
-</ul></li>
-</ul>
-<h3 id="loadstore">Load/Store</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>ld_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>ld8s_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>ld8u_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>ld16s_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>ld16u_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>ld32s_i64 t0, <em>t1</em>, <em>offset</em></p>
-<p>ld32u_i64 t0, <em>t1</em>, <em>offset</em></p></li>
-<li><div class="line-block"><em>t0</em> = read(<em>t1</em> +
-<em>offset</em>)<br />
-<br />
-Load 8, 16, 32 or 64 bits with or without sign extension from host
-memory. <em>offset</em> must be a constant.</div></li>
-</ul></li>
-<li><ul>
-<li><p>st_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>st8_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>st16_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
-<p>st32_i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p></li>
-<li><div class="line-block">write(<em>t0</em>, <em>t1</em> +
-<em>offset</em>)<br />
-<br />
-Write 8, 16, 32 or 64 bits to host memory.</div></li>
-</ul></li>
-</ul>
-<p>All this opcodes assume that the pointed host memory doesn't
-correspond to a global. In the latter case the behaviour is
-unpredictable.</p>
-<h3 id="multiword-arithmetic-support">Multiword arithmetic support</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>add2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>,
-<em>t1_high</em>, <em>t2_low</em>, <em>t2_high</em></p>
-<p>sub2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>,
-<em>t1_high</em>, <em>t2_low</em>, <em>t2_high</em></p></li>
-<li><div class="line-block">Similar to add/sub, except that the
-double-word inputs <em>t1</em> and <em>t2</em> are formed from two
-single-word arguments, and the double-word output <em>t0</em> is
-returned in two single-word outputs.</div></li>
-</ul></li>
-<li><ul>
-<li><p>mulu2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1</em>,
-<em>t2</em></p></li>
-<li><div class="line-block">Similar to mul, except two unsigned inputs
-<em>t1</em> and <em>t2</em> yielding the full double-word product
-<em>t0</em>. The latter is returned in two single-word
-outputs.</div></li>
-</ul></li>
-<li><ul>
-<li><p>muls2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1</em>,
-<em>t2</em></p></li>
-<li><div class="line-block">Similar to mulu2, except the two inputs
-<em>t1</em> and <em>t2</em> are signed.</div></li>
-</ul></li>
-<li><ul>
-<li><p>mulsh_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
-<p>muluh_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
-<li><div class="line-block">Provide the high part of a signed or
-unsigned multiply, respectively.<br />
-<br />
-If mulu2/muls2 are not provided by the backend, the tcg-op generator can
-obtain the same results by emitting a pair of opcodes, mul +
-muluh/mulsh.</div></li>
-</ul></li>
-</ul>
-<h3 id="memory-barrier-support">Memory Barrier support</h3>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>mb <em>&lt;$arg&gt;</em></p></li>
-<li><div class="line-block">Generate a target memory barrier instruction
-to ensure memory ordering as being enforced by a corresponding guest
-memory barrier instruction.<br />
-<br />
-The ordering enforced by the backend may be stricter than the ordering
-required by the guest. It cannot be weaker. This opcode takes a constant
-argument which is required to generate the appropriate barrier
-instruction. The backend should take care to emit the target barrier
-instruction only when necessary i.e., for SMP guests and when MTTCG is
-enabled.<br />
-<br />
-The guest translators should generate this opcode for all guest
-instructions which have ordering side effects.<br />
-<br />
-Please see :ref:<code>atomics-ref</code> for more information on memory
-barriers.</div></li>
-</ul></li>
-</ul>
-<h3 id="bit-guest-on-32-bit-host-support">64-bit guest on 32-bit host
-support</h3>
-<p>The following opcodes are internal to TCG. Thus they are to be
-implemented by 32-bit host code generators, but are not to be emitted by
-guest translators. They are emitted as needed by inline functions within
-<code>tcg-op.h</code>.</p>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>brcond2_i32 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>,
-<em>t1_high</em>, <em>cond</em>, <em>label</em></p></li>
-<li><div class="line-block">Similar to brcond, except that the 64-bit
-values <em>t0</em> and <em>t1</em> are formed from two 32-bit
-arguments.</div></li>
-</ul></li>
-<li><ul>
-<li><p>setcond2_i32 <em>dest</em>, <em>t1_low</em>, <em>t1_high</em>,
-<em>t2_low</em>, <em>t2_high</em>, <em>cond</em></p></li>
-<li><div class="line-block">Similar to setcond, except that the 64-bit
-values <em>t1</em> and <em>t2</em> are formed from two 32-bit arguments.
-The result is a 32-bit value.</div></li>
-</ul></li>
-</ul>
-<h3 id="qemu-specific-operations">QEMU specific operations</h3>
+<h4 id="c.-index-modes">c. Index modes</h4>
+<p>索引模式（Index modes）与偏移模式（Offset
+modes）类似，但它们还会更新基础寄存器。其语法与A32和T32相同，但操作的集合更为限制。通常，只能为索引模式提供立即偏移量（immediate
+offsets）。</p>
+<p>索引模式有两个变体：前索引模式（pre-index
+modes）在访问内存之前应用偏移量，而后索引模式（post-index
+modes）在访问内存之后应用偏移量。</p>
 <table>
 <colgroup>
 <col style="width: 50%" />
@@ -2733,707 +2283,137 @@ The result is a 32-bit value.</div></li>
 </colgroup>
 <thead>
 <tr class="header">
-<th>operations</th>
-<th>description</th>
+<th>Example instruction</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>exit_tb <em>t0</em></td>
-<td>退出当前的翻译块（Translation
-Block）并返回变量<em>t0</em>的值（字类型）</td>
+<td>LDR X0, [X1, #8]!</td>
+<td>Pre-index: Update X1 first (to X1 + #8), then load from the new
+address</td>
 </tr>
 <tr class="even">
-<td>goto_tb <em>index</em></td>
-<td>退出当前的翻译块（Translation Block）并根据条件跳转到索引为 index
-的翻译块，如果当前的翻译块与目标翻译块相连。否则，继续执行下一条指令。只有索引为
-0 和 1 是有效的，每个翻译块最多可以使用一次 tcg_gen_goto_tb
-指令来跳转到每个索引。 tcg_gen_goto_tb may be issued at most once with
-each slot index per TB.</td>
+<td>LDR X0, [X1], #8</td>
+<td>Post-index: Load from the unmodified address in X1 first, then
+update X1 (to X1 + #8)</td>
 </tr>
 <tr class="odd">
-<td>lookup_and_goto_ptr <em>tb_addr</em></td>
-<td>查找一个翻译块的地址<em>tb_addr</em>，并根据其有效性进行跳转。如果翻译块地址有效，则跳转到该地址；如果无效，则跳转到TCG的收尾部分以返回执行循环。</td>
+<td>STP X0, X1, [SP, #-16]!</td>
+<td>Push X0 and X1 to the stack. sp is modified</td>
 </tr>
 <tr class="even">
-<td>qemu_ld_i32/i64/i128 <em>t0</em>, <em>t1</em>, <em>flags</em>,
-<em>memidx</em><br>qemu_st_i32/i64/i128 <em>t0</em>, <em>t1</em>,
-<em>flags</em>, <em>memidx</em><br>qemu_st8_i32 <em>t0</em>,
-<em>t1</em>, <em>flags</em>, <em>memidx</em></td>
-<td>加载位于虚拟地址 t1 处的数据到 t0，或者将 t0 中的数据存储到虚拟地址
-t1 处。_i32/_i64/_i128 大小适用于输入/输出寄存器 t0 的大小。地址 t1
-总是根据虚拟机的大小进行定位，而内存操作的宽度由 flags 控制。<br>在处理
-64 位数据（在 32 位主机上）或 128 位数据（在 64 位主机上）时，t0 和 t1
-可能会被拆分为按小端顺序排列的寄存器对。<br>memidx 用于选择要使用的 QEMU
-TLB 索引（例如，用户或内核访问）。flags 是 MemOp
-位，用于选择内存访问的符号、宽度和字节顺序。<br>对于 32 位主机，保证仅在
-flags 中指定了 64 位内存访问时才使用 qemu_ld/st_i64。<br>对于
-qemu_ld/st_i128，仅在 64 位主机上支持。<br>对于 i386，qemu_st8_i32 与
-qemu_st_i32 完全相同，只是内存操作的大小已知为 8
-位。这允许后端提供不同的寄存器约束。</td>
+<td>LDP X0, X1, [SP], #16</td>
+<td>Pop X0 and X1 off the stack. sp is modified</td>
 </tr>
 </tbody>
 </table>
-<h2 id="host-vector-operations">Host vector operations</h2>
-<p>All of the vector ops have two parameters, <code>TCGOP_VECL</code>
-&amp; <code>TCGOP_VECE</code>. The former specifies the length of the
-vector in log2 64-bit units; the latter specifies the length of the
-element (if applicable) in log2 8-bit units. E.g. VECL = 1 -&gt; 64
-&lt;&lt; 1 -&gt; v128, and VECE = 2 -&gt; 1 &lt;&lt; 2 -&gt; i32.</p>
-<p>.. list-table::</p>
-<ul>
-<li><ul>
-<li><p>mov_vec <em>v0</em>, <em>v1</em> ld_vec <em>v0</em>, <em>t1</em>
-st_vec <em>v0</em>, <em>t1</em></p></li>
-<li><div class="line-block">Move, load and store.</div></li>
-</ul></li>
-<li><ul>
-<li><p>dup_vec <em>v0</em>, <em>r1</em></p></li>
-<li><div class="line-block">Duplicate the low N bits of <em>r1</em> into
-VECL/VECE copies across <em>v0</em>.</div></li>
-</ul></li>
-<li><ul>
-<li><p>dupi_vec <em>v0</em>, <em>c</em></p></li>
-<li><div class="line-block">Similarly, for a constant.<br />
-Smaller values will be replicated to host register size by the
-expanders.</div></li>
-</ul></li>
-<li><ul>
-<li><p>dup2_vec <em>v0</em>, <em>r1</em>, <em>r2</em></p></li>
-<li><div class="line-block">Duplicate <em>r2</em>:<em>r1</em> into
-VECL/64 copies across <em>v0</em>. This opcode is only present for
-32-bit hosts.</div></li>
-</ul></li>
-<li><ul>
-<li><p>add_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
-<li><div class="line-block"><em>v0</em> = <em>v1</em> + <em>v2</em>, in
-elements across the vector.</div></li>
-</ul></li>
-<li><ul>
-<li><p>sub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
-<li><div class="line-block">Similarly, <em>v0</em> = <em>v1</em> -
-<em>v2</em>.</div></li>
-</ul></li>
-<li><ul>
-<li><p>mul_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
-<li><div class="line-block">Similarly, <em>v0</em> = <em>v1</em> *
-<em>v2</em>.</div></li>
-</ul></li>
-<li><ul>
-<li><p>neg_vec <em>v0</em>, <em>v1</em></p></li>
-<li><div class="line-block">Similarly, <em>v0</em> =
--<em>v1</em>.</div></li>
-</ul></li>
-<li><ul>
-<li><p>abs_vec <em>v0</em>, <em>v1</em></p></li>
-<li><div class="line-block">Similarly, <em>v0</em> = <em>v1</em> &lt; 0
-? -<em>v1</em> : <em>v1</em>, in elements across the vector.</div></li>
-</ul></li>
-<li><ul>
-<li><p>smin_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>umin_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
-<li><div class="line-block">Similarly, <em>v0</em> = MIN(<em>v1</em>,
-<em>v2</em>), for signed and unsigned element types.</div></li>
-</ul></li>
-<li><ul>
-<li><p>smax_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>umax_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
-<li><div class="line-block">Similarly, <em>v0</em> = MAX(<em>v1</em>,
-<em>v2</em>), for signed and unsigned element types.</div></li>
-</ul></li>
-<li><ul>
-<li><p>ssadd_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>sssub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>usadd_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>ussub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
-<li><div class="line-block">Signed and unsigned saturating addition and
-subtraction.<br />
-<br />
-If the true result is not representable within the element type, the
-element is set to the minimum or maximum value for the type.</div></li>
-</ul></li>
-<li><ul>
-<li><p>and_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>or_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>xor_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>andc_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>orc_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>not_vec <em>v0</em>, <em>v1</em></p></li>
-<li><div class="line-block">Similarly, logical operations with and
-without complement.<br />
-<br />
-Note that VECE is unused.</div></li>
-</ul></li>
-<li><ul>
-<li><p>shli_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
-<p>shls_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p></li>
-<li><div class="line-block">Shift all elements from v1 by a scalar
-<em>i2</em>/<em>s2</em>. I.e.</div>
-<p>.. code-block:: c</p>
-<p>for (i = 0; i &lt; VECL/VECE; ++i) { v0[i] = v1[i] &lt;&lt; s2;
-}</p></li>
-</ul></li>
-<li><ul>
-<li><p>shri_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
-<p>sari_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
-<p>rotli_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
-<p>shrs_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p>
-<p>sars_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p></li>
-<li><div class="line-block">Similarly for logical and arithmetic right
-shift, and left rotate.</div></li>
-</ul></li>
-<li><ul>
-<li><p>shlv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
-<li><div class="line-block">Shift elements from <em>v1</em> by elements
-from <em>v2</em>. I.e.</div>
-<p>.. code-block:: c</p>
-<p>for (i = 0; i &lt; VECL/VECE; ++i) { v0[i] = v1[i] &lt;&lt; v2[i];
-}</p></li>
-</ul></li>
-<li><ul>
-<li><p>shrv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>sarv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>rotlv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
-<p>rotrv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
-<li><div class="line-block">Similarly for logical and arithmetic right
-shift, and rotates.</div></li>
-</ul></li>
-<li><ul>
-<li><p>cmp_vec <em>v0</em>, <em>v1</em>, <em>v2</em>,
-<em>cond</em></p></li>
-<li><div class="line-block">Compare vectors by element, storing -1 for
-true and 0 for false.</div></li>
-</ul></li>
-<li><ul>
-<li><p>bitsel_vec <em>v0</em>, <em>v1</em>, <em>v2</em>,
-<em>v3</em></p></li>
-<li><div class="line-block">Bitwise select, <em>v0</em> = (<em>v2</em>
-&amp; <em>v1</em>) | (<em>v3</em> &amp; ~ <em>v1</em>), across the
-entire vector.</div></li>
-</ul></li>
-<li><ul>
-<li><p>cmpsel_vec <em>v0</em>, <em>c1</em>, <em>c2</em>, <em>v3</em>,
-<em>v4</em>, <em>cond</em></p></li>
-<li><div class="line-block">Select elements based on comparison
-results:</div>
-<p>.. code-block:: c</p>
-<p>for (i = 0; i &lt; n; ++i) { v0[i] = (c1[i] cond c2[i]) ? v3[i] :
-v4[i]. }</p></li>
-</ul></li>
-</ul>
-<p><strong>Note 1</strong>: Some shortcuts are defined when the last
-operand is known to be a constant (e.g. addi for add, movi for mov).</p>
-<p><strong>Note 2</strong>: When using TCG, the opcodes must never be
-generated directly as some of them may not be available as "real"
-opcodes. Always use the function tcg_gen_xxx(args).</p>
-<h2 id="backend-后端">Backend / 后端</h2>
-<ul>
-<li><code>tcg-target.h</code> 是包含目标特定定义的文件。</li>
-<li><code>tcg-target.c.inc</code> 是目标特定代码的文件，它通过
-<code>#include</code> 被 <code>tcg/tcg.c</code>
-包含，而不是作为一个独立的 C 文件存在。</li>
-</ul>
-<h3 id="assumptions-假设">Assumptions / 假设</h3>
-<ul>
-<li><p>目标字长（<code>TCG_TARGET_REG_BITS</code>）预期为32位或64位。</p></li>
-<li><p>假设指针的大小与字长相同。</p></li>
-<li><p>在32位目标上，所有64位操作都会转换为32位。</p></li>
-<li><p>需要实现一些特定的操作来支持这一点（参见<code>add2_i32</code>，<code>sub2_i32</code>，<code>brcond2_i32</code>）。</p></li>
-<li><p>在64位目标上，通过以下操作在32位和64位寄存器之间传输值：</p>
-<ul>
-<li><code>trunc_shr_i64_i32</code></li>
-<li><code>ext_i32_i64</code></li>
-<li><code>extu_i32_i64</code></li>
-</ul></li>
-<li><p>它们确保在从32位寄存器移动到64位寄存器或反之时，值被正确截断或扩展。请注意，<code>trunc_shr_i64_i32</code>是一个可选的操作。</p></li>
-<li><p>如果满足以下所有条件，则不需要实现它：</p>
-<ul>
-<li>64位寄存器可以容纳32位值</li>
-<li>64位寄存器中的32位值不需要保持零扩展或符号扩展</li>
-<li>所有32位TCG操作忽略64位寄存器的高位部分</li>
-</ul></li>
-<li><p>此版本不支持浮点操作。代码生成器的先前版本对其有全面支持，但最好先集中精力处理整数操作。</p></li>
-</ul>
-<h3 id="constraints-限制">Constraints / 限制</h3>
-<ul>
-<li><p>这个版本使用类似GCC的约束来定义每个指令的限制条件。</p></li>
-<li><p>不支持内存约束。</p></li>
-<li><p>别名可以像GCC一样在输入操作数中指定。</p></li>
-<li><p>即使没有明确指定别名，同一个寄存器可以用作输入和输出。</p></li>
-<li><p>如果一个操作扩展为多个目标指令，需要注意避免破坏输入值。</p></li>
-<li><p>支持GCC风格的"早期占用"输出，使用'<code>&amp;</code>'符号。</p></li>
-<li><p>目标可以定义特定的寄存器或常量约束。</p></li>
-<li><p>如果一个操作使用不允许所有常量的常量输入约束，为了有备用选项，必须同时接受寄存器。
-（If an operation uses a constant input constraint which does not allow
-all constants, it must also accept registers in order to have a
-fallback.）</p></li>
-<li><p>约束'<code>i</code>'是通用定义的，接受任何常量。</p></li>
-<li><p>约束'<code>r</code>'没有通用定义，但每个后端一致使用它来表示所有寄存器。</p></li>
-<li><p>movi_i32和movi_i64操作必须接受任何常量。</p></li>
-<li><p>mov_i32和mov_i64操作必须接受相同类型的任何寄存器。</p></li>
-<li><p>ld/st/sti指令必须接受带符号的32位常量偏移量。</p></li>
-<li><p>如果偏移量太大，可以通过保留一个特定的寄存器来计算地址。</p></li>
-<li><p>ld/st指令必须接受任何目标寄存器（ld）或源寄存器（st）。</p></li>
-<li><p>sti指令可能会因无法存储给定的常量而失败。</p></li>
-</ul>
-<h3 id="function-call-assumptions-函数调用的假设">Function call
-assumptions / 函数调用的假设</h3>
-<ul>
-<li>参数和返回值的支持类型仅限于32位和64位整数以及指针。</li>
-<li>栈向下增长。</li>
-<li>前N个参数通过寄存器传递。</li>
-<li>接下来的参数通过将它们存储为字节的方式通过栈传递。</li>
-<li>在调用期间，一些寄存器的值可能会被覆盖。</li>
-<li>函数可以在寄存器中返回0或1个值。在32位目标平台上，函数必须能够以寄存器返回2个值，用于64位返回类型。</li>
-</ul>
-<h2 id="recommended-coding-rules-for-best-performance">Recommended
-coding rules for best performance</h2>
-<ul>
-<li><p>使用全局变量来表示经常被修改的QEMU
-CPU状态的部分，例如整数寄存器和条件码。</p></li>
-<li><p>TCG将能够使用主机寄存器来存储它们。</p></li>
-<li><p>对于复杂或不常用的客户指令，不要犹豫使用辅助函数。</p></li>
-<li><p>在使用TCG实现的客户指令中，使用超过约二十条TCG指令的性能优势很小。</p></li>
-<li><p>需要注意的是，这个经验法则更适用于执行复杂逻辑或算术运算的辅助函数，因为C编译器可以进行有效的优化；在大部分是加载和存储操作的指令中，这个规则的适用性较小，并且在这些情况下，内联TCG仍然可能比较长的序列更快。</p></li>
-<li><p>如果你知道TCG无法证明在给定程序点上某个全局变量是"无用"的，可以使用"discard"指令。</p></li>
-<li><p>x86客户机使用它来改进条件码的优化。</p></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/Qemu%E7%BF%BB%E8%AF%91%E6%B5%81%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2023/05/18/Qemu%E7%BF%BB%E8%AF%91%E6%B5%81%E7%A8%8B/" class="post-title-link" itemprop="url">Qemu翻译器的内部机制</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-05-18 19:23:50" itemprop="dateCreated datePublished" datetime="2023-05-18T19:23:50+08:00">2023-05-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>4.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>7 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="translator-internals-翻译器的内部机制">Translator Internals /
-翻译器的内部机制</h1>
-<ul>
-<li><p>QEMU是一个动态翻译器。</p></li>
-<li><p>当它首次遇到一段代码时，它会将其转换为宿主机指令集。</p></li>
-<li><p>通常，动态翻译器非常复杂且高度依赖于CPU。</p></li>
-<li><p>QEMU使用一些技巧使其相对容易进行移植和简化，同时实现良好的性能。</p></li>
-<li><p>QEMU的动态翻译后端称为TCG（Tiny Code Generator），见另一篇文章TCG
-IR。</p></li>
-<li><p>以下部分概述了QEMU动态翻译器的一些显著特点和实现细节。</p></li>
-</ul>
-<h1 id="cpu-state-optimisations-cpu状态优化">CPU state optimisations /
-CPU状态优化</h1>
-<ul>
-<li>目标CPU具有许多内部状态，这些状态会影响它们执行指令的方式。</li>
-<li>为了实现良好的速度，翻译阶段考虑到虚拟CPU的某些状态信息在其中不会改变。</li>
-<li>状态信息被记录在翻译块（Translation Block，TB）中。</li>
-<li>如果状态发生变化（例如特权级别），将生成一个新的TB，并且之前的TB将不再使用，直到状态与之前记录在先的TB中的状态匹配。</li>
-<li>对于CPU状态的其他方面也可以应用相同的思想。例如，在x86架构中，如果SS、DS和ES段具有零基址，那么翻译器甚至不会为段基址生成一个加法操作。</li>
-</ul>
-<h2 id="direct-block-chaining-直接块链接">Direct block chaining /
-直接块链接</h2>
-<ul>
-<li><p>在每个已执行的翻译的基本块之后，QEMU使用模拟的程序计数器（PC）和其他CPU状态信息（例如CS段基址）来找到下一个基本块。</p></li>
-<li><p>在简单且未经优化的形式中，这是通过退出当前的翻译块，经过翻译块的收尾处理，然后返回到主循环来完成的。</p></li>
-<li><p>在主循环中，QEMU寻找要执行的下一个翻译块，如果它尚未在内存中，则将其从客户体系结构翻译出来。</p></li>
-<li><p>然后，QEMU继续执行下一个翻译块，从序言开始，然后继续执行已翻译的指令。</p></li>
-<li><p>以这种方式退出翻译块将导致在执行其他指令之前重新评估<code>cpu_exec_interrupt()</code>回调函数。</p></li>
-<li><p>在发生可能解除中断屏蔽的任何CPU状态更改后，以这种方式退出是必需的。</p></li>
-<li><p>为了加速当新的模拟PC对应的翻译块已经可用的情况，QEMU具有机制允许直接链接多个翻译块，而无需返回到上述的主循环。这些机制包括：</p></li>
-</ul>
-<h3 id="lookup_and_goto_ptr"><code>lookup_and_goto_ptr</code></h3>
-<ul>
-<li>调用<code>tcg_gen_lookup_and_goto_ptr()</code>将生成对<code>helper_lookup_tb_ptr</code>的调用。</li>
-<li>该辅助函数将查找与当前CPU状态匹配的现有翻译块。</li>
-<li>如果目标翻译块可用，则返回其代码地址；否则返回JIT（即时编译）收尾部分的地址。</li>
-<li>在调用辅助函数之后，总是紧随着tcg
-<code>goto_ptr</code>指令，它会跳转到返回的地址。</li>
-<li>这样，我们要么跳转到下一个翻译块，要么返回到主循环。</li>
-</ul>
-<h3 id="goto_tb-exit_tb"><code>goto_tb + exit_tb</code></h3>
-<ul>
-<li><p>翻译代码通常通过以下步骤来实现分支：</p>
-<ol type="1">
-<li>调用<code>tcg_gen_goto_tb()</code>，并将跳转槽索引（0或1）作为参数传递。</li>
-<li>发出TCG指令来更新CPU状态，其中包括已假定为常量且主循环需要正确定位和执行下一个翻译块所需的信息。对于大多数客户机，这仅仅是分支目标的PC，但其他一些客户机可能会存储附加数据。在此步骤中更新的信息必须可以从<code>cpu_get_tb_cpu_state()</code>和<code>cpu_restore_state()</code>中推断出来。</li>
-<li>调用<code>tcg_gen_exit_tb()</code>，再次传递当前翻译块的地址和跳转槽索引。</li>
-</ol></li>
-<li><p>第1步<code>tcg_gen_goto_tb()</code>将生成一个<code>goto_tb</code>
-TCG指令，稍后会被翻译为跳转到与指定跳转槽相关联的地址。</p></li>
-<li><p>初始时，这是第2步的指令的地址，用于更新CPU状态信息。</p></li>
-<li><p>第3步<code>tcg_gen_exit_tb()</code>从当前翻译块退出，并返回由上一个执行的翻译块地址和跳转槽索引组成的标记指针。</p></li>
-<li><p>第一次执行整个序列时，第1步简单地跳转到第2步。</p></li>
-<li><p>然后，CPU状态信息会被更新，并从当前翻译块退出。</p></li>
-<li><p>结果，行为与前面在本节中描述的较少优化的形式非常相似。</p></li>
-<li><p>接下来，主循环使用当前CPU状态信息寻找要执行的下一个翻译块（如果尚未可用，则创建该翻译块），并在开始执行新翻译块的指令之前，通过将其跳转槽之一（在调用<code>tcg_gen_exit_tb()</code>时指定）与新翻译块的地址关联起来，来修补先前执行的翻译块。</p></li>
-<li><p>下一次执行这个先前的翻译块，并到达同样的<code>goto_tb</code>步骤时，它将已经被修补（假设目标翻译块仍然在内存中），并直接跳转到目标翻译块的第一条指令，而无需返回到主循环。</p></li>
-<li><p>要使用<code>goto_tb + exit_tb</code>机制，需要满足以下条件：</p>
-<ul>
-<li><p>CPU状态的更改必须是常量，例如直接分支而不是间接分支。</p></li>
-<li><p>直接分支不能跨越页边界。内存映射可能会改变，导致目标地址的代码发生变化。</p></li>
-</ul></li>
-<li><p>需要注意的是，在第3步（<code>tcg_gen_exit_tb()</code>）中，除了跳转槽索引之外，还返回了刚刚执行的翻译块的地址。</p></li>
-<li><p>这个地址对应于将要被修补的翻译块；如果该翻译块已经链接到其他翻译块，那么它可能与直接从主循环执行的翻译块不同。</p></li>
-<li><p>Note that, on step 3 (<code>tcg_gen_exit_tb()</code>), in
-addition to the jump slot index, the address of the TB just executed is
-also returned.</p></li>
-<li><p>This address corresponds to the TB that will be patched; it may
-be different than the one that was directly executed from the main loop
-if the latter had already been chained to other TBs.</p></li>
-</ul>
-<h2
-id="self-modifying-code-and-translated-code-invalidation-自修改代码和翻译代码失效">Self-modifying
-code and translated code invalidation / 自修改代码和翻译代码失效</h2>
-<ul>
-<li><p>在x86仿真中，自修改代码是一个特殊的挑战，因为当代码被修改时，应用程序不会向系统发出指示来使指令缓存失效。</p></li>
-<li><p>在用户模式仿真中，每当为基本块生成翻译代码时，会将主机页面标记为写保护（如果它尚未是只读）。</p></li>
-<li><p>然后，如果对该页面进行写访问，Linux会触发一个SEGV信号。</p></li>
-<li><p>然后，QEMU会使该页面中的所有翻译代码失效，并允许对该页面进行写访问。</p></li>
-<li><p>对于系统仿真，写保护是通过软件MMU实现的。</p></li>
-<li><p>通过维护一个链接列表来高效地进行正确的翻译代码失效，该列表包含在给定页面中的每个翻译块。</p></li>
-<li><p>还维护其他链接列表以撤消直接块链接。</p></li>
-<li><p>Correct translated code invalidation is done efficiently by
-maintaining a linked list of every translated block contained in a given
-page.</p></li>
-<li><p>Other linked lists are also maintained to undo direct block
-chaining.</p></li>
-<li><p>在RISC目标中，正确编写的软件使用内存屏障和缓存刷新，因此上述保护措施可能不是必需的。</p></li>
-<li><p>然而，QEMU仍然要求生成的代码始终与目标指令在内存中匹配，以便正确处理异常情况。</p></li>
-</ul>
-<h2 id="exception-support-异常支持">Exception support / 异常支持</h2>
-<ul>
-<li><p>在遇到诸如除零等异常时，会使用longjmp()函数。</p></li>
-<li><p>主机的SIGSEGV和SIGBUS信号处理程序用于获取无效的内存访问。</p></li>
-<li><p>QEMU保持了一个从主机程序计数器（PC）到目标程序计数器（PC）的映射，并根据异常点处的主机程序计数器查找异常发生的位置。</p></li>
-<li><p>在某些目标平台上，虚拟CPU状态的某些位直到翻译块结束之前才会刷新到内存中。</p></li>
-<li><p>这是为了保存内部仿真状态，该状态很少直接被程序访问，且在翻译块的执行过程中经常发生变化，例如x86上的条件码、SPARC上的延迟槽、Arm上的条件执行等。</p></li>
-<li><p>这些状态针对每个目标指令进行存储，并在发生异常时进行查找。</p></li>
-</ul>
-<h2 id="mmu-emulation-mmumemory-management-unit仿真">## MMU emulation /
-MMU（Memory Management Unit）仿真</h2>
-<ul>
-<li><p>在系统仿真中，QEMU使用软件MMU。</p></li>
-<li><p>在这种模式下，MMU会在每次内存访问时进行虚拟地址到物理地址的转换。</p></li>
-<li><p>为了加快转换速度并避免在MMU映射发生变化时每次都刷新已翻译的代码，QEMU使用地址转换缓存（TLB）。</p></li>
-<li><p>在QEMU中，所有缓存都是物理索引的，这意味着每个基本块都与其物理地址相关联。</p></li>
-<li><p>为了避免在MMU映射发生变化时使基本块链无效，只有当跳转目标与执行跳转的基本块共享同一页时，才会执行链式操作。</p></li>
-<li><p>MMU还可以区分RAM（随机存储器）和ROM（只读存储器）区域与MMIO（内存映射输入/输出）内存区域。</p></li>
-<li><p>对于RAM和ROM的访问速度更快，因为转换缓存还存储了来宾地址和主机内存之间的偏移量。</p></li>
-<li><p>而对MMIO内存区域的访问则调用C代码进行设备仿真。</p></li>
-<li><p>最后，MMU有助于跟踪脏页和被翻译块引用的页。</p></li>
-<li><p>这样可以有效地管理内存页面，并进行必要的操作，如脏页回写或内存页面回收。</p></li>
-</ul>
-<h2 id="profiling-jitted-code-对jit即时编译代码进行性能分析">Profiling
-JITted code / 对JIT（即时编译）代码进行性能分析</h2>
-<ul>
-<li><p>Linux的perf工具在处理JIT（即时编译）代码时会将其视为单个代码块，因为与主要代码不同，它无法使用调试信息将单个程序计数器样本与较大的函数关联起来。</p></li>
-<li><p>为了克服这个限制，可以使用<code>-perfmap</code>或<code>-jitdump</code>选项生成映射文件。</p></li>
-<li><p><code>-perfmap</code>是轻量级的，只生成客户机-主机映射关系。</p></li>
-<li><p><code>-jitdump</code>除此之外，还会保存JIT代码和客户机调试信息（如果有的话）；它的输出需要与<code>perf.data</code>文件集成，然后才能查看最终的报告。</p></li>
-<li><p>示例代码如下：</p></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">perf record $QEMU -perfmap $REMAINING_ARGS</span><br><span class="line">perf report</span><br><span class="line"></span><br><span class="line">perf record -k 1 $QEMU -jitdump $REMAINING_ARGS</span><br><span class="line">DEBUGINFOD_URLS= perf inject -j -i perf.data -o perf.data.jitted</span><br><span class="line">perf report -i perf.data.jitted</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>请注意，qemu-system仅为ELF格式的<code>-kernel</code>文件生成映射。</p></li>
-<li><p>使用这些命令和选项，可以将JIT代码的性能分析结果与perf工具的报告集成在一起，以便更好地理解和分析JIT代码的性能。这将帮助开发人员针对性地进行优化和改进，提高QEMU的性能。</p></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/" class="post-title-link" itemprop="url">CPU体系结构专业术语</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-05-18 11:23:50" itemprop="dateCreated datePublished" datetime="2023-05-18T11:23:50+08:00">2023-05-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>353</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="mmiomemory-mapped-io">MMIO（Memory-Mapped I/O）</h1>
-<ul>
-<li><p>代表内存映射输入/输出。</p></li>
-<li><p>它是一种计算机系统中用于与外部设备进行通信的技术。在MMIO中，外部设备的寄存器或状态被映射到计算机的内存地址空间中的特定区域。通过读取或写入这些内存地址，计算机可以与外部设备进行数据交换和控制操作。</p></li>
-<li><p>MMIO的基本原理是通过在内存地址空间中保留一些特定的地址范围，让计算机能够直接访问外部设备的寄存器或状态。当计算机读取或写入这些地址时，数据被传递到或从外部设备进行处理。这种方式相对于使用专门的I/O指令进行输入/输出操作，提供了更简化和统一的编程界面。</p></li>
-<li><p>常见的MMIO设备包括网络接口卡、图形显示控制器、声卡、串口控制器等。通过使用MMIO技术，计算机可以通过内存访问方式与这些设备进行通信，从而实现数据传输、设备控制和信息交换等功能。</p></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/Qemu%20icount/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2023/05/18/Qemu%20icount/" class="post-title-link" itemprop="url">Qemu icount</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-05-18 11:23:50" itemprop="dateCreated datePublished" datetime="2023-05-18T11:23:50+08:00">2023-05-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.4k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="tcg-instruction-counting-tcg指令计数">TCG Instruction Counting /
-TCG指令计数</h1>
-<ul>
-<li><p>TCG长期支持一种称为icount的功能，允许在执行过程中进行指令计数。</p></li>
-<li><p>这与周期精确的仿真不应混淆——QEMU不会尝试模拟指令在实际硬件上所需的时间。这是其他更详细（但更慢）的工具来模拟微体系结构的工作。</p></li>
-<li><p>这个功能仅适用于系统仿真，并且与多线程TCG不兼容。它可用于更好地与挂钟时间（wall-clock
-time）对齐执行时间，以防止“慢速”设备在现代硬件上运行过快。它还提供了一定程度的确定性执行，并且是QEMU中记录/回放支持的关键部分。</p></li>
-</ul>
-<h2 id="core-concepts-核心概念">Core Concepts / 核心概念</h2>
-<ul>
-<li><p>icount本质上是一个在QEMU计时器子系统的TimersState中存储的已执行指令计数。</p></li>
-<li><p>已执行指令的数量可以用来计算QEMU_CLOCK_VIRTUAL，该值表示自执行开始以来系统中经过的时间。根据icount模式，这可能是每条指令固定的纳秒数，或者在执行过程中进行调整，以保持挂钟时间和虚拟时间同步。</p></li>
-<li><p>为了能够计算已执行指令的数量，翻译器首先分配一定数量的待执行指令预算。指令预算受限于下一个定时器到期之前的时间长度。我们将这个预算作为vCPU的icount_decr字段的一部分进行存储，该字段与处理cpu_exit()的机制共享。在每个翻译块的开始处检查整个字段，并在退出时返回到外部循环以处理导致退出的原因。</p></li>
-<li><p>对于icount，再检查标志之前，我们会减去翻译块将要执行的指令数。如果这会导致指令预算变为负数，我们将退出主循环，并重新生成一个新的翻译块，其中包含恰好足够数量的指令，使预算减为0，这意味着无论何时我们退出主运行循环，定时器都将会在该时刻到期。</p></li>
-</ul>
-<h2 id="dealing-with-mmio-处理mmio">Dealing with MMIO / 处理MMIO</h2>
-<ul>
-<li><p>虽然我们可以调整已知事件（如计时器到期）的指令预算，但对于MMIO来说我们无法做到同样的调整。</p></li>
-<li><p>我们执行的每个加载/存储操作都可能触发一个I/O事件，在这种情况下，我们需要一个最新且准确的icount数的读取。</p></li>
-<li><p>为了处理这种情况，当进行I/O访问时，我们会：</p>
-<ol type="1">
-<li>将未执行的指令恢复到icount预算中</li>
-<li>为当前PC重新编译一个[1]指令块</li>
-<li>退出CPU循环并执行重新编译的块</li>
-</ol></li>
-<li><p>新的块被创建时带有CF_LAST_IO编译标志，确保最终的指令转换从调用gen_io_start()开始，这样我们就不会进入一个永久循环，不断重新编译一个单独的指令块。对于使用常见的translator_loop的翻译器，这是自动完成的。</p></li>
-</ul>
-<h2 id="other-io-operations-其他io操作">Other I/O operations /
-其他IO操作</h2>
-<ul>
-<li><p>MMIO不是唯一可能需要正确和准确时钟的操作类型。</p></li>
-<li><p>IO端口指令和对系统寄存器的访问是常见的例子。</p></li>
-<li><p>这些指令必须由具有了解哪些操作是I/O操作的各个翻译器处理。</p></li>
-<li><p>当翻译器处理此类指令时：</p>
-<ul>
-<li>如果启用了icount，它必须在实际执行I/O操作的代码生成之前的某个时刻调用gen_io_start()，使用类似以下代码片段的代码：
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (tb_cflags(s-&gt;base.tb) &amp; CF_USE_ICOUNT) &#123;</span><br><span class="line">    gen_io_start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>必须立即结束该TB（翻译块）在执行完这条指令之后。</li>
-</ul></li>
-<li><p>以上是处理这类指令的要求。通过调用gen_io_start()，我们可以确保在执行I/O操作之前记录正确的icount计数，并且在完成指令后结束TB以防止进一步执行不必要的指令。</p></li>
-</ul>
+<p>These options map cleanly onto some common C operations:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A C example showing accesses that a compiler is likely to generate.</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">example_strcpy</span><span class="params">(<span class="type">char</span> * dst, <span class="type">const</span> <span class="type">char</span> * src)</span> </span><br><span class="line">&#123;</span><br><span class="line"><span class="type">char</span> c;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    c = *(src++);             <span class="comment">// LDRB W2, [X1], #1</span></span><br><span class="line">    *(dst++) = c;             <span class="comment">// STRB W2, [X0], #1</span></span><br><span class="line">    &#125; <span class="keyword">while</span> (c != <span class="string">&#x27;\0&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="pc-relative-modes-load-literal">PC-relative modes
+(load-literal)</h4>
+<p>A64引入了另一种专门用于访问<strong>字面池（literal
+pools）</strong>的寻址模式，称为PC相对模式（PC-relative
+modes）。字面池是嵌入在指令流中的数据块。这些池不会被执行，但可以通过PC相对内存地址从周围的代码中访问它们的数据。字面池通常用于编码无法适应简单的立即数移动指令的常量值。</p>
+<p>在A32和T32中，PC可以像通用寄存器一样读取，因此只需将PC指定为基础寄存器即可访问字面池。</p>
+<p>在A64中，PC通常是不可访问的，但是有一种特殊的寻址模式（仅适用于加载指令）可以访问PC相对地址。这种专用的寻址模式的范围比A32和T32中的PC相对加载要大得多，因此字面池可以被更稀疏地定位。</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Example instruction</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>LDR W0, &lt;label&gt;</td>
+<td>Load 4 bytes from &lt;label&gt; into W0</td>
+</tr>
+<tr class="even">
+<td>LDR X0, &lt;label&gt;</td>
+<td>Load 8 bytes from &lt;label&gt; into X0</td>
+</tr>
+<tr class="odd">
+<td>LDRSW X0, &lt;label&gt;</td>
+<td>Load 4 bytes from &lt;label&gt; and sign-extend into X0</td>
+</tr>
+<tr class="even">
+<td>LDR S0, &lt;label&gt;</td>
+<td>Load 4 bytes from &lt;label&gt; into S0</td>
+</tr>
+<tr class="odd">
+<td>LDR D0, &lt;label&gt;</td>
+<td>Load 8 bytes from &lt;label&gt; into D0</td>
+</tr>
+<tr class="even">
+<td>LDR Q0, &lt;label&gt;</td>
+<td>Load 16 bytes from &lt;label&gt; into Q0</td>
+</tr>
+</tbody>
+</table>
+<p>Note: &lt;label&gt; must be 4-byte-aligned for all variants.</p>
+<h3 id="unprivileged-access">Unprivileged access</h3>
+<p>A64
+LDTR和STTR指令执行非特权的加载（Load）或存储（Store）操作（请参阅ARMv8-A架构参考手册中的LDTR和STTR）：
+- 在EL0、EL2或EL3级别下，它们的行为类似于普通的加载或存储指令。 -
+当在EL1级别下执行时，它们的行为类似于在EL0特权级别下执行。</p>
+<p>这些指令与A32 LDRT和STRT指令是等效的。</p>
+<h3
+id="non-temporal-load-and-store-pair-非暂态non-temporal加载和存储">Non-temporal
+load and store pair / 非暂态（non-temporal）加载和存储</h3>
+<p>在ARMv8架构中引入了非暂态（non-temporal）加载和存储的概念。这些概念体现在LDNP和STNP指令中，它们用于读取或写入一对寄存器值。同时，它们向内存系统发出提示，表明对该数据进行缓存是无益的。这个提示并不禁止内存系统的活动，比如地址的缓存、预加载或者聚集。然而，它表明进行缓存不太可能提高性能。一个典型的用例可能是流式数据处理，但需要注意的是，有效地使用这些指令需要针对具体微架构的特定方法。</p>
+<p>非暂态加载和存储放宽了内存排序要求。在上述例子中，LDNP指令可能在前面的LDR指令之前执行，这可能导致从不确定的X0地址读取数据。
+For example: <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LDR X0, [X3]</span><br><span class="line">LDNP X2, X1, [X0]      // Xo may not be loaded when the instruction executes!</span><br></pre></td></tr></table></figure> 为了纠正上述问题，需要使用显式的加载屏障：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LDR X0, [X3]</span><br><span class="line">DMB nshld</span><br><span class="line">LDNP X2, X1, [X0]</span><br></pre></td></tr></table></figure>
+通过引入加载屏障，可以确保在LDNP指令执行之前先加载X0的值，从而避免了不确定的读取。这样，非暂态加载和存储指令才能够在程序中被正确使用。</p>
+<h3 id="memory-access-atomicity">Memory access atomicity</h3>
+<p>对齐的内存访问使用单个通用寄存器可以保证原子性。使用对齐的内存地址进行的一对通用寄存器的加载对（load
+pair）和存储对（store
+pair）指令可以保证作为两个独立的原子访问。非对齐访问不是原子的，因为通常需要进行两次独立的访问。此外，浮点数和SIMD（单指令多数据）内存访问不能保证原子性。</p>
+<h3 id="memory-barrier-and-fence-instructions">Memory barrier and fence
+instructions</h3>
+<p>ARMv7和ARMv8都支持不同类型的内存屏障操作。这些操作在<a
+target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Memory-Ordering?lang=en">Memory
+Ordering</a>中有更详细的描述：</p>
+<p>数据内存屏障（Data Memory
+Barrier，DMB）：在继续执行后续访问之前，强制使程序顺序中较早的所有内存访问对全局可见。</p>
+<p>数据同步屏障（Data Synchronization
+Barrier，DSB）：在程序继续执行之前，完成所有待处理的加载和存储、缓存维护指令以及TLB维护指令。DSB的行为类似于DMB，但具有附加属性。</p>
+<p>指令同步屏障（Instruction Synchronization
+Barrier，ISB）：该指令刷新CPU流水线和预取缓冲区，导致ISB之后的指令从缓存或内存中获取（或重新获取）。</p>
+<p>ARMv8引入了单向栅栏（one-sided fences），这与Release
+Consistency模型相关。这些栅栏被称为Load-Acquire（LDAR）和Store-Release（STLR），它们是基于地址的同步原语（见<a
+target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Memory-Ordering?lang=en">One-way
+barriers</a>）。这两个操作可以配对形成一个完整的栅栏。这些指令仅支持基址寄存器寻址，不支持偏移量或其他类型的索引寻址。</p>
+<h3 id="synchronization-primitives">Synchronization primitives</h3>
+<p>ARMv7-A和ARMv8-A架构都支持独占内存访问。在A64中，这是通过Load/Store
+exclusive（LDXR/STXR）指令对实现的。</p>
+<p>LDXR指令从内存地址加载一个值，并尝试在该地址上默默地获取独占锁。然后，Store-Exclusive指令只有在成功获取并持有锁时才会将新值写入该位置。LDXR/STXR配对用于构建标准的同步原语，例如自旋锁。还提供了一对配对的LDXRP和STXRP指令，以允许原子更新跨越两个寄存器的位置。可用的选项包括字节、半字、字和双字。与Load
+Acquire/Store
+Release配对一样，只支持基址寄存器寻址，没有任何偏移量。</p>
+<p>CLREX指令用于清除监视器，但与ARMv7不同，异常的进入或返回也会清除监视器。监视器也可能被意外地清除，例如由于缓存逐出或与应用程序无直接关联的其他原因。在配对的LDXR和STXR指令之间，软件必须避免任何显式的内存访问、系统控制寄存器更新或缓存维护指令。</p>
+<p>此外，还有一对独占的Load Acquire/Store
+Release指令，称为LDAXR和STLXR。详见<a
+target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/Multi-core-processors/Multi-processing-systems/Synchronization?lang=en">同步</a>部分。</p>
+<h2 id="flow-control">Flow control</h2>
+<p>A64指令集提供了多种不同类型的分支指令（参见表<a
+target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/The-A64-instruction-set/Flow-control?lang=en">6.12</a>）。对于简单的相对分支，即从当前地址偏移的分支，使用B指令。<em>无条件的简单相对分支可以向前或向后分支到距离当前程序计数器位置最多128MB的位置</em>。<em>有条件的简单相对分支，在B后附加条件码，其范围较小，为±1MB</em>。</p>
+<p>对于需要将返回地址存储在链接寄存器（X30）中的子程序调用，使用BL指令。它没有条件版本。<em>BL的行为类似于B指令，同时额外存储返回地址，即BL指令后一条指令的地址，到寄存器X30中</em>。</p>
+<h2 id="system-control-and-other-instructions-系统控制和其他指令">System
+control and other instructions / 系统控制和其他指令</h2>
+<p>A64指令集包含与以下内容相关的指令： - 异常处理。 - 系统寄存器访问。 -
+调试。 - 提示指令，在许多系统中具有电源管理应用。</p>
+<h3 id="exception-handling-instructions">Exception handling
+instructions</h3>
+<p>有三条异常处理指令，其目的是引发异常。这些指令用于调用在操作系统中运行在更高异常级别的代码（EL1），虚拟机监控程序（EL2）或安全监控程序（EL3）：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SVC #imm16   // 监管者调用，允许应用程序调用内核（EL1）。</span><br><span class="line"></span><br><span class="line">HVC #imm16   // 虚拟机监控程序调用，允许操作系统代码调用虚拟机监控程序（EL2）。</span><br><span class="line"></span><br><span class="line">SMC #imm16   // 安全监控程序调用，允许操作系统或虚拟机监控程序调用安全监控程序（EL3）。</span><br></pre></td></tr></table></figure>
+立即值将在异常综合寄存器中提供给处理程序。这与ARMv7不同，ARMv7需要通过读取调用指令的操作码来确定立即值。详细信息请参阅<a
+target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/AArch64-Exception-Handling?lang=en">AArch64异常处理</a>。</p>
+<p>要从异常返回，请使用ERET指令。此指令通过将SPSR_ELn复制到PSTATE并跳转到ELR_ELn中保存的返回地址来恢复处理器状态。</p>
 
       
     </div>
@@ -3452,7 +2432,7 @@ time）对齐执行时间，以防止“慢速”设备在现代硬件上运行�
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/zyhjy/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/zyhjy/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zyhjy/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/zyhjy/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/zyhjy/page/8/">8</a><a class="extend next" rel="next" href="/zyhjy/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/zyhjy/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/zyhjy/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zyhjy/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/zyhjy/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/zyhjy/page/9/">9</a><a class="extend next" rel="next" href="/zyhjy/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -3520,20 +2500,20 @@ time）对齐执行时间，以防止“慢速”设备在现代硬件上运行�
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-count">85</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/zyhjy/tags/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -3563,7 +2543,7 @@ time）对齐执行时间，以防止“慢速”设备在现代硬件上运行�
 <div class="copyright">
   
   &copy; 2022 – 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -3572,12 +2552,12 @@ time）对齐执行时间，以防止“慢速”设备在现代硬件上运行�
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">443k</span>
+    <span title="站点总字数">469k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">12:19</span>
+    <span title="站点阅读时长">13:02</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

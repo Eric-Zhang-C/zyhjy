@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
+  <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/zyhjy/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="状态压缩动态规划 状态压缩动态规划，简称状压DP，是一类相对困难的动态规划，相关题目在力扣题单中多数为困难题，也算是力扣周赛的常考知识点。 最近做了一些此类题目，整理出来一些笔记。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(算法)状态压缩动态规划">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2024/01/09/bitmask/">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="状态压缩动态规划 状态压缩动态规划，简称状压DP，是一类相对困难的动态规划，相关题目在力扣题单中多数为困难题，也算是力扣周赛的常考知识点。 最近做了一些此类题目，整理出来一些笔记。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-01-09T13:30:44.000Z">
+<meta property="article:modified_time" content="2024-03-22T13:51:12.912Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="offer">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2024/01/09/bitmask/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>(算法)状态压缩动态规划 | ZYHJY</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/zyhjy/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/zyhjy/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/zyhjy/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/zyhjy/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/zyhjy/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2024/01/09/bitmask/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          (算法)状态压缩动态规划
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-01-09 21:30:44" itemprop="dateCreated datePublished" datetime="2024-01-09T21:30:44+08:00">2024-01-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-22 21:51:12" itemprop="dateModified" datetime="2024-03-22T21:51:12+08:00">2024-03-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">算法</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="状态压缩动态规划">状态压缩动态规划</h1>
+<p>状态压缩动态规划，简称<strong>状压DP</strong>，是一类相对困难的动态规划，相关题目在<a
+target="_blank" rel="noopener" href="https://leetcode.cn/problemset/?topicSlugs=bitmask%2Cdynamic-programming&amp;page=1">力扣题单</a>中多数为困难题，也算是力扣周赛的常考知识点。</p>
+<p>最近做了一些此类题目，整理出来一些笔记。</p>
+<span id="more"></span>
+<h2 id="题目场景">1. 题目场景</h2>
+<h3 id="基础">1. 基础</h3>
+<p>状压DP，往往是在一个很小的元素范围内(元素个数通常小于20)，枚举所有的可能性，以找到最优解。</p>
+<p>可以将问题抽象为背包问题，每种元素有选与不选两种情况，那么状态最多共<span
+class="math inline">\(2^{20}\)</span>种。</p>
+<p>这种情况下可以使用位运算的特性，巧妙的进行状态转移，减少冗余计算。</p>
+<h3 id="折半">2. 折半</h3>
+<p>状压DP要求元素个数小于20，而有些题目的元素数据范围达到30-40，这个时候可以采用折半的思想，将元素等分为两组分别进行状压DP，之后再将两组DP的结果组合起来以求解最终的答案。</p>
+<p>相关题目:</p>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/closest-subsequence-sum/">1755.
+最接近目标值的子序列和</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/partition-array-into-two-arrays-to-minimize-sum-difference/">2035.
+将数组分成两个数组并最小化数组和的差</a></p>
+<h3 id="二维dp">3. 二维DP</h3>
+<p>在大多数情况下，如果逆序遍历状态，是可以将二维DP压缩为一维DP的，但也存在无法保证火难以实现逆序遍历的情况，此时我们使用二维DP。</p>
+<p>相关题目:</p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/distribute-repeating-integers/">1655.
+分配重复整数</a></p>
+<h2 id="二进制相关__builtiin函数">2.
+二进制相关<code>__builtiin</code>函数</h2>
+<p>C++中<code>__builtin</code>内置函数是GCC、Clang等编译器所提供的一系列高效的内联函数，其中包括许多与二进制相关的函数。下面是状压DP中常用的<code>__builtin</code>函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">0x3ffff00</span>;</span><br><span class="line"><span class="type">int</span> c1 = __builtin_popcount(x); <span class="comment">/// 返回x的二进制表示中1的个数</span></span><br><span class="line"><span class="type">int</span> c2 = __builtin_ctz(x);	<span class="comment">/// 返回x的二进制表示中从最低位开始连续0的个数</span></span><br></pre></td></tr></table></figure>
+<p>对于64位的数据类型，需要使用以下带<code>ll</code>后缀的函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> <span class="type">long</span> lx = <span class="number">0x34352</span>;		</span><br><span class="line"><span class="type">int</span> l1 = __builtin_popcountll(lx); <span class="comment">/// 返回x的二进制表示中1的个数</span></span><br><span class="line"><span class="type">int</span> l2 = __builtin_ctzll(lx);	<span class="comment">/// 返回x的二进制表示中从最低位开始连续0的个数</span></span><br></pre></td></tr></table></figure>
+<h2 id="遍历状态的几种方式">3. 遍历状态的几种方式</h2>
+<h3 id="二进制遍历">1. 二进制遍历</h3>
+<p>有一长度为n的数组nums，现需要求出数组中元素的每种组合的和。显然，共有<span
+class="math inline">\(2^n\)</span>种组合，可以用n位二进制数表示所有的情况，其中1代表选中该数，0代表未选择该数字。</p>
+<p>如果对于每一个二进制数，都独立地检查数的每个位是不是1，时间复杂度是<span
+class="math inline">\(O(n * 2^n
+)\)</span>。观察发现，对于i位二进制数，若最高位为0，则其实际等同于i-1位整数；若最高位为1，则其实际等同于最高位按位或i-1位整数。于是我们使用下面的遍历方法，时间复杂度是<span
+class="math inline">\(O(2^n)\)</span>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 枚举[1, 1 &lt;&lt; n)</span></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">  	<span class="type">int</span> mask = <span class="number">1</span> &lt;&lt; i;</span><br><span class="line">		<span class="keyword">for</span> (<span class="type">int</span> s = mask - <span class="number">1</span>; s &gt;= <span class="number">0</span>; --s) &#123;</span><br><span class="line">				dp[s | mask] = dp[s] + nums[i];</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>相关题目:</p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/maximum-score-words-formed-by-letters/">1255.
+得分最高的单词集合</a></p>
+<h3 id="子集遍历">2. 子集遍历</h3>
+<h4 id="非空子集">1. 非空子集</h4>
+<p>有些时候我们想要遍历一个数<code>j</code>的所有二进制非空子集，比如<code>1010</code>的非空子集有<code>1010</code>,<code>1000</code>,<code>0010</code>。可以采用下面这种遍历方式。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> sub = j; sub &gt; <span class="number">0</span>; sub = (sub - <span class="number">1</span>) &amp; j) &#123;</span><br><span class="line">  	<span class="keyword">if</span> (sum[sub] &lt;= c &amp;&amp; dp[i][j ^ sub]) &#123;</span><br><span class="line">      	dp[i + <span class="number">1</span>][j] = <span class="literal">true</span>;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>相关题目:</p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/distribute-repeating-integers/">1655.
+分配重复整数</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/minimum-number-of-work-sessions-to-finish-the-tasks/">1986.
+完成任务的最少工作时间段</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/maximum-product-of-the-length-of-two-palindromic-subsequences/">2002.
+两个回文子序列长度的最大乘积</a></p>
+<h4 id="包含空集">2. 包含空集</h4>
+<p>如果要遍历所有的子集（包含空集），可以采用下面这种遍历方式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> s = m;</span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">		dp[s | mask[num]] = (dp[s | mask[num]] + dp[s] * c) % mod_;</span><br><span class="line">		s = (s - <span class="number">1</span>) &amp; m;</span><br><span class="line">		<span class="keyword">if</span> ((s &amp; m) == m) &#123;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>相关题目:</p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/maximum-compatibility-score-sum/">1947.
+最大兼容性评分和</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/the-number-of-good-subsets/">1994.
+好子集的数目</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/count-the-number-of-square-free-subsets/">2572.
+无平方子集计数</a></p>
+<h3 id="遍历二进制数中的1">3. 遍历二进制数中的1</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> x = s; x &gt; <span class="number">0</span>; x -= x &amp; (-x)) &#123;</span><br><span class="line">		<span class="type">int</span> j = __builtin_ctz(x);</span><br><span class="line">		dp[s] = <span class="built_in">min</span>(dp[s], dp[s ^ (<span class="number">1</span> &lt;&lt; j)] + (nums1[i - <span class="number">1</span>] ^ nums2[j]));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>相关题目:</p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/minimum-xor-sum-of-two-arrays/">1879.
+两个数组最小的异或值之和</a></p>
+<h3 id="gospers-hack">4. Gosper's Hack</h3>
+<p>枚举n位二进制数中1的个数为i的数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> up = <span class="number">1</span> &lt;&lt; n;</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> s = (<span class="number">1</span> &lt;&lt; i) - <span class="number">1</span>; s &lt; up;) &#123;</span><br><span class="line">  	<span class="comment">/// do something</span></span><br><span class="line">		<span class="type">int</span> lb = s &amp; -s;</span><br><span class="line">		<span class="type">int</span> right = s + lb;</span><br><span class="line">		<span class="type">int</span> left = (s ^ right) / lb &gt;&gt; <span class="number">2</span>;</span><br><span class="line">		s = right | left;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>相关题目:</p>
+<p><a
+target="_blank" rel="noopener" href="https://leetcode.cn/problems/maximum-and-sum-of-array/">2172.
+数组的最大与和</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yuhang Zhang
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2024/01/09/bitmask/" title="(算法)状态压缩动态规划">https://zyh-eric.gitee.io/zyhjy/2024/01/09/bitmask/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/zyhjy/tags/offer/" rel="tag"><i class="fa fa-tag"></i> offer</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/zyhjy/2024/01/08/loadspy/" rel="prev" title="(论文翻译)LoadSpy">
+      <i class="fa fa-chevron-left"></i> (论文翻译)LoadSpy
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/zyhjy/2024/01/16/javac/" rel="next" title="javac编译流程">
+      javac编译流程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <style>
+        #taboola-livere { display: none;}
+    </style>
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81ODg3Ni8zNTMzOA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E5%8E%8B%E7%BC%A9%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92"><span class="nav-text">状态压缩动态规划</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E5%9C%BA%E6%99%AF"><span class="nav-text">1. 题目场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80"><span class="nav-text">1. 基础</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%98%E5%8D%8A"><span class="nav-text">2. 折半</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E7%BB%B4dp"><span class="nav-text">3. 二维DP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%9B%B8%E5%85%B3__builtiin%E5%87%BD%E6%95%B0"><span class="nav-text">2.
+二进制相关__builtiin函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%8D%E5%8E%86%E7%8A%B6%E6%80%81%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="nav-text">3. 遍历状态的几种方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%81%8D%E5%8E%86"><span class="nav-text">1. 二进制遍历</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%90%E9%9B%86%E9%81%8D%E5%8E%86"><span class="nav-text">2. 子集遍历</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%9E%E7%A9%BA%E5%AD%90%E9%9B%86"><span class="nav-text">1. 非空子集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8C%85%E5%90%AB%E7%A9%BA%E9%9B%86"><span class="nav-text">2. 包含空集</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%8D%E5%8E%86%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%95%B0%E4%B8%AD%E7%9A%841"><span class="nav-text">3. 遍历二进制数中的1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gospers-hack"><span class="nav-text">4. Gosper&#39;s Hack</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/zyhjy/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/zyhjy/archives/">
+        
+          <span class="site-state-item-count">85</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/zyhjy/categories/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/zyhjy/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/zyhjy/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">469k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">13:02</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+
+<script src="/zyhjy/js/utils.js"></script>
+
+
+<script src="/zyhjy/js/schemes/pisces.js"></script>
+
+
+<script src="/zyhjy/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>

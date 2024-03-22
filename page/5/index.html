@@ -208,6 +208,1558 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/19/Arrch64%20MMU/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/05/19/Arrch64%20MMU/" class="post-title-link" itemprop="url">Arrch64 CPU Structure</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-19 20:45:50" itemprop="dateCreated datePublished" datetime="2023-05-19T20:45:50+08:00">2023-05-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="the-memory-management-unit">The Memory Management Unit</h1>
+<p>内存管理单元（Memory Management
+Unit，MMU）的一个重要功能是使系统能够运行多个任务，这些任务作为独立的程序在它们自己的私有虚拟内存空间中运行。它们不需要知道系统的物理内存映射，也就是硬件实际使用的地址，或者其他可能同时执行的程序。</p>
+<p>您可以为每个程序使用相同的虚拟内存地址空间。即使物理内存是碎片化的，您也可以使用连续的虚拟内存映射。这个虚拟地址空间与系统中实际的物理内存映射是分离的。您可以编写、编译和链接应用程序以在虚拟内存空间中运行。</p>
+<p><a
+target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit?lang=en#BABBEBII">图12.2</a>展示了一个示例系统，说明了内存的虚拟视图和物理视图。在单个系统中，不同的处理器和设备可能具有不同的虚拟和物理地址映射。操作系统会对MMU进行编程，以在这两个内存视图之间进行转换。</p>
+<p>为了实现这一点，在虚拟内存系统中的硬件必须提供地址转换，即将处理器发出的虚拟地址转换为主内存中的物理地址。</p>
+<p>虚拟地址是您、编译器和链接器在将代码放入内存时使用的地址。物理地址是实际硬件系统使用的地址。</p>
+<p>MMU使用虚拟地址的最高有效位来索引翻译表中的条目，并确定正在访问的块。MMU将代码和数据的虚拟地址转换为实际系统中的物理地址。这种转换是在硬件中自动进行的，并且对应用程序是透明的。除了地址转换之外，MMU还控制每个内存区域的内存访问权限、内存排序和缓存策略。</p>
+<h2 id="the-translation-lookaside-buffer">The Translation Lookaside
+Buffer</h2>
+<p>Translation Lookaside Buffer
+(TLB)是MMU中最近访问的页面转换的高速缓存。对于处理器执行的每个内存访问，MMU都会检查TLB中是否缓存了相应的转换。如果请求的地址转换在TLB中命中，地址的转换结果将立即可用。</p>
+<p>每个TLB条目通常不仅包含物理地址和虚拟地址，还包括诸如内存类型、缓存策略、访问权限、地址空间ID（ASID）和虚拟机ID（VMID）等属性。如果TLB中没有包含处理器发出的虚拟地址的有效转换，即TLB未命中，就会执行外部的转换表查找或遍历。MMU内的专用硬件使其能够读取内存中的转换表。新加载的转换结果可以被缓存到TLB中，以备后续使用，如果转换表的遍历过程不会导致页面错误。TLB的具体结构在不同的ARM处理器实现之间会有所不同。</p>
+<p>如果操作系统修改了可能缓存在TLB中的转换条目，那么操作系统有责任使这些过时的TLB条目失效。</p>
+<h2
+id="separation-of-kernel-and-application-virtual-address-spaces">Separation
+of kernel and application Virtual Address spaces</h2>
+<p>操作系统通常会同时运行多个应用程序或任务。每个应用程序都有自己独特的转换表集合，并且内核在切换上下文时会从一个转换表切换到另一个。然而，大部分内存系统只被内核使用，并具有固定的虚拟到物理地址映射，其中转换表条目很少改变。ARMv8架构提供了一些功能来有效地处理这一要求。</p>
+<p>转换表的基地址在Translation Table Base Registers
+(TTBR0_EL1)和(TTBR1_EL1)中指定。当VA的高位全为0时，选择TTBR0指向的转换表。当VA的高位全部设置为1时，选择TTBR1指向的转换表。您可以启用VA标记以排除检查过程中的前8位。</p>
+<p>处理器从指令获取或数据访问的虚拟地址是64位。然而，在48位物理地址内存映射中，您必须同时映射上述两个定义的区域。</p>
+<p>EL2和EL3都有一个TTBR0，但没有TTBR1。这意味着：</p>
+<p>如果EL2正在使用AArch64，它只能使用范围为0x0至0x0000FFFF_FFFFFFFF的虚拟地址。</p>
+<p>如果EL3正在使用AArch64，它只能使用范围为0x0至0x0000FFFF_FFFFFFFF的虚拟地址。</p>
+<p><a
+target="_blank" rel="noopener" href="https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit/Separation-of-kernel-and-application-Virtual-Address-spaces?lang=en#CDDFFEJB">图12.4</a>显示了内核空间如何映射到内存的最高有效区域，每个应用程序关联的虚拟地址空间映射到内存的最低有效区域。然而，这两者都映射到一个更小的物理地址空间。</p>
+<p>TCR_EL1是转换控制寄存器，它定义了需要进行检查的最高有效位的确切数量。TCR_EL1包含了大小字段T0SZ[5:0]和T1SZ[5:0]。字段中的整数表示必须是全0或全1的最高有效位的数量。这些字段有指定的最小和最大值，这些值随着颗粒大小和起始表级别的不同而变化。因此，在所有系统中，您必须始终使用两个转换表，并且至少需要两个转换表。即使是一个没有操作系统的简单裸机系统，也需要一个包含错误条目的小型上层表。</p>
+<h2 id="context-switching-上下文切换">Context switching 上下文切换</h2>
+<p>实现ARMv8-A架构的处理器通常用于运行具有许多并发应用程序或任务的复杂操作系统的系统中。每个进程在物理内存中都有自己独特的转换表。当一个应用程序启动时，操作系统会为其分配一组转换表条目，将应用程序使用的代码和数据映射到物理内存。这些表可以随后由内核进行修改，例如映射额外的空间，并在应用程序不再运行时被删除。</p>
+<p>因此，内存系统中可能存在多个任务。内核调度程序定期将执行从一个任务转移至另一个任务。这被称为上下文切换，要求内核保存与进程关联的所有执行状态，并恢复要运行的进程的状态。内核还切换转换表条目到下一个要运行的进程的条目。当前未运行的任务的内存完全受到正在运行的任务的保护。</p>
+<p>实际上需要保存和恢复的内容因不同操作系统而异，但通常进程上下文切换包括保存或恢复以下一些或全部元素：
+- 通用寄存器 X0-X30。 - 高级SIMD和浮点寄存器 V0-V31。 - 一些状态寄存器。
+- TTBR0_EL1 和 TTBR0。 - 线程进程ID（TPIDxxx）寄存器。 -
+地址空间ID（ASID）。</p>
+<p>对于EL0和EL1，有两个转换表。TTBR0_EL1为虚拟地址空间底部（通常是应用程序空间）提供转换，而TTBR1_EL1覆盖虚拟地址空间的顶部（通常是内核空间）。这种分割意味着操作系统映射不必复制到每个任务的转换表中。</p>
+<p>转换表条目包含一个非全局（nG）位。如果nG位设置为特定页面，则与特定任务或应用程序相关联。如果该位标记为0，则条目是全局的，适用于所有任务。</p>
+<p>对于非全局条目，在更新TLB并将条目标记为非全局时，除了常规转换信息之外，还在TLB条目中存储一个值。该值称为地址空间ID（ASID），由操作系统分配给每个单独的任务。仅当当前ASID与存储在条目中的ASID匹配时，后续的TLB查找才与该条目匹配。这允许多个有效的TLB条目存在于标记为非全局的特定页面中，但具有不同的ASID值。换句话说，我们在上下文切换时不一定需要刷新TLB。</p>
+<p>在AArch64中，ASID值可以指定为8位或16位的值，由TCR_EL1.AS位控制。当前ASID值在TTBR0_EL1或TTBR1_EL1中指定。TCR_EL1控制哪个TTBR持有ASID，但通常是TTBR0_EL1，因为它对应应用程序空间。</p>
+<p>注意 -
+将当前ASID值存储在转换表寄存器中意味着您可以在一条指令中原子地修改转换表和ASID。与ARMv7-A架构相比，这简化了更改表和ASID的过程。</p>
+<p>此外，ARMv8-A架构提供了用于操作系统软件的线程ID寄存器。这些寄存器在硬件上没有特殊意义，通常由线程库用作每个线程数据的基指针。这通常称为线程本地存储（TLS）。例如，pthread库使用了这个特性，并包括以下寄存器：
+- 用户读写线程ID寄存器（TPIDR_EL0）。 -
+用户只读线程ID寄存器（TPIDRRO_EL0）。 -
+线程ID寄存器，仅特权访问（TPIDR_EL1）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="type">uint64_t</span> c14_cntfrq; <span class="comment">/* Counter Frequency register */</span></span><br><span class="line">        <span class="type">uint64_t</span> c14_cntkctl; <span class="comment">/* Timer Control register */</span></span><br><span class="line">        <span class="type">uint32_t</span> cnthctl_el2; <span class="comment">/* Counter/Timer Hyp Control register */</span></span><br><span class="line">        <span class="type">uint64_t</span> cntvoff_el2; <span class="comment">/* Counter Virtual Offset register */</span></span><br><span class="line">        ARMGenericTimer c14_timer[NUM_GTIMERS];</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        <span class="comment">/* Stores the architectural value of the counter *the last time it was</span></span><br><span class="line"><span class="comment">         * updated* by pmccntr_op_start. Accesses should always be surrounded</span></span><br><span class="line"><span class="comment">         * by pmccntr_op_start/pmccntr_op_finish to guarantee the latest</span></span><br><span class="line"><span class="comment">         * architecturally-correct value is being read/set.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">uint64_t</span> c15_ccnt;</span><br><span class="line">        <span class="comment">/* Stores the delta between the architectural value and the underlying</span></span><br><span class="line"><span class="comment">         * cycle count during normal operation. It is used to update c15_ccnt</span></span><br><span class="line"><span class="comment">         * to be the correct architectural value before accesses. During</span></span><br><span class="line"><span class="comment">         * accesses, c15_ccnt_delta contains the underlying count being used</span></span><br><span class="line"><span class="comment">         * for the access, after which it reverts to the delta value in</span></span><br><span class="line"><span class="comment">         * pmccntr_op_finish.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">uint64_t</span> c15_ccnt_delta;</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevcntr[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevcntr_delta[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> c14_pmevtyper[<span class="number">31</span>];</span><br><span class="line">        <span class="type">uint64_t</span> pmccfiltr_el0; <span class="comment">/* Performance Monitor Filter Register */</span></span><br><span class="line">    &#125; cp15;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/Qemu%20TCG%20IR/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/05/18/Qemu%20TCG%20IR/" class="post-title-link" itemprop="url">Qemu TCG IR</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-18 20:46:50" itemprop="dateCreated datePublished" datetime="2023-05-18T20:46:50+08:00">2023-05-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>16k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>26 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1
+id="tcg-intermediate-representation-tcgtiny-code-generator中间表示">TCG
+Intermediate Representation / TCG（Tiny Code Generator）中间表示</h1>
+<h2 id="introduction-介绍">Introduction / 介绍</h2>
+<ul>
+<li>TCG（Tiny Code
+Generator）最初是作为一个C编译器的通用后端而开始的。它经过简化后用于QEMU。</li>
+<li>它还源于由Paul Brook编写的QOP代码生成器。</li>
+</ul>
+<h2 id="definitions-定义">Definitions / 定义</h2>
+<ul>
+<li><p>TCG的<em>目标</em>是我们生成代码的架构。</p></li>
+<li><p>它当然不同于QEMU的"目标"，QEMU的目标是被模拟的架构。</p></li>
+<li><p>当TCG作为一个用于交叉编译的通用C后端开始时，假设TCG的目标可能与主机不同，尽管对于QEMU来说永远不会是这种情况。</p></li>
+<li><p>在这个文档中，我们使用<em>guest</em>来指定我们正在模拟的架构；<em>target</em>始终指的是TCG的目标，也就是我们运行QEMU的机器。</p></li>
+<li><p>具有<em>未定义行为</em>的操作可能导致崩溃。</p></li>
+<li><p>具有<em>未指定行为</em>的操作不会崩溃。然而，结果可能是多种可能性之一，因此可能被视为<em>未定义的结果</em>。</p></li>
+</ul>
+<h2 id="basic-blocks-基本块">Basic Blocks / 基本块</h2>
+<ul>
+<li><p>TCG的<em>基本块</em>是一个单入口、多出口的区域，对应于一系列指令，并以标签或任何跳转指令结尾。</p></li>
+<li><p>TCG的<em>扩展基本块</em>是一个单入口、多出口的区域，对应于一系列指令，并以标签或无条件跳转指令结尾。</p></li>
+<li><p>具体来说，扩展基本块是由零个或多个条件跳转指令的顺序连接起来的一系列基本块。</p></li>
+</ul>
+<h2 id="operations-操作">Operations / 操作</h2>
+<ul>
+<li><p>在TCG中，TCG指令或操作（ops）作用于TCG变量，它们都具有强类型。</p></li>
+<li><p>每个指令都有固定数量的输出变量操作数、输入变量操作数和常量操作数。</p></li>
+<li><p>向量指令具有指定向量中元素大小的字段。需要注意的例外是调用指令，它具有可变数量的输出和输入。</p></li>
+<li><p>在文本形式中，输出操作数通常首先出现，然后是输入操作数，最后是常量操作数。</p></li>
+<li><p>指令名称中包含输出类型。</p></li>
+<li><p>常量以'$'前缀表示。</p></li>
+<li><p>例如：</p></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add_i32 t0, t1, t2    /* (t0 &lt;- t1 + t2) */</span><br></pre></td></tr></table></figure>
+<ul>
+<li>上述示例中，<code>add_i32</code>表示整数相加的指令，<code>t0</code>是输出变量，<code>t1</code>和<code>t2</code>是输入变量。指令执行后，<code>t0</code>的值将等于<code>t1</code>和<code>t2</code>的和。</li>
+</ul>
+<h1 id="variables">Variables</h1>
+<ul>
+<li><p><code>TEMP_FIXED</code></p>
+<p>There is one TCG <em>fixed global</em> variable,
+<code>cpu_env</code>, which is live in all translation blocks, and holds
+a pointer to <code>CPUArchState</code>. This variable is held in a host
+cpu register at all times in all translation blocks.</p></li>
+<li><p><code>TEMP_GLOBAL</code></p>
+<p>A TCG <em>global</em> is a variable which is live in all translation
+blocks, and corresponds to memory location that is within
+<code>CPUArchState</code>. These may be specified as an offset from
+<code>cpu_env</code>, in which case they are called <em>direct
+globals</em>, or may be specified as an offset from a direct global, in
+which case they are called <em>indirect globals</em>. Even indirect
+globals should still reference memory within <code>CPUArchState</code>.
+All TCG globals are defined during <code>TCGCPUOps.initialize</code>,
+before any translation blocks are generated.</p></li>
+<li><p><code>TEMP_CONST</code></p>
+<p>A TCG <em>constant</em> is a variable which is live throughout the
+entire translation block, and contains a constant value. These variables
+are allocated on demand during translation and are hashed so that there
+is exactly one variable holding a given value.</p></li>
+<li><p><code>TEMP_TB</code></p>
+<p>A TCG <em>translation block temporary</em> is a variable which is
+live throughout the entire translation block, but dies on any exit.
+These temporaries are allocated explicitly during translation.</p></li>
+<li><p><code>TEMP_EBB</code></p>
+<p>A TCG <em>extended basic block temporary</em> is a variable which is
+live throughout an extended basic block, but dies on any exit. These
+temporaries are allocated explicitly during translation.</p></li>
+</ul>
+<h1 id="types">Types</h1>
+<ul>
+<li><p><code>TCG_TYPE_I32</code></p>
+<p>A 32-bit integer.</p></li>
+<li><p><code>TCG_TYPE_I64</code></p>
+<p>A 64-bit integer. For 32-bit hosts, such variables are split into a
+pair of variables with <code>type=TCG_TYPE_I32</code> and
+<code>base_type=TCG_TYPE_I64</code>. The <code>temp_subindex</code> for
+each indicates where it falls within the host-endian
+representation.</p></li>
+<li><p><code>TCG_TYPE_PTR</code></p>
+<p>An alias for <code>TCG_TYPE_I32</code> or <code>TCG_TYPE_I64</code>,
+depending on the size of a pointer for the host.</p></li>
+<li><p><code>TCG_TYPE_REG</code></p>
+<p>An alias for <code>TCG_TYPE_I32</code> or <code>TCG_TYPE_I64</code>,
+depending on the size of the integer registers for the host. This may be
+larger than <code>TCG_TYPE_PTR</code> depending on the host
+ABI.</p></li>
+<li><p><code>TCG_TYPE_I128</code></p>
+<p>A 128-bit integer. For all hosts, such variables are split into a
+number of variables with <code>type=TCG_TYPE_REG</code> and
+<code>base_type=TCG_TYPE_I128</code>. The <code>temp_subindex</code> for
+each indicates where it falls within the host-endian
+representation.</p></li>
+<li><p><code>TCG_TYPE_V64</code></p>
+<p>A 64-bit vector. This type is valid only if the TCG target sets
+<code>TCG_TARGET_HAS_v64</code>.</p></li>
+<li><p><code>TCG_TYPE_V128</code></p>
+<p>A 128-bit vector. This type is valid only if the TCG target sets
+<code>TCG_TARGET_HAS_v128</code>.</p></li>
+<li><p><code>TCG_TYPE_V256</code></p>
+<p>A 256-bit vector. This type is valid only if the TCG target sets
+<code>TCG_TARGET_HAS_v256</code>.</p></li>
+</ul>
+<h2 id="helpers-辅助函数">Helpers / 辅助函数</h2>
+<ul>
+<li><p>在TCG中，辅助函数（helpers）通过在特定于客户机的<code>helper.h</code>中注册，并处理生成<code>tcg_gen_helper_*</code>函数。</p></li>
+<li><p>借助这些函数，可以调用接受i32、i64、i128或指针类型的函数。</p></li>
+<li><p>默认情况下，在调用辅助函数之前，所有全局变量都会存储在其规范位置上。</p></li>
+<li><p>默认情况下，辅助函数允许修改CPU状态（包括由tcg全局变量表示的状态）或引发异常。</p></li>
+<li><p>可以使用以下函数修饰符来覆盖默认行为：</p>
+<ul>
+<li><code>TCG_CALL_NO_WRITE_GLOBALS</code>
+<ul>
+<li>辅助函数不会修改任何全局变量，但可能会读取它们。</li>
+<li>在调用辅助函数之前，全局变量将保存在其规范位置，但在调用后不需要重新加载。</li>
+</ul></li>
+<li><code>TCG_CALL_NO_READ_GLOBALS</code>
+<ul>
+<li>辅助函数不会直接或通过异常读取全局变量。</li>
+<li>在调用辅助函数之前，它们将不会保存到其规范位置。</li>
+<li>这意味着它隐含了<code>TCG_CALL_NO_WRITE_GLOBALS</code>。</li>
+</ul></li>
+<li><code>TCG_CALL_NO_SIDE_EFFECTS</code>
+<ul>
+<li>如果没有使用返回值，则可以删除对辅助函数的调用。这意味着它不能修改任何CPU状态，也不能引发异常。</li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 id="code-optimizations">Code Optimizations</h2>
+<ul>
+<li><p>在生成指令时，可以依赖至少以下优化：</p>
+<ul>
+<li>单个指令会进行简化，例如： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and_i32 t0, t0, $0xffffffff</span><br></pre></td></tr></table></figure> 会被抑制。</li>
+</ul></li>
+<li><p>在基本块级别进行寄存器活跃性分析。</p></li>
+<li><p>这些信息用于消除从一个无用变量到另一个无用变量的移动操作。</p></li>
+<li><p>还可以用于删除计算无用结果的指令。</p></li>
+<li><p>这对于QEMU中的条件代码优化特别有用。</p>
+<ul>
+<li>在下面的示例中： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">add_i32 t0, t1, t2</span><br><span class="line">add_i32 t0, t0, $1</span><br><span class="line">mov_i32 t0, $1</span><br></pre></td></tr></table></figure> 只会保留最后一条指令。</li>
+</ul></li>
+</ul>
+<h2 id="instruction-reference">Instruction Reference</h2>
+<h3 id="function-call">Function call</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>call <em><ret></em> <em><params></em> ptr</p></li>
+<li><div class="line-block"> call function 'ptr' (pointer type)<br />
+<br />
+ <em><ret></em> optional 32 bit or 64 bit return value<br />
+ <em><params></em> optional 32 bit or 64 bit parameters</div></li>
+</ul></li>
+</ul>
+<h3 id="jumpslabels">Jumps/Labels</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>set_label $label</p></li>
+<li><div class="line-block">Define label 'label' at the current program
+point.</div></li>
+</ul></li>
+<li><ul>
+<li><p>br $label</p></li>
+<li><div class="line-block">Jump to label.</div></li>
+</ul></li>
+<li><ul>
+<li><p>brcond_i32/i64 <em>t0</em>, <em>t1</em>, <em>cond</em>,
+<em>label</em></p></li>
+<li><div class="line-block">Conditional jump if <em>t0</em>
+<em>cond</em> <em>t1</em> is true. <em>cond</em> can be:<br />
+<br />
+  <code>TCG_COND_EQ</code><br />
+  <code>TCG_COND_NE</code><br />
+  <code>TCG_COND_LT /* signed */</code><br />
+  <code>TCG_COND_GE /* signed */</code><br />
+  <code>TCG_COND_LE /* signed */</code><br />
+  <code>TCG_COND_GT /* signed */</code><br />
+  <code>TCG_COND_LTU /* unsigned */</code><br />
+  <code>TCG_COND_GEU /* unsigned */</code><br />
+  <code>TCG_COND_LEU /* unsigned */</code><br />
+  <code>TCG_COND_GTU /* unsigned */</code></div></li>
+</ul></li>
+</ul>
+<h3 id="arithmetic">Arithmetic</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>add_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> +
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>sub_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> -
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>neg_i32/i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block"><em>t0</em> = -<em>t1</em> (two's
+complement)</div></li>
+</ul></li>
+<li><ul>
+<li><p>mul_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> *
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>div_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> / <em>t2</em>
+(signed)<br />
+Undefined behavior if division by zero or overflow.</div></li>
+</ul></li>
+<li><ul>
+<li><p>divu_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> / <em>t2</em>
+(unsigned)<br />
+Undefined behavior if division by zero.</div></li>
+</ul></li>
+<li><ul>
+<li><p>rem_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> % <em>t2</em>
+(signed)<br />
+Undefined behavior if division by zero or overflow.</div></li>
+</ul></li>
+<li><ul>
+<li><p>remu_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> % <em>t2</em>
+(unsigned)<br />
+Undefined behavior if division by zero.</div></li>
+</ul></li>
+</ul>
+<h3 id="logical">Logical</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>and_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> &amp;
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>or_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> |
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>xor_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> ^
+<em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>not_i32/i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block"><em>t0</em> = ~ <em>t1</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>andc_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> &amp;
+~ <em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>eqv_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = ~(<em>t1</em> ^ <em>t2</em>),
+or equivalently, <em>t0</em> = <em>t1</em> ^ ~ <em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>nand_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = ~(<em>t1</em> &amp;
+<em>t2</em>)</div></li>
+</ul></li>
+<li><ul>
+<li><p>nor_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = ~(<em>t1</em> |
+<em>t2</em>)</div></li>
+</ul></li>
+<li><ul>
+<li><p>orc_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> |
+~ <em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>clz_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> ? clz(<em>t1</em>)
+: <em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>ctz_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> ? ctz(<em>t1</em>)
+: <em>t2</em></div></li>
+</ul></li>
+<li><ul>
+<li><p>ctpop_i32/i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block"><em>t0</em> = number of bits set in
+<em>t1</em><br />
+<br />
+With <em>ctpop</em> short for "count population", matching<br />
+the function name used in
+<code>include/qemu/host-utils.h</code>.</div></li>
+</ul></li>
+</ul>
+<h3 id="shiftsrotates">Shifts/Rotates</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>shl_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> &lt;&lt;
+<em>t2</em><br />
+Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
+64)</div></li>
+</ul></li>
+<li><ul>
+<li><p>shr_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> &gt;&gt;
+<em>t2</em> (unsigned)<br />
+Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
+64)</div></li>
+</ul></li>
+<li><ul>
+<li><p>sar_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em> &gt;&gt;
+<em>t2</em> (signed)<br />
+Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
+64)</div></li>
+</ul></li>
+<li><ul>
+<li><p>rotl_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block">Rotation of <em>t2</em> bits to the
+left<br />
+Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
+64)</div></li>
+</ul></li>
+<li><ul>
+<li><p>rotr_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block">Rotation of <em>t2</em> bits to the
+right.<br />
+Unspecified behavior if <em>t2</em> &lt; 0 or <em>t2</em> &gt;= 32 (resp
+64)</div></li>
+</ul></li>
+</ul>
+<h3 id="misc">Misc</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>mov_i32/i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block"><em>t0</em> = <em>t1</em><br />
+Move <em>t1</em> to <em>t0</em> (both operands must have the same
+type).</div></li>
+</ul></li>
+<li><ul>
+<li><p>ext8s_i32/i64 <em>t0</em>, <em>t1</em></p>
+<p>ext8u_i32/i64 <em>t0</em>, <em>t1</em></p>
+<p>ext16s_i32/i64 <em>t0</em>, <em>t1</em></p>
+<p>ext16u_i32/i64 <em>t0</em>, <em>t1</em></p>
+<p>ext32s_i64 <em>t0</em>, <em>t1</em></p>
+<p>ext32u_i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">8, 16 or 32 bit sign/zero extension (both
+operands must have the same type)</div></li>
+</ul></li>
+<li><ul>
+<li><p>bswap16_i32/i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p></li>
+<li><div class="line-block">16 bit byte swap on the low bits of a 32/64
+bit input.<br />
+<br />
+If <em>flags</em> &amp; <code>TCG_BSWAP_IZ</code>, then <em>t1</em> is
+known to be zero-extended from bit 15.<br />
+If <em>flags</em> &amp; <code>TCG_BSWAP_OZ</code>, then <em>t0</em> will
+be zero-extended from bit 15.<br />
+If <em>flags</em> &amp; <code>TCG_BSWAP_OS</code>, then <em>t0</em> will
+be sign-extended from bit 15.<br />
+<br />
+If neither <code>TCG_BSWAP_OZ</code> nor <code>TCG_BSWAP_OS</code> are
+set, then the bits of <em>t0</em> above bit 15 may contain any
+value.</div></li>
+</ul></li>
+<li><ul>
+<li><p>bswap32_i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p></li>
+<li><div class="line-block">32 bit byte swap on a 64-bit value. The
+flags are the same as for bswap16, except they apply from bit 31 instead
+of bit 15.</div></li>
+</ul></li>
+<li><ul>
+<li><p>bswap32_i32 <em>t0</em>, <em>t1</em>, <em>flags</em></p>
+<p>bswap64_i64 <em>t0</em>, <em>t1</em>, <em>flags</em></p></li>
+<li><div class="line-block">32/64 bit byte swap. The flags are ignored,
+but still present for consistency with the other bswap
+opcodes.</div></li>
+</ul></li>
+<li><ul>
+<li><p>discard_i32/i64 <em>t0</em></p></li>
+<li><div class="line-block">Indicate that the value of <em>t0</em> won't
+be used later. It is useful to force dead code elimination.</div></li>
+</ul></li>
+<li><ul>
+<li><p>deposit_i32/i64 <em>dest</em>, <em>t1</em>, <em>t2</em>,
+<em>pos</em>, <em>len</em></p></li>
+<li><div class="line-block">Deposit <em>t2</em> as a bitfield into
+<em>t1</em>, placing the result in <em>dest</em>.<br />
+<br />
+The bitfield is described by <em>pos</em>/<em>len</em>, which are
+immediate values:<br />
+<br />
+    <em>len</em> - the length of the bitfield<br />
+    <em>pos</em> - the position of the first bit, counting from the
+LSB<br />
+<br />
+For example, "deposit_i32 dest, t1, t2, 8, 4" indicates a 4-bit field at
+bit 8. This operation would be equivalent to<br />
+<br />
+    <em>dest</em> = (<em>t1</em> &amp; ~0x0f00) | ((<em>t2</em> &lt;&lt;
+8) &amp; 0x0f00)</div></li>
+</ul></li>
+<li><ul>
+<li><p>extract_i32/i64 <em>dest</em>, <em>t1</em>, <em>pos</em>,
+<em>len</em></p>
+<p>sextract_i32/i64 <em>dest</em>, <em>t1</em>, <em>pos</em>,
+<em>len</em></p></li>
+<li><div class="line-block">Extract a bitfield from <em>t1</em>, placing
+the result in <em>dest</em>.<br />
+<br />
+The bitfield is described by <em>pos</em>/<em>len</em>, which are
+immediate values, as above for deposit. For extract_<em>, the result
+will be extended to the left with zeros; for sextract_</em>, the result
+will be extended to the left with copies of the bitfield sign bit at
+<em>pos</em> + <em>len</em> - 1.<br />
+<br />
+For example, "sextract_i32 dest, t1, 8, 4" indicates a 4-bit field at
+bit 8. This operation would be equivalent to<br />
+<br />
+   <em>dest</em> = (<em>t1</em> &lt;&lt; 20) &gt;&gt; 28<br />
+<br />
+(using an arithmetic right shift).</div></li>
+</ul></li>
+<li><ul>
+<li><p>extract2_i32/i64 <em>dest</em>, <em>t1</em>, <em>t2</em>,
+<em>pos</em></p></li>
+<li><div class="line-block">For N = {32,64}, extract an N-bit quantity
+from the concatenation of <em>t2</em>:<em>t1</em>, beginning at
+<em>pos</em>. The tcg_gen_extract2_{i32,i64} expander accepts 0 &lt;=
+<em>pos</em> &lt;= N as inputs. The backend code generator will not see
+either 0 or N as inputs for these opcodes.</div></li>
+</ul></li>
+<li><ul>
+<li><p>extrl_i64_i32 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">For 64-bit hosts only, extract the low
+32-bits of input <em>t1</em> and place it into 32-bit output
+<em>t0</em>. Depending on the host, this may be a simple move, or may
+require additional canonicalization.</div></li>
+</ul></li>
+<li><ul>
+<li><p>extrh_i64_i32 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">For 64-bit hosts only, extract the high
+32-bits of input <em>t1</em> and place it into 32-bit output
+<em>t0</em>. Depending on the host, this may be a simple shift, or may
+require additional canonicalization.</div></li>
+</ul></li>
+</ul>
+<h3 id="conditional-moves">Conditional moves</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>setcond_i32/i64 <em>dest</em>, <em>t1</em>, <em>t2</em>,
+<em>cond</em></p></li>
+<li><div class="line-block"><em>dest</em> = (<em>t1</em> <em>cond</em>
+<em>t2</em>)<br />
+<br />
+Set <em>dest</em> to 1 if (<em>t1</em> <em>cond</em> <em>t2</em>) is
+true, otherwise set to 0.</div></li>
+</ul></li>
+<li><ul>
+<li><p>movcond_i32/i64 <em>dest</em>, <em>c1</em>, <em>c2</em>,
+<em>v1</em>, <em>v2</em>, <em>cond</em></p></li>
+<li><div class="line-block"><em>dest</em> = (<em>c1</em> <em>cond</em>
+<em>c2</em> ? <em>v1</em> : <em>v2</em>)<br />
+<br />
+Set <em>dest</em> to <em>v1</em> if (<em>c1</em> <em>cond</em>
+<em>c2</em>) is true, otherwise set to <em>v2</em>.</div></li>
+</ul></li>
+</ul>
+<h3 id="type-conversions">Type conversions</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>ext_i32_i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">Convert <em>t1</em> (32 bit) to <em>t0</em>
+(64 bit) and does sign extension</div></li>
+</ul></li>
+<li><ul>
+<li><p>extu_i32_i64 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">Convert <em>t1</em> (32 bit) to <em>t0</em>
+(64 bit) and does zero extension</div></li>
+</ul></li>
+<li><ul>
+<li><p>trunc_i64_i32 <em>t0</em>, <em>t1</em></p></li>
+<li><div class="line-block">Truncate <em>t1</em> (64 bit) to <em>t0</em>
+(32 bit)</div></li>
+</ul></li>
+<li><ul>
+<li><p>concat_i32_i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block">Construct <em>t0</em> (64-bit) taking the
+low half from <em>t1</em> (32 bit) and the high half from <em>t2</em>
+(32 bit).</div></li>
+</ul></li>
+<li><ul>
+<li><p>concat32_i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block">Construct <em>t0</em> (64-bit) taking the
+low half from <em>t1</em> (64 bit) and the high half from <em>t2</em>
+(64 bit).</div></li>
+</ul></li>
+</ul>
+<h3 id="loadstore">Load/Store</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>ld_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>ld8s_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>ld8u_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>ld16s_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>ld16u_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>ld32s_i64 t0, <em>t1</em>, <em>offset</em></p>
+<p>ld32u_i64 t0, <em>t1</em>, <em>offset</em></p></li>
+<li><div class="line-block"><em>t0</em> = read(<em>t1</em> +
+<em>offset</em>)<br />
+<br />
+Load 8, 16, 32 or 64 bits with or without sign extension from host
+memory. <em>offset</em> must be a constant.</div></li>
+</ul></li>
+<li><ul>
+<li><p>st_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>st8_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>st16_i32/i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p>
+<p>st32_i64 <em>t0</em>, <em>t1</em>, <em>offset</em></p></li>
+<li><div class="line-block">write(<em>t0</em>, <em>t1</em> +
+<em>offset</em>)<br />
+<br />
+Write 8, 16, 32 or 64 bits to host memory.</div></li>
+</ul></li>
+</ul>
+<p>All this opcodes assume that the pointed host memory doesn't
+correspond to a global. In the latter case the behaviour is
+unpredictable.</p>
+<h3 id="multiword-arithmetic-support">Multiword arithmetic support</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>add2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>,
+<em>t1_high</em>, <em>t2_low</em>, <em>t2_high</em></p>
+<p>sub2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>,
+<em>t1_high</em>, <em>t2_low</em>, <em>t2_high</em></p></li>
+<li><div class="line-block">Similar to add/sub, except that the
+double-word inputs <em>t1</em> and <em>t2</em> are formed from two
+single-word arguments, and the double-word output <em>t0</em> is
+returned in two single-word outputs.</div></li>
+</ul></li>
+<li><ul>
+<li><p>mulu2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1</em>,
+<em>t2</em></p></li>
+<li><div class="line-block">Similar to mul, except two unsigned inputs
+<em>t1</em> and <em>t2</em> yielding the full double-word product
+<em>t0</em>. The latter is returned in two single-word
+outputs.</div></li>
+</ul></li>
+<li><ul>
+<li><p>muls2_i32/i64 <em>t0_low</em>, <em>t0_high</em>, <em>t1</em>,
+<em>t2</em></p></li>
+<li><div class="line-block">Similar to mulu2, except the two inputs
+<em>t1</em> and <em>t2</em> are signed.</div></li>
+</ul></li>
+<li><ul>
+<li><p>mulsh_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p>
+<p>muluh_i32/i64 <em>t0</em>, <em>t1</em>, <em>t2</em></p></li>
+<li><div class="line-block">Provide the high part of a signed or
+unsigned multiply, respectively.<br />
+<br />
+If mulu2/muls2 are not provided by the backend, the tcg-op generator can
+obtain the same results by emitting a pair of opcodes, mul +
+muluh/mulsh.</div></li>
+</ul></li>
+</ul>
+<h3 id="memory-barrier-support">Memory Barrier support</h3>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>mb <em>&lt;$arg&gt;</em></p></li>
+<li><div class="line-block">Generate a target memory barrier instruction
+to ensure memory ordering as being enforced by a corresponding guest
+memory barrier instruction.<br />
+<br />
+The ordering enforced by the backend may be stricter than the ordering
+required by the guest. It cannot be weaker. This opcode takes a constant
+argument which is required to generate the appropriate barrier
+instruction. The backend should take care to emit the target barrier
+instruction only when necessary i.e., for SMP guests and when MTTCG is
+enabled.<br />
+<br />
+The guest translators should generate this opcode for all guest
+instructions which have ordering side effects.<br />
+<br />
+Please see :ref:<code>atomics-ref</code> for more information on memory
+barriers.</div></li>
+</ul></li>
+</ul>
+<h3 id="bit-guest-on-32-bit-host-support">64-bit guest on 32-bit host
+support</h3>
+<p>The following opcodes are internal to TCG. Thus they are to be
+implemented by 32-bit host code generators, but are not to be emitted by
+guest translators. They are emitted as needed by inline functions within
+<code>tcg-op.h</code>.</p>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>brcond2_i32 <em>t0_low</em>, <em>t0_high</em>, <em>t1_low</em>,
+<em>t1_high</em>, <em>cond</em>, <em>label</em></p></li>
+<li><div class="line-block">Similar to brcond, except that the 64-bit
+values <em>t0</em> and <em>t1</em> are formed from two 32-bit
+arguments.</div></li>
+</ul></li>
+<li><ul>
+<li><p>setcond2_i32 <em>dest</em>, <em>t1_low</em>, <em>t1_high</em>,
+<em>t2_low</em>, <em>t2_high</em>, <em>cond</em></p></li>
+<li><div class="line-block">Similar to setcond, except that the 64-bit
+values <em>t1</em> and <em>t2</em> are formed from two 32-bit arguments.
+The result is a 32-bit value.</div></li>
+</ul></li>
+</ul>
+<h3 id="qemu-specific-operations">QEMU specific operations</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>operations</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>exit_tb <em>t0</em></td>
+<td>退出当前的翻译块（Translation
+Block）并返回变量<em>t0</em>的值（字类型）</td>
+</tr>
+<tr class="even">
+<td>goto_tb <em>index</em></td>
+<td>退出当前的翻译块（Translation Block）并根据条件跳转到索引为 index
+的翻译块，如果当前的翻译块与目标翻译块相连。否则，继续执行下一条指令。只有索引为
+0 和 1 是有效的，每个翻译块最多可以使用一次 tcg_gen_goto_tb
+指令来跳转到每个索引。 tcg_gen_goto_tb may be issued at most once with
+each slot index per TB.</td>
+</tr>
+<tr class="odd">
+<td>lookup_and_goto_ptr <em>tb_addr</em></td>
+<td>查找一个翻译块的地址<em>tb_addr</em>，并根据其有效性进行跳转。如果翻译块地址有效，则跳转到该地址；如果无效，则跳转到TCG的收尾部分以返回执行循环。</td>
+</tr>
+<tr class="even">
+<td>qemu_ld_i32/i64/i128 <em>t0</em>, <em>t1</em>, <em>flags</em>,
+<em>memidx</em><br>qemu_st_i32/i64/i128 <em>t0</em>, <em>t1</em>,
+<em>flags</em>, <em>memidx</em><br>qemu_st8_i32 <em>t0</em>,
+<em>t1</em>, <em>flags</em>, <em>memidx</em></td>
+<td>加载位于虚拟地址 t1 处的数据到 t0，或者将 t0 中的数据存储到虚拟地址
+t1 处。_i32/_i64/_i128 大小适用于输入/输出寄存器 t0 的大小。地址 t1
+总是根据虚拟机的大小进行定位，而内存操作的宽度由 flags 控制。<br>在处理
+64 位数据（在 32 位主机上）或 128 位数据（在 64 位主机上）时，t0 和 t1
+可能会被拆分为按小端顺序排列的寄存器对。<br>memidx 用于选择要使用的 QEMU
+TLB 索引（例如，用户或内核访问）。flags 是 MemOp
+位，用于选择内存访问的符号、宽度和字节顺序。<br>对于 32 位主机，保证仅在
+flags 中指定了 64 位内存访问时才使用 qemu_ld/st_i64。<br>对于
+qemu_ld/st_i128，仅在 64 位主机上支持。<br>对于 i386，qemu_st8_i32 与
+qemu_st_i32 完全相同，只是内存操作的大小已知为 8
+位。这允许后端提供不同的寄存器约束。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="host-vector-operations">Host vector operations</h2>
+<p>All of the vector ops have two parameters, <code>TCGOP_VECL</code>
+&amp; <code>TCGOP_VECE</code>. The former specifies the length of the
+vector in log2 64-bit units; the latter specifies the length of the
+element (if applicable) in log2 8-bit units. E.g. VECL = 1 -&gt; 64
+&lt;&lt; 1 -&gt; v128, and VECE = 2 -&gt; 1 &lt;&lt; 2 -&gt; i32.</p>
+<p>.. list-table::</p>
+<ul>
+<li><ul>
+<li><p>mov_vec <em>v0</em>, <em>v1</em> ld_vec <em>v0</em>, <em>t1</em>
+st_vec <em>v0</em>, <em>t1</em></p></li>
+<li><div class="line-block">Move, load and store.</div></li>
+</ul></li>
+<li><ul>
+<li><p>dup_vec <em>v0</em>, <em>r1</em></p></li>
+<li><div class="line-block">Duplicate the low N bits of <em>r1</em> into
+VECL/VECE copies across <em>v0</em>.</div></li>
+</ul></li>
+<li><ul>
+<li><p>dupi_vec <em>v0</em>, <em>c</em></p></li>
+<li><div class="line-block">Similarly, for a constant.<br />
+Smaller values will be replicated to host register size by the
+expanders.</div></li>
+</ul></li>
+<li><ul>
+<li><p>dup2_vec <em>v0</em>, <em>r1</em>, <em>r2</em></p></li>
+<li><div class="line-block">Duplicate <em>r2</em>:<em>r1</em> into
+VECL/64 copies across <em>v0</em>. This opcode is only present for
+32-bit hosts.</div></li>
+</ul></li>
+<li><ul>
+<li><p>add_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block"><em>v0</em> = <em>v1</em> + <em>v2</em>, in
+elements across the vector.</div></li>
+</ul></li>
+<li><ul>
+<li><p>sub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> = <em>v1</em> -
+<em>v2</em>.</div></li>
+</ul></li>
+<li><ul>
+<li><p>mul_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> = <em>v1</em> *
+<em>v2</em>.</div></li>
+</ul></li>
+<li><ul>
+<li><p>neg_vec <em>v0</em>, <em>v1</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> =
+-<em>v1</em>.</div></li>
+</ul></li>
+<li><ul>
+<li><p>abs_vec <em>v0</em>, <em>v1</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> = <em>v1</em> &lt; 0
+? -<em>v1</em> : <em>v1</em>, in elements across the vector.</div></li>
+</ul></li>
+<li><ul>
+<li><p>smin_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>umin_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> = MIN(<em>v1</em>,
+<em>v2</em>), for signed and unsigned element types.</div></li>
+</ul></li>
+<li><ul>
+<li><p>smax_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>umax_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Similarly, <em>v0</em> = MAX(<em>v1</em>,
+<em>v2</em>), for signed and unsigned element types.</div></li>
+</ul></li>
+<li><ul>
+<li><p>ssadd_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>sssub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>usadd_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>ussub_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Signed and unsigned saturating addition and
+subtraction.<br />
+<br />
+If the true result is not representable within the element type, the
+element is set to the minimum or maximum value for the type.</div></li>
+</ul></li>
+<li><ul>
+<li><p>and_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>or_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>xor_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>andc_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>orc_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>not_vec <em>v0</em>, <em>v1</em></p></li>
+<li><div class="line-block">Similarly, logical operations with and
+without complement.<br />
+<br />
+Note that VECE is unused.</div></li>
+</ul></li>
+<li><ul>
+<li><p>shli_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
+<p>shls_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p></li>
+<li><div class="line-block">Shift all elements from v1 by a scalar
+<em>i2</em>/<em>s2</em>. I.e.</div>
+<p>.. code-block:: c</p>
+<p>for (i = 0; i &lt; VECL/VECE; ++i) { v0[i] = v1[i] &lt;&lt; s2;
+}</p></li>
+</ul></li>
+<li><ul>
+<li><p>shri_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
+<p>sari_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
+<p>rotli_vec <em>v0</em>, <em>v1</em>, <em>i2</em></p>
+<p>shrs_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p>
+<p>sars_vec <em>v0</em>, <em>v1</em>, <em>s2</em></p></li>
+<li><div class="line-block">Similarly for logical and arithmetic right
+shift, and left rotate.</div></li>
+</ul></li>
+<li><ul>
+<li><p>shlv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Shift elements from <em>v1</em> by elements
+from <em>v2</em>. I.e.</div>
+<p>.. code-block:: c</p>
+<p>for (i = 0; i &lt; VECL/VECE; ++i) { v0[i] = v1[i] &lt;&lt; v2[i];
+}</p></li>
+</ul></li>
+<li><ul>
+<li><p>shrv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>sarv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>rotlv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p>
+<p>rotrv_vec <em>v0</em>, <em>v1</em>, <em>v2</em></p></li>
+<li><div class="line-block">Similarly for logical and arithmetic right
+shift, and rotates.</div></li>
+</ul></li>
+<li><ul>
+<li><p>cmp_vec <em>v0</em>, <em>v1</em>, <em>v2</em>,
+<em>cond</em></p></li>
+<li><div class="line-block">Compare vectors by element, storing -1 for
+true and 0 for false.</div></li>
+</ul></li>
+<li><ul>
+<li><p>bitsel_vec <em>v0</em>, <em>v1</em>, <em>v2</em>,
+<em>v3</em></p></li>
+<li><div class="line-block">Bitwise select, <em>v0</em> = (<em>v2</em>
+&amp; <em>v1</em>) | (<em>v3</em> &amp; ~ <em>v1</em>), across the
+entire vector.</div></li>
+</ul></li>
+<li><ul>
+<li><p>cmpsel_vec <em>v0</em>, <em>c1</em>, <em>c2</em>, <em>v3</em>,
+<em>v4</em>, <em>cond</em></p></li>
+<li><div class="line-block">Select elements based on comparison
+results:</div>
+<p>.. code-block:: c</p>
+<p>for (i = 0; i &lt; n; ++i) { v0[i] = (c1[i] cond c2[i]) ? v3[i] :
+v4[i]. }</p></li>
+</ul></li>
+</ul>
+<p><strong>Note 1</strong>: Some shortcuts are defined when the last
+operand is known to be a constant (e.g. addi for add, movi for mov).</p>
+<p><strong>Note 2</strong>: When using TCG, the opcodes must never be
+generated directly as some of them may not be available as "real"
+opcodes. Always use the function tcg_gen_xxx(args).</p>
+<h2 id="backend-后端">Backend / 后端</h2>
+<ul>
+<li><code>tcg-target.h</code> 是包含目标特定定义的文件。</li>
+<li><code>tcg-target.c.inc</code> 是目标特定代码的文件，它通过
+<code>#include</code> 被 <code>tcg/tcg.c</code>
+包含，而不是作为一个独立的 C 文件存在。</li>
+</ul>
+<h3 id="assumptions-假设">Assumptions / 假设</h3>
+<ul>
+<li><p>目标字长（<code>TCG_TARGET_REG_BITS</code>）预期为32位或64位。</p></li>
+<li><p>假设指针的大小与字长相同。</p></li>
+<li><p>在32位目标上，所有64位操作都会转换为32位。</p></li>
+<li><p>需要实现一些特定的操作来支持这一点（参见<code>add2_i32</code>，<code>sub2_i32</code>，<code>brcond2_i32</code>）。</p></li>
+<li><p>在64位目标上，通过以下操作在32位和64位寄存器之间传输值：</p>
+<ul>
+<li><code>trunc_shr_i64_i32</code></li>
+<li><code>ext_i32_i64</code></li>
+<li><code>extu_i32_i64</code></li>
+</ul></li>
+<li><p>它们确保在从32位寄存器移动到64位寄存器或反之时，值被正确截断或扩展。请注意，<code>trunc_shr_i64_i32</code>是一个可选的操作。</p></li>
+<li><p>如果满足以下所有条件，则不需要实现它：</p>
+<ul>
+<li>64位寄存器可以容纳32位值</li>
+<li>64位寄存器中的32位值不需要保持零扩展或符号扩展</li>
+<li>所有32位TCG操作忽略64位寄存器的高位部分</li>
+</ul></li>
+<li><p>此版本不支持浮点操作。代码生成器的先前版本对其有全面支持，但最好先集中精力处理整数操作。</p></li>
+</ul>
+<h3 id="constraints-限制">Constraints / 限制</h3>
+<ul>
+<li><p>这个版本使用类似GCC的约束来定义每个指令的限制条件。</p></li>
+<li><p>不支持内存约束。</p></li>
+<li><p>别名可以像GCC一样在输入操作数中指定。</p></li>
+<li><p>即使没有明确指定别名，同一个寄存器可以用作输入和输出。</p></li>
+<li><p>如果一个操作扩展为多个目标指令，需要注意避免破坏输入值。</p></li>
+<li><p>支持GCC风格的"早期占用"输出，使用'<code>&amp;</code>'符号。</p></li>
+<li><p>目标可以定义特定的寄存器或常量约束。</p></li>
+<li><p>如果一个操作使用不允许所有常量的常量输入约束，为了有备用选项，必须同时接受寄存器。
+（If an operation uses a constant input constraint which does not allow
+all constants, it must also accept registers in order to have a
+fallback.）</p></li>
+<li><p>约束'<code>i</code>'是通用定义的，接受任何常量。</p></li>
+<li><p>约束'<code>r</code>'没有通用定义，但每个后端一致使用它来表示所有寄存器。</p></li>
+<li><p>movi_i32和movi_i64操作必须接受任何常量。</p></li>
+<li><p>mov_i32和mov_i64操作必须接受相同类型的任何寄存器。</p></li>
+<li><p>ld/st/sti指令必须接受带符号的32位常量偏移量。</p></li>
+<li><p>如果偏移量太大，可以通过保留一个特定的寄存器来计算地址。</p></li>
+<li><p>ld/st指令必须接受任何目标寄存器（ld）或源寄存器（st）。</p></li>
+<li><p>sti指令可能会因无法存储给定的常量而失败。</p></li>
+</ul>
+<h3 id="function-call-assumptions-函数调用的假设">Function call
+assumptions / 函数调用的假设</h3>
+<ul>
+<li>参数和返回值的支持类型仅限于32位和64位整数以及指针。</li>
+<li>栈向下增长。</li>
+<li>前N个参数通过寄存器传递。</li>
+<li>接下来的参数通过将它们存储为字节的方式通过栈传递。</li>
+<li>在调用期间，一些寄存器的值可能会被覆盖。</li>
+<li>函数可以在寄存器中返回0或1个值。在32位目标平台上，函数必须能够以寄存器返回2个值，用于64位返回类型。</li>
+</ul>
+<h2 id="recommended-coding-rules-for-best-performance">Recommended
+coding rules for best performance</h2>
+<ul>
+<li><p>使用全局变量来表示经常被修改的QEMU
+CPU状态的部分，例如整数寄存器和条件码。</p></li>
+<li><p>TCG将能够使用主机寄存器来存储它们。</p></li>
+<li><p>对于复杂或不常用的客户指令，不要犹豫使用辅助函数。</p></li>
+<li><p>在使用TCG实现的客户指令中，使用超过约二十条TCG指令的性能优势很小。</p></li>
+<li><p>需要注意的是，这个经验法则更适用于执行复杂逻辑或算术运算的辅助函数，因为C编译器可以进行有效的优化；在大部分是加载和存储操作的指令中，这个规则的适用性较小，并且在这些情况下，内联TCG仍然可能比较长的序列更快。</p></li>
+<li><p>如果你知道TCG无法证明在给定程序点上某个全局变量是"无用"的，可以使用"discard"指令。</p></li>
+<li><p>x86客户机使用它来改进条件码的优化。</p></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/Qemu%E7%BF%BB%E8%AF%91%E6%B5%81%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/05/18/Qemu%E7%BF%BB%E8%AF%91%E6%B5%81%E7%A8%8B/" class="post-title-link" itemprop="url">Qemu翻译器的内部机制</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-18 19:23:50" itemprop="dateCreated datePublished" datetime="2023-05-18T19:23:50+08:00">2023-05-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="translator-internals-翻译器的内部机制">Translator Internals /
+翻译器的内部机制</h1>
+<ul>
+<li><p>QEMU是一个动态翻译器。</p></li>
+<li><p>当它首次遇到一段代码时，它会将其转换为宿主机指令集。</p></li>
+<li><p>通常，动态翻译器非常复杂且高度依赖于CPU。</p></li>
+<li><p>QEMU使用一些技巧使其相对容易进行移植和简化，同时实现良好的性能。</p></li>
+<li><p>QEMU的动态翻译后端称为TCG（Tiny Code Generator），见另一篇文章TCG
+IR。</p></li>
+<li><p>以下部分概述了QEMU动态翻译器的一些显著特点和实现细节。</p></li>
+</ul>
+<h1 id="cpu-state-optimisations-cpu状态优化">CPU state optimisations /
+CPU状态优化</h1>
+<ul>
+<li>目标CPU具有许多内部状态，这些状态会影响它们执行指令的方式。</li>
+<li>为了实现良好的速度，翻译阶段考虑到虚拟CPU的某些状态信息在其中不会改变。</li>
+<li>状态信息被记录在翻译块（Translation Block，TB）中。</li>
+<li>如果状态发生变化（例如特权级别），将生成一个新的TB，并且之前的TB将不再使用，直到状态与之前记录在先的TB中的状态匹配。</li>
+<li>对于CPU状态的其他方面也可以应用相同的思想。例如，在x86架构中，如果SS、DS和ES段具有零基址，那么翻译器甚至不会为段基址生成一个加法操作。</li>
+</ul>
+<h2 id="direct-block-chaining-直接块链接">Direct block chaining /
+直接块链接</h2>
+<ul>
+<li><p>在每个已执行的翻译的基本块之后，QEMU使用模拟的程序计数器（PC）和其他CPU状态信息（例如CS段基址）来找到下一个基本块。</p></li>
+<li><p>在简单且未经优化的形式中，这是通过退出当前的翻译块，经过翻译块的收尾处理，然后返回到主循环来完成的。</p></li>
+<li><p>在主循环中，QEMU寻找要执行的下一个翻译块，如果它尚未在内存中，则将其从客户体系结构翻译出来。</p></li>
+<li><p>然后，QEMU继续执行下一个翻译块，从序言开始，然后继续执行已翻译的指令。</p></li>
+<li><p>以这种方式退出翻译块将导致在执行其他指令之前重新评估<code>cpu_exec_interrupt()</code>回调函数。</p></li>
+<li><p>在发生可能解除中断屏蔽的任何CPU状态更改后，以这种方式退出是必需的。</p></li>
+<li><p>为了加速当新的模拟PC对应的翻译块已经可用的情况，QEMU具有机制允许直接链接多个翻译块，而无需返回到上述的主循环。这些机制包括：</p></li>
+</ul>
+<h3 id="lookup_and_goto_ptr"><code>lookup_and_goto_ptr</code></h3>
+<ul>
+<li>调用<code>tcg_gen_lookup_and_goto_ptr()</code>将生成对<code>helper_lookup_tb_ptr</code>的调用。</li>
+<li>该辅助函数将查找与当前CPU状态匹配的现有翻译块。</li>
+<li>如果目标翻译块可用，则返回其代码地址；否则返回JIT（即时编译）收尾部分的地址。</li>
+<li>在调用辅助函数之后，总是紧随着tcg
+<code>goto_ptr</code>指令，它会跳转到返回的地址。</li>
+<li>这样，我们要么跳转到下一个翻译块，要么返回到主循环。</li>
+</ul>
+<h3 id="goto_tb-exit_tb"><code>goto_tb + exit_tb</code></h3>
+<ul>
+<li><p>翻译代码通常通过以下步骤来实现分支：</p>
+<ol type="1">
+<li>调用<code>tcg_gen_goto_tb()</code>，并将跳转槽索引（0或1）作为参数传递。</li>
+<li>发出TCG指令来更新CPU状态，其中包括已假定为常量且主循环需要正确定位和执行下一个翻译块所需的信息。对于大多数客户机，这仅仅是分支目标的PC，但其他一些客户机可能会存储附加数据。在此步骤中更新的信息必须可以从<code>cpu_get_tb_cpu_state()</code>和<code>cpu_restore_state()</code>中推断出来。</li>
+<li>调用<code>tcg_gen_exit_tb()</code>，再次传递当前翻译块的地址和跳转槽索引。</li>
+</ol></li>
+<li><p>第1步<code>tcg_gen_goto_tb()</code>将生成一个<code>goto_tb</code>
+TCG指令，稍后会被翻译为跳转到与指定跳转槽相关联的地址。</p></li>
+<li><p>初始时，这是第2步的指令的地址，用于更新CPU状态信息。</p></li>
+<li><p>第3步<code>tcg_gen_exit_tb()</code>从当前翻译块退出，并返回由上一个执行的翻译块地址和跳转槽索引组成的标记指针。</p></li>
+<li><p>第一次执行整个序列时，第1步简单地跳转到第2步。</p></li>
+<li><p>然后，CPU状态信息会被更新，并从当前翻译块退出。</p></li>
+<li><p>结果，行为与前面在本节中描述的较少优化的形式非常相似。</p></li>
+<li><p>接下来，主循环使用当前CPU状态信息寻找要执行的下一个翻译块（如果尚未可用，则创建该翻译块），并在开始执行新翻译块的指令之前，通过将其跳转槽之一（在调用<code>tcg_gen_exit_tb()</code>时指定）与新翻译块的地址关联起来，来修补先前执行的翻译块。</p></li>
+<li><p>下一次执行这个先前的翻译块，并到达同样的<code>goto_tb</code>步骤时，它将已经被修补（假设目标翻译块仍然在内存中），并直接跳转到目标翻译块的第一条指令，而无需返回到主循环。</p></li>
+<li><p>要使用<code>goto_tb + exit_tb</code>机制，需要满足以下条件：</p>
+<ul>
+<li><p>CPU状态的更改必须是常量，例如直接分支而不是间接分支。</p></li>
+<li><p>直接分支不能跨越页边界。内存映射可能会改变，导致目标地址的代码发生变化。</p></li>
+</ul></li>
+<li><p>需要注意的是，在第3步（<code>tcg_gen_exit_tb()</code>）中，除了跳转槽索引之外，还返回了刚刚执行的翻译块的地址。</p></li>
+<li><p>这个地址对应于将要被修补的翻译块；如果该翻译块已经链接到其他翻译块，那么它可能与直接从主循环执行的翻译块不同。</p></li>
+<li><p>Note that, on step 3 (<code>tcg_gen_exit_tb()</code>), in
+addition to the jump slot index, the address of the TB just executed is
+also returned.</p></li>
+<li><p>This address corresponds to the TB that will be patched; it may
+be different than the one that was directly executed from the main loop
+if the latter had already been chained to other TBs.</p></li>
+</ul>
+<h2
+id="self-modifying-code-and-translated-code-invalidation-自修改代码和翻译代码失效">Self-modifying
+code and translated code invalidation / 自修改代码和翻译代码失效</h2>
+<ul>
+<li><p>在x86仿真中，自修改代码是一个特殊的挑战，因为当代码被修改时，应用程序不会向系统发出指示来使指令缓存失效。</p></li>
+<li><p>在用户模式仿真中，每当为基本块生成翻译代码时，会将主机页面标记为写保护（如果它尚未是只读）。</p></li>
+<li><p>然后，如果对该页面进行写访问，Linux会触发一个SEGV信号。</p></li>
+<li><p>然后，QEMU会使该页面中的所有翻译代码失效，并允许对该页面进行写访问。</p></li>
+<li><p>对于系统仿真，写保护是通过软件MMU实现的。</p></li>
+<li><p>通过维护一个链接列表来高效地进行正确的翻译代码失效，该列表包含在给定页面中的每个翻译块。</p></li>
+<li><p>还维护其他链接列表以撤消直接块链接。</p></li>
+<li><p>Correct translated code invalidation is done efficiently by
+maintaining a linked list of every translated block contained in a given
+page.</p></li>
+<li><p>Other linked lists are also maintained to undo direct block
+chaining.</p></li>
+<li><p>在RISC目标中，正确编写的软件使用内存屏障和缓存刷新，因此上述保护措施可能不是必需的。</p></li>
+<li><p>然而，QEMU仍然要求生成的代码始终与目标指令在内存中匹配，以便正确处理异常情况。</p></li>
+</ul>
+<h2 id="exception-support-异常支持">Exception support / 异常支持</h2>
+<ul>
+<li><p>在遇到诸如除零等异常时，会使用longjmp()函数。</p></li>
+<li><p>主机的SIGSEGV和SIGBUS信号处理程序用于获取无效的内存访问。</p></li>
+<li><p>QEMU保持了一个从主机程序计数器（PC）到目标程序计数器（PC）的映射，并根据异常点处的主机程序计数器查找异常发生的位置。</p></li>
+<li><p>在某些目标平台上，虚拟CPU状态的某些位直到翻译块结束之前才会刷新到内存中。</p></li>
+<li><p>这是为了保存内部仿真状态，该状态很少直接被程序访问，且在翻译块的执行过程中经常发生变化，例如x86上的条件码、SPARC上的延迟槽、Arm上的条件执行等。</p></li>
+<li><p>这些状态针对每个目标指令进行存储，并在发生异常时进行查找。</p></li>
+</ul>
+<h2 id="mmu-emulation-mmumemory-management-unit仿真">## MMU emulation /
+MMU（Memory Management Unit）仿真</h2>
+<ul>
+<li><p>在系统仿真中，QEMU使用软件MMU。</p></li>
+<li><p>在这种模式下，MMU会在每次内存访问时进行虚拟地址到物理地址的转换。</p></li>
+<li><p>为了加快转换速度并避免在MMU映射发生变化时每次都刷新已翻译的代码，QEMU使用地址转换缓存（TLB）。</p></li>
+<li><p>在QEMU中，所有缓存都是物理索引的，这意味着每个基本块都与其物理地址相关联。</p></li>
+<li><p>为了避免在MMU映射发生变化时使基本块链无效，只有当跳转目标与执行跳转的基本块共享同一页时，才会执行链式操作。</p></li>
+<li><p>MMU还可以区分RAM（随机存储器）和ROM（只读存储器）区域与MMIO（内存映射输入/输出）内存区域。</p></li>
+<li><p>对于RAM和ROM的访问速度更快，因为转换缓存还存储了来宾地址和主机内存之间的偏移量。</p></li>
+<li><p>而对MMIO内存区域的访问则调用C代码进行设备仿真。</p></li>
+<li><p>最后，MMU有助于跟踪脏页和被翻译块引用的页。</p></li>
+<li><p>这样可以有效地管理内存页面，并进行必要的操作，如脏页回写或内存页面回收。</p></li>
+</ul>
+<h2 id="profiling-jitted-code-对jit即时编译代码进行性能分析">Profiling
+JITted code / 对JIT（即时编译）代码进行性能分析</h2>
+<ul>
+<li><p>Linux的perf工具在处理JIT（即时编译）代码时会将其视为单个代码块，因为与主要代码不同，它无法使用调试信息将单个程序计数器样本与较大的函数关联起来。</p></li>
+<li><p>为了克服这个限制，可以使用<code>-perfmap</code>或<code>-jitdump</code>选项生成映射文件。</p></li>
+<li><p><code>-perfmap</code>是轻量级的，只生成客户机-主机映射关系。</p></li>
+<li><p><code>-jitdump</code>除此之外，还会保存JIT代码和客户机调试信息（如果有的话）；它的输出需要与<code>perf.data</code>文件集成，然后才能查看最终的报告。</p></li>
+<li><p>示例代码如下：</p></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">perf record $QEMU -perfmap $REMAINING_ARGS</span><br><span class="line">perf report</span><br><span class="line"></span><br><span class="line">perf record -k 1 $QEMU -jitdump $REMAINING_ARGS</span><br><span class="line">DEBUGINFOD_URLS= perf inject -j -i perf.data -o perf.data.jitted</span><br><span class="line">perf report -i perf.data.jitted</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>请注意，qemu-system仅为ELF格式的<code>-kernel</code>文件生成映射。</p></li>
+<li><p>使用这些命令和选项，可以将JIT代码的性能分析结果与perf工具的报告集成在一起，以便更好地理解和分析JIT代码的性能。这将帮助开发人员针对性地进行优化和改进，提高QEMU的性能。</p></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/05/18/CPU%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD/" class="post-title-link" itemprop="url">CPU体系结构专业术语</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-18 11:23:50" itemprop="dateCreated datePublished" datetime="2023-05-18T11:23:50+08:00">2023-05-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>353</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="mmiomemory-mapped-io">MMIO（Memory-Mapped I/O）</h1>
+<ul>
+<li><p>代表内存映射输入/输出。</p></li>
+<li><p>它是一种计算机系统中用于与外部设备进行通信的技术。在MMIO中，外部设备的寄存器或状态被映射到计算机的内存地址空间中的特定区域。通过读取或写入这些内存地址，计算机可以与外部设备进行数据交换和控制操作。</p></li>
+<li><p>MMIO的基本原理是通过在内存地址空间中保留一些特定的地址范围，让计算机能够直接访问外部设备的寄存器或状态。当计算机读取或写入这些地址时，数据被传递到或从外部设备进行处理。这种方式相对于使用专门的I/O指令进行输入/输出操作，提供了更简化和统一的编程界面。</p></li>
+<li><p>常见的MMIO设备包括网络接口卡、图形显示控制器、声卡、串口控制器等。通过使用MMIO技术，计算机可以通过内存访问方式与这些设备进行通信，从而实现数据传输、设备控制和信息交换等功能。</p></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/05/18/Qemu%20icount/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/zyhjy/2023/05/18/Qemu%20icount/" class="post-title-link" itemprop="url">Qemu icount</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-18 11:23:50" itemprop="dateCreated datePublished" datetime="2023-05-18T11:23:50+08:00">2023-05-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/Qemu/" itemprop="url" rel="index"><span itemprop="name">Qemu</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="tcg-instruction-counting-tcg指令计数">TCG Instruction Counting /
+TCG指令计数</h1>
+<ul>
+<li><p>TCG长期支持一种称为icount的功能，允许在执行过程中进行指令计数。</p></li>
+<li><p>这与周期精确的仿真不应混淆——QEMU不会尝试模拟指令在实际硬件上所需的时间。这是其他更详细（但更慢）的工具来模拟微体系结构的工作。</p></li>
+<li><p>这个功能仅适用于系统仿真，并且与多线程TCG不兼容。它可用于更好地与挂钟时间（wall-clock
+time）对齐执行时间，以防止“慢速”设备在现代硬件上运行过快。它还提供了一定程度的确定性执行，并且是QEMU中记录/回放支持的关键部分。</p></li>
+</ul>
+<h2 id="core-concepts-核心概念">Core Concepts / 核心概念</h2>
+<ul>
+<li><p>icount本质上是一个在QEMU计时器子系统的TimersState中存储的已执行指令计数。</p></li>
+<li><p>已执行指令的数量可以用来计算QEMU_CLOCK_VIRTUAL，该值表示自执行开始以来系统中经过的时间。根据icount模式，这可能是每条指令固定的纳秒数，或者在执行过程中进行调整，以保持挂钟时间和虚拟时间同步。</p></li>
+<li><p>为了能够计算已执行指令的数量，翻译器首先分配一定数量的待执行指令预算。指令预算受限于下一个定时器到期之前的时间长度。我们将这个预算作为vCPU的icount_decr字段的一部分进行存储，该字段与处理cpu_exit()的机制共享。在每个翻译块的开始处检查整个字段，并在退出时返回到外部循环以处理导致退出的原因。</p></li>
+<li><p>对于icount，再检查标志之前，我们会减去翻译块将要执行的指令数。如果这会导致指令预算变为负数，我们将退出主循环，并重新生成一个新的翻译块，其中包含恰好足够数量的指令，使预算减为0，这意味着无论何时我们退出主运行循环，定时器都将会在该时刻到期。</p></li>
+</ul>
+<h2 id="dealing-with-mmio-处理mmio">Dealing with MMIO / 处理MMIO</h2>
+<ul>
+<li><p>虽然我们可以调整已知事件（如计时器到期）的指令预算，但对于MMIO来说我们无法做到同样的调整。</p></li>
+<li><p>我们执行的每个加载/存储操作都可能触发一个I/O事件，在这种情况下，我们需要一个最新且准确的icount数的读取。</p></li>
+<li><p>为了处理这种情况，当进行I/O访问时，我们会：</p>
+<ol type="1">
+<li>将未执行的指令恢复到icount预算中</li>
+<li>为当前PC重新编译一个[1]指令块</li>
+<li>退出CPU循环并执行重新编译的块</li>
+</ol></li>
+<li><p>新的块被创建时带有CF_LAST_IO编译标志，确保最终的指令转换从调用gen_io_start()开始，这样我们就不会进入一个永久循环，不断重新编译一个单独的指令块。对于使用常见的translator_loop的翻译器，这是自动完成的。</p></li>
+</ul>
+<h2 id="other-io-operations-其他io操作">Other I/O operations /
+其他IO操作</h2>
+<ul>
+<li><p>MMIO不是唯一可能需要正确和准确时钟的操作类型。</p></li>
+<li><p>IO端口指令和对系统寄存器的访问是常见的例子。</p></li>
+<li><p>这些指令必须由具有了解哪些操作是I/O操作的各个翻译器处理。</p></li>
+<li><p>当翻译器处理此类指令时：</p>
+<ul>
+<li>如果启用了icount，它必须在实际执行I/O操作的代码生成之前的某个时刻调用gen_io_start()，使用类似以下代码片段的代码：
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (tb_cflags(s-&gt;base.tb) &amp; CF_USE_ICOUNT) &#123;</span><br><span class="line">    gen_io_start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>必须立即结束该TB（翻译块）在执行完这条指令之后。</li>
+</ul></li>
+<li><p>以上是处理这类指令的要求。通过调用gen_io_start()，我们可以确保在执行I/O操作之前记录正确的icount计数，并且在完成指令后结束TB以防止进一步执行不必要的指令。</p></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/04/12/Chiplets/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1323,1241 +2875,10 @@ Inline Assembly</a> for more info on how to get the most out of ASM.</p>
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/02/07/Qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B--%E4%BB%A5arrch64%20--%3E%3E%20x86-64%E4%B8%BA%E4%BE%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2023/02/07/Qemu%E7%BF%BB%E8%AF%91%E5%AE%9E%E4%BE%8B--%E4%BB%A5arrch64%20--%3E%3E%20x86-64%E4%B8%BA%E4%BE%8B/" class="post-title-link" itemprop="url">Qemu翻译实例--以arrch64 -->> x86-64为例</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-02-07 17:28:50" itemprop="dateCreated datePublished" datetime="2023-02-07T17:28:50+08:00">2023-02-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:50" itemprop="dateModified" datetime="2023-07-30T18:15:50+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>4.9k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>8 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="qemu翻译实例--以arrch64----i386为例">Qemu翻译实例--以arrch64
---&gt;&gt; i386为例</h1>
-<h2 id="前言">0.前言</h2>
-<ul>
-<li>QEMU 是一个仿真器(emulator)，可以user mode 或是system mode 运行。
-<ul>
-<li>user mode 可以运行不同ISA 同一OS 的binary;</li>
-<li>system mode 可以在当前作业系统上运行另外一个OS.</li>
-</ul></li>
-<li>对QEMU 而言，被仿真的平台被称为guest，又称target; 运行QEMU
-的平台称为host。
-<ul>
-<li>QEMU 是利用动态翻译(dynamic translation) 的技术将guest binary
-动态翻译成host binary，并交由host 运行翻译所得的host binary。</li>
-<li>Tiny Code Generator (TCG) 是QEMU 中负责动态翻译的组件。
-<ul>
-<li>对TCG 而言，target 有不同的含意，它代表TCG 是针对哪一个host 生成host
-binary。</li>
-</ul></li>
-</ul></li>
-<li>QEMU
-极为依赖macro，这使得直接阅读源代码通常无法确定其函数呼叫，或是执行流程倒底为何。</li>
-<li>请在编译QEMU
-的时候加上<code>--extra-cflags="-save-temps"</code>，如此可得展开marco
-的 <code>*.i</code> 档。</li>
-</ul>
-<h2 id="tcg">1. TCG</h2>
-<ul>
-<li>TCG 是QEMU 的核心。其基本流程如下:
-<ul>
-<li>guest binary -&gt; TCG IR -&gt; host binary</li>
-</ul></li>
-</ul>
-<h3 id="tcg-ir">1.1 TCG IR</h3>
-<ul>
-<li><p>TCG 定义了一组IR (intermediate representation)，熟悉GCC
-的各位对此应该不陌生。</p></li>
-<li><p>TCG IR 大致分成以下几类:</p>
-<ul>
-<li>Move Operation: mov, movi, …</li>
-<li>Logic Operation: and, or, xor, shl, shr, …</li>
-<li>Arithmetic peration: add, sub, mul, div, …</li>
-<li>Branch Operation: jmp, br, brcond</li>
-<li>Fuction call: call</li>
-<li>Memory Operation: ld, st</li>
-<li>QEMU specific Operation: tb_exit, goto_tb, qemu_ld/qemu_st</li>
-</ul></li>
-<li><p>请见tcg/*，特别是tcg.i，可以看到TCGOpcode。</p></li>
-<li><p>tcg/README 也别忘了。</p></li>
-<li><p>TCG 在翻译guest binary 的时候是以一个translation block (tb)
-为单位，其结尾通常是分支指令。</p></li>
-<li><p>target/ARCH/* 定义了如何将ARCH binary 反汇编成TCG IR。</p>
-<ul>
-<li>target/arm</li>
-</ul></li>
-<li><p>tcg/ARCH 定义了如何将TCG IR 翻译成ARCH binary。</p>
-<ul>
-<li>tcg/i386</li>
-</ul></li>
-</ul>
-<h3 id="tcg-flow">1.2 TCG Flow</h3>
-<ul>
-<li><p>gen_opc_buf 和gen_opparam_buf (translate-all.c) 分别放置TCG
-Opcode 和Operand。</p></li>
-<li><p>如果使用静态配置的缓冲区，static_code_gen_buffer (exec.c)
-即为code cache，放置host binary。</p></li>
-<li><p>在跳入/出code cache
-执行之前/后，要执行prologue/epilogue，请见code_gen_prologue
-(exec.c)。</p></li>
-<li><p>这边的prologue/epilogue 就是指function
-prologue/epilogue。</p></li>
-<li><p>QEMU 将跳至code cache (host binary)
-执行的过程看成是函式呼叫，故有此prologue/epilogue。</p></li>
-<li><p>以qemu-arm 为例，流程大致如下:</p>
-<ul>
-<li><p>main() // vl.c</p></li>
-<li><p>--&gt;&gt; main_loop() // vl.c</p></li>
-<li><p>--&gt;&gt; arm_cpu_realizefn() //
-target/arm/cpu.c，实例化虚拟机CPU设备模型 [GUEST]_cpu_realizefn</p></li>
-<li><p>--&gt;&gt; qemu_init_vcpu() //
-softmmu/cpus.c，KVM没有enable，并且启_cpu_thread_fn用了TCG的情况下，tcg_enabled()</p></li>
-<li><p>--&gt;&gt; qemu_tcg_init_vcpu() //
-启动VCPU线程，线程处理函数为qemu_tcg_cpu_thread_fn</p></li>
-<li><p>--&gt;&gt; qemu_tcg_cpu_thread_fn()</p></li>
-<li><p>--&gt;&gt; tcg_exec_all()</p></li>
-<li><p>--&gt;&gt; tcg_cpu_exec()</p></li>
-<li><p>--&gt;&gt; cpu_exec() //cpu-exee.c</p></li>
-<li><p>user mode:</p>
-<ul>
-<li>main (linux-user/main.c) -&gt; cpu_create -&gt; tcg_prologue_init
-(tcg/tcg.c) -&gt; cpu_loop (linux-user/main.c)</li>
-</ul></li>
-</ul></li>
-<li><p>这边只介绍tcg_prologue_init (tcg/tcg.c) -&gt; cpu_loop
-(linux-user/arm/cpu_loop.c) 这一段，因为这一段跟TCG 较为相关。</p></li>
-<li><p>容我先讲cpu_loop (linux-user/arm/cpu_loop.c)。</p></li>
-<li><p>cpu_loop(CPUARMState *env) (linux-user/arm/cpu_loop.c) -&gt;
-cpu_exec (accel/tcg/cpu-exec.c)。</p></li>
-<li><p>cpu_exec 是主要执行回圈，其结构大致如下: <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* prepare setjmp context for exception handling */</span> </span><br><span class="line"><span class="keyword">if</span> (sigsetjmp(cpu-&gt;jmp_env, <span class="number">0</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">while</span> (!cpu_handle_exception(cpu, &amp;ret)) &#123;</span><br><span class="line">    <span class="keyword">while</span> (!cpu_handle_interrupt(cpu, &amp;last_tb)) &#123; </span><br><span class="line">        tb = tb_lookup(cpu, pc, cs_base, flags, cflags); <span class="comment">// 寻找下一个TB</span></span><br><span class="line">        <span class="keyword">if</span> (tb == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            tb = tb_gen_code(cpu, pc, cs_base, flags, cflags);</span><br><span class="line">        &#125;</span><br><span class="line">        cpu_loop_exec_tb(cpu, tb, &amp;last_tb, &amp;tb_exit);<span class="comment">// 跳至code cache 执行。</span></span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br><span class="line">cpu_exec_exit(cpu);</span><br></pre></td></tr></table></figure></p></li>
-<li><p>tcg_prologue_init (tcg/tcg.c) -&gt; tcg_target_qemu_prologue
-(tcg/arm/tcg-target.c.inc)。</p></li>
-<li><p>如前所述，QEMU 将跳至code cache (host binary)
-执行的过程看成是函式呼叫。</p></li>
-<li><p>不同平台的calling convention 各有不同，tcg_prologue_init
-将产生prologue/epilogue 的工作转交tcg_target_qemu_prologue。
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">tcg_target_qemu_prologue</span><span class="params">(TCGContext *s)</span> &#123; </span><br><span class="line">    <span class="comment">/* Calling convention requires us to save r4-r11 and lr.  */</span></span><br><span class="line">    <span class="comment">/* stmdb sp!, &#123; r4 - r11, lr &#125; */</span></span><br><span class="line">    tcg_out32(s, (COND_AL &lt;&lt; <span class="number">28</span>) | <span class="number">0x092d4ff0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Reserve callee argument and tcg temp space.  */</span></span><br><span class="line">    tcg_out_dat_rI(s, COND_AL, ARITH_SUB, TCG_REG_CALL_STACK,</span><br><span class="line">                   TCG_REG_CALL_STACK, STACK_ADDEND, <span class="number">1</span>);</span><br><span class="line">    tcg_set_frame(s, TCG_REG_CALL_STACK, TCG_STATIC_CALL_ARGS_SIZE,</span><br><span class="line">                  CPU_TEMP_BUF_NLONGS * <span class="keyword">sizeof</span>(<span class="type">long</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* QEMU (cpu_exec) -&gt; 入栈*/</span> </span><br><span class="line">    tcg_out_mov(s, TCG_TYPE_PTR, TCG_AREG0, tcg_target_call_iarg_regs[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// tcg_target_call_iarg_regs 是函式呼叫负责传递参数的暂存器。</span></span><br><span class="line">    <span class="comment">// 跳至code cache 执行。</span></span><br><span class="line">    tcg_out_bx(s, COND_AL, tcg_target_call_iarg_regs[<span class="number">1</span>]);</span><br><span class="line">    <span class="comment">// 此时，s-&gt;code_ptr 指向code_gen_prologue 中prologue 和jmp to code cache 之后的位址。</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Return path for goto_ptr. Set return value to 0, a-la exit_tb,</span></span><br><span class="line"><span class="comment">     * and fall through to the rest of the epilogue.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    tcg_code_gen_epilogue = tcg_splitwx_to_rx(s-&gt;code_ptr);</span><br><span class="line">    tcg_out_movi(s, TCG_TYPE_PTR, TCG_REG_R0, <span class="number">0</span>);</span><br><span class="line">    tcg_out_epilogue(s); <span class="comment">/* 出栈-&gt; 返回QEMU (cpu_exec)，确切的讲是返回tcg_qemu_tb_exec */</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p></li>
-<li><p>这边小结一下。</p>
-<ul>
-<li>QEMU -&gt; prologue -&gt; code cache -&gt; epilogue -&gt; QEMU</li>
-</ul></li>
-<li><p>在介绍cpu_exec 之前，我先介绍几个QEMU
-资料结构，请善用SOURCEARCHIVE.com。</p></li>
-<li><p>我们要知道所谓仿真或是虚拟化一个CPU
-(ISA)，简单来说就是用一个资料结构(struct) 储存该CPU的状态。</p></li>
-<li><p>执行该虚拟CPU，就是从内存中读取该虚拟CPU的资料结构，运算后再存回去。</p></li>
-<li><p>CPUX86State: 保存x86 register，eflags，eip，cs，…。</p></li>
-<li><p>不同ISA 之间通用的资料结构被QEMU #define 成CPU_COMMON。</p></li>
-<li><p>一般称此资料结构为CPUState。下文所提env 即为CPUState。</p></li>
-<li><p>QEMU 运行虚拟CPU 都会利用env 这个变数。</p></li>
-<li><p>TranslationBlock: 之前说过，QEMU 是以一个translation block
-为单位进行翻译。</p></li>
-<li><p>其中保存此translation block 对应guest binary 的pc, cs_base,
-eflags。</p></li>
-<li><p>另外，tc_ptr 指向code cache (host
-binary)。其它栏位待以后再谈。</p></li>
-<li><p>PageDesc: 主要保存guest page 中的第一个tb (TranslationBlock
-*)。</p></li>
-<li><p>这跟QEMU 内部运作机制有关。某些情况下，guest page (guest binary)
-可能被替换或是被写。</p></li>
-<li><p>这个时候，QEMU 会以guest page (guest binary)
-为单位，清空与它相关联的TB (code cache)。</p></li>
-<li><p>这时再回来讲 TranslationBlock。TranslationBlock
-有底下两个栏位:</p>
-<ul>
-<li>page_addr[2]: 存放TranslationBlock 对应guest binary 所在的guest
-page。注意! guest binary 有可能跨guest page，故这里有两个栏位。</li>
-<li>page_next[2]: 当透过PageDesc-&gt;first_tb 找到该guest page
-的第一个tb，tb-&gt;page_next 就被用来找寻该guest page 的下一个tb。</li>
-</ul></li>
-<li><p>再回来讲PageDesc。QEMU 替PageDesc
-维护了一个二级页表l1_map。page_find 这个函式根据输入的address
-搜寻l1_map，返回PageDesc。这在以guest page (guest binary)
-为单位，清空与它相关联的TB (code cache)
-的时候会用到。有一个名字很像的资料结构叫PhysPageDesc，QEMU
-也替它维护一个二级页表l1_phys_map。这是在system mode
-做地址转换之用，这边不谈。</p></li>
-<li><p>TCGContext: 生成TCG IR 时会用到。</p></li>
-<li><p>DisasContext: 反汇编guest binary 时会用到</p></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/01/14/spec2006%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2023/01/14/spec2006%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91/" class="post-title-link" itemprop="url">SPEC2006交叉编译</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-01-14 17:28:50" itemprop="dateCreated datePublished" datetime="2023-01-14T17:28:50+08:00">2023-01-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>982</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="spec2006说明">1. SPEC2006说明</h1>
-<ul>
-<li>CPU Benchmark</li>
-<li>用例具体内容见官网<code>http://www.spec.org/cpu2006/docs/用例名.html</code></li>
-<li>运行时注意不要漏掉参数(Input)</li>
-<li>例:</li>
-</ul>
-<table>
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 20%" />
-<col style="width: 20%" />
-<col style="width: 20%" />
-<col style="width: 20%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>子项目</th>
-<th>类别</th>
-<th>语言</th>
-<th>说明</th>
-<th>Web</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>462.libquantum</td>
-<td>物理：量子计算</td>
-<td>ISO/IEC 9899:1999(“C99”)</td>
-<td>libquantum是模拟量子计算机的库文件，用来进行量子计算机应用的研究</td>
-<td>http://www.spec.org/cpu2006/docs/462.libquantum.html</td>
-</tr>
-</tbody>
-</table>
-<h1 id="交叉编译">2. 交叉编译</h1>
-<ol type="1">
-<li>解压下载的SPEC2006压缩包</li>
-<li>安装SPEC <code>./install.sh</code></li>
-<li>安装aarch64交叉编译环境
-<ul>
-<li>gcc、g++、gfortran</li>
-<li><code>sudo apt install gfortran-8-aarch64-linux-gnu</code></li>
-</ul></li>
-<li>加载环境变量
-<ul>
-<li>只要需要用到SPEC2006的指令，都需要在打开终端时加入<code>source ./shrc</code></li>
-</ul></li>
-<li>交叉编译配置
-<ol type="1">
-<li>进入<code>config</code>目录下，复制<code>Example-linux64-amd64-gcc43+</code>的配置文件（这个文件的选择根据Gem5中模拟的核模型来选择），将其重命名为<code>aarch64.cfg</code>（可以任意命名为其它名称）</li>
-<li>修改配置文件<code>aarch64.cfg</code>，指定编译工具
-<ul>
-<li>分别找到CC，CXX，FC</li>
-<li>改成如下格式： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CC =  your-cross-compiler-gcc</span><br><span class="line"></span><br><span class="line">CXX = your-cross-compiler-g++</span><br><span class="line"></span><br><span class="line">FC = your-cross-compiler-gfortran</span><br></pre></td></tr></table></figure></li>
-<li>在gem5中运行的样例需要静态编译，故对COPTIMIZE、CXXOPTIMIZE、FOPTIMIZE加上<code>-static</code>标签</li>
-<li>修改完后保存退出，其他地方不用改。</li>
-</ul></li>
-</ol></li>
-<li>编译speccpu:</li>
-</ol>
-<ul>
-<li><p><code>runspec --action=build --config=aarch64.cfg --tune=base int</code>
-（只编译int型benchmark，不运行）</p></li>
-<li><p>生成可执行文件<code>runspec --config=&lt;你的配置文件名&gt; --size=ref --noreportable --tune=base --iterations=1 &lt;样例名称&gt;</code></p></li>
-</ul>
-<ol start="7" type="1">
-<li>将编译好的文件（在源码目录下，如<code>benchspec/CPU2006/400.perlbench/build/</code>）拷贝出来就可以在目标板或者模拟器上运行了。</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/11/15/Effective%20C++(6)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/11/15/Effective%20C++(6)/" class="post-title-link" itemprop="url">Effective C++(6)--继承与面向对象设计</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-11-15 22:28:50" itemprop="dateCreated datePublished" datetime="2022-11-15T22:28:50+08:00">2022-11-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>8.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>14 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="条款32-确定public继承塑模出is-a关系">条款32
-确定public继承塑模出is-a关系</h1>
-<ul>
-<li>public继承意味"is-a"</li>
-<li>Liskov替换原则
-<ul>
-<li>class D : class B { ... }</li>
-<li>适用于B身上的每一件事也适用于D，反之不然</li>
-</ul></li>
-</ul>
-<h1 id="条款33-避免遮掩继承而来的名称">条款33
-避免遮掩继承而来的名称</h1>
-<h2 id="继承体系内的名称可视性">继承体系内的"名称可视性"</h2>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf1</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf1</span><span class="params">(<span class="type">int</span>)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf2</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">mf3</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">mf3</span><span class="params">(<span class="type">double</span>)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf1</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">mf3</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">mf4</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>base class内所有名为mf1和mf3的函数都被derived
-class内的mf1和mf3函数遮掩了 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Derived d;</span><br><span class="line"><span class="type">int</span> x;</span><br><span class="line">...</span><br><span class="line">d.<span class="built_in">mf1</span>();    <span class="comment">/// ok</span></span><br><span class="line">d.<span class="built_in">mf1</span>(x);   <span class="comment">/// error, Base::mf1被遮掩</span></span><br><span class="line">d.<span class="built_in">mf2</span>();    <span class="comment">/// ok, Base::mf2</span></span><br><span class="line">d.<span class="built_in">mf3</span>();    <span class="comment">/// ok, Derived::mf3</span></span><br><span class="line">d.<span class="built_in">mf3</span>(x);   <span class="comment">/// error, Base::mf3被遮掩</span></span><br></pre></td></tr></table></figure></li>
-<li>该机制的目的在于提醒base和derived class之间的is-a关系 ##
-override缺省遮掩行为</li>
-<li>一般不在public继承下使用，破坏了is-a的关系</li>
-<li>在private继承下有用 ### 使用using声明式 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf1</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf1</span><span class="params">(<span class="type">int</span>)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf2</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">mf3</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">mf3</span><span class="params">(<span class="type">double</span>)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">using</span> Base::mf1;    <span class="comment">/// 让Base class内名为mf1和mf3的所有东西</span></span><br><span class="line">    <span class="keyword">using</span> Base::mf3;    <span class="comment">/// 在Derived作用域内可见(且public)</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf1</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">mf3</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">mf4</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Derived d;</span><br><span class="line"><span class="type">int</span> x;</span><br><span class="line">...</span><br><span class="line">d.<span class="built_in">mf1</span>();    <span class="comment">/// ok，Derived::mf1</span></span><br><span class="line">d.<span class="built_in">mf1</span>(x);   <span class="comment">/// ok, Base::mf1</span></span><br><span class="line">d.<span class="built_in">mf2</span>();    <span class="comment">/// ok, Base::mf2</span></span><br><span class="line">d.<span class="built_in">mf3</span>();    <span class="comment">/// ok, Derived::mf3</span></span><br><span class="line">d.<span class="built_in">mf3</span>(x);   <span class="comment">/// ok, Base::mf3</span></span><br></pre></td></tr></table></figure> ###
-转交函数(forwarding function)</li>
-<li>Derived private继承Base，且只想继承无参数版本的的mf1
-<ul>
-<li>using会导入所有同名函数 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf1</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf1</span><span class="params">(<span class="type">int</span>)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">private</span> Base &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mf1</span><span class="params">()</span>  <span class="comment">/// 转交函数</span></span></span><br><span class="line"><span class="function">    </span>&#123; Base::mf1; &#125;      <span class="comment">/// 暗自成为inline函数</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line">...</span><br><span class="line">Derived d;</span><br><span class="line"><span class="type">int</span> x;</span><br><span class="line">d.<span class="built_in">mf1</span>();    <span class="comment">/// ok，Derived::mf1</span></span><br><span class="line">d.<span class="built_in">mf1</span>(x);   <span class="comment">/// error, Base::mf1被遮掩</span></span><br></pre></td></tr></table></figure></li>
-</ul></li>
-</ul>
-<h1 id="条款34-区分接口继承和实现继承">条款34
-区分接口继承和实现继承</h1>
-<ul>
-<li>声明一个pure virtual函数的目的是为了让derived class只继承函数接口。
-<ul>
-<li>1个构造函数 + 1个析构函数 + n个赋值操作</li>
-</ul></li>
-<li>做法B
-<ul>
-<li>n个构造函数 + n个析构函数</li>
-</ul></li>
-<li>当classes的一个赋值成本低于一组构造+析构成本，做法A大体而言比较高效</li>
-<li>此外A造成w的作用域比B更大，会对易维护性造成冲突 ### 结论</li>
-<li>当满足以下两点时使用方法A，否则使用方法B
-<ol type="1">
-<li>赋值成本低于构造+析构</li>
-<li>代码对效率高度敏感</li>
-</ol></li>
-</ul>
-<h1 id="条款27-尽量少做转型动作">条款27 尽量少做转型动作</h1>
-<ul>
-<li>C++规则的设计目标之一:
-<ul>
-<li>保证<em>类型错误</em>绝不可能发生</li>
-</ul></li>
-<li>C风格转型/旧式转型 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(T)<span class="function">expression</span></span><br><span class="line"><span class="function"><span class="title">T</span><span class="params">(expression)</span> <span class="comment">/// 二者等价，将expression转型为T类型</span></span></span><br></pre></td></tr></table></figure></li>
-<li>新式转型(<em>C++-style casts</em>) <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">const_cast</span>&lt;T&gt;( expression )         </span><br><span class="line"><span class="built_in">dynamic_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="built_in">reinterpret_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="built_in">static_cast</span>&lt;T&gt;( expression )</span><br></pre></td></tr></table></figure> ###
-新式转型更受欢迎:</li>
-</ul>
-<ol type="1">
-<li>易辨识</li>
-<li>转型动作的目标越窄化，编译器越可能诊断出错误的运用 ###
-唯一使用旧式转型的时机</li>
-</ol>
-<ul>
-<li>调用一个explicit构造函数将一个对象传递给一个函数 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Widget</span><span class="params">(<span class="type">int</span> size)</span></span>; </span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">doSomeWork</span><span class="params">(<span class="type">const</span> Widget&amp; w)</span></span>;</span><br><span class="line"><span class="built_in">doSomeWork</span>(<span class="built_in">Widget</span>(<span class="number">15</span>));</span><br><span class="line"><span class="built_in">doSomeWork</span>(<span class="built_in">static_cast</span>&lt;Widget&gt;(<span class="number">15</span>));</span><br></pre></td></tr></table></figure> ##
-const_cast</li>
-<li>常量性转除</li>
-<li>唯一有此功能的新式转型 ## dynamic_cast</li>
-<li>安全向下转型(safe downcasting)</li>
-<li>唯一无法由旧式语法执行的动作</li>
-<li>唯一可能耗费重大运行成本的转型动作 ### 实现(一个普遍的版本)</li>
-<li>基于class名称的字符串比较
-<ul>
-<li>调用strcmp</li>
-<li>深度、多重继承体系成本更高 ## reinterpret_cast</li>
-</ul></li>
-<li>执行低级转型</li>
-<li>不可移植
-<ul>
-<li>实际动作及结果取决于编译器</li>
-<li>如将<code>pointer to int</code>转化为<code>int</code> ##
-static_cast</li>
-</ul></li>
-<li>强迫隐式转换(implicit conversion)
-<ul>
-<li>non-const --&gt; const</li>
-<li>void* --&gt; typed*</li>
-<li>pointer-to-base --&gt; pointer-to-derived ##
-转型往往真的令编译器编译出运行期执行的码</li>
-</ul></li>
-<li>不只是告诉编译器将某种类型视为另一种类型 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x, y;</span><br><span class="line">...</span><br><span class="line"><span class="type">double</span> d = <span class="built_in">static_cast</span>&lt;<span class="type">double</span>&gt;(x) / y;</span><br></pre></td></tr></table></figure></li>
-<li>将int转型为double几乎肯定会产生代码
-<ul>
-<li>在大部分计算机体系结构中，int的底层表述不同于double
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123; ... &#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line">Derived d;</span><br><span class="line">Base* pb = &amp;d; <span class="comment">/// 隐喻地将Derived*转换为Base*</span></span><br></pre></td></tr></table></figure></li>
-</ul></li>
-<li>同一个对象的Derived指针与Base指针值可能并不相同
-<ul>
-<li>与编译器如何实现有关</li>
-<li>有时候存在一个偏移量</li>
-<li>运行时会计算偏移量以转型</li>
-<li>多重继承中几乎必然发生，单一继承中可能发生</li>
-</ul></li>
-<li>避免做出“对象在C++中如何布局”的假设</li>
-</ul>
-<h1 id="条款28-避免返回handles指向对象内部分">条款28
-避免返回handles指向对象内部分</h1>
-<h1 id="条款29-strive-for-exception-safe-code.">条款29 Strive for
-exception-safe code.</h1>
-<ul>
-<li>不泄露任何资源</li>
-<li>不允许数据败坏 ## 异常安全函数提供以下三个保证之一:</li>
-</ul>
-<ol type="1">
-<li>基本承诺:
-<ul>
-<li>异常抛出时，程序内的任何事物仍然保持在有效状态下。</li>
-<li>但在哪个有效状态不可预料</li>
-</ul></li>
-<li>强烈保证:
-<ul>
-<li>异常抛出时，程序状态不改变。</li>
-<li>成功 --&gt; 完全成功</li>
-<li>失败 --&gt; 回复到</li>
-<li>往往以copy-and-swap实现</li>
-<li>并非对所有函数都可实现或具备意义</li>
-</ul></li>
-<li>不抛掷(nothrow)保证:
-<ul>
-<li>承诺绝不抛出异常</li>
-<li>内置类型的操作均遵守</li>
-</ul></li>
-</ol>
-<h1 id="条款30-透彻了解inline的里里外外">条款30
-透彻了解inline的里里外外</h1>
-<h2 id="inline">inline</h2>
-<h3 id="优点">优点</h3>
-<ul>
-<li>免除函数调用成本</li>
-<li>编译器最优化机制通常用于浓缩“不含函数调用的代码” ### 缺点</li>
-<li>增加<code>object code</code>的大小
-<ul>
-<li>可能导致额外的的换页</li>
-<li>降低cache命中率 ## inline是对编译器的一个申请，不是强制命令</li>
-</ul></li>
-<li>编译器拒绝inline复杂函数
-<ul>
-<li>如递归、循环、virtual(运行期决定)</li>
-</ul></li>
-<li>编译器无法inline将给出告警 ### 隐式申请</li>
-<li>将函数定义为class定义式内 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">age</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> theAge; &#125; <span class="comment">// 一个隐喻的inline申请</span></span><br><span class="line">    ...                                <span class="comment">// age被定义与class定义式内</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> theAge;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>这样的函数通常是成员函数，但是friend函数也可定义与class内(见 条款46)
-### 显式申请</li>
-<li>在定义式前加上关键字inline <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// &lt;algorithm&gt;</span></span><br><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function">    <span class="keyword">inline</span> <span class="type">const</span> T&amp; <span class="title">max</span><span class="params">(<span class="type">const</span> T&amp; a, <span class="type">const</span> T&amp; b)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a &lt; b ? a : b;</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> ##
-inline函数通常被置于头文件内</li>
-<li>编译期进行inline</li>
-<li>方便编译器将函数调用替换为函数本体</li>
-<li>template的具现化与inline无关
-<ul>
-<li>通常被置于头文件内，方便编译器具现化 ##
-有时即便编译器inline某个函数，可能还是为该函数生成一个函数本体</li>
-</ul></li>
-<li>例如要取某个inline函数的地址时</li>
-<li>编译器不对通过函数指针进行的调用实施inline <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line"><span class="built_in">void</span> ( *pf ) = f;</span><br><span class="line">...</span><br><span class="line"><span class="built_in">f</span>();        <span class="comment">// inline</span></span><br><span class="line"><span class="built_in">pf</span>();       <span class="comment">// outline</span></span><br></pre></td></tr></table></figure></li>
-<li>编译器有时会自动生成inline函数的ouline副本
-<ul>
-<li>比如生成构造和析构函数的副本，这样在array中可使用函数指针进行构造和析构
-## 构造函数和析构函数时inline糟糕的候选人 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::srting bm1, bm2;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span>: <span class="keyword">public</span> Base &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Derived</span>() &#123; &#125;;</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::srting dm1, dm2, dm3;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-</ul></li>
-<li>看起来构造函数和析构函数没有什么代码量，但其实不然</li>
-<li>例如，一种可能的编译器实现: <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Derived::<span class="built_in">Derived</span>() &#123;</span><br><span class="line">    Base::<span class="built_in">Base</span>();</span><br><span class="line">    <span class="keyword">try</span> &#123; dm1.std::string::<span class="built_in">string</span>(); &#125;</span><br><span class="line">    <span class="built_in">catch</span> (...) &#123; </span><br><span class="line">        Base::~<span class="built_in">Base</span>();</span><br><span class="line">        <span class="keyword">throw</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">try</span> &#123; dm2.std::string::<span class="built_in">string</span>(); &#125;</span><br><span class="line">    <span class="built_in">catch</span> (...) &#123; </span><br><span class="line">        Base::~<span class="built_in">Base</span>();</span><br><span class="line">        <span class="keyword">throw</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">try</span> &#123; dm3.std::string::<span class="built_in">string</span>(); &#125;</span><br><span class="line">    <span class="built_in">catch</span> (...) &#123; </span><br><span class="line">        Base::~<span class="built_in">Base</span>();</span><br><span class="line">        <span class="keyword">throw</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h1 id="条款31-将文件间的编译依存关系降至最低">条款31
-将文件间的编译依存关系降至最低</h1>
-<h2 id="编译依存关系">编译依存关系</h2>
-<ul>
-<li>class的定义式不只详细描述了class接口，还包括十足的实现细目
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">const</span> std::string&amp; name. <span class="type">const</span> Date&amp; birthday, <span class="type">const</span> Address&amp; addr);</span><br><span class="line">    <span class="function">std::string <span class="title">name</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">birthDate</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">address</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::string theName;    <span class="comment">/// 实现细目</span></span><br><span class="line">    Date theBirthDate;      <span class="comment">/// 实现细目</span></span><br><span class="line">    Address theAddress;     <span class="comment">/// 实现细目</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>C++将实现细目置于定义式中
-<ul>
-<li>编译器需要根据定义式确定分配多大空间</li>
-</ul></li>
-<li>Person若要通过编译，需要classes string，Date，Address的定义式
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;date.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;address.h&quot;</span></span></span><br></pre></td></tr></table></figure></li>
-<li>但是，如此一来，Person定义文件和其含入文件形成了编译依存关系
-<ul>
-<li>如果这些头文件有一个被改变，或者这些头文件所依赖的其他文件有任何改变，那么每一个含入和使用Person
-class的文件也必须重新编译 ## 编译依存性最小化 -- 接口与实现分离</li>
-</ul></li>
-<li>通过Handle classes和Interface
-classes解除了接口和实现之间的耦合，降低了文件之间的编译依存性 ### pimpl
-idiom -- <code>Handle class</code> <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span>   <span class="comment">// 标准程序组件不该被前置声明</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span>   <span class="comment">// for shared_ptr</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PresonImpl</span>;   <span class="comment">// Person实现类的前置声明</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span>;         <span class="comment">// Person接口用到的classes的前置声明</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Address</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">const</span> std::string&amp; name, <span class="type">const</span> Date&amp; birthday, <span class="type">const</span> Address&amp; addr);</span><br><span class="line">    <span class="function">std::string <span class="title">name</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">birthDate</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">address</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::shared_ptr&lt;PresonImpl&gt; pImpl_;</span><br><span class="line">&#125;;</span><br><span class="line">Person::<span class="built_in">Person</span>(<span class="type">const</span> std::string&amp; name, <span class="type">const</span> Date&amp; birthday, <span class="type">const</span> Address&amp; addr)</span><br><span class="line">    : <span class="built_in">pImpl</span>(<span class="keyword">new</span> <span class="built_in">PresonImpl</span>(name, birthday, addr))</span><br><span class="line">    &#123;&#125;</span><br><span class="line"><span class="function">std::string <span class="title">Person::name</span><span class="params">()</span> <span class="type">const</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> pImpl-&gt;<span class="built_in">name</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>Person的客户端完全与Date，Address以及Person的实现细目分开 ###
-抽象基类(abstract base class、Interface class)</li>
-<li>详细一一描述derived class的接口
-<ul>
-<li>一组pure virtual函数</li>
-</ul></li>
-<li>通常不带成员变量，也没有构造函数</li>
-<li>只有一个virtual析构函数(见条款7) <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Person</span>();</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> std::string <span class="title">name</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> std::string <span class="title">birthDate</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> std::string <span class="title">address</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>客户必须以Person的pointers和references来撰写应用程序
-<ul>
-<li>除非Interface class修改，否则不用编译</li>
-</ul></li>
-<li>客户必须有办法为这种class创建新对象
-<ul>
-<li>工厂函数
-<ul>
-<li>返回指针指向动态分配所得的对象</li>
-<li>往往在Interface class中声明为static <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">static</span> std::shared_ptr&lt;Person&gt; <span class="title">create</span><span class="params">(<span class="type">const</span> std::string&amp; name, </span></span></span><br><span class="line"><span class="params"><span class="function">                                          <span class="type">const</span> Date&amp; birthday, </span></span></span><br><span class="line"><span class="params"><span class="function">                                          <span class="type">const</span> Address&amp; addr)</span></span>; <span class="comment">// why shared_ptr;见条款18</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 客户如此使用</span></span><br><span class="line">std::string; name, </span><br><span class="line">Date dateodBirth, </span><br><span class="line">Address address;</span><br><span class="line">...</span><br><span class="line"><span class="function">std::shared_ptr&lt;Person&gt; <span class="title">pp</span><span class="params">(Person::create(name, dateodBirth, address))</span></span>;</span><br><span class="line">...</span><br><span class="line">std::cout &lt;&lt; pp-&gt;<span class="built_in">name</span>() &lt;&lt; std::endl;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
-</ul></li>
-</ul></li>
-<li>当然，支持Interface
-class接口的那个具象类(<code>concrete class</code>)必须被定义出来
-<ul>
-<li>一切都在virtual构造函数的实现码所在文件内秘密发生 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">RealPerson</span> : <span class="keyword">public</span> Person &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">RealPerson</span>(<span class="type">const</span> std::string&amp; name, <span class="type">const</span> Date&amp; birthday, <span class="type">const</span> Address&amp; addr)</span><br><span class="line">        : <span class="built_in">theName</span>(name), <span class="built_in">theBirthDate</span>(birthday), <span class="built_in">theAddress</span>(addr)</span><br><span class="line">        &#123;&#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">RealPerson</span>() &#123;&#125;</span><br><span class="line">    <span class="function">std::string <span class="title">name</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">birthDate</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">address</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::string theName;    </span><br><span class="line">    Date theBirthDate;      </span><br><span class="line">    Address theAddress;     </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> std::shared_ptr&lt;Person&gt; <span class="title">Person::create</span><span class="params">(<span class="type">const</span> std::string&amp; name, </span></span></span><br><span class="line"><span class="params"><span class="function">                                              <span class="type">const</span> Date&amp; birthday, </span></span></span><br><span class="line"><span class="params"><span class="function">                                              <span class="type">const</span> Address&amp; addr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">shared_ptr</span>&lt;Person&gt;(<span class="keyword">new</span> <span class="built_in">RealPerson</span>(name, dateodBirth, addr));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>更现实的Person::create实现代码会创建不同的derived class ### 开销
-#### Handle classes</li>
-</ul></li>
-</ul>
-<ol type="1">
-<li>成员函数必须通过implementation pointer取得对象数据，
-<ul>
-<li>每次访问增加一次间接性</li>
-</ul></li>
-<li>每个对象的内存消耗多一个implementation pointer的大小</li>
-<li>implementation pointer必须初始化，指向动态分配的implementation内存
-<ul>
-<li>涉及到动态分配 #### Interface class</li>
-</ul></li>
-<li>virtual函数带来间接跳跃(见条款7)</li>
-<li>派生类对象有一个vptr(见条款7) ### 本质</li>
-</ol>
-<ul>
-<li>声明的依存性 替换 定义的依存性</li>
-<li>尽量让头文件自我满足，做不到则让它与其他头文件内的声明式而非定义式相依
-## 方法 ### 如果使用object
-reference/pointer可以完成任务，就不要使用object</li>
-<li>前者仅需声明，后者需要定义 ###
-如果能够，尽量用class声明式替换class定义式</li>
-<li>注意，当声明一个函数而它用到某个class的定义时，并不需要该class的定义
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span>;                         <span class="comment">// class声明式</span></span><br><span class="line"><span class="function">Date <span class="title">today</span><span class="params">()</span></span>;                       <span class="comment">// 没问题，这里并不需要Date的定义式</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">clearAppointments</span><span class="params">(Date d)</span></span>;</span><br></pre></td></tr></table></figure> ### 为声明式和定义式提供不同的头文件</li>
-<li>程序库客户应该总是#include一个声明文件而非前置声明若干class或函数
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;datafw.h&quot;</span>  <span class="comment">// 这个头文件内声明单未定义class Date</span></span></span><br><span class="line"><span class="function">Date <span class="title">today</span><span class="params">()</span></span>;                      </span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">clearAppointments</span><span class="params">(Date d)</span></span>;</span><br></pre></td></tr></table></figure></li>
-<li>只含声明式的头文件名为"datefw.h",命名方式取法C++标准库的<iosfwd>
-<ul>
-<li><iosfwd>内含iostream各组件的声明式，其定义则分布在相应的头文件，包括<sstream>,<streambuf>,<fstream>,<iostream></li>
-</ul></li>
-<li>此方法同样适用于template
-<ul>
-<li>export关键字同样可以，但很少使用</li>
-</ul></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/" class="post-title-link" itemprop="url">ARM64汇编</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-11-15 22:28:50" itemprop="dateCreated datePublished" datetime="2022-11-15T22:28:50+08:00">2022-11-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:18" itemprop="dateModified" datetime="2023-07-30T18:15:18+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="寄存器">寄存器</h1>
-<ul>
-<li>在arm64架构下，所有的寄存器都是64位，并且每个寄存器都有名字的，按照功能来划分，可分为一下几类，分别为：
-<ol type="1">
-<li>通用寄存器</li>
-<li>程序计数器</li>
-<li>堆栈指针</li>
-<li>链接寄存器</li>
-<li>程序状态寄存器</li>
-<li>零寄存器</li>
-</ol></li>
-<li>下面分别说明这些寄存器的作用</li>
-</ul>
-<h2 id="通用寄存器">通用寄存器</h2>
-<ul>
-<li>64bit : x0 ~ x28 ，每个寄存器都是64bit</li>
-<li>32bit：w0 ~ w28，实际上是x0~x28寄存器的低32bit</li>
-<li>x0~x7：通过用来存储函数的参数，如果函数有更多的参数使用堆栈来传递</li>
-<li>x0：通常用来存放函数的返回值</li>
-</ul>
-<h2 id="程序计数器">程序计数器</h2>
-<ul>
-<li>程序计数器叫<code>Program Counter</code>，俗称<code>PC</code>，也就是<code>x32</code>寄存器，存储着CPU当前正在执行的地址。</li>
-</ul>
-<h2 id="堆栈指针">堆栈指针</h2>
-<ul>
-<li><code>SP</code>
-(<code>Stack Pointer</code>)，就是<code>x31</code>寄存器，存储的是栈顶的地址</li>
-<li><code>FP</code>
-(<code>Frame Pointer</code>)，<code>FP</code>也就是<code>x29</code>寄存器，存储着栈底的地址</li>
-<li>随着函数的调用，<code>SP</code>、<code>FP</code>会不断的变化。</li>
-</ul>
-<h2 id="链接寄存器">链接寄存器</h2>
-<p><code>LR</code>（<code>Link Register</code>），也就是<code>x30</code>寄存器，存储着函数的返回地址。
--
-当函数结束时，就是通过LR寄存器的值，跳转到调用函数的位置继续往下执行。</p>
-<h2 id="程序状态寄存器">程序状态寄存器</h2>
-<ul>
-<li><code>CPSR</code>
-(<code>Current Program Status Register</code>)</li>
-<li><code>SPSR</code>
-(<code>Saved Program Status Register</code>)，在异常状态下使用，当发生异常时，会把<code>CPSR</code>的内容写入<code>SPSR</code>,
-等异常恢复之后，又会把<code>SPSR</code>写会到<code>CPSR</code>中。</li>
-</ul>
-<p>零寄存器 WZR XZR 里面存储的值都是0。</p>
-<p>常用指令 算术运算指令 mov 赋值指令</p>
-<p>mov x0, #2 // 把2这个值赋值给x0寄存器 mov x0, x1 //
-把x1寄存器中的值赋值给x0寄存器中 add
-两个操作数相加，相加的结果存放到一个寄存器中</p>
-<p>add, x2, x0, x1 //把x0的值与x1的值相加，得到的结果存放到x2寄存器中
-add, x2, x0, #3 // 把x0的值与3相加，得到的结果存放到x2寄存器中 sub
-第一个操作数减第一个操作数，得到的结果存放到一个寄存器中</p>
-<p>sub, x2, x1, x0 //
-x1的值减去x0的值，得到的结果存放到<em>x2</em>寄存器中 sub, x2, x1, #4 //
-x1的值减去4，得到的结果存放到x2寄存器中 mul 乘法指令</p>
-<p>mul x3, x1, x2 // x1 乘以 x2 的结果存放在 x3 中 sdiv 除法指令</p>
-<p>sdiv w0, w0, w1 // w0 除以 w1 的结果存放在 w0 中 逻辑运算指令
-这里的运算是指位运算</p>
-<p>LSL 逻辑左移 按操作数所指定的数量向左移位，低位用零来填充 ASL
-算术左移 通逻辑左移，ASL 与 LSL等价 lsl x0, x0, #1 asl x1, x1, x0 LSR
-逻辑右移 按操作数所指定的数量向右移位，左端用零来填充。</p>
-<p>ASR 算术右移 按操作数所指定的数量向右移位，左端用最高位位的值来填充
-，如果是负数，最高位为1</p>
-<p>lsr w1, w2, #1 asr x1, x2, #2 ROR 循环右移
-按操作数所指定的数量向右循环移位，
-左端用右端移出的位来填充。其中，操作数可以是通用寄存器，也可以是立即数。
-当进行寄存器bit位数的循环右移操作时，通用寄存器中的值不改变。 ror x0, #6
-ror w0, #32 // 循环移动了32位，w0的值不变 跳转指令 ret
-相当于高级编程语言的return，函数返回。</p>
-<p>cmp 将两个操作数相减，相减的结果会影响cpsr
-寄存器的标志位，当结果小于0时，CPSR寄存器的N位为1， 等于0时，
-CPSR寄存器的Z为位1。 cmp x0, x1</p>
-<p>b
-跳转指令，跳转找指定的标记处执行；可以带条件跳转，一般跟cmp配合使用，使用到的条件域如下：</p>
-<p>EQ：equal NE：not equal GT：great than GE：great equal LT：less than
-LE：less equal 普通跳转 b testCode，testCode是汇编代码中的一个标记</p>
-<p>条件跳转，当x0和x1的值相等时，才跳转到testCode标记处执行代码</p>
-<p>cmp x0, x1 beq testCode bl
-带返回值的跳转指令，这个指令会做两个操作</p>
-<p>将下一条指令的地址存储到lr （x30）寄存器中 跳转到标记处开始执行代码
-bl
-testCode，当执行完testCode标记处代码后，又会返回来执行bl指令下面的指令。
-内存操作 load从内存中读取数据</p>
-<p>ldr 地址没有偏移或者偏移为正数时使用 ldur 地址偏移为负数时使用 a) str
-x5 [x0] x0中是内存的地址，读取的值存放在x5寄存器中, x寄存器读取8个字节
-b）str w6 [x0] x0中是内存的地址，读取的值存放在w5寄存器中,
-w寄存器读取4个字节 说明: 地址还可以偏移 str x5 [x0, #0x4] , stur x5 [x0,
-#-0x4] ,
-偏移量为正数往高地址偏移，使用str指令、偏移量为负数往低地址偏移，使用stur指令。</p>
-<p>ldp 从指定内存中读取数据到一对寄存器中， p 是
-pair的意思，这一对寄存器必须是同类型的，要么x类型,
-要么w类型。其中低位读取到第一个寄存器、高位读取到第二个寄存器 ldp w5,
-w6, [x0] , 地址可以偏移 ldp x5, x6, [x0, #-x04] store
-往指定的内存写入数据</p>
-<p>str str x1, [x0] str w2, [x1] str w3, [x1, #4] stur stur x3, [x0,
-#-4] stur w2, [x1, #-4] stp stp x2, x3, [x0] stp w4, w5, [x0]
-使用方法与从内存中读取数据类似，只不过是往内存写入数据。</p>
-<p>总结
-本文整理了一些在逆向iOS程序时常见的一些汇编指令，当然在实际逆向的过程所看到的汇编指令更加复杂，比如还有函数调用栈，这是下篇的内容。如有错误请指正。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/11/15/Effective%20C++(5)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
-      <meta itemprop="name" content="Yuhang Zhang">
-      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ZYHJY">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/zyhjy/2022/11/15/Effective%20C++(5)/" class="post-title-link" itemprop="url">Effective C++(5)--实现</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-11-15 10:28:50" itemprop="dateCreated datePublished" datetime="2022-11-15T10:28:50+08:00">2022-11-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-07-30 18:15:32" itemprop="dateModified" datetime="2023-07-30T18:15:32+08:00">2023-07-30</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/zyhjy/categories/c/" itemprop="url" rel="index"><span itemprop="name">c++</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>6.8k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>11 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="条款26-尽量延后变量定义式出现的时间">条款26
-尽量延后变量定义式出现的时间</h1>
-<h2 id="循环">循环</h2>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方法A 定义于循环外</span></span><br><span class="line">Widget w;</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">    w = 取决于某个i的值;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方法B 定义于循环内</span></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">    <span class="function">Widget <span class="title">w</span><span class="params">(取决于某个i的值)</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="分析">分析</h3>
-<ul>
-<li>做法A
-<ul>
-<li>1个构造函数 + 1个析构函数 + n个赋值操作</li>
-</ul></li>
-<li>做法B
-<ul>
-<li>n个构造函数 + n个析构函数</li>
-</ul></li>
-<li>当classes的一个赋值成本低于一组构造+析构成本，做法A大体而言比较高效</li>
-<li>此外A造成w的作用域比B更大，会对易维护性造成冲突 ### 结论</li>
-<li>当满足以下两点时使用方法A，否则使用方法B
-<ol type="1">
-<li>赋值成本低于构造+析构</li>
-<li>代码对效率高度敏感</li>
-</ol></li>
-</ul>
-<h1 id="条款27-尽量少做转型动作">条款27 尽量少做转型动作</h1>
-<ul>
-<li>C++规则的设计目标之一:
-<ul>
-<li>保证<em>类型错误</em>绝不可能发生</li>
-</ul></li>
-<li>C风格转型/旧式转型 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(T)<span class="function">expression</span></span><br><span class="line"><span class="function"><span class="title">T</span><span class="params">(expression)</span> <span class="comment">/// 二者等价，将expression转型为T类型</span></span></span><br></pre></td></tr></table></figure></li>
-<li>新式转型(<em>C++-style casts</em>) <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">const_cast</span>&lt;T&gt;( expression )         </span><br><span class="line"><span class="built_in">dynamic_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="built_in">reinterpret_cast</span>&lt;T&gt;( expression )</span><br><span class="line"><span class="built_in">static_cast</span>&lt;T&gt;( expression )</span><br></pre></td></tr></table></figure> ###
-新式转型更受欢迎:</li>
-</ul>
-<ol type="1">
-<li>易辨识</li>
-<li>转型动作的目标越窄化，编译器越可能诊断出错误的运用 ###
-唯一使用旧式转型的时机</li>
-</ol>
-<ul>
-<li>调用一个explicit构造函数将一个对象传递给一个函数 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Widget</span><span class="params">(<span class="type">int</span> size)</span></span>; </span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">doSomeWork</span><span class="params">(<span class="type">const</span> Widget&amp; w)</span></span>;</span><br><span class="line"><span class="built_in">doSomeWork</span>(<span class="built_in">Widget</span>(<span class="number">15</span>));</span><br><span class="line"><span class="built_in">doSomeWork</span>(<span class="built_in">static_cast</span>&lt;Widget&gt;(<span class="number">15</span>));</span><br></pre></td></tr></table></figure> ##
-const_cast</li>
-<li>常量性转除</li>
-<li>唯一有此功能的新式转型 ## dynamic_cast</li>
-<li>安全向下转型(safe downcasting)</li>
-<li>唯一无法由旧式语法执行的动作</li>
-<li>唯一可能耗费重大运行成本的转型动作 ### 实现(一个普遍的版本)</li>
-<li>基于class名称的字符串比较
-<ul>
-<li>调用strcmp</li>
-<li>深度、多重继承体系成本更高 ## reinterpret_cast</li>
-</ul></li>
-<li>执行低级转型</li>
-<li>不可移植
-<ul>
-<li>实际动作及结果取决于编译器</li>
-<li>如将<code>pointer to int</code>转化为<code>int</code> ##
-static_cast</li>
-</ul></li>
-<li>强迫隐式转换(implicit conversion)
-<ul>
-<li>non-const --&gt; const</li>
-<li>void* --&gt; typed*</li>
-<li>pointer-to-base --&gt; pointer-to-derived ##
-转型往往真的令编译器编译出运行期执行的码</li>
-</ul></li>
-<li>不只是告诉编译器将某种类型视为另一种类型 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x, y;</span><br><span class="line">...</span><br><span class="line"><span class="type">double</span> d = <span class="built_in">static_cast</span>&lt;<span class="type">double</span>&gt;(x) / y;</span><br></pre></td></tr></table></figure></li>
-<li>将int转型为double几乎肯定会产生代码
-<ul>
-<li>在大部分计算机体系结构中，int的底层表述不同于double
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123; ... &#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base &#123; ... &#125;;</span><br><span class="line">Derived d;</span><br><span class="line">Base* pb = &amp;d; <span class="comment">/// 隐喻地将Derived*转换为Base*</span></span><br></pre></td></tr></table></figure></li>
-</ul></li>
-<li>同一个对象的Derived指针与Base指针值可能并不相同
-<ul>
-<li>与编译器如何实现有关</li>
-<li>有时候存在一个偏移量</li>
-<li>运行时会计算偏移量以转型</li>
-<li>多重继承中几乎必然发生，单一继承中可能发生</li>
-</ul></li>
-<li>避免做出“对象在C++中如何布局”的假设</li>
-</ul>
-<h1 id="条款28-避免返回handles指向对象内部分">条款28
-避免返回handles指向对象内部分</h1>
-<h1 id="条款29-strive-for-exception-safe-code.">条款29 Strive for
-exception-safe code.</h1>
-<ul>
-<li>不泄露任何资源</li>
-<li>不允许数据败坏 ## 异常安全函数提供以下三个保证之一:</li>
-</ul>
-<ol type="1">
-<li>基本承诺:
-<ul>
-<li>异常抛出时，程序内的任何事物仍然保持在有效状态下。</li>
-<li>但在哪个有效状态不可预料</li>
-</ul></li>
-<li>强烈保证:
-<ul>
-<li>异常抛出时，程序状态不改变。</li>
-<li>成功 --&gt; 完全成功</li>
-<li>失败 --&gt; 回复到</li>
-<li>往往以copy-and-swap实现</li>
-<li>并非对所有函数都可实现或具备意义</li>
-</ul></li>
-<li>不抛掷(nothrow)保证:
-<ul>
-<li>承诺绝不抛出异常</li>
-<li>内置类型的操作均遵守</li>
-</ul></li>
-</ol>
-<h1 id="条款30-透彻了解inline的里里外外">条款30
-透彻了解inline的里里外外</h1>
-<h2 id="inline">inline</h2>
-<h3 id="优点">优点</h3>
-<ul>
-<li>免除函数调用成本</li>
-<li>编译器最优化机制通常用于浓缩“不含函数调用的代码” ### 缺点</li>
-<li>增加<code>object code</code>的大小
-<ul>
-<li>可能导致额外的的换页</li>
-<li>降低cache命中率 ## inline是对编译器的一个申请，不是强制命令</li>
-</ul></li>
-<li>编译器拒绝inline复杂函数
-<ul>
-<li>如递归、循环、virtual(运行期决定)</li>
-</ul></li>
-<li>编译器无法inline将给出告警 ### 隐式申请</li>
-<li>将函数定义为class定义式内 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">age</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> theAge; &#125; <span class="comment">// 一个隐喻的inline申请</span></span><br><span class="line">    ...                                <span class="comment">// age被定义与class定义式内</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> theAge;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>这样的函数通常是成员函数，但是friend函数也可定义与class内(见 条款46)
-### 显式申请</li>
-<li>在定义式前加上关键字inline <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// &lt;algorithm&gt;</span></span><br><span class="line"><span class="keyword">namespace</span> std &#123;</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function">    <span class="keyword">inline</span> <span class="type">const</span> T&amp; <span class="title">max</span><span class="params">(<span class="type">const</span> T&amp; a, <span class="type">const</span> T&amp; b)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a &lt; b ? a : b;</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> ##
-inline函数通常被置于头文件内</li>
-<li>编译期进行inline</li>
-<li>方便编译器将函数调用替换为函数本体</li>
-<li>template的具现化与inline无关
-<ul>
-<li>通常被置于头文件内，方便编译器具现化 ##
-有时即便编译器inline某个函数，可能还是为该函数生成一个函数本体</li>
-</ul></li>
-<li>例如要取某个inline函数的地址时</li>
-<li>编译器不对通过函数指针进行的调用实施inline <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="type">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;...&#125;</span><br><span class="line"><span class="built_in">void</span> ( *pf ) = f;</span><br><span class="line">...</span><br><span class="line"><span class="built_in">f</span>();        <span class="comment">// inline</span></span><br><span class="line"><span class="built_in">pf</span>();       <span class="comment">// outline</span></span><br></pre></td></tr></table></figure></li>
-<li>编译器有时会自动生成inline函数的ouline副本
-<ul>
-<li>比如生成构造和析构函数的副本，这样在array中可使用函数指针进行构造和析构
-## 构造函数和析构函数时inline糟糕的候选人 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::srting bm1, bm2;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span>: <span class="keyword">public</span> Base &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Derived</span>() &#123; &#125;;</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::srting dm1, dm2, dm3;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-</ul></li>
-<li>看起来构造函数和析构函数没有什么代码量，但其实不然</li>
-<li>例如，一种可能的编译器实现: <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Derived::<span class="built_in">Derived</span>() &#123;</span><br><span class="line">    Base::<span class="built_in">Base</span>();</span><br><span class="line">    <span class="keyword">try</span> &#123; dm1.std::string::<span class="built_in">string</span>(); &#125;</span><br><span class="line">    <span class="built_in">catch</span> (...) &#123; </span><br><span class="line">        Base::~<span class="built_in">Base</span>();</span><br><span class="line">        <span class="keyword">throw</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">try</span> &#123; dm2.std::string::<span class="built_in">string</span>(); &#125;</span><br><span class="line">    <span class="built_in">catch</span> (...) &#123; </span><br><span class="line">        Base::~<span class="built_in">Base</span>();</span><br><span class="line">        <span class="keyword">throw</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">try</span> &#123; dm3.std::string::<span class="built_in">string</span>(); &#125;</span><br><span class="line">    <span class="built_in">catch</span> (...) &#123; </span><br><span class="line">        Base::~<span class="built_in">Base</span>();</span><br><span class="line">        <span class="keyword">throw</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h1 id="条款31-将文件间的编译依存关系降至最低">条款31
-将文件间的编译依存关系降至最低</h1>
-<h2 id="编译依存关系">编译依存关系</h2>
-<ul>
-<li>class的定义式不只详细描述了class接口，还包括十足的实现细目
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">const</span> std::string&amp; name. <span class="type">const</span> Date&amp; birthday, <span class="type">const</span> Address&amp; addr);</span><br><span class="line">    <span class="function">std::string <span class="title">name</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">birthDate</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">address</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::string theName;    <span class="comment">/// 实现细目</span></span><br><span class="line">    Date theBirthDate;      <span class="comment">/// 实现细目</span></span><br><span class="line">    Address theAddress;     <span class="comment">/// 实现细目</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>C++将实现细目置于定义式中
-<ul>
-<li>编译器需要根据定义式确定分配多大空间</li>
-</ul></li>
-<li>Person若要通过编译，需要classes string，Date，Address的定义式
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;date.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;address.h&quot;</span></span></span><br></pre></td></tr></table></figure></li>
-<li>但是，如此一来，Person定义文件和其含入文件形成了编译依存关系
-<ul>
-<li>如果这些头文件有一个被改变，或者这些头文件所依赖的其他文件有任何改变，那么每一个含入和使用Person
-class的文件也必须重新编译 ## 编译依存性最小化 -- 接口与实现分离</li>
-</ul></li>
-<li>通过Handle classes和Interface
-classes解除了接口和实现之间的耦合，降低了文件之间的编译依存性 ### pimpl
-idiom -- <code>Handle class</code> <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span>   <span class="comment">// 标准程序组件不该被前置声明</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span>   <span class="comment">// for shared_ptr</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PresonImpl</span>;   <span class="comment">// Person实现类的前置声明</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span>;         <span class="comment">// Person接口用到的classes的前置声明</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Address</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Person</span>(<span class="type">const</span> std::string&amp; name, <span class="type">const</span> Date&amp; birthday, <span class="type">const</span> Address&amp; addr);</span><br><span class="line">    <span class="function">std::string <span class="title">name</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">birthDate</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">address</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    ...</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::shared_ptr&lt;PresonImpl&gt; pImpl_;</span><br><span class="line">&#125;;</span><br><span class="line">Person::<span class="built_in">Person</span>(<span class="type">const</span> std::string&amp; name, <span class="type">const</span> Date&amp; birthday, <span class="type">const</span> Address&amp; addr)</span><br><span class="line">    : <span class="built_in">pImpl</span>(<span class="keyword">new</span> <span class="built_in">PresonImpl</span>(name, birthday, addr))</span><br><span class="line">    &#123;&#125;</span><br><span class="line"><span class="function">std::string <span class="title">Person::name</span><span class="params">()</span> <span class="type">const</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> pImpl-&gt;<span class="built_in">name</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>Person的客户端完全与Date，Address以及Person的实现细目分开 ###
-抽象基类(abstract base class、Interface class)</li>
-<li>详细一一描述derived class的接口
-<ul>
-<li>一组pure virtual函数</li>
-</ul></li>
-<li>通常不带成员变量，也没有构造函数</li>
-<li>只有一个virtual析构函数(见条款7) <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Person</span>();</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> std::string <span class="title">name</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> std::string <span class="title">birthDate</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> std::string <span class="title">address</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>客户必须以Person的pointers和references来撰写应用程序
-<ul>
-<li>除非Interface class修改，否则不用编译</li>
-</ul></li>
-<li>客户必须有办法为这种class创建新对象
-<ul>
-<li>工厂函数
-<ul>
-<li>返回指针指向动态分配所得的对象</li>
-<li>往往在Interface class中声明为static <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="type">static</span> std::shared_ptr&lt;Person&gt; <span class="title">create</span><span class="params">(<span class="type">const</span> std::string&amp; name, </span></span></span><br><span class="line"><span class="params"><span class="function">                                          <span class="type">const</span> Date&amp; birthday, </span></span></span><br><span class="line"><span class="params"><span class="function">                                          <span class="type">const</span> Address&amp; addr)</span></span>; <span class="comment">// why shared_ptr;见条款18</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 客户如此使用</span></span><br><span class="line">std::string; name, </span><br><span class="line">Date dateodBirth, </span><br><span class="line">Address address;</span><br><span class="line">...</span><br><span class="line"><span class="function">std::shared_ptr&lt;Person&gt; <span class="title">pp</span><span class="params">(Person::create(name, dateodBirth, address))</span></span>;</span><br><span class="line">...</span><br><span class="line">std::cout &lt;&lt; pp-&gt;<span class="built_in">name</span>() &lt;&lt; std::endl;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
-</ul></li>
-</ul></li>
-<li>当然，支持Interface
-class接口的那个具象类(<code>concrete class</code>)必须被定义出来
-<ul>
-<li>一切都在virtual构造函数的实现码所在文件内秘密发生 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">RealPerson</span> : <span class="keyword">public</span> Person &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">RealPerson</span>(<span class="type">const</span> std::string&amp; name, <span class="type">const</span> Date&amp; birthday, <span class="type">const</span> Address&amp; addr)</span><br><span class="line">        : <span class="built_in">theName</span>(name), <span class="built_in">theBirthDate</span>(birthday), <span class="built_in">theAddress</span>(addr)</span><br><span class="line">        &#123;&#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">RealPerson</span>() &#123;&#125;</span><br><span class="line">    <span class="function">std::string <span class="title">name</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">birthDate</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line">    <span class="function">std::string <span class="title">address</span><span class="params">()</span> <span class="type">const</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::string theName;    </span><br><span class="line">    Date theBirthDate;      </span><br><span class="line">    Address theAddress;     </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> std::shared_ptr&lt;Person&gt; <span class="title">Person::create</span><span class="params">(<span class="type">const</span> std::string&amp; name, </span></span></span><br><span class="line"><span class="params"><span class="function">                                              <span class="type">const</span> Date&amp; birthday, </span></span></span><br><span class="line"><span class="params"><span class="function">                                              <span class="type">const</span> Address&amp; addr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">shared_ptr</span>&lt;Person&gt;(<span class="keyword">new</span> <span class="built_in">RealPerson</span>(name, dateodBirth, addr));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>更现实的Person::create实现代码会创建不同的derived class ### 开销
-#### Handle classes</li>
-</ul></li>
-</ul>
-<ol type="1">
-<li>成员函数必须通过implementation pointer取得对象数据，
-<ul>
-<li>每次访问增加一次间接性</li>
-</ul></li>
-<li>每个对象的内存消耗多一个implementation pointer的大小</li>
-<li>implementation pointer必须初始化，指向动态分配的implementation内存
-<ul>
-<li>涉及到动态分配 #### Interface class</li>
-</ul></li>
-<li>virtual函数带来间接跳跃(见条款7)</li>
-<li>派生类对象有一个vptr(见条款7) ### 本质</li>
-</ol>
-<ul>
-<li>声明的依存性 替换 定义的依存性</li>
-<li>尽量让头文件自我满足，做不到则让它与其他头文件内的声明式而非定义式相依
-## 方法 ### 如果使用object
-reference/pointer可以完成任务，就不要使用object</li>
-<li>前者仅需声明，后者需要定义 ###
-如果能够，尽量用class声明式替换class定义式</li>
-<li>注意，当声明一个函数而它用到某个class的定义时，并不需要该class的定义
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Date</span>;                         <span class="comment">// class声明式</span></span><br><span class="line"><span class="function">Date <span class="title">today</span><span class="params">()</span></span>;                       <span class="comment">// 没问题，这里并不需要Date的定义式</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">clearAppointments</span><span class="params">(Date d)</span></span>;</span><br></pre></td></tr></table></figure> ### 为声明式和定义式提供不同的头文件</li>
-<li>程序库客户应该总是#include一个声明文件而非前置声明若干class或函数
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;datafw.h&quot;</span>  <span class="comment">// 这个头文件内声明单未定义class Date</span></span></span><br><span class="line"><span class="function">Date <span class="title">today</span><span class="params">()</span></span>;                      </span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">clearAppointments</span><span class="params">(Date d)</span></span>;</span><br></pre></td></tr></table></figure></li>
-<li>只含声明式的头文件名为"datefw.h",命名方式取法C++标准库的<iosfwd>
-<ul>
-<li><iosfwd>内含iostream各组件的声明式，其定义则分布在相应的头文件，包括<sstream>,<streambuf>,<fstream>,<iostream></li>
-</ul></li>
-<li>此方法同样适用于template
-<ul>
-<li>export关键字同样可以，但很少使用</li>
-</ul></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/zyhjy/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/zyhjy/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zyhjy/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/zyhjy/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/zyhjy/page/8/">8</a><a class="extend next" rel="next" href="/zyhjy/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/zyhjy/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/zyhjy/">1</a><span class="space">&hellip;</span><a class="page-number" href="/zyhjy/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/zyhjy/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/zyhjy/page/9/">9</a><a class="extend next" rel="next" href="/zyhjy/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -2625,20 +2946,20 @@ reference/pointer可以完成任务，就不要使用object</li>
       <div class="site-state-item site-state-posts">
           <a href="/zyhjy/archives/">
         
-          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-count">85</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/zyhjy/categories/">
           
-        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/zyhjy/tags/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -2668,7 +2989,7 @@ reference/pointer可以完成任务，就不要使用object</li>
 <div class="copyright">
   
   &copy; 2022 – 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -2677,12 +2998,12 @@ reference/pointer可以完成任务，就不要使用object</li>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">443k</span>
+    <span title="站点总字数">469k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">12:19</span>
+    <span title="站点阅读时长">13:02</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

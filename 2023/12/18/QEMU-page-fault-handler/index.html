@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
+  <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/zyhjy/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="缺页异常(Page Faults)属于ARM V8处理器的异常类型中的同步异常。当MMU走表时可能会产生若干种类型的MMU faults(有同步的也有异步的)，其中的同步异常，即缺页异常。 本文以QEMU全系统模拟AArch64的场景为例，介绍QEMU是如何处理缺页异常的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="QEMU中的缺页异常处理机制">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/12/18/QEMU-page-fault-handler/">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="缺页异常(Page Faults)属于ARM V8处理器的异常类型中的同步异常。当MMU走表时可能会产生若干种类型的MMU faults(有同步的也有异步的)，其中的同步异常，即缺页异常。 本文以QEMU全系统模拟AArch64的场景为例，介绍QEMU是如何处理缺页异常的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-12-18T12:33:02.000Z">
+<meta property="article:modified_time" content="2023-12-22T14:07:32.089Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="PPI">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/12/18/QEMU-page-fault-handler/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>QEMU中的缺页异常处理机制 | ZYHJY</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/zyhjy/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/zyhjy/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/zyhjy/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/zyhjy/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/zyhjy/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/12/18/QEMU-page-fault-handler/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          QEMU中的缺页异常处理机制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-12-18 20:33:02" itemprop="dateCreated datePublished" datetime="2023-12-18T20:33:02+08:00">2023-12-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-12-22 22:07:32" itemprop="dateModified" datetime="2023-12-22T22:07:32+08:00">2023-12-22</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>8.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>15 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>缺页异常(Page Faults)属于ARM
+V8处理器的异常类型中的同步异常。当MMU走表时可能会产生若干种类型的MMU
+faults(有同步的也有异步的)，其中的同步异常，即缺页异常。</p>
+<p>本文以QEMU全系统模拟<code>AArch64</code>的场景为例，介绍QEMU是如何处理缺页异常的。</p>
+<span id="more"></span>
+<h1 id="缺页异常的原因">0. 缺页异常的原因</h1>
+<p>如果虚拟地址是合法的，但MMU在地址翻译的过程中，发生了TLB
+Miss以及查找页表项失败，那么MMU将会产生缺页异常。</p>
+<p>造成缺页异常的原因有三种：</p>
+<ol type="1">
+<li>地址空间映射关系未建立
+<ul>
+<li>操作系统还没有对GVA所在的虚拟页分配相应的物理页。如malloc/mmap申请虚拟的地址空间并未分配实际物理页，首次访问触发缺页异常。</li>
+</ul></li>
+<li>地址空间映射关系已建立
+<ul>
+<li>要访问的虚拟页所对应的物理页已经从内存中被换出到磁盘中</li>
+</ul></li>
+<li>访问的地址空间不合法
+<ul>
+<li>非法操作访问越界、空指针解引用等都会出现缺页异常</li>
+</ul></li>
+</ol>
+<h1 id="缺页异常的产生">1. 缺页异常的产生</h1>
+<p>在QEMU全系统模拟下模拟Guest程序执行时，需要将Guest Virtual
+Address(GVA)翻译成Guest Physical
+Address(GPA)，这一过程对应的函数为<code>target/arm/helper.c::get_phys_addr</code>。</p>
+<p>在进行地址翻译时，MMU首先在TLB中查找是否存在GVA对应的entry，如有则地址翻译结束--这一过程被称为<strong>Fast
+Path</strong>。 如果TLB未命中，则会进行pagetable
+walk，即在页表中查询GVA对应的GPA--由于多级页表的访问往往伴随着多次的内存读取请求，页表查询的速度较TLB而言慢很多，因此这一过程被称为<strong>Slow
+Path</strong>。</p>
+<p>在<code>target/arm/helper.c::get_phys_addr</code>中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (regime_using_lpae_format(env, mmu_idx)) &#123;</span><br><span class="line">    <span class="keyword">return</span> get_phys_addr_lpae(env, address, access_type, mmu_idx, <span class="literal">false</span>,</span><br><span class="line">                              phys_ptr, attrs, prot, page_size,</span><br><span class="line">                              fi, cacheattrs);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>LPAE（Large Physical Address
+Extension）是ARM架构中的一种特性，用于支持更大的物理地址范围。</p>
+<p>在LPAE中，页表结构被扩展为多级结构，其中每一级都包含更多的页表项，用于映射更大的地址范围。特别是，LPAE中引入了64位的页表项，称为LPAE页表项（LPAE
+Page Table
+Entry）。这些页表项包含更多的位用于存储物理地址和其他控制信息。</p>
+<p>实际的Slow
+Path过程在函数<code>target/arm/helper.c::get_phys_addr_lpae</code>中完成。如果产生<code>ARMFault_Translation</code>，则说明出现缺页异常，相关错误信息记录在结构体<code>ARMMMUFaultInfo</code>中。</p>
+<h1 id="缺页异常的传递">2. 缺页异常的传递</h1>
+<p>在<code>target/arm/helper.c::do_ats_write</code>中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">ret = get_phys_addr(env, value, access_type, mmu_idx, &amp;phys_addr, &amp;attrs,</span><br><span class="line">                    &amp;prot, &amp;page_size, &amp;fi, &amp;cacheattrs);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (ret) &#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Some kinds of translation fault must cause exceptions rather</span></span><br><span class="line"><span class="comment">     * than being reported in the PAR.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">int</span> current_el = arm_current_el(env);</span><br><span class="line">    <span class="type">int</span> target_el;</span><br><span class="line">    <span class="type">uint32_t</span> syn, fsr, fsc;</span><br><span class="line">  </span><br><span class="line">  	...</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (take_exc) &#123;</span><br><span class="line">        <span class="comment">/* Construct FSR and FSC using same logic as arm_deliver_fault() */</span></span><br><span class="line">        ...</span><br><span class="line">          </span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * Report exception with ESR indicating a fault due to a</span></span><br><span class="line"><span class="comment">         * translation table walk for a cache maintenance instruction.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        syn = syn_data_abort_no_iss(current_el == target_el, <span class="number">0</span>,</span><br><span class="line">                                    fi.ea, <span class="number">1</span>, fi.s1ptw, <span class="number">1</span>, fsc);</span><br><span class="line">        env-&gt;exception.vaddress = value;</span><br><span class="line">        env-&gt;exception.fsr = fsr;</span><br><span class="line">        raise_exception(env, EXCP_DATA_ABORT, syn, target_el);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>根据地址翻译过程产生的错误信息为ESR(Error Syndrome
+Register)寄存器赋值，并抛出异常。</p>
+<p>在AArch64体系结构上，缺页异常并没有一个专门的异常号，而是与其他一些用户态同步异常共用一个异常号，即8号同步异常，操作系统需要根据ESR(Error
+Syndrome
+Register)寄存器中存储的信息来判断发生的异常是否为缺页异常，如果是，则从FAR_EL1寄存器中取出发生缺页异常时访问的虚拟地址。(在x86-64体系结构上，缺页异常会触发13号异常(#PF)，并且访问出错的虚拟地址会被放在CR2寄存器中)</p>
+<p>在<code>target/arm/op_helper.c::raise_exception</code>中会生成具体的syndrome，调用<code>cpu_loop_exit</code>推出QEM主循环。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">raise_exception</span><span class="params">(CPUARMState *env, <span class="type">uint32_t</span> excp,</span></span><br><span class="line"><span class="params">                     <span class="type">uint32_t</span> syndrome, <span class="type">uint32_t</span> target_el)</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">            syndrome = syn_uncategorized();</span><br><span class="line">  	...</span><br><span class="line">    cs-&gt;exception_index = excp;</span><br><span class="line">    env-&gt;exception.syndrome = syndrome;</span><br><span class="line">    env-&gt;exception.target_el = target_el;</span><br><span class="line">    cpu_loop_exit(cs);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>accel/tcg/cpu-exec-common.c::cpu_loop_exit</code>会引导程序跳转到预先设的label：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">siglongjmp(cpu-&gt;jmp_env, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>label在<code>accel/tcg/cpu-exec.c::cpu_exec</code>中设置：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (sigsetjmp(cpu-&gt;jmp_env, <span class="number">0</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* if an exception is pending, we execute it here */</span></span><br><span class="line"><span class="keyword">while</span> (!cpu_handle_exception(cpu, &amp;ret)) &#123;</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+<p>异常由函数<code>accel/tcg/cpu-exec.c::cpu_handle_exception</code>处理：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CPUClass *cc = CPU_GET_CLASS(cpu);</span><br><span class="line">      qemu_mutex_lock_iothread();</span><br><span class="line">      cc-&gt;tcg_ops-&gt;do_interrupt(cpu);</span><br><span class="line">      qemu_mutex_unlock_iothread();</span><br></pre></td></tr></table></figure>
+<p><code>do_interrupt</code>具体在<code>target/arm/cpu.c</code>被定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">TCGCPUOps</span> <span class="title">arm_tcg_ops</span> =</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">    .do_interrupt = arm_cpu_do_interrupt,</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>函数<code>arm_cpu_do_interrupt</code>定义在<code>target/arm/helper.c</code>，具体的操作则会转发给<code>arm_cpu_do_interrupt_aarch64</code>完成，下面是该函数的主要工作：</p>
+<ol type="1">
+<li>从<code>env</code>中获取目标异常级别<code>new_el</code>以及对应级别的向量基地址<code>addr</code>。</li>
+<li>根据目标异常级别和当前异常级别，确定是否需要切换到AArch64模式以及对应的向量偏移地址。根据不同的异常类型，对异常发生时的寄存器状态进行处理，包括设置<code>FAR</code>寄存器、修改<code>syndrome</code>寄存器、保存/恢复旧模式等。</li>
+<li>根据异常类型和目标异常级别，计算最终的向量地址<code>addr</code>。</li>
+<li>保存旧模式到对应的堆栈指针状态寄存器。根据处理后的异常级别和模式，更新PSTATE的值，设置AArch64模式标志，并恢复新EL的堆栈指针。</li>
+<li>将PC设置为计算得出的向量地址。</li>
+</ol>
+<p>总体而言，这段代码根据不同的异常类型和异常级别，进行了一系列的寄存器状态处理和模式切换，最终将PC设置为目标异常级别对应的缺页异常函数入口地址。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">arm_cpu_do_interrupt_aarch64</span><span class="params">(CPUState *cs)</span></span><br><span class="line">&#123;</span><br><span class="line">    ARMCPU *cpu = ARM_CPU(cs);</span><br><span class="line">    CPUARMState *env = &amp;cpu-&gt;env;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> new_el = env-&gt;exception.target_el;</span><br><span class="line">    target_ulong addr = env-&gt;cp15.vbar_el[new_el];</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> new_mode = aarch64_pstate_mode(new_el, <span class="literal">true</span>);</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> old_mode;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> cur_el = arm_current_el(env);</span><br><span class="line">    <span class="type">int</span> rt;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Note that new_el can never be 0.  If cur_el is 0, then</span></span><br><span class="line"><span class="comment">     * el0_a64 is is_a64(), else el0_a64 is ignored.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    aarch64_sve_change_el(env, cur_el, new_el, is_a64(env));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (cur_el &lt; new_el) &#123;</span><br><span class="line">        <span class="comment">/* Entry vector offset depends on whether the implemented EL</span></span><br><span class="line"><span class="comment">         * immediately lower than the target level is using AArch32 or AArch64</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">bool</span> is_aa64;</span><br><span class="line">        <span class="type">uint64_t</span> hcr;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">switch</span> (new_el) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">            is_aa64 = (env-&gt;cp15.scr_el3 &amp; SCR_RW) != <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">            hcr = arm_hcr_el2_eff(env);</span><br><span class="line">            <span class="keyword">if</span> ((hcr &amp; (HCR_E2H | HCR_TGE)) != (HCR_E2H | HCR_TGE)) &#123;</span><br><span class="line">                is_aa64 = (hcr &amp; HCR_RW) != <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">/* fall through */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">            is_aa64 = is_a64(env);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            g_assert_not_reached();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (is_aa64) &#123;</span><br><span class="line">            addr += <span class="number">0x400</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            addr += <span class="number">0x600</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (pstate_read(env) &amp; PSTATE_SP) &#123;</span><br><span class="line">        addr += <span class="number">0x200</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (cs-&gt;exception_index) &#123;</span><br><span class="line">    <span class="keyword">case</span> EXCP_PREFETCH_ABORT:</span><br><span class="line">    <span class="keyword">case</span> EXCP_DATA_ABORT:</span><br><span class="line">        env-&gt;cp15.far_el[new_el] = env-&gt;exception.vaddress;</span><br><span class="line">        qemu_log_mask(CPU_LOG_INT, <span class="string">&quot;...with FAR 0x%&quot;</span> PRIx64 <span class="string">&quot;\n&quot;</span>,</span><br><span class="line">                      env-&gt;cp15.far_el[new_el]);</span><br><span class="line">        <span class="comment">/* fall through */</span></span><br><span class="line">    <span class="keyword">case</span> EXCP_BKPT:</span><br><span class="line">    <span class="keyword">case</span> EXCP_UDEF:</span><br><span class="line">    <span class="keyword">case</span> EXCP_SWI:</span><br><span class="line">    <span class="keyword">case</span> EXCP_HVC:</span><br><span class="line">    <span class="keyword">case</span> EXCP_HYP_TRAP:</span><br><span class="line">    <span class="keyword">case</span> EXCP_SMC:</span><br><span class="line">        <span class="keyword">switch</span> (syn_get_ec(env-&gt;exception.syndrome)) &#123;</span><br><span class="line">        <span class="keyword">case</span> EC_ADVSIMDFPACCESSTRAP:</span><br><span class="line">            <span class="comment">/*</span></span><br><span class="line"><span class="comment">             * QEMU internal FP/SIMD syndromes from AArch32 include the</span></span><br><span class="line"><span class="comment">             * TA and coproc fields which are only exposed if the exception</span></span><br><span class="line"><span class="comment">             * is taken to AArch32 Hyp mode. Mask them out to get a valid</span></span><br><span class="line"><span class="comment">             * AArch64 format syndrome.</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            env-&gt;exception.syndrome &amp;= ~MAKE_64BIT_MASK(<span class="number">0</span>, <span class="number">20</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> EC_CP14RTTRAP:</span><br><span class="line">        <span class="keyword">case</span> EC_CP15RTTRAP:</span><br><span class="line">        <span class="keyword">case</span> EC_CP14DTTRAP:</span><br><span class="line">            <span class="comment">/*</span></span><br><span class="line"><span class="comment">             * For a trap on AArch32 MRC/MCR/LDC/STC the Rt field is currently</span></span><br><span class="line"><span class="comment">             * the raw register field from the insn; when taking this to</span></span><br><span class="line"><span class="comment">             * AArch64 we must convert it to the AArch64 view of the register</span></span><br><span class="line"><span class="comment">             * number. Notice that we read a 4-bit AArch32 register number and</span></span><br><span class="line"><span class="comment">             * write back a 5-bit AArch64 one.</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            rt = extract32(env-&gt;exception.syndrome, <span class="number">5</span>, <span class="number">4</span>);</span><br><span class="line">            rt = aarch64_regnum(env, rt);</span><br><span class="line">            env-&gt;exception.syndrome = deposit32(env-&gt;exception.syndrome,</span><br><span class="line">                                                <span class="number">5</span>, <span class="number">5</span>, rt);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> EC_CP15RRTTRAP:</span><br><span class="line">        <span class="keyword">case</span> EC_CP14RRTTRAP:</span><br><span class="line">            <span class="comment">/* Similarly for MRRC/MCRR traps for Rt and Rt2 fields */</span></span><br><span class="line">            rt = extract32(env-&gt;exception.syndrome, <span class="number">5</span>, <span class="number">4</span>);</span><br><span class="line">            rt = aarch64_regnum(env, rt);</span><br><span class="line">            env-&gt;exception.syndrome = deposit32(env-&gt;exception.syndrome,</span><br><span class="line">                                                <span class="number">5</span>, <span class="number">5</span>, rt);</span><br><span class="line">            rt = extract32(env-&gt;exception.syndrome, <span class="number">10</span>, <span class="number">4</span>);</span><br><span class="line">            rt = aarch64_regnum(env, rt);</span><br><span class="line">            env-&gt;exception.syndrome = deposit32(env-&gt;exception.syndrome,</span><br><span class="line">                                                <span class="number">10</span>, <span class="number">5</span>, rt);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        env-&gt;cp15.esr_el[new_el] = env-&gt;exception.syndrome;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> EXCP_IRQ:</span><br><span class="line">    <span class="keyword">case</span> EXCP_VIRQ:</span><br><span class="line">        addr += <span class="number">0x80</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> EXCP_FIQ:</span><br><span class="line">    <span class="keyword">case</span> EXCP_VFIQ:</span><br><span class="line">        addr += <span class="number">0x100</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        cpu_abort(cs, <span class="string">&quot;Unhandled exception 0x%x\n&quot;</span>, cs-&gt;exception_index);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (is_a64(env)) &#123;</span><br><span class="line">        old_mode = pstate_read(env);</span><br><span class="line">        aarch64_save_sp(env, arm_current_el(env));</span><br><span class="line">        env-&gt;elr_el[new_el] = env-&gt;pc;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        old_mode = cpsr_read_for_spsr_elx(env);</span><br><span class="line">        env-&gt;elr_el[new_el] = env-&gt;regs[<span class="number">15</span>];</span><br><span class="line"></span><br><span class="line">        aarch64_sync_32_to_64(env);</span><br><span class="line"></span><br><span class="line">        env-&gt;condexec_bits = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    env-&gt;banked_spsr[aarch64_banked_spsr_index(new_el)] = old_mode;</span><br><span class="line"></span><br><span class="line">    qemu_log_mask(CPU_LOG_INT, <span class="string">&quot;...with ELR 0x%&quot;</span> PRIx64 <span class="string">&quot;\n&quot;</span>,</span><br><span class="line">                  env-&gt;elr_el[new_el]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (cpu_isar_feature(aa64_pan, cpu)) &#123;</span><br><span class="line">        <span class="comment">/* The value of PSTATE.PAN is normally preserved, except when ... */</span></span><br><span class="line">        new_mode |= old_mode &amp; PSTATE_PAN;</span><br><span class="line">        <span class="keyword">switch</span> (new_el) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">            <span class="comment">/* ... the target is EL2 with HCR_EL2.&#123;E2H,TGE&#125; == &#x27;11&#x27; ...  */</span></span><br><span class="line">            <span class="keyword">if</span> ((arm_hcr_el2_eff(env) &amp; (HCR_E2H | HCR_TGE))</span><br><span class="line">                != (HCR_E2H | HCR_TGE)) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">/* fall through */</span></span><br><span class="line">        <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">            <span class="comment">/* ... the target is EL1 ... */</span></span><br><span class="line">            <span class="comment">/* ... and SCTLR_ELx.SPAN == 0, then set to 1.  */</span></span><br><span class="line">            <span class="keyword">if</span> ((env-&gt;cp15.sctlr_el[new_el] &amp; SCTLR_SPAN) == <span class="number">0</span>) &#123;</span><br><span class="line">                new_mode |= PSTATE_PAN;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (cpu_isar_feature(aa64_mte, cpu)) &#123;</span><br><span class="line">        new_mode |= PSTATE_TCO;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (cpu_isar_feature(aa64_ssbs, cpu)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (env-&gt;cp15.sctlr_el[new_el] &amp; SCTLR_DSSBS_64) &#123;</span><br><span class="line">            new_mode |= PSTATE_SSBS;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            new_mode &amp;= ~PSTATE_SSBS;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    pstate_write(env, PSTATE_DAIF | new_mode);</span><br><span class="line">    env-&gt;aarch64 = <span class="number">1</span>;</span><br><span class="line">    aarch64_restore_sp(env, new_el);</span><br><span class="line">    helper_rebuild_hflags_a64(env, new_el);</span><br><span class="line"></span><br><span class="line">    env-&gt;pc = addr;</span><br><span class="line"></span><br><span class="line">    qemu_log_mask(CPU_LOG_INT, <span class="string">&quot;...to EL%d PC 0x%&quot;</span> PRIx64 <span class="string">&quot; PSTATE 0x%x\n&quot;</span>,</span><br><span class="line">                  new_el, env-&gt;pc, pstate_read(env));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr />
+<p>PSTATE（Processor
+State）是ARM体系结构中的一个寄存器，用于存储和控制处理器的状态信息。PSTATE寄存器的位字段包含了处理器的执行状态、操作模式、中断使能、指令标志等重要信息。具体来说，PSTATE寄存器包含以下位字段：</p>
+<ul>
+<li>N（Negative）：表示最近一条指令的结果是否为负数。</li>
+<li>Z（Zero）：表示最近一条指令的结果是否为零。</li>
+<li>C（Carry）：表示最近一条指令的进位/借位结果。</li>
+<li>V（Overflow）：表示最近一条指令的溢出结果。</li>
+<li>EL（Exception Level）：表示当前的异常级别。</li>
+<li>SP（Stack
+Pointer）：表示当前使用的堆栈指针模式，用于选择使用哪个堆栈指针寄存器。</li>
+<li>DAIF（Disable Asynchronous Interrupts
+Flags）：控制异步中断的使能和禁用。</li>
+<li>PAN（Privileged Access Never）：用于控制特权访问的限制。</li>
+</ul>
+<p>通过修改PSTATE寄存器的不同位字段，可以控制处理器的执行状态、中断处理、异常处理、特权级别等。在异常处理过程中，PSTATE寄存器的值会被保存和恢复，以确保异常处理的正确性和一致性。。</p>
+<hr />
+<h1 id="缺页异常的处理">3. 缺页异常的处理</h1>
+<p>https://zhuanlan.zhihu.com/p/195580742</p>
+<p>todo：查看kernel源代码 找出page fault handler对应的系统指令</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yuhang Zhang
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2023/12/18/QEMU-page-fault-handler/" title="QEMU中的缺页异常处理机制">https://zyh-eric.gitee.io/zyhjy/2023/12/18/QEMU-page-fault-handler/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/zyhjy/tags/PPI/" rel="tag"><i class="fa fa-tag"></i> PPI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/12/14/senior-1-solutions/" rel="prev" title="1209强者挑战赛题解">
+      <i class="fa fa-chevron-left"></i> 1209强者挑战赛题解
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/zyhjy/2024/01/08/loadspy/" rel="next" title="(论文翻译)LoadSpy">
+      (论文翻译)LoadSpy <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <style>
+        #taboola-livere { display: none;}
+    </style>
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81ODg3Ni8zNTMzOA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%BA%E9%A1%B5%E5%BC%82%E5%B8%B8%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-text">0. 缺页异常的原因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%BA%E9%A1%B5%E5%BC%82%E5%B8%B8%E7%9A%84%E4%BA%A7%E7%94%9F"><span class="nav-text">1. 缺页异常的产生</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%BA%E9%A1%B5%E5%BC%82%E5%B8%B8%E7%9A%84%E4%BC%A0%E9%80%92"><span class="nav-text">2. 缺页异常的传递</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%BA%E9%A1%B5%E5%BC%82%E5%B8%B8%E7%9A%84%E5%A4%84%E7%90%86"><span class="nav-text">3. 缺页异常的处理</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/zyhjy/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/zyhjy/archives/">
+        
+          <span class="site-state-item-count">85</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/zyhjy/categories/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/zyhjy/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/zyhjy/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">469k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">13:02</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+
+<script src="/zyhjy/js/utils.js"></script>
+
+
+<script src="/zyhjy/js/schemes/pisces.js"></script>
+
+
+<script src="/zyhjy/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>

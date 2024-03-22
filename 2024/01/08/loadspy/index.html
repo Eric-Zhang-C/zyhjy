@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+<meta name="referrer" content="no-referrer">
+  <link rel="apple-touch-icon" sizes="180x180" href="/zyhjy/images/relativity128.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/zyhjy/images/relativity32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/zyhjy/images/relativity16.png">
+  <link rel="mask-icon" href="/zyhjy/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/zyhjy/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Comic Sans MS:300,300italic,400,400italic,700,700italic|Noto Serif SC:300,300italic,400,400italic,700,700italic|consolas:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/zyhjy/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/zyhjy/lib/pace/pace-theme-minimal.min.css">
+  <script src="/zyhjy/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Redundant Loads: A Software Inefficiency Indicator">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(论文翻译)LoadSpy">
+<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2024/01/08/loadspy/">
+<meta property="og:site_name" content="ZYHJY">
+<meta property="og:description" content="Redundant Loads: A Software Inefficiency Indicator">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-01-08T12:15:14.000Z">
+<meta property="article:modified_time" content="2024-01-10T07:02:28.698Z">
+<meta property="article:author" content="Yuhang Zhang">
+<meta property="article:tag" content="Paper">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2024/01/08/loadspy/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>(论文翻译)LoadSpy | ZYHJY</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J17VP3T2B4"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-J17VP3T2B4');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/zyhjy/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ZYHJY</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/zyhjy/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/zyhjy/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/zyhjy/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/zyhjy/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/zyhjy/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-solutions">
+
+    <a href="/zyhjy/solutions/" rel="section"><i class="fa fa-code fa-fw"></i>算法题解</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2024/01/08/loadspy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
+      <meta itemprop="name" content="Yuhang Zhang">
+      <meta itemprop="description" content="爱小雅，爱生活，爱物理!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZYHJY">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          (论文翻译)LoadSpy
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-01-08 20:15:14" itemprop="dateCreated datePublished" datetime="2024-01-08T20:15:14+08:00">2024-01-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-01-10 15:02:28" itemprop="dateModified" datetime="2024-01-10T15:02:28+08:00">2024-01-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/zyhjy/categories/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">性能分析</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>12 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="redundant-loads-a-software-inefficiency-indicator">Redundant
+Loads: A Software Inefficiency Indicator</h1>
+<span id="more"></span>
+<h2 id="loadspy-implementation">4. LOADSPY IMPLEMENTATION</h2>
+<p>LOADSPY使用Intel Pin
+[60]来拦截每个内存加载操作。该工具利用插桩技术获取指令中要访问的有效地址M、访问长度δ，并将这对数据提供给运行时分析程序。在本节的其余部分，我们将讨论LOADSPY如何分别识别时间和空间加载冗余。</p>
+<h3 id="a.-detecting-temporal-load-redundancy"><em>A. Detecting Temporal
+Load Redundancy</em></h3>
+<p>检测时间负载冗余需要两个信息：目标位置上的当前值<span
+class="math inline">\(v_{new}\)</span>以及相同位置上的上次加载值<span
+class="math inline">\(v_{old}\)</span>。运行时分析程序在执行原始程序的加载指令之前运行，获取内存范围[M：M
++ δ]上的当前值<span
+class="math inline">\(v_{new}\)</span>。LOADSPY使用影子内存S来维护相同位置上的上次加载值。S[M]保存程序在位置M上最近一次加载的值。LOADSPY利用基于页表的方案[6]高效管理其影子内存。在运行时，分析程序从<code>S[M：M + δ)</code>获取<span
+class="math inline">\(v_{old}\)</span>，从<code>[M：M + δ)</code>获取<span
+class="math inline">\(v_{new}\)</span>。如果<span
+class="math inline">\(v_{old}\)</span> = <span
+class="math inline">\(v_{new}\)</span>，LOADSPY记录一次<em>冗余</em>加载的实例。所有字节必须匹配才能将加载标记为冗余。直观地说，子读取大小(sub-ride-size)冗余对程序员来说是不可操作的。但需要注意的是，<span
+class="math inline">\(v_{old}\)</span>可能是由多次较短的读取、一次较长的读取或更常见的相同大小的单次读取生成的。如果不是冗余的，LOADSPY会使用新加载的值更新影子内存。此外，如果<span
+class="math inline">\(v_{old}\)</span> ≠ <span
+class="math inline">\(v_{new}\)</span>，LOADSPY记录一次<em>非冗余</em>加载的实例。
+LOADSPY允许近似计算，通过允许浮点（FP）操作生成的新值与先前的值<em>近似</em>匹配。如果两个值的差异在阈值范围内，LOADSPY认为它们近似相等，并记录一次冗余加载的实例。阈值是可调节的；我们在实验中使用了1%。因此，LOADSPY将加载冗余分解为<em>精确</em>和<em>近似</em>两种情况。
+LOADSPY将每个冗余加载实例（和非冗余加载实例）归因于两个操作中涉及的两个方面<span
+class="math inline">\(&lt;C_{old}, C_{new}&gt;\)</span>，其中<span
+class="math inline">\(C_{old}\)</span>是M上先前加载操作的调用上下文，<span
+class="math inline">\(C_{new}\)</span>是M上当前加载操作的调用上下文。</p>
+<p>下面的方程式计算执行中的时间负载冗余的比例：</p>
+<p><span
+class="math inline">\(\mathcal{R}_{prog}^{precise}=\frac{\sum_{i}^{}\sum_{j}^{}Redundant\
+non-FP\ bytes\ loaded\ in\ ⟨C_i,C_j⟩}{\sum_{i}^{}\sum_{j}^{}non-FP\
+bytes\ loaded\ in\ ⟨C_i,C_j⟩}\)</span></p>
+<p><span
+class="math inline">\(\mathcal{R}_{prog}^{approx}=\frac{\sum_{i}^{}\sum_{j}^{}Redundant\
+FP\ bytes\ loaded\ in\ ⟨C_i,C_j⟩}{\sum_{i}^{}\sum_{j}^{}FP\ bytes\
+loaded\ in\ ⟨C_i,C_j⟩}\)</span></p>
+<p>一对调用上下文之间的加载冗余由以下方程式给出：</p>
+<p><span class="math inline">\(\mathcal{R}_{&lt;C_{old},
+C_{new}&gt;}^{precise}=\frac{Redundant\ non-FP\ bytes\ loaded\ in\
+⟨C_{old}, C_{new}⟩}{\sum_{i}^{}\sum_{j}^{}non-FP\ bytes\ loaded\ in\
+⟨C_i,C_j⟩}\)</span></p>
+<p><span class="math inline">\(\mathcal{R}_{&lt;C_{old},
+C_{new}&gt;}^{approx}=\frac{Redundant\ FP\ bytes\ loaded\ in\ ⟨C_{old},
+C_{new}⟩}{\sum_{i}^{}\sum_{j}^{}FP\ bytes\ loaded\ in\
+⟨C_i,C_j⟩}\)</span></p>
+<p>这些指标有助于识别代码区域（调用上下文对）中观察到最高冗余量的地方。</p>
+<p><strong><em>获取指令的运行时调用上下文</em></strong>：将运行时统计信息归因于一个平坦的概要文件（只有指令指针）无法为开发人员提供完整的洞察力。例如，将冗余加载归因于常见的库函数（例如<code>strcmp</code>）并不能提供很多信息，因为在大型代码库中可以从多个位置调用<code>strcmp</code>；某些调用甚至对用户代码来说可能并不明显。详细的归因要求将概要文件关联到完整的调用上下文：<code>main():line-&gt;A():line-&gt;...-&gt;strcmp():line</code>。LOADSPY要求在每个加载操作上获取调用上下文，因为每个加载操作都可能是冗余的或非冗余的。LOADSPY使用CCTLib
+[61]，它将调用上下文作为调用上下文树（CCT）[62]高效地维护，包括通过<code>longjump</code>、尾调用和异常的复杂控制流程。调用上下文作为唯一的32位整数提供，并记录在影子内存中（除了上次加载的值）。</p>
+<h3 id="b.-detecting-spatial-load-redundancy"><em>B. Detecting Spatial
+Load Redundancy</em></h3>
+<p>对于数组和聚合对象，LOADSPY检查是否从同一对象的任何元素连续加载的两个加载（近似地）加载相同的值。例如，如果从数组a的连续两个加载，比如<code>a[i]</code>和<code>a[j]</code>，加载相同的值，LOADSPY将其标记为空间加载冗余的实例，并将其归因于相同的数据对象。
+为了方便检测空间加载冗余，LOADSPY在影子内存中维护了从地址范围到活动数据对象的映射。与每个数据对象<span
+class="math inline">\(\mathcal{O}\)</span>关联的是两个额外的信息：作为对<span
+class="math inline">\(\mathcal{O}\)</span>执行的前一个加载操作的结果加载的单例值<span
+class="math inline">\(v_{old}\)</span>，以及与对<span
+class="math inline">\(\mathcal{O}\)</span>执行的前一个加载操作相关联的调用上下文<span
+class="math inline">\(C_{old}\)</span>。在每次内存加载时，LOADSPY使用加载操作的有效地址在映射中查找它所属的数据对象。如果当前加载的值与之前对同一对象记录的值匹配，LOADSPY记录一次空间加载冗余的实例。冗余首先按层次地归因于所涉及的数据对象，然后归因于冗余中涉及的两个调用上下文。
+LOADSPY为空间冗余提供了类似的整体程序和每对冗余的度量标准。此外，LOADSPY使用以下方程计算每个数据对象的度量标准，其中<span
+class="math inline">\(\mathcal{O}\)</span>是一个数据对象。</p>
+<p><span
+class="math inline">\(\mathcal{R}_{\mathcal{O}}^{precise}=\frac{Redundant\
+non-FP\ bytes\ in\ object\ \mathcal{O}}{\sum_{i}^{}non-FP\ bytes\ in\
+object\ i}\)</span></p>
+<p><span
+class="math inline">\(\mathcal{R}_{\mathcal{O}}^{precise}=\frac{Redundant\
+FP\ bytes\ in\ object\ \mathcal{O}}{\sum_{i}^{}FP\ bytes\ in\ object\
+i}\)</span></p>
+<p><strong><em>在运行时获取数据对象的地址</em></strong>：LOADSPY监视静态和动态数据对象，但在空间冗余检测中忽略堆栈对象。在加载模块中分配的数据位于<code>.bss</code>段中，属于静态对象。每个静态对象在符号表中有一个命名条目，该条目通过与加载模块开头的偏移量标识对象的内存范围。静态对象的生存周期始于将包含它们的加载模块（可执行文件或动态库）加载到内存中，终止于卸载加载模块。LOADSPY拦截加载和卸载加载模块的过程，以监视静态数据对象的生命周期，并建立从对象的地址范围到相应数据对象的映射。
+动态对象通过<code>malloc</code>函数系列（<code>malloc</code>、<code>calloc</code>、<code>realloc</code>）和<code>mmap</code>[63]之一进行分配。动态对象的内存在<code>free</code>和<code>munmap</code>时回收。LOADSPY拦截这些函数以建立从对象的地址范围到相应数据对象的映射。在运行时查询一个地址会获得对应静态或动态对象的句柄。句柄是一个唯一标识符，表示静态对象的对象名称或动态对象的分配调用上下文。</p>
+<h3 id="c.-identifying-the-redundancy-scope"><em>C. Identifying the
+Redundancy Scope</em></h3>
+<p>当冗余发生在相同的调用上下文中，即<span
+class="math inline">\(C_{old}\)</span> = <span
+class="math inline">\(C_{new}\)</span>时，保证在冗余位置周围存在一个循环。然而，在嵌套循环的代码中，不清楚冗余是在内部循环的迭代之间发生还是在外部循环的迭代之间发生，或者是在两者之间的其他循环之间发生。因此，有必要指出包围冗余对的语法范围。</p>
+<p>我们通过一个名为<code>MASNUM-2.2</code>[65]的真实应用程序来说明范围的需要，如列表9左侧所示。LOADSPY发现91％的内存加载是冗余的，而贡献最大的是第6行。很容易推断，在内部<code>do</code>循环（第5行）的一个迭代中加载的<code>x(iii+1)</code>在下一个迭代中作为<code>x(iii)</code>再次加载。一个明显的优化是在内部<code>do</code>循环的迭代之间进行标量替换，以保留<code>x(iii+1)</code>（列表9右侧）。然而，这种优化并不能消除许多冗余加载。实际上，第1行的外部<code>do</code>循环重复搜索一个项目<code>xx</code>，而内部<code>do</code>循环执行线性搜索。结果是，内部循环在外部循环的两次迭代之间重复加载相同的一组元素。因此，加载冗余不仅存在于内部循环的迭代之间，还存在于外部循环的迭代之间。外部循环中的加载冗余突出了一个算法级别的低效性-重复的线性搜索。有了这个知识，我们可以用二分搜索替换线性搜索。更多细节请参见第VII-B节。</p>
+<figure>
+<img
+src="https://gitee.com/zyh-eric/mypics/raw/master/img/image-20240108210534420.png"
+alt="image-20240108210534420" />
+<figcaption aria-hidden="true">image-20240108210534420</figcaption>
+</figure>
+<p>为了帮助开发人员集中注意力在加载冗余发生的<em>范围</em>上，我们在LOADSPY中加入了<em>冗余范围</em>功能。我们用符号<span
+class="math inline">\(\mathcal{S}\)</span>表示冗余范围。在列表9中，冗余范围是<em>外部</em><code>do</code>循环。下面我们详细介绍如何计算冗余范围。</p>
+<p>我们首先扩展调用上下文以纳入循环信息。因此，加载操作的调用上下文如下所示：<span
+class="math inline">\(main() → loop_1 → f() → ... → loop_n →
+load_{old}\)</span>。此外，LOADSPY维护一个64位全局时间戳计数器<span
+class="math inline">\(\mathcal{T}\)</span>，在通过每个循环头部和每个加载操作时递增。因此，调用上下文快照可能如下所示：<span
+class="math inline">\(C_{old} = main() → loop_1[\mathcal{T} = 1] → f() →
+... → loop_n[\mathcal{T} = 9] →
+load_{old}\)</span>。我们将调用上下文E扩展为一个元组，即<span
+class="math inline">\(E_{old} = ⟨指向旧上下文的指针,\mathcal{T}_{old}⟩ =
+⟨C_{old},10⟩\)</span>。</p>
+<p>列表10显示了一个简化的示例，其中冗余发生在内部循环（范围为<span
+class="math inline">\(loop_2\)</span>）。在这种情况下，考虑以下一对调用上下文快照：
+<span class="math inline">\(E_{old} = ⟨main() → loop_1[\mathcal{T} = 1]
+→ loop_2[\mathcal{T} = 2] → load_{old},\mathcal{T}_{old} =
+3⟩\)</span></p>
+<p><span class="math inline">\(E_{new} = ⟨main() → loop_1[\mathcal{T} =
+1] → loop_2[\mathcal{T} = 4] → load_{new},\mathcal{T}_{new} =
+5⟩\)</span></p>
+<p>请注意，与<span
+class="math inline">\(loop_1\)</span>关联的计数器保持不变，而与<span
+class="math inline">\(loop_2\)</span>关联的计数器已更改。每个加载操作维护一个指向调用上下文的指针，而不是整个调用上下文快照。因此，在检测到冗余时（即执行<span
+class="math inline">\(load_{new}\)</span>时），<span
+class="math inline">\(loop_2[\mathcal{T} = 2]\)</span>将已经更新为<span
+class="math inline">\(loop_2[\mathcal{T} = 4]\)</span>；遍历<span
+class="math inline">\(C_{old}\)</span>将找到<span
+class="math inline">\(\mathcal{T}_{loop_2} = 4\)</span>。观察到<span
+class="math inline">\(\mathcal{T}_{old}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{loop_2}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{new}\)</span> 。这个不变量表明<span
+class="math inline">\(loop_2\)</span>是冗余发生的范围。对于<span
+class="math inline">\(\mathcal{T}_{loop_1}\)</span>，同样的不变量不成立。</p>
+<p>现在，考虑列表11中的一个简化示例，其中冗余发生在外部循环（范围为<span
+class="math inline">\(loop_1\)</span>）。在这种情况下，考虑以下一对调用上下文快照：</p>
+<p><span class="math inline">\(E_{old} = ⟨main() → loop_1[\mathcal{T} =
+1] → loop_2[\mathcal{T} = 2] → load_{old},\mathcal{T}_{old} =
+3⟩\)</span></p>
+<p><span class="math inline">\(E_{new} = ⟨main() → loop_1[\mathcal{T} =
+8] → loop_2[\mathcal{T} = 9] → load_{new},\mathcal{T}_{new} =
+10⟩\)</span></p>
+<p>请注意，与<span class="math inline">\(loop_1\)</span>和<span
+class="math inline">\(loop_2\)</span>关联的计数器都发生了变化。因此，当执行<span
+class="math inline">\(load_{new}\)</span>时，<span
+class="math inline">\(loop_1[\mathcal{T} = 1]\)</span>和<span
+class="math inline">\(loop_2[\mathcal{T} = 2]\)</span>将分别更新为<span
+class="math inline">\(loop_1[\mathcal{T} = 8]\)</span> 和<span
+class="math inline">\(loop_2[\mathcal{T} = 9]\)</span>；遍历<span
+class="math inline">\(C_{old}\)</span>将找到<span
+class="math inline">\(\mathcal{T}_{loop_1} = 8\)</span>和<span
+class="math inline">\(\mathcal{T}_{loop_2} = 9\)</span>。观察到<span
+class="math inline">\(\mathcal{T}_{old}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{loop_1}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{loop_2}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{new}\)</span> 。</p>
+<p>具有满足此不变量的最小<span
+class="math inline">\(\mathcal{T}\)</span>值的循环，即<span
+class="math inline">\(loop_1\)</span>，是冗余的作用范围。如果存在另一个包围循环，比如<span
+class="math inline">\(loop_0\)</span>，它的计数器将不满足此不变量。</p>
+<p><strong>主张1</strong>. <em>对于冗余⟨⟨C，<span
+class="math inline">\(\mathcal{T}_{old}\)</span> ⟩，⟨C，<span
+class="math inline">\(\mathcal{T}_{new}\)</span>
+⟩⟩，存在C中最外层的包围循环i，满足<span
+class="math inline">\(\mathcal{T}_{old}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{loop_i}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{new}\)</span> 。</em>
+<em>证明</em>。首先，<span
+class="math inline">\(\mathcal{T}_{loop_i}\)</span> 必须在(<span
+class="math inline">\(\mathcal{T}_{old}\)</span> ，<span
+class="math inline">\(\mathcal{T}_{new}\)</span>
+)的范围内，因为循环i是冗余的作用范围；否则，循环i将无法包围冗余的加载实例。接下来，假设存在C中的另一个循环j，使得<span
+class="math inline">\(\mathcal{T}_{old}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{loop_j}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{loop_i}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{new}\)</span>
+，但循环j不是冗余的作用范围。循环i和j不能是对等的循环，因为它们都在同一个上下文C中。那么一个循环必须包围另一个循环。（1）如果循环i包围循环j，则循环j的计数器在循环i的计数器递增后至少递增了一次，这与假设<span
+class="math inline">\(\mathcal{T}_{loop_j}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{loop_i}\)</span>
+矛盾。因此，循环j不能嵌套在循环i内部。（2）如果循环j包围循环i，则循环i不再是满足<span
+class="math inline">\(\mathcal{T}_{old}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{loop_i}\)</span> &lt; <span
+class="math inline">\(\mathcal{T}_{new}\)</span>
+的最外层循环。因此，循环j不能包围循环i。由于循环i和循环j既不是对等的循环，也不能相互嵌套，假设无效。因此，主张1成立。</p>
+<p><strong><em>实现冗余作用范围</em></strong>：LOADSPY结合静态和动态分析来计算每个冗余对的冗余作用范围<span
+class="math inline">\(\mathcal{S}\)</span>。首先，LOADSPY在二进制代码中的每个循环头部（以及过程）处进行插装，以生成带有增强循环信息的调用上下文。它通过对二进制代码执行区间分析[66]来识别指令是否为循环头部，并将该信息集成到过程调用路径中。我们将带有循环信息的调用上下文称为扩展上下文。作为每个循环头部的一部分运行的运行时分析例程会递增64位时间戳计数器<span
+class="math inline">\(\mathcal{T}\)</span>。作为每个加载指令的一部分运行的分析例程也会递增计数器<span
+class="math inline">\(\mathcal{T}\)</span>。此外，为原始程序的每个字节的阴影内存扩展以保存计数器<span
+class="math inline">\(\mathcal{T}\)</span>（除了32位调用上下文句柄和8位旧值）。</p>
+<p>在每个检测到的加载冗余中，其中<span
+class="math inline">\(C_{old}\)</span> = <span
+class="math inline">\(C_{new}\)</span>，LOADSPY从根（main）向叶节点（加载指令）搜索调用路径，寻找第一个满足主张1的循环节点。这样的循环是当前加载冗余实例的冗余作用范围S。每个冗余实例记录三元组⟨<span
+class="math inline">\(C_{old}\)</span>，<span
+class="math inline">\(C_{new}\)</span>,<span
+class="math inline">\(\mathcal{S}\)</span>⟩。如果<span
+class="math inline">\(C_{old}\)</span> ≠ <span
+class="math inline">\(C_{new}\)</span>，则LOADSPY首先找到最低公共祖先（LCA）函数或包围<span
+class="math inline">\(C_{old}\)</span>和<span
+class="math inline">\(C_{new}\)</span>的循环，然后从根（main）向LCA搜索它们的公共调用路径，根据主张1获取S。为每个冗余实例计算冗余作用范围会引入较大的运行时开销。我们仅对给定的调用上下文对计算冗余作用范围一定次数（在我们的实验中为一次），这对大多数程序来说已经足够好了。</p>
+<h3 id="d.-handling-threaded-programs"><em>D. Handling Threaded
+Programs</em></h3>
+<p>LOADSPY维护每个线程的数据结构：调用上下文树、冗余配置文件等，因此对于多线程程序不需要并发控制。运行时对象映射作为一个无锁映射进行维护，允许并发查找。LOADSPY仅检测线程内的冗余，并忽略线程间的冗余（如果有的话）。</p>
+<h3 id="e.-reducing-profiling-overhead"><em>E. Reducing Profiling
+Overhead</em></h3>
+<p>LOADSPY可能会引入相对较高的运行时开销，大约是40-150倍。LOADSPY采用了一种突发抽样机制来控制其开销[67]。突发抽样包括连续监视一定数量的指令（<code>WINDOW_ENABLE</code>），然后在一定（更大）数量的指令后停止监视（<code>WINDOW_DISABLE</code>），并随时间重复这个过程。这两个阈值是可调的。根据我们的实验，使用1%的抽样率，<code>WINDOW_ENABLE</code>设置为100万，<code>WINDOW_DISABLE</code>设置为9900万，可以在开销和准确性之间取得良好的平衡。</p>
+<h3 id="f.-discussions"><em>F. Discussions</em></h3>
+<p>值得注意的是，由于硬件中的流水线、缓存和预取机制，冗余比例与潜在的性能收益之间并没有一对一的关系。LOADSPY不区分可操作的和不可操作的冗余，这是我们未来工作的一个课题。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yuhang Zhang
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://zyh-eric.gitee.io/zyhjy/2024/01/08/loadspy/" title="(论文翻译)LoadSpy">https://zyh-eric.gitee.io/zyhjy/2024/01/08/loadspy/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/zyhjy/tags/Paper/" rel="tag"><i class="fa fa-tag"></i> Paper</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/zyhjy/2023/12/18/QEMU-page-fault-handler/" rel="prev" title="QEMU中的缺页异常处理机制">
+      <i class="fa fa-chevron-left"></i> QEMU中的缺页异常处理机制
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/zyhjy/2024/01/09/bitmask/" rel="next" title="(算法)状态压缩动态规划">
+      (算法)状态压缩动态规划 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <style>
+        #taboola-livere { display: none;}
+    </style>
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81ODg3Ni8zNTMzOA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#redundant-loads-a-software-inefficiency-indicator"><span class="nav-text">Redundant
+Loads: A Software Inefficiency Indicator</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#loadspy-implementation"><span class="nav-text">4. LOADSPY IMPLEMENTATION</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a.-detecting-temporal-load-redundancy"><span class="nav-text">A. Detecting Temporal
+Load Redundancy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b.-detecting-spatial-load-redundancy"><span class="nav-text">B. Detecting Spatial
+Load Redundancy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#c.-identifying-the-redundancy-scope"><span class="nav-text">C. Identifying the
+Redundancy Scope</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#d.-handling-threaded-programs"><span class="nav-text">D. Handling Threaded
+Programs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#e.-reducing-profiling-overhead"><span class="nav-text">E. Reducing Profiling
+Overhead</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#f.-discussions"><span class="nav-text">F. Discussions</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuhang Zhang"
+      src="/zyhjy/images/zyhjy.png">
+  <p class="site-author-name" itemprop="name">Yuhang Zhang</p>
+  <div class="site-description" itemprop="description">爱小雅，爱生活，爱物理!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/zyhjy/archives/">
+        
+          <span class="site-state-item-count">85</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/zyhjy/categories/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/zyhjy/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/zyhjy/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yuhang Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">469k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">13:02</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/zyhjy/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+
+<script src="/zyhjy/js/utils.js"></script>
+
+
+<script src="/zyhjy/js/schemes/pisces.js"></script>
+
+
+<script src="/zyhjy/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/zyhjy/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>
