@@ -21,13 +21,13 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"eric-zhang-c.github.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="字符串匹配:KMP算法和RK算法 字符串匹配在算法题中十分常见，可以单独出题（如1392. 最长快乐前缀），也可以和其他知识的组合出题（组合出题往往是困难题，如1397.找到所有好字符串需要组合使用数位DP的方法）。 首先我们明确字符串匹配的场景：本文用pat表示模式串，长度为M，txt表示文本串，长度为N。我们希望在txt中查找子串pat，如果存在，返回这个子串的起始索引，否则返回 -1。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="字符串匹配:KMP算法和RK算法">
-<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2023/11/03/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D-KMP%E7%AE%97%E6%B3%95%E5%92%8CKR%E7%AE%97%E6%B3%95/">
+<meta property="og:url" content="https://eric-zhang-c.github.io/zyhjy/2023/11/03/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D-KMP%E7%AE%97%E6%B3%95%E5%92%8CKR%E7%AE%97%E6%B3%95/">
 <meta property="og:site_name" content="ZYHJY">
 <meta property="og:description" content="字符串匹配:KMP算法和RK算法 字符串匹配在算法题中十分常见，可以单独出题（如1392. 最长快乐前缀），也可以和其他知识的组合出题（组合出题往往是困难题，如1397.找到所有好字符串需要组合使用数位DP的方法）。 首先我们明确字符串匹配的场景：本文用pat表示模式串，长度为M，txt表示文本串，长度为N。我们希望在txt中查找子串pat，如果存在，返回这个子串的起始索引，否则返回 -1。">
 <meta property="og:locale" content="zh_CN">
@@ -37,7 +37,7 @@
 <meta property="article:tag" content="offer">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2023/11/03/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D-KMP%E7%AE%97%E6%B3%95%E5%92%8CKR%E7%AE%97%E6%B3%95/">
+<link rel="canonical" href="https://eric-zhang-c.github.io/zyhjy/2023/11/03/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D-KMP%E7%AE%97%E6%B3%95%E5%92%8CKR%E7%AE%97%E6%B3%95/">
 
 
 <script id="page-configurations">
@@ -212,7 +212,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2023/11/03/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D-KMP%E7%AE%97%E6%B3%95%E5%92%8CKR%E7%AE%97%E6%B3%95/">
+    <link itemprop="mainEntityOfPage" href="https://eric-zhang-c.github.io/zyhjy/2023/11/03/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D-KMP%E7%AE%97%E6%B3%95%E5%92%8CKR%E7%AE%97%E6%B3%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
@@ -372,7 +372,7 @@ target="_blank" rel="noopener" href="https://leetcode.cn/problems/find-the-index
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://zyh-eric.gitee.io/zyhjy/2023/11/03/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D-KMP%E7%AE%97%E6%B3%95%E5%92%8CKR%E7%AE%97%E6%B3%95/" title="字符串匹配:KMP算法和RK算法">https://zyh-eric.gitee.io/zyhjy/2023/11/03/字符串匹配-KMP算法和KR算法/</a>
+    <a href="https://eric-zhang-c.github.io/zyhjy/2023/11/03/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D-KMP%E7%AE%97%E6%B3%95%E5%92%8CKR%E7%AE%97%E6%B3%95/" title="字符串匹配:KMP算法和RK算法">https://eric-zhang-c.github.io/zyhjy/2023/11/03/字符串匹配-KMP算法和KR算法/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -538,7 +538,7 @@ target="_blank" rel="noopener" href="https://leetcode.cn/problems/find-the-index
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">13:02</span>
+    <span title="站点阅读时长">13:01</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>

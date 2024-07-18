@@ -21,13 +21,13 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"zyh-eric.gitee.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"eric-zhang-c.github.io","root":"/zyhjy/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="寄存器  在arm64架构下，所有的寄存器都是64位，并且每个寄存器都有名字的，按照功能来划分，可分为一下几类，分别为：  通用寄存器 程序计数器 堆栈指针 链接寄存器 程序状态寄存器 零寄存器  下面分别说明这些寄存器的作用  通用寄存器  64bit : x0 ~ x28 ，每个寄存器都是64bit 32bit：w0 ~ w28，实际上是x0~x28寄存器的低32bit x0~x7：通过用来存">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ARM64汇编">
-<meta property="og:url" content="https://zyh-eric.gitee.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
+<meta property="og:url" content="https://eric-zhang-c.github.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
 <meta property="og:site_name" content="ZYHJY">
 <meta property="og:description" content="寄存器  在arm64架构下，所有的寄存器都是64位，并且每个寄存器都有名字的，按照功能来划分，可分为一下几类，分别为：  通用寄存器 程序计数器 堆栈指针 链接寄存器 程序状态寄存器 零寄存器  下面分别说明这些寄存器的作用  通用寄存器  64bit : x0 ~ x28 ，每个寄存器都是64bit 32bit：w0 ~ w28，实际上是x0~x28寄存器的低32bit x0~x7：通过用来存">
 <meta property="og:locale" content="zh_CN">
@@ -36,7 +36,7 @@
 <meta property="article:author" content="Yuhang Zhang">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://zyh-eric.gitee.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
+<link rel="canonical" href="https://eric-zhang-c.github.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
 
 
 <script id="page-configurations">
@@ -211,7 +211,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://zyh-eric.gitee.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
+    <link itemprop="mainEntityOfPage" href="https://eric-zhang-c.github.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/zyhjy/images/zyhjy.png">
@@ -399,7 +399,7 @@ w6, [x0] , 地址可以偏移 ldp x5, x6, [x0, #-x04] store
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://zyh-eric.gitee.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/" title="ARM64汇编">https://zyh-eric.gitee.io/zyhjy/2022/11/15/ARM64汇编/</a>
+    <a href="https://eric-zhang-c.github.io/zyhjy/2022/11/15/ARM64%E6%B1%87%E7%BC%96/" title="ARM64汇编">https://eric-zhang-c.github.io/zyhjy/2022/11/15/ARM64汇编/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -562,7 +562,7 @@ w6, [x0] , 地址可以偏移 ldp x5, x6, [x0, #-x04] store
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">13:02</span>
+    <span title="站点阅读时长">13:01</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
